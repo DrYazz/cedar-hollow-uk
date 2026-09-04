@@ -87,6 +87,35 @@
     });
   }
 
+  /* ---- Rental photo galleries ---- */
+  Array.prototype.forEach.call(document.querySelectorAll("[data-gallery]"), function (g) {
+    var track = g.querySelector(".ch-gallery__track");
+    var slides = track.children;
+    var prev = g.querySelector("[data-prev]");
+    var next = g.querySelector("[data-next]");
+    var count = g.querySelector("[data-count]");
+    if (!track || !slides.length) return;
+    var step = function () {
+      var gap = parseFloat(getComputedStyle(track).columnGap) || 0;
+      return slides[0].getBoundingClientRect().width + gap;
+    };
+    var update = function () {
+      var i = Math.round(track.scrollLeft / step());
+      if (count) count.textContent = String(Math.min(i + 1, slides.length));
+      prev.disabled = track.scrollLeft <= 2;
+      next.disabled = track.scrollLeft + track.clientWidth >= track.scrollWidth - 2;
+    };
+    prev.addEventListener("click", function () { track.scrollBy({ left: -step(), behavior: "smooth" }); });
+    next.addEventListener("click", function () { track.scrollBy({ left: step(), behavior: "smooth" }); });
+    track.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowRight") { e.preventDefault(); next.click(); }
+      if (e.key === "ArrowLeft") { e.preventDefault(); prev.click(); }
+    });
+    track.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    update();
+  });
+
   /* ---- Current-year in footer ---- */
   var y = document.querySelector("[data-year]");
   if (y) y.textContent = String(new Date().getFullYear());

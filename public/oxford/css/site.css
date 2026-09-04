@@ -289,7 +289,7 @@ a.ch-frame:hover img{transform:scale(1.035)}
 .ch-links a{font-weight:500;text-decoration:underline;text-underline-offset:.2em}
 .ch-feature__tag{display:inline-block;font-size:.8rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:.3rem .75rem;border-radius:50em;background:var(--brand-tertiary);color:var(--accent);margin-bottom:.9rem}
 .ch-section--accent .ch-feature__tag{background:#ffffff1f;color:var(--brand)}
-.ch-feature__price{font-family:var(--font-family--heading);font-size:2rem;font-weight:400;letter-spacing:-.03em;line-height:1;margin-bottom:.75rem}
+.ch-feature__price{font-family:var(--font-family--heading);font-size:2rem;font-weight:400;letter-spacing:-.03em;line-height:1.15;margin-bottom:.75rem}
 .ch-feature__price small{font-family:var(--font-family--body);font-size:.9rem;font-weight:500;letter-spacing:0;opacity:.8}
 .ch-feature.is-center{grid-template-columns:1fr;text-align:center}
 .ch-feature.is-center .ch-feature__body{text-align:center}
@@ -303,7 +303,7 @@ a.ch-frame:hover img{transform:scale(1.035)}
 
 /* ---- Rental blocks (availability page) ---- */
 .ch-rental{display:flex;flex-direction:column;gap:clamp(1.5rem,3vw,2.5rem)}
-.ch-rental__media{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.ch-rental__media{display:block}
 .ch-rental__media .ch-frame{aspect-ratio:3/2}
 .ch-rental__grid{display:grid;grid-template-columns:minmax(0,1fr) 23.5rem;gap:clamp(1.5rem,4vw,4rem);align-items:start}
 .ch-rental__body{text-align:left}
@@ -316,7 +316,7 @@ a.ch-frame:hover img{transform:scale(1.035)}
 .ch-cal__note{font-size:.85rem;font-weight:400;color:var(--color-text);line-height:1.5;margin:.9rem 0 0}
 .ch-cal .button{margin-top:.9rem;width:100%}
 @media (max-width:991px){.ch-rental__grid{grid-template-columns:1fr}.ch-cal{max-width:24rem;margin:0 auto;width:100%}}
-@media (max-width:600px){.ch-rental__media{grid-template-columns:1fr}.ch-rental__media .ch-frame{aspect-ratio:4/3}}
+@media (max-width:600px){.ch-rental__media .ch-frame{aspect-ratio:4/3}}
 
 /* ---- Lists ---- */
 .ch-list{list-style:none;padding:0;margin:0 auto;max-width:56ch;text-align:left}
@@ -568,4 +568,22 @@ body.ch-book-open{overflow:hidden}
 .ch-recognised__list a:hover strong{text-decoration:underline;text-underline-offset:.2em;text-decoration-thickness:1px}
 @media (max-width:991px){.ch-recognised__list{grid-template-columns:repeat(auto-fit,minmax(11rem,1fr));gap:1.75rem 1rem;max-width:44rem;margin:0 auto}.ch-recognised__list li+li{border-left:0}.ch-recognised__list li{padding:0}}
 @media (max-width:479px){.ch-recognised__list{grid-template-columns:1fr 1fr}}
+
+/* ---- Rental photo galleries (scroll-snap strip with arrows) ---- */
+.ch-gallery{position:relative}
+.ch-gallery__track{display:flex;gap:14px;margin:0;padding:0 0 2px;list-style:none;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.ch-gallery__track::-webkit-scrollbar{display:none}
+.ch-gallery__track:focus-visible{outline:2px solid var(--accent);outline-offset:6px}
+.ch-gallery__slide{flex:0 0 calc(50% - 7px);scroll-snap-align:start;scroll-snap-stop:always}
+.ch-gallery__slide .ch-frame{aspect-ratio:3/2}
+.ch-gallery__slide .ch-frame.is-portrait img{object-fit:contain}
+.ch-gallery__btn{position:absolute;top:50%;transform:translateY(-50%);z-index:2;display:flex;align-items:center;justify-content:center;width:2.75rem;height:2.75rem;padding:0;border-radius:50%;border:1px solid var(--border--accent-50);background:var(--brand);color:var(--accent);cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.18);transition:background .2s ease,opacity .2s ease}
+.ch-gallery__btn:hover{background:#fff}
+.ch-gallery__btn:disabled{opacity:.35;cursor:default}
+.ch-gallery__btn.is-prev{left:.75rem}.ch-gallery__btn.is-prev .button_icon{transform:rotate(180deg)}
+.ch-gallery__btn.is-next{right:.75rem}
+.ch-gallery__btn .button_icon{width:1rem;height:auto}
+.ch-gallery__count{margin:.6rem 0 0;text-align:right;font-size:.85rem;font-weight:500;color:var(--color-text)}
+@media (prefers-reduced-motion:reduce){.ch-gallery__track{scroll-behavior:auto}}
+@media (max-width:600px){.ch-gallery__slide{flex-basis:100%}.ch-gallery__slide .ch-frame{aspect-ratio:4/3}.ch-gallery__btn{width:2.4rem;height:2.4rem}}
 @media print{.ch-nav,.section-footer .footer_logo_wrap,.ch-book__overlay{display:none!important}}
