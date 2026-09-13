@@ -429,6 +429,21 @@ width:100%;
            the break fall where the full stop already does. */
         .ch-keep-whole{white-space:nowrap;}
 
+        /* The charity band. Dark, between two light sections, so it reads as a
+           statement rather than another content block. The CAN logo is artwork
+           on white, so it sits in a white chip instead of being dropped onto
+           the green with a box around it. */
+        .section-oxford-charity{background-color:var(--accent,#3b4126);color:var(--brand,#efeed5);}
+        .ch-charity{display:flex;flex-direction:column;align-items:center;text-align:center;grid-row-gap:1.5rem;row-gap:1.5rem;}
+        .ch-charity__badge{margin:0;display:inline-flex;background-color:#fff;border-radius:1rem;padding:1rem 1.5rem;}
+        .ch-charity__badge img{display:block;width:11.25rem;height:auto;}
+        .ch-charity .heading-style-h1{margin:0;color:var(--brand,#efeed5);}
+        .ch-charity__copy{max-width:46ch;margin:0;line-height:1.7;}
+        .ch-charity__copy a{color:inherit;text-underline-offset:.18em;}
+        .section-oxford-charity .button{background-color:var(--brand,#efeed5);color:var(--accent,#3b4126);border:1px solid var(--brand,#efeed5);font-weight:600;}
+        .section-oxford-charity .button.is-secondary{background-color:transparent;color:var(--brand,#efeed5);border:1px solid #efeed599;font-weight:500;transition:background-color .2s ease;}
+        .section-oxford-charity .button.is-secondary:hover{background-color:#ffffff1f;}
+
         /* A wall of photographs, not a grid of cards. The page already carries
            three card grids; this one is the atmosphere, so it loses the border,
            the radius and the shadow and runs the full width, continuing the
@@ -943,6 +958,26 @@ animation:marquee-scroll 70s linear infinite;
                 <a data-wf--button--variant="base" href="about.html" class="button w-inline-block"><span>Read Our Story</span><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewbox="0 0 17 12" fill="none" class="button_icon">
                     <path fill-rule="evenodd" clip-rule="evenodd" d="M13.2443 5.03644L9.48927 1.21321L10.6935 0L16.5 5.91195L10.6783 11.55L9.50444 10.3067L13.17 6.75673H0V5.03644H13.2443Z" fill="currentColor"></path>
                   </svg></a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- The charity Cedar Hollow founded. Sits between the story and the map so
+         the page closes on what the place is, why it matters, then where it is. -->
+    <section class="section-oxford-charity">
+      <div class="padding-section-medium">
+        <div class="padding-global">
+          <div class="container-large">
+            <div class="ch-charity">
+              <p class="ch-charity__badge"><img src="images/can-logo-400.webp" loading="lazy" width="400" height="190" alt="Congenital Anaemia Network"></p>
+              <h2 class="heading-style-h1">Together <span class="text-style-italic">We Can</span></h2>
+              <p class="ch-charity__copy text-size-large">We founded the <a href="https://togetherwecan.uk/" target="_blank" rel="noopener">Congenital Anaemia Network</a>, a national charity for people living with rare inherited blood disorders. A portion of every stay helps sustain it &mdash; and one weekend each month the retreats go to patients and their families, free of charge.</p>
+              <div class="button-group align-center">
+                <a href="https://www.justgiving.com/congenital-anaemia-network" target="_blank" rel="noopener" class="button w-inline-block"><span>Donate</span><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewbox="0 0 17 12" fill="none" class="button_icon"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.2443 5.03644L9.48927 1.21321L10.6935 0L16.5 5.91195L10.6783 11.55L9.50444 10.3067L13.17 6.75673H0V5.03644H13.2443Z" fill="currentColor"></path></svg></a>
+                <a href="oxford/makeamemory.html" class="button is-secondary w-inline-block"><span>Make a Memory</span><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewbox="0 0 17 12" fill="none" class="button_icon"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.2443 5.03644L9.48927 1.21321L10.6935 0L16.5 5.91195L10.6783 11.55L9.50444 10.3067L13.17 6.75673H0V5.03644H13.2443Z" fill="currentColor"></path></svg></a>
               </div>
             </div>
           </div>
