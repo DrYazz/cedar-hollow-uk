@@ -298,9 +298,13 @@ animation:marquee-scroll 70s linear infinite;
            marks at the foot of the hero, which is a different design. */
         @media screen and (min-width:768px){
           .section-hero .ch-nav{position:absolute;top:0;left:0;right:0;z-index:30;}
-          .section-hero .hero_contents{justify-content:center;}
-          .section-hero .hero_contents > .padding-global{flex:0 0 auto;}
+          .section-hero .hero_contents > .padding-global{flex:0 0 auto;margin-top:auto;}
           .section-hero .hero_logos-wrapper{margin-top:0;padding-top:min(24px,2.96vh);padding-bottom:0;}
+          /* The press marks close the hero here too, not just on phones. Two
+             auto margins -- one above the group, one above the marquee -- split
+             the free space evenly, so the group still centres in what is left
+             above the marquee and the marquee sits on the floor. */
+          .ch-hero-press{display:flex;margin-top:auto;}
         }
 
             .section-hero .button-group{padding-top:0;}
@@ -573,7 +577,6 @@ animation:marquee-scroll 70s linear infinite;
         /* Without a marquee under it the rating block carries the hero's bottom
            padding itself; on phones the marquee is back and takes it again. */
         .section-hero .hero_logos-wrapper{padding-bottom:min(36px,4.44vh);}
-        .ch-hero-press{display:none;}
 
 
         /* Featured Retreats sits on #f7f5e1 here, per Figma 73:163; the rest of

@@ -298,9 +298,13 @@ animation:marquee-scroll 70s linear infinite;
            marks at the foot of the hero, which is a different design. */
         @media screen and (min-width:768px){
           .section-hero .ch-nav{position:absolute;top:0;left:0;right:0;z-index:30;}
-          .section-hero .hero_contents{justify-content:center;}
-          .section-hero .hero_contents > .padding-global{flex:0 0 auto;}
+          .section-hero .hero_contents > .padding-global{flex:0 0 auto;margin-top:auto;}
           .section-hero .hero_logos-wrapper{margin-top:0;padding-top:min(24px,2.96vh);padding-bottom:0;}
+          /* The press marks close the hero here too, not just on phones. Two
+             auto margins -- one above the group, one above the marquee -- split
+             the free space evenly, so the group still centres in what is left
+             above the marquee and the marquee sits on the floor. */
+          .ch-hero-press{display:flex;margin-top:auto;}
         }
 
             .section-hero .button-group{padding-top:0;}
@@ -620,10 +624,6 @@ animation:marquee-scroll 70s linear infinite;
            the heading falls back to its 2.5rem floor, which read noticeably
            smaller than Oxford's. 12vw capped at 3.25rem is the rule Oxford and
            the homepage already use. */
-        /* Press marks ride under the rating on phones only, the way Oxford and
-           the homepage carry them. The same seven stay in the Awards section.
-           Declared before the phone block so that block wins on order. */
-        .ch-hero-press{display:none;}
         @media screen and (max-width:767px){
           .section-hero .heading-style-h1{font-size:min(12vw,3.25rem);}
           .ch-hero-press{display:flex;}
