@@ -149,10 +149,15 @@
 
 /* ---- shared panel shell ---- */
 
+/* Fixed, and parented to <body> rather than the bar. The hero clips its own
+   overflow to hold the cover image in, which cut 233px off the bottom of the
+   date picker; nothing above these panels now has an overflow, transform or
+   filter that could clip or re-anchor them. Script sets top/left. */
 .ch-pick {
-  position: absolute;
-  top: calc(100% + .75rem);
-  z-index: 40;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
   background-color: #f1ecdb;
   border-radius: 1rem;
   box-shadow: 0 1.5rem 3rem rgba(19, 21, 12, .22);
@@ -182,7 +187,6 @@
 /* ---- Picker: When ---- */
 
 .ch-pick--when {
-  left: 0;
   display: grid;
   grid-template-columns: 8rem 1fr;
   grid-template-rows: 1fr 3.125rem;
@@ -390,7 +394,6 @@
 /* ---- Picker: Who ---- */
 
 .ch-pick--who {
-  right: 0;
   width: 31.375rem;
   padding: 1rem;
 }
@@ -471,12 +474,6 @@
    stop being popovers pinned to a segment and become full-width sheets. */
 
 @media screen and (max-width: 40em) {
-  .ch-pick {
-    left: 0;
-    right: 0;
-    width: auto;
-  }
-
   .ch-pick--when {
     grid-template-columns: 1fr;
     grid-template-rows: 1fr 3.125rem;

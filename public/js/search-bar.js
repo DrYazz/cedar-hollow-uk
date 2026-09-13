@@ -113,8 +113,10 @@
   whoPanel.setAttribute("aria-label", "Who is coming");
   whoPanel.hidden = true;
 
-  search.appendChild(whenPanel);
-  search.appendChild(whoPanel);
+  // Parented to <body>, not the bar: .section-hero clips its overflow to keep
+  // the cover image inside it, which sheared the bottom off the date picker.
+  document.body.appendChild(whenPanel);
+  document.body.appendChild(whoPanel);
 
   /* ---- When: month list + scrolling calendar ------------------------------ */
 
@@ -461,6 +463,58 @@
   /* ---- open / close ------------------------------------------------------- */
 
   var open = null;
+  var GAP = 12;    // the design's gap between the bar and an open panel
+  var EDGE = 8;    // smallest gap we will leave against a viewport edge
+
+  /* Pins a panel to the bar: When to its left edge, Who to its right, as the
+     design shows. Opens downward when there is room, flips above when there
+     is not, and only as a last resort caps the height and lets the calendar
+     scroll inside -- which beats running off the screen. */
+  function place(which) {
+    var panel = which === "when" ? whenPanel : whoPanel;
+    var bar = form.getBoundingClientRect();
+    var vw = document.documentElement.clientWidth;
+    var vh = document.documentElement.clientHeight;
+
+    panel.style.maxHeight = "";
+    panel.style.width = "";
+
+    // On a phone the panel is a full-width sheet rather than a popover.
+    if (vw <= 640) panel.style.width = (vw - EDGE * 2) + "px";
+
+    var w = panel.offsetWidth;
+    var h = panel.offsetHeight;
+
+    var left = vw <= 640
+      ? EDGE
+      : (which === "when" ? bar.left : bar.right - w);
+    left = Math.max(EDGE, Math.min(left, vw - w - EDGE));
+
+    var below = vh - bar.bottom - GAP - EDGE;
+    var above = bar.top - GAP - EDGE;
+    var top;
+    if (h <= below) {
+      top = bar.bottom + GAP;
+    } else if (h <= above) {
+      top = bar.top - GAP - h;
+    } else if (above > below) {
+      panel.style.maxHeight = above + "px";
+      top = EDGE;
+    } else {
+      panel.style.maxHeight = below + "px";
+      top = bar.bottom + GAP;
+    }
+
+    panel.style.left = Math.round(left) + "px";
+    panel.style.top = Math.round(top) + "px";
+  }
+
+  function reposition() {
+    if (open) place(open);
+  }
+
+  window.addEventListener("resize", reposition);
+  window.addEventListener("scroll", reposition, { passive: true });
 
   function show(which) {
     close();
@@ -469,6 +523,7 @@
     var btn = which === "when" ? whenUI.button : whoUI.button;
     panel.hidden = false;
     btn.setAttribute("aria-expanded", "true");
+    place(which);
     if (which === "when") {
       // Land on the first month rather than wherever it was left.
       if (!state.start) scroll.scrollTop = 0;
@@ -498,7 +553,9 @@
   });
 
   document.addEventListener("click", function (e) {
-    if (open && !search.contains(e.target)) close();
+    // The panels no longer live inside .ch-search, so they need naming here.
+    if (open && !search.contains(e.target) &&
+        !whenPanel.contains(e.target) && !whoPanel.contains(e.target)) close();
   });
 
   document.addEventListener("keydown", function (e) {
