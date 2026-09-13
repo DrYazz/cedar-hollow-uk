@@ -607,6 +607,10 @@ animation:marquee-scroll 70s linear infinite;
         /* Featured Retreats sits on #f7f5e1 here, per Figma 73:163; the rest of
            .bg-brand-dark (its cream-on-green type) is unchanged. */
         .section-properties.is-oxford{background-color:#f7f5e1;}
+        /* Figma 73:167 sets this subtext in a 500px column, which is what breaks
+           it over two lines. It was inheriting the 60rem container instead and
+           running onto one. Type size and the 12px gap above already match. */
+        .section-properties.is-oxford .ch-section-lead{max-width:31.25rem;margin-left:auto;margin-right:auto;}
 
         /* CTA / 8, Figma 73:185: four tiles, 291x220 image over a 50px label. */
         .section-oxford-cta{background-color:#efeed5;color:var(--accent,#3b4126);}
@@ -694,10 +698,10 @@ animation:marquee-scroll 70s linear infinite;
               <div class="section-title-block">
                 <div class="max-width-xlarge align-center">
                   <div class="margin-bottom margin-xxsmall">
-                    <h2 class="heading-style-h1">Featured <span class="text-style-italic">Retreats</span></h2>
+                    <h2 class="heading-style-h1">Featured <span class="text-style-italic">Rentals</span></h2>
                   </div>
                   <div class="margin-bottom margin-xlarge">
-                    <p class="text-size-large">A small collection of handcrafted cabins designed for privacy, nature, and comfort.</p>
+                    <p class="text-size-large ch-section-lead">A C.S. Lewis-inspired heritage site. Three whimsical stays in 12 acres of private woodland near Oxford.</p>
                   </div>
                 </div>
               </div>
@@ -1253,7 +1257,14 @@ animation:marquee-scroll 70s linear infinite;
     if (!ul) return;
     // Oxford page: only this site's retreats, in the catalogue's featured order.
     var items = CH.featured().filter(function (l) { return l.destination === "Oxford"; });
-    if (items.length) ul.innerHTML = items.map(CH.featuredCardHtml).join("");
+    if (items.length) {
+      ul.innerHTML = items.map(CH.featuredCardHtml).join("");
+      // Figma 73:169. featuredCardHtml is shared with the homepage carousel,
+      // so the Oxford wording is applied here rather than in the catalogue.
+      ul.querySelectorAll(".cabin-item .button span").forEach(function (el) {
+        el.textContent = "Check Availability";
+      });
+    }
   })();
   </script>
   <script>
