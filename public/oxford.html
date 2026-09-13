@@ -433,8 +433,12 @@ width:100%;
         .ch-tile__img{display:block;width:100%;height:auto;aspect-ratio:291/220;object-fit:cover;}
         .ch-tile__title{margin:0;font-family:var(--font-family--heading,Crimsonpro),serif;font-weight:400;font-size:clamp(1.75rem,3.47vw,3.125rem);line-height:1.1;letter-spacing:-.035em;text-align:center;}
         .ch-tile__body{display:flex;flex-direction:column;align-items:center;gap:.75rem;}
+        /* Copy and button are a phone-only addition: the tiles filled out as
+           rows there, but Figma 73:185 draws this row as photo and label only
+           and desktop keeps that. Shown again in the phone block below. */
+        .ch-tile__copy,.ch-tile__link{display:none;}
         .ch-tile__copy{margin:0;font-size:1rem;line-height:1.5;text-align:center;}
-        .ch-tile__link{align-self:center;padding:.625rem 1.125rem;font-size:.9375rem;white-space:nowrap;}
+        .ch-tile__link{padding:.625rem 1.125rem;font-size:.9375rem;white-space:nowrap;}
         @media screen and (max-width:991px){.ch-tiles{grid-template-columns:repeat(2,1fr);}}
         /* Phones lay each tile out as a row, the way the homepage handles its
            "More Than A Place to Stay" cards: a fixed-shape photo on the left,
@@ -449,8 +453,8 @@ width:100%;
           .ch-tile__img{aspect-ratio:2/3;height:100%;}
           .ch-tile__body{flex:1 1 auto;min-width:0;align-items:flex-start;gap:.5rem;}
           .ch-tile__title{text-align:left;font-size:2.25rem;}
-          .ch-tile__copy{text-align:left;font-size:.9375rem;line-height:1.45;}
-          .ch-tile__link{align-self:flex-start;}
+          .ch-tile__copy{display:block;text-align:left;font-size:.9375rem;line-height:1.45;}
+          .ch-tile__link{display:inline-flex;align-self:flex-start;}
         }
 
         /* Oxford has three retreats, and Figma 73:168 draws them as a row
