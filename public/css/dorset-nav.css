@@ -1,0 +1,188 @@
+/* ---------------------------------------------------------------------------
+   Cedar Hollow Dorset — the sub-site navigation panel.
+
+   The sub-site is now 22 pages, which the exported nav's flat right-aligned
+   column cannot hold: at that length it runs off the bottom of the viewport on
+   a laptop and becomes an unreadable scroll on a phone. This replaces the list
+   with a grouped panel, and is loaded by all 22 pages so the menu is identical
+   everywhere.
+
+   WHY THE ID SELECTORS: each page carries the exported nav's own rules in a
+   <style> block inside <body>, which comes after this file's <link> in the
+   <head>. At equal specificity the later rules win, so every property this
+   file needs to override is written against #ch-nav-menu rather than
+   .ch-nav__menu. The markup, the element id and the toggle script are
+   untouched, so the existing open/close/Escape behaviour still drives it.
+
+   This file deliberately holds the whole nav. dorset.html and
+   dorset-retreats.html came out of Figma, and keeping their nav dependency to
+   one stylesheet link plus one markup block is what makes the change easy to
+   lift back out when the menu is redrawn in Figma.
+   --------------------------------------------------------------------------- */
+
+/* dorset.html sets this inline; dorset-retreats.html does not, which collapses
+   the wrapper so .ch-nav__bar's space-between never takes effect and the panel
+   — positioned against this element — opens against the collapsed box instead
+   of the page edge. Needed on every page for the panel to land correctly. */
+.ch-nav { width: 100%; position: relative; }
+
+/* --- The panel ----------------------------------------------------------- */
+
+#ch-nav-menu {
+  position: absolute;
+  top: 100%;
+  right: 32px;
+  z-index: 20;
+
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+  grid-column-gap: 1.75rem;
+  column-gap: 1.75rem;
+  grid-row-gap: 1.5rem;
+  row-gap: 1.5rem;
+  align-items: start;
+
+  /* Wide enough for four columns, never wider than the viewport allows. */
+  width: max-content;
+  min-width: 0;
+  max-width: min(44rem, calc(100vw - 64px));
+  /* A long panel scrolls inside itself rather than off the screen. */
+  max-height: calc(100vh - 6rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+
+  padding: 1.5rem 1.75rem 1.75rem;
+  text-align: left;
+
+  background-color: #130f0fd6;
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  border: 1px solid #f1ecdb2e;
+  border-radius: 1rem;
+  box-shadow: 0 18px 50px #100b0159;
+}
+
+/* Beats the display:grid above — id + attribute outranks id alone. */
+#ch-nav-menu[hidden] { display: none; }
+
+/* --- Groups -------------------------------------------------------------- */
+
+#ch-nav-menu .ch-navgroup {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+#ch-nav-menu .ch-navgroup__title {
+  margin: 0 0 .45rem;
+  font-size: .6875rem;
+  font-weight: 500;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: #f1ecdb85;
+}
+
+/* --- Links --------------------------------------------------------------- */
+
+/* The exported rule sets white-space:nowrap, a 1.125rem size and a text-shadow
+   tuned for links floating over a photograph. Inside a panel with its own
+   ground, all three are wrong. */
+#ch-nav-menu a {
+  display: block;
+  padding: .28rem 0;
+  font-size: .9375rem;
+  line-height: 1.35;
+  white-space: normal;
+  text-shadow: none;
+  color: #f1ecdb;
+  text-decoration: none;
+}
+
+#ch-nav-menu a:hover,
+#ch-nav-menu a:focus-visible {
+  color: #fff;
+  text-decoration: underline;
+  text-underline-offset: .18em;
+}
+
+#ch-nav-menu a:focus-visible {
+  outline: 2px solid #f1ecdb;
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* Where you already are. */
+#ch-nav-menu a[aria-current="page"] {
+  color: #fff;
+  font-weight: 500;
+}
+#ch-nav-menu a[aria-current="page"]:before {
+  content: "";
+  display: inline-block;
+  width: .3rem;
+  height: .3rem;
+  margin-right: .45rem;
+  vertical-align: .15em;
+  border-radius: 50%;
+  background-color: currentColor;
+}
+
+/* Leaves the site. */
+#ch-nav-menu a[target="_blank"]:after {
+  content: " \2197";
+  opacity: .5;
+}
+
+/* --- Phones -------------------------------------------------------------- */
+
+/* The exported rule turns the menu into a centred fixed overlay. Keep the
+   overlay, drop the centring: 22 links need to scroll, and a scrolling list
+   reads far better left-aligned. */
+@media screen and (max-width: 767px) {
+  #ch-nav-menu {
+    position: fixed;
+    inset: 0;
+    z-index: 15;
+
+    display: block;
+    width: auto;
+    max-width: none;
+    max-height: none;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+
+    /* Clears the bar, so the close button stays reachable while scrolling. */
+    padding: 5rem 1.75rem 3rem;
+
+    background-color: var(--accent, #3b4126);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    text-align: left;
+  }
+
+  #ch-nav-menu .ch-navgroup + .ch-navgroup { margin-top: 1.5rem; }
+
+  #ch-nav-menu .ch-navgroup__title {
+    margin-bottom: .35rem;
+    padding-bottom: .35rem;
+    border-bottom: 1px solid #f1ecdb26;
+  }
+
+  #ch-nav-menu a {
+    font-size: 1.0625rem;
+    padding: .45rem 0;
+  }
+}
+
+/* The exported stagger animates the first six siblings. Inside a group the
+   title is the first child, so the links run from :nth-child(2); a group can
+   hold five links, so give the shifted positions their delays too. */
+#ch-nav-menu .ch-navgroup a:nth-child(7) { animation-delay: .27s; }
+#ch-nav-menu .ch-navgroup a:nth-child(8) { animation-delay: .31s; }
+
+@media (prefers-reduced-motion: reduce) {
+  #ch-nav-menu a { animation: none; opacity: 1; transform: none; }
+}

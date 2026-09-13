@@ -391,21 +391,6 @@
   .dp-card--link:hover, .dp-card--link:focus-visible { transform: none; }
 }
 
-/* --- Nav ----------------------------------------------------------------- */
-
-/* dorset.html sets this inline and dorset-retreats.html does not, so the nav
-   wrapper collapses to its content there: the bar's own space-between never
-   takes effect, and .ch-nav__menu — absolutely positioned against this element
-   — opens against the collapsed box rather than the page edge. The Figma pages
-   are live and stay as they are, so this is scoped to the new ones. */
-.dp-page .ch-nav { width: 100%; position: relative; }
-
-/* The exported nav staggers its first six items. The sub-site menu is longer,
-   so the last two would otherwise appear instantly at opacity 0's end state. */
-.dp-page .ch-nav__menu a:nth-child(7) { animation-delay: .27s; }
-.dp-page .ch-nav__menu a:nth-child(8) { animation-delay: .31s; }
-.dp-page .ch-nav__menu a:nth-child(9) { animation-delay: .35s; }
-
 /* --- Forms --------------------------------------------------------------- */
 
 /* .form_input ships white-on-black-border and square, which is right on the
