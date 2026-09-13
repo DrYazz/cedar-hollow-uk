@@ -1,174 +1,87 @@
 /* ---------------------------------------------------------------------------
-   Availability search bar and its two pickers.
+   Booking panel: "Book a stay" in the nav opens one dropdown holding the date
+   picker and the guest steppers.
    Figma: Search bar 280:293, Picker: When 281:1111, Picker: Who 282:1315.
 
-   Lives on search-results.html, under "Find your Retreat". It began in the
-   hero of the location pages, but the hero clips its own overflow to hold its
-   cover image in and kept shearing the pickers off; here there is room, and
-   the bar sits where someone is already narrowing a list.
+   Lives on search-results.html. It was tried in the hero of the location
+   pages, where the hero clips its own overflow to hold its cover image in and
+   kept shearing the pickers off, and then inline under the heading here. Top
+   right of the properties page is where it settled: the panel has the whole
+   page below it, and it sits on the page where someone is already narrowing
+   a list rather than on the two front doors.
 
-   The panels are still fixed and parented to <body> rather than the bar, so
-   no ancestor's overflow can clip them wherever the bar ends up.
-
-   Colours are sampled off the Figma render: cream #F1ECDB panel and bar, moss
+   Colours are sampled off the Figma render: cream #F1ECDB panel, moss
    #3B4126 type and selected day, #E7E2D0 range pill, rules moss at 19%.
    --------------------------------------------------------------------------- */
 
-.ch-search {
-  position: relative;
-  z-index: 3;
-  width: 100%;
-}
+/* ---- the nav trigger ---- */
 
-/* ---- the bar ---- */
-
-.ch-search__bar {
+.ch-nav__actions {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: clamp(.75rem, 1.55vw, 1.4rem);
-  width: min(46.875rem, 100%);
-  margin: 0 auto;   /* centred, like the "Find your Retreat" heading above it */
-  padding: .35rem .4rem .35rem clamp(1.125rem, 3.11vw, 2.8rem);
-  background-color: var(--brand, #efeed5);
-  border-radius: 50em;
-  box-shadow: 0 .875rem .7rem rgba(0, 0, 0, .03);
+  gap: 1rem;
 }
 
-.ch-search__seg {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: .125rem;
-  min-width: 0;
-}
-
-/* The whole segment is the hit target, so the label and the value both open
-   the picker -- the design gives no separate affordance for either. */
-.ch-search__trigger {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: .125rem;
-  width: 100%;
-  min-width: 0;
-  padding: 0;
-  margin: 0;
-  border: 0;
-  background: none;
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-  border-radius: .25rem;
-}
-
-.ch-search__trigger:focus-visible {
-  outline: 2px solid var(--accent, #3b4126);
-  outline-offset: 4px;
-}
-
-.ch-search__label {
-  display: block;
-  color: var(--accent, #3b4126);
-  opacity: .7;
-  font-size: clamp(.75rem, 1.17vw, 1.04938rem);
-  font-weight: 600;
-  line-height: 1.05;
-  letter-spacing: -.005em;
-  text-transform: uppercase;
-}
-
-.ch-search__value {
-  display: block;
-  width: 100%;
-  min-width: 0;
-  max-width: 100%;
-  color: var(--accent, #3b4126);
-  background: none;
-  border: 0;
-  border-radius: 0;
-  padding: 0;
-  margin: 0;
-  font-family: inherit;
-  font-size: clamp(.875rem, 1.46vw, 1.31181rem);
-  font-weight: 400;
-  line-height: 1.35;
-  letter-spacing: -.02em;
-  white-space: nowrap;
-}
-
-/* Nothing chosen yet reads as a prompt rather than a value. */
-.ch-search__value.is-empty {
-  opacity: .55;
-}
-
-.ch-search__value:focus-visible {
-  outline: 2px solid var(--accent, #3b4126);
-  outline-offset: 4px;
-  border-radius: 2px;
-}
-
-.ch-search__select {
-  -webkit-appearance: none;
-  appearance: none;
-  cursor: pointer;
-}
-
-.ch-search__rule {
-  flex: none;
-  width: 1.4px;
-  height: 2.875rem;
-  background-color: rgba(59, 65, 38, .25);
-}
-
-.ch-search__submit {
-  flex: none;
+/* Moss on cream, not the other way round: this page's background is the cream,
+   so the light pill the location-page heroes used disappeared into it. */
+.ch-nav__book {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  width: clamp(2.75rem, 4.93vw, 4.43438rem);
-  height: clamp(2.75rem, 4.93vw, 4.43438rem);
-  padding: 0;
+  height: 2.5rem;
+  padding: 0 1.25rem;
   border: 0;
-  border-radius: 100%;
+  border-radius: 50em;
   background-color: var(--accent, #3b4126);
-  color: var(--brand, #efeed5);
+  color: #f1ecdb;
+  font-family: inherit;
+  font-size: .9375rem;
+  font-weight: 500;
+  letter-spacing: -.01em;
+  line-height: 1;
+  white-space: nowrap;
+  text-decoration: none;
   cursor: pointer;
   transition: opacity .18s ease;
 }
 
-.ch-search__submit:hover,
-.ch-search__submit:focus-visible {
+.ch-nav__book:hover,
+.ch-nav__book:focus-visible {
   opacity: .88;
 }
 
-.ch-search__icon {
-  width: 44%;
-  display: block;
+/* The bar is only a no-script fallback now. Hidden off the html.js flag set
+   in <head> rather than from the component script, so it never paints first
+   and then vanishes; without script it stays, and still works. */
+.js .ch-search {
+  display: none;
 }
 
-/* ---- shared panel shell ---- */
+/* ---- the panel ---- */
 
-/* Fixed and parented to <body>: nothing above them can clip them, whatever
-   the section they sit over does with its overflow. Script sets top/left. */
-.ch-pick {
+/* Fixed and parented to <body>: nothing above it can clip it, whatever the
+   section it is nominally anchored to does with its overflow. */
+.ch-book {
   position: fixed;
   top: 0;
   left: 0;
   z-index: 1000;
+  width: 30rem;
+  max-width: calc(100vw - 1rem);
   background-color: #f1ecdb;
   border-radius: 1rem;
-  box-shadow: 0 1.5rem 3rem rgba(19, 21, 12, .22);
+  box-shadow: 0 1.5rem 3rem rgba(19, 21, 12, .28);
   color: var(--accent, #3b4126);
   font-size: .9375rem;
   text-align: left;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
-.ch-pick[hidden] {
+.ch-book[hidden] {
   display: none;
 }
 
-.ch-pick button {
+.ch-book button {
   font: inherit;
   color: inherit;
   background: none;
@@ -177,28 +90,45 @@
   cursor: pointer;
 }
 
-.ch-pick button:focus-visible {
+.ch-book button:focus-visible {
   outline: 2px solid var(--accent, #3b4126);
   outline-offset: 2px;
 }
 
-/* ---- Picker: When (Figma 281:1111, 462x468) ---- */
+.ch-book__form {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  gap: .25rem;
+}
 
-.ch-pick--when {
+.ch-book__label {
+  padding: .25rem 0 .5rem;
+  font-size: .8125rem;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  opacity: .7;
+}
+
+.ch-book__rule {
+  height: 1px;
+  margin: .75rem 0;
+  background-color: rgba(59, 65, 38, .19);
+}
+
+/* ---- dates ---- */
+
+.ch-book__cal {
   display: grid;
-  grid-template-columns: 8rem 1fr;
-  grid-template-rows: 1fr 3.125rem;
-  width: 28.875rem;
-  height: 29.25rem;
-  overflow: hidden;
+  grid-template-columns: 7rem 1fr;
+  height: 15rem;
 }
 
 .ch-pick__months {
-  grid-column: 1;
-  grid-row: 1;
   position: relative;
   overflow-y: auto;
-  padding: .65625rem 0;
+  padding: .25rem 0;
   border-right: 1px solid rgba(59, 65, 38, .19);
   scrollbar-width: none;
 }
@@ -210,10 +140,10 @@
 .ch-pick__month-btn {
   display: block;
   width: 100%;
-  height: 2.25rem;
-  padding: 0 1.125rem;
+  height: 2rem;
+  padding: 0 .875rem;
   text-align: left;
-  line-height: 2.25rem;
+  line-height: 2rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -236,8 +166,6 @@
 }
 
 .ch-pick__cal {
-  grid-column: 2;
-  grid-row: 1;
   display: flex;
   flex-direction: column;
   min-height: 0;
@@ -247,11 +175,11 @@
   flex: none;
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  margin: 0 .75rem;
-  height: 2.75rem;
+  margin: 0 .5rem;
+  height: 2.25rem;
   align-items: center;
   border-bottom: 1px solid rgba(59, 65, 38, .19);
-  font-size: .8125rem;
+  font-size: .75rem;
   font-weight: 500;
   letter-spacing: .02em;
   text-transform: uppercase;
@@ -263,7 +191,7 @@
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding: 0 .75rem;
+  padding: 0 .5rem;
   scrollbar-width: none;
 }
 
@@ -272,8 +200,8 @@
 }
 
 .ch-pick__mlabel {
-  padding: .875rem 0 .375rem;
-  font-size: .8125rem;
+  padding: .75rem 0 .25rem;
+  font-size: .75rem;
   font-weight: 600;
   letter-spacing: .04em;
   text-transform: uppercase;
@@ -282,7 +210,7 @@
 .ch-pick__grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  grid-auto-rows: 2.75rem;
+  grid-auto-rows: 2.5rem;
 }
 
 /* The cell carries the range pill so it runs edge to edge and closes the gaps
@@ -327,10 +255,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 2.25rem;
+  height: 2.25rem;
   border-radius: 100%;
-  font-size: .9375rem;
+  font-size: .875rem;
   line-height: 1;
 }
 
@@ -362,22 +290,21 @@
   pointer-events: none;
 }
 
-.ch-pick__foot {
-  grid-column: 1 / -1;
-  grid-row: 2;
+.ch-book__dates-foot {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 1.375rem;
+  height: 2.5rem;
+  padding-top: .5rem;
   border-top: 1px solid rgba(59, 65, 38, .19);
 }
 
 .ch-pick__nights {
-  font-size: .9375rem;
+  font-size: .875rem;
 }
 
 .ch-pick__clear {
-  font-size: .8125rem;
+  font-size: .75rem;
   font-weight: 500;
   letter-spacing: .04em;
   text-transform: uppercase;
@@ -387,19 +314,14 @@
   text-decoration: underline;
 }
 
-/* ---- Picker: Who (Figma 282:1315, 502 wide) ---- */
-
-.ch-pick--who {
-  width: 31.375rem;
-  padding: 1rem;
-}
+/* ---- guests ---- */
 
 .ch-pick__row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding: .4375rem 0;
+  padding: .375rem 0;
 }
 
 .ch-pick__row + .ch-pick__row {
@@ -407,16 +329,16 @@
 }
 
 .ch-pick__rowname {
-  font-size: 1.75rem;
+  font-size: 1.25rem;
   font-weight: 500;
   line-height: 1.1;
   letter-spacing: -.03em;
 }
 
 .ch-pick__rownote {
-  font-size: .9375rem;
+  font-size: .8125rem;
   line-height: 1.35;
-  letter-spacing: -.02em;
+  letter-spacing: -.01em;
 }
 
 .ch-pick__rownote a {
@@ -428,15 +350,15 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 9.265rem;
+  width: 7rem;
 }
 
 .ch-pick__stepbtn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 3rem;
-  height: 3rem;
+  width: 2.25rem;
+  height: 2.25rem;
   border-radius: 100%;
   box-shadow: inset 0 0 0 1px currentColor;
   transition: opacity .15s ease;
@@ -453,69 +375,72 @@
 
 .ch-pick__stepbtn svg {
   display: block;
+  width: .875rem;
+  height: .875rem;
+}
+
+.ch-pick__count {
+  font-size: 1.25rem;
+  font-weight: 500;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- submit ---- */
+
+/* Needs to outrank the `.ch-book button` reset above, which strips background
+   and colour from every button in the panel. */
+.ch-book button.ch-book__submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  width: 100%;
+  height: 3rem;
+  margin-top: 1rem;
+  border-radius: 50em;
+  background-color: var(--accent, #3b4126);
+  color: #f1ecdb;
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: -.01em;
+  transition: opacity .18s ease;
+}
+
+.ch-book button.ch-book__submit:hover,
+.ch-book button.ch-book__submit:focus-visible {
+  opacity: .9;
+}
+
+.ch-book button.ch-book__submit svg {
   width: 1rem;
   height: 1rem;
 }
 
-.ch-pick__count {
-  font-size: 1.5rem;
-  font-weight: 500;
-  line-height: 1.2;
-  letter-spacing: -.005em;
-  font-variant-numeric: tabular-nums;
-}
-
 /* ---- narrow screens ---- */
 
-@media screen and (max-width: 40em) {
-  /* Below the pill's own width the two segments and the button no longer fit
-     on one line; stack them and square the corners off. */
-  .ch-search__bar {
-    flex-wrap: wrap;
-    justify-content: center;
+@media screen and (max-width: 30em) {
+  .ch-nav__book {
+    height: 2.25rem;
+    padding: 0 .875rem;
+    font-size: .875rem;
+  }
+
+  .ch-nav__actions {
     gap: .75rem;
-    border-radius: 1.25rem;
-    padding: 1rem;
-  }
-
-  .ch-search__seg {
-    flex: 1 1 8rem;
-  }
-
-  .ch-search__rule {
-    display: none;
-  }
-
-  .ch-pick--when {
-    grid-template-columns: 1fr;
-    grid-template-rows: 1fr 3.125rem;
-    height: min(26rem, 70vh);
   }
 
   /* The month list is the first thing to go when width is short; the calendar
      still scrolls, so no month is out of reach. */
+  .ch-book__cal {
+    grid-template-columns: 1fr;
+  }
+
   .ch-pick__months {
     display: none;
   }
 
-  .ch-pick__cal {
-    grid-column: 1;
-  }
-
-  .ch-pick--who {
-    padding: .75rem;
-  }
-
   .ch-pick__rowname {
-    font-size: 1.375rem;
-  }
-
-  .ch-pick__step {
-    width: 7.5rem;
-  }
-
-  .ch-pick__stepbtn {
-    width: 2.5rem;
-    height: 2.5rem;
+    font-size: 1.125rem;
   }
 }

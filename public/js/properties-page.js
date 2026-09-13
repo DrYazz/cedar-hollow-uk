@@ -156,9 +156,18 @@
     tiles.innerHTML = items.map(tile).join("");
     list.innerHTML = items.map(property).join("");
 
-    // The search bar above the list now shows what is being narrowed to, and
-    // clearing it is how you get back to everything, so the old "Showing ...
-    // Show all retreats" line has nothing left to say.
+    // Tell people what they are looking at, and give them the way out. Without
+    // this a narrowed list is indistinguishable from a shorter catalogue.
+    if (filtered) {
+      var said = [];
+      if (wantPlace) said.push("Cedar Hollow " + items[0].destination);
+      if (wantGuests) said.push(wantGuests + (wantGuests === 1 ? " guest" : " guests"));
+      var note = document.createElement("p");
+      note.className = "pp-filter";
+      note.innerHTML = "Showing " + esc(said.join(" \u00b7 ")) +
+        ' <a href="search-results.html">Show all retreats</a>';
+      tiles.parentNode.insertBefore(note, tiles);
+    }
 
     // A Featured Properties card links here as ?q=<property name>. Both the
     // tiles and the cards are rendered above, so at the moment the browser

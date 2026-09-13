@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script>document.documentElement.className+=" js";</script>
   <meta charset="utf-8">
   <title>Properties | Cedar Hollow</title>
   <meta content="width=device-width, initial-scale=1" name="viewport">
@@ -9,7 +10,7 @@
   <link href="css/webflow.css" rel="stylesheet" type="text/css">
   <link href="css/cedar-hollow-uk.webflow.css?v=20260904a" rel="stylesheet" type="text/css">
   <link href="css/properties.css?v=20260906d" rel="stylesheet" type="text/css">
-  <link href="css/search-bar.css?v=20260913e" rel="stylesheet" type="text/css">
+  <link href="css/search-bar.css?v=20260913f" rel="stylesheet" type="text/css">
   <link href="images/favicon.svg" rel="icon" type="image/svg+xml">
   <link href="images/favicon.png" rel="icon" type="image/png" sizes="32x32" media="(prefers-color-scheme: light)">
   <link href="images/favicon-dark.png" rel="icon" type="image/png" sizes="32x32" media="(prefers-color-scheme: dark)">
@@ -101,7 +102,7 @@
           </style>
           <nav class="ch-nav__bar" aria-label="Primary">
             <a href="index.html" class="ch-nav__logo"><img src="images/cedar-hollow-owl.svg" loading="eager" alt="Cedar Hollow" class="ch-nav__owl"><span class="ch-nav__wordmark">Cedar Hollow</span></a>
-            <button class="ch-nav__toggle" type="button" aria-expanded="false" aria-controls="ch-nav-menu"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span><span class="ch-nav__sr">Menu</span></button>
+            <div class="ch-nav__actions"><a class="ch-nav__book" href="search-results.html">Book a stay</a><button class="ch-nav__toggle" type="button" aria-expanded="false" aria-controls="ch-nav-menu"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span><span class="ch-nav__sr">Menu</span></button></div>
           </nav>
           <div class="ch-nav__menu" id="ch-nav-menu" hidden>
             <a href="https://www.theoaks.uk/story">Our Story</a>
@@ -253,7 +254,7 @@
         </svg></div>
     </section>
   <script src="js/listings.js?v=20260906a" type="text/javascript"></script>
-  <script src="js/properties-page.js?v=20260913e" type="text/javascript"></script>
+  <script src="js/properties-page.js?v=20260906e" type="text/javascript"></script>
   <script>
     // Refining from this page should stay in the same place, so the bar
     // inherits whatever destination the URL already carries.
@@ -263,7 +264,7 @@
       if (d && el) el.value = d;
     })();
   </script>
-  <script src="js/search-bar.js?v=20260913e" defer></script>
+  <script src="js/search-bar.js?v=20260913f" defer></script>
   <script src="js/analytics.js" type="text/javascript"></script>
 </body>
 </html>

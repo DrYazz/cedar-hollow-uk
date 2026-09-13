@@ -1,24 +1,23 @@
 /* ---------------------------------------------------------------------------
-   Availability search bar: date range picker and guest stepper.
-   Figma: Search bar 280:293, Picker: When 281:1111, Picker: Who 282:1315.
+   Booking panel. "Book a stay" in the nav opens one dropdown carrying the date
+   picker and the guest steppers, anchored to the button's top-right corner.
+   Figma: Picker: When 281:1111, Picker: Who 282:1315.
 
-   Progressive enhancement. The page ships a working native form -- a date
-   input and a guest <select> -- and this script swaps them for the designed
-   pickers. With script off the form still submits, which is why the markup is
-   not written here in the first place.
-
-   Both panels are fixed and parented to <body> rather than to the bar, so no
-   ancestor's overflow can clip them.
+   Progressive enhancement. The page ships a working native form -- a search
+   bar with a date input and a guest <select> -- and a nav link that reloads
+   the unfiltered list. This script takes the form over, moves it into the
+   panel and hides the bar. With script off both still work.
    --------------------------------------------------------------------------- */
 (function () {
   "use strict";
 
   var form = document.querySelector(".ch-search__bar");
-  if (!form) return;
+  var navBook = document.querySelector(".ch-nav__book");
+  if (!form || !navBook) return;
 
-  var whenSeg = form.querySelector("#ch-search-when");
-  var whoSeg = form.querySelector("#ch-search-who");
-  if (!whenSeg || !whoSeg) return;
+  var whenInput = form.querySelector("#ch-search-when");
+  var whoSelect = form.querySelector("#ch-search-who");
+  if (!whenInput || !whoSelect) return;
 
   var MONTHS = ["January", "February", "March", "April", "May", "June", "July",
                 "August", "September", "October", "November", "December"];
@@ -44,7 +43,23 @@
   function col(d) { return (d.getDay() + 6) % 7; }   // Monday-first column
   function parse(s) { var p = s.split("-"); return new Date(+p[0], +p[1] - 1, +p[2]); }
 
-  /* ---- hidden fields ------------------------------------------------------ */
+  /* ---- panel shell ------------------------------------------------------- */
+
+  var panel = document.createElement("div");
+  panel.className = "ch-book";
+  panel.id = "ch-book-panel";
+  panel.setAttribute("role", "dialog");
+  panel.setAttribute("aria-label", "Book a stay");
+  panel.hidden = true;
+  document.body.appendChild(panel);
+
+  // The form moves in whole, so the submit button still submits it and the
+  // destination hidden field rides along untouched.
+  panel.appendChild(form);
+  form.className = "ch-book__form";
+  Array.prototype.slice.call(form.children).forEach(function (child) {
+    if (child.tagName !== "INPUT" || child.type !== "hidden") child.remove();
+  });
 
   var fields = {};
   ["from", "to", "guests", "adults", "children", "infants", "pets"].forEach(function (n) {
@@ -52,60 +67,22 @@
     el.type = "hidden";
     el.name = n;
     fields[n] = el;
+    form.appendChild(el);
   });
 
-  /* ---- the two triggers --------------------------------------------------- */
-
-  function trigger(labelText, picker) {
-    var b = document.createElement("button");
-    b.type = "button";
-    b.className = "ch-search__trigger";
-    b.setAttribute("aria-expanded", "false");
-    b.setAttribute("aria-haspopup", "dialog");
-    b.dataset.picker = picker;
-    var l = document.createElement("span");
-    l.className = "ch-search__label";
-    l.textContent = labelText;
-    var v = document.createElement("span");
-    v.className = "ch-search__value";
-    b.appendChild(l);
-    b.appendChild(v);
-    return { button: b, value: v };
+  function heading(text) {
+    var h = document.createElement("div");
+    h.className = "ch-book__label";
+    h.textContent = text;
+    return h;
   }
 
-  var whenSegWrap = whenSeg.closest(".ch-search__seg");
-  var whoSegWrap = whoSeg.closest(".ch-search__seg");
+  /* ---- dates ------------------------------------------------------------- */
 
-  var whenUI = trigger("When", "when");
-  var whoUI = trigger("Who", "who");
+  form.appendChild(heading("When"));
 
-  whenSegWrap.innerHTML = "";
-  whenSegWrap.appendChild(whenUI.button);
-  whoSegWrap.innerHTML = "";
-  whoSegWrap.appendChild(whoUI.button);
-
-  Object.keys(fields).forEach(function (n) { form.appendChild(fields[n]); });
-
-  var search = form.closest(".ch-search") || form;
-
-  /* ---- panels ------------------------------------------------------------- */
-
-  var whenPanel = document.createElement("div");
-  whenPanel.className = "ch-pick ch-pick--when";
-  whenPanel.setAttribute("role", "dialog");
-  whenPanel.setAttribute("aria-label", "Choose your dates");
-  whenPanel.hidden = true;
-
-  var whoPanel = document.createElement("div");
-  whoPanel.className = "ch-pick ch-pick--who";
-  whoPanel.setAttribute("role", "dialog");
-  whoPanel.setAttribute("aria-label", "Who is coming");
-  whoPanel.hidden = true;
-
-  document.body.appendChild(whenPanel);
-  document.body.appendChild(whoPanel);
-
-  /* ---- When: month list + scrolling calendar ------------------------------ */
+  var calWrap = document.createElement("div");
+  calWrap.className = "ch-book__cal";
 
   var monthList = document.createElement("div");
   monthList.className = "ch-pick__months";
@@ -128,21 +105,21 @@
   scroll.className = "ch-pick__scroll";
   cal.appendChild(weekdays);
   cal.appendChild(scroll);
+  calWrap.appendChild(monthList);
+  calWrap.appendChild(cal);
+  form.appendChild(calWrap);
 
-  var foot = document.createElement("div");
-  foot.className = "ch-pick__foot";
+  var datesFoot = document.createElement("div");
+  datesFoot.className = "ch-book__dates-foot";
   var nightsEl = document.createElement("span");
   nightsEl.className = "ch-pick__nights";
   var clearBtn = document.createElement("button");
   clearBtn.type = "button";
   clearBtn.className = "ch-pick__clear";
   clearBtn.textContent = "Clear dates";
-  foot.appendChild(nightsEl);
-  foot.appendChild(clearBtn);
-
-  whenPanel.appendChild(monthList);
-  whenPanel.appendChild(cal);
-  whenPanel.appendChild(foot);
+  datesFoot.appendChild(nightsEl);
+  datesFoot.appendChild(clearBtn);
+  form.appendChild(datesFoot);
 
   var monthBlocks = [];
   var monthButtons = [];
@@ -274,19 +251,7 @@
     } else {
       nightsEl.textContent = state.start ? "Pick a checkout date" : "";
     }
-    whenUI.value.textContent = dateLabel();
-    whenUI.value.classList.toggle("is-empty", !state.start);
-  }
-
-  function dateLabel() {
-    if (!state.start) return "Add dates";
-    var a = state.start;
-    if (!state.end) return SHORT[a.getMonth()] + " " + a.getDate();
-    var b = state.end;
-    if (a.getMonth() === b.getMonth() && a.getFullYear() === b.getFullYear())
-      return SHORT[a.getMonth()] + " " + a.getDate() + " – " + b.getDate();
-    return SHORT[a.getMonth()] + " " + a.getDate() + " – " +
-           SHORT[b.getMonth()] + " " + b.getDate();
+    syncTrigger();
   }
 
   /* The bar in the month list spans every month the calendar is showing, so
@@ -312,7 +277,12 @@
   scroll.addEventListener("scroll", syncMark);
   monthList.addEventListener("scroll", syncMark);
 
-  /* ---- Who: four stepper rows -------------------------------------------- */
+  /* ---- guests ------------------------------------------------------------ */
+
+  var rule = document.createElement("div");
+  rule.className = "ch-book__rule";
+  form.appendChild(rule);
+  form.appendChild(heading("Who"));
 
   var ROWS = [
     { key: "adults", name: "Adults", note: "Ages 13 or above" },
@@ -360,7 +330,7 @@
 
     wrap.appendChild(text);
     wrap.appendChild(step);
-    whoPanel.appendChild(wrap);
+    form.appendChild(wrap);
   });
 
   function stepButton(kind, rowName) {
@@ -390,20 +360,18 @@
       c.minus.disabled = state[key] <= LIMITS[key][0];
       c.plus.disabled = state[key] >= LIMITS[key][1];
     });
-    whoUI.value.textContent = whoLabel();
+    syncTrigger();
   }
 
-  function whoLabel() {
-    var guests = state.adults + state.children;
-    var out = state.children === 0
-      ? guests + (guests === 1 ? " adult" : " adults")
-      : guests + (guests === 1 ? " guest" : " guests");
-    if (state.infants) out += ", " + state.infants + (state.infants === 1 ? " infant" : " infants");
-    if (state.pets) out += ", " + state.pets + (state.pets === 1 ? " pet" : " pets");
-    return out;
-  }
+  /* ---- submit ------------------------------------------------------------ */
 
-  /* ---- writing back to the form ------------------------------------------ */
+  var submit = document.createElement("button");
+  submit.type = "submit";
+  submit.className = "ch-book__submit";
+  submit.innerHTML = '<svg viewBox="0 0 27 27" fill="none" aria-hidden="true">' +
+    '<path d="M11.194 22.3881C13.6777 22.3876 16.0897 21.5561 18.0462 20.0261L24.1973 26.1772L26.1758 24.1987L20.0247 18.0476C21.5555 16.0909 22.3875 13.6783 22.3881 11.194C22.3881 5.02192 17.3661 0 11.194 0C5.02192 0 0 5.02192 0 11.194C0 17.3661 5.02192 22.3881 11.194 22.3881ZM11.194 2.79851C15.8242 2.79851 19.5896 6.5639 19.5896 11.194C19.5896 15.8242 15.8242 19.5896 11.194 19.5896C6.5639 19.5896 2.79851 15.8242 2.79851 11.194C2.79851 6.5639 6.5639 2.79851 11.194 2.79851Z" fill="currentColor"/></svg>' +
+    '<span>Search</span>';
+  form.appendChild(submit);
 
   function commit() {
     fields.from.value = state.start ? ymd(state.start) : "";
@@ -426,103 +394,88 @@
     });
   });
 
-  /* ---- open / close ------------------------------------------------------- */
+  /* ---- trigger label ----------------------------------------------------- */
 
-  var open = null;
-  var GAP = 12;
+  function dateLabel() {
+    if (!state.start) return null;
+    var a = state.start;
+    if (!state.end) return SHORT[a.getMonth()] + " " + a.getDate();
+    var b = state.end;
+    if (a.getMonth() === b.getMonth() && a.getFullYear() === b.getFullYear())
+      return SHORT[a.getMonth()] + " " + a.getDate() + " – " + b.getDate();
+    return SHORT[a.getMonth()] + " " + a.getDate() + " – " + SHORT[b.getMonth()] + " " + b.getDate();
+  }
+
+  /* The trigger keeps its label; what is chosen shows inside the panel and in
+     the dates line under the calendar. */
+  function syncTrigger() {
+    var dates = dateLabel();
+    navBook.setAttribute("aria-label", dates
+      ? "Book a stay, " + dates + ", " + (state.adults + state.children) + " guests"
+      : "Book a stay");
+  }
+
+  /* ---- open / close ------------------------------------------------------ */
+
+  var open = false;
+  var GAP = 10;
   var EDGE = 8;
 
-  /* Pins a panel to the bar: When to its left edge, Who to its right, as the
-     design shows. Opens downward when there is room, flips above when there is
-     not, and only as a last resort caps the height and lets the calendar
-     scroll inside -- which beats running off the screen. */
-  function place(which) {
-    var panel = which === "when" ? whenPanel : whoPanel;
-    var bar = form.getBoundingClientRect();
+  // Lines the panel up with the right edge of the nav group rather than the
+  // button, so it finishes flush with the burger and the page margin instead
+  // of stopping short of them.
+  var anchor = navBook.closest(".ch-nav__actions") || navBook;
+
+  function place() {
+    var a = anchor.getBoundingClientRect();
     var vw = document.documentElement.clientWidth;
     var vh = document.documentElement.clientHeight;
 
-    panel.style.maxHeight = "";
-    panel.style.width = "";
-    if (vw <= 640) panel.style.width = (vw - EDGE * 2) + "px";
+    panel.style.maxHeight = (vh - a.bottom - GAP - EDGE) + "px";
 
     var w = panel.offsetWidth;
-    var h = panel.offsetHeight;
-
-    var left = vw <= 640 ? EDGE : (which === "when" ? bar.left : bar.right - w);
-    left = Math.max(EDGE, Math.min(left, vw - w - EDGE));
-
-    var below = vh - bar.bottom - GAP - EDGE;
-    var above = bar.top - GAP - EDGE;
-    var top;
-    if (h <= below) {
-      top = bar.bottom + GAP;
-    } else if (h <= above) {
-      top = bar.top - GAP - h;
-    } else if (above > below) {
-      panel.style.maxHeight = above + "px";
-      top = EDGE;
-    } else {
-      panel.style.maxHeight = below + "px";
-      top = bar.bottom + GAP;
-    }
-
+    var left = Math.max(EDGE, Math.min(a.right - w, vw - w - EDGE));
     panel.style.left = Math.round(left) + "px";
-    panel.style.top = Math.round(top) + "px";
+    panel.style.top = Math.round(a.bottom + GAP) + "px";
   }
 
-  function show(which) {
-    close();
-    open = which;
-    var panel = which === "when" ? whenPanel : whoPanel;
-    var btn = which === "when" ? whenUI.button : whoUI.button;
+  function show() {
+    open = true;
     panel.hidden = false;
-    btn.setAttribute("aria-expanded", "true");
-    place(which);
-    if (which === "when") {
-      // Land on the first month rather than wherever it was left.
-      if (!state.start) scroll.scrollTop = 0;
-      syncMark();
-    }
+    navBook.setAttribute("aria-expanded", "true");
+    place();
+    if (!state.start) scroll.scrollTop = 0;
+    syncMark();
   }
 
   function close() {
     if (!open) return;
-    var panel = open === "when" ? whenPanel : whoPanel;
-    var btn = open === "when" ? whenUI.button : whoUI.button;
+    open = false;
     panel.hidden = true;
-    btn.setAttribute("aria-expanded", "false");
-    open = null;
+    navBook.setAttribute("aria-expanded", "false");
   }
 
-  [whenUI.button, whoUI.button].forEach(function (btn) {
-    btn.addEventListener("click", function (e) {
-      e.stopPropagation();
-      var which = btn.dataset.picker;
-      if (open === which) close(); else show(which);
-    });
+  navBook.setAttribute("role", "button");
+  navBook.setAttribute("aria-expanded", "false");
+  navBook.setAttribute("aria-controls", "ch-book-panel");
+  navBook.addEventListener("click", function (e) {
+    e.preventDefault();          // it is a real link until script takes over
+    e.stopPropagation();
+    if (open) close(); else show();
   });
 
-  [whenPanel, whoPanel].forEach(function (p) {
-    p.addEventListener("click", function (e) { e.stopPropagation(); });
-  });
+  panel.addEventListener("click", function (e) { e.stopPropagation(); });
 
   document.addEventListener("click", function (e) {
-    // The panels no longer live inside .ch-search, so they need naming here.
-    if (open && !search.contains(e.target) &&
-        !whenPanel.contains(e.target) && !whoPanel.contains(e.target)) close();
+    if (open && !panel.contains(e.target) && e.target !== navBook) close();
   });
 
   document.addEventListener("keydown", function (e) {
-    if (e.key === "Escape" && open) {
-      var btn = open === "when" ? whenUI.button : whoUI.button;
-      close();
-      btn.focus();
-    }
+    if (e.key === "Escape" && open) { close(); navBook.focus(); }
   });
 
-  window.addEventListener("resize", function () { if (open) place(open); });
-  window.addEventListener("scroll", function () { if (open) place(open); }, { passive: true });
+  window.addEventListener("resize", function () { if (open) place(); });
+  window.addEventListener("scroll", function () { if (open) place(); }, { passive: true });
 
   paintDates();
   paintGuests();
