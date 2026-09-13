@@ -291,21 +291,6 @@ animation:marquee-scroll 70s linear infinite;
             /* Vertical rhythm measured off the 1440x810 hero export. The hero scales
                with viewport, so these track it: 10vw = 145px and 5vw = 72px at 1440. */
             .section-hero .hero_contents > .padding-global{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;justify-content:center;padding-top:min(110px,13.58vh);padding-bottom:min(50px,6.17vh);}
-        /* Figma 134:114 groups the heading, the control and the rating together
-           and centres the lot; the rating is not a footer. The column stops
-           growing so the three sit as one block, and the nav lifts out of the
-           flow to stay pinned at the top. Phones keep the rating and the press
-           marks at the foot of the hero, which is a different design. */
-        @media screen and (min-width:768px){
-          .section-hero .ch-nav{position:absolute;top:0;left:0;right:0;z-index:30;}
-          .section-hero .hero_contents > .padding-global{flex:0 0 auto;margin-top:auto;}
-          .section-hero .hero_logos-wrapper{margin-top:0;padding-top:min(24px,2.96vh);padding-bottom:0;}
-          /* The press marks close the hero here too, not just on phones. Two
-             auto margins -- one above the group, one above the marquee -- split
-             the free space evenly, so the group still centres in what is left
-             above the marquee and the marquee sits on the floor. */
-          .ch-hero-press{display:flex;margin-top:auto;}
-        }
 
             .section-hero .button-group{padding-top:0;}
             /* A little more presence against the 80px heading, while keeping the
@@ -379,6 +364,29 @@ animation:marquee-scroll 70s linear infinite;
               .ch-nav__menu a{font-size:1.75rem;padding:.6rem 0;text-shadow:none;}
               body.ch-nav-open{overflow:hidden;}
             }
+        /* Figma 134:114 groups the heading, the control and the rating together
+           and centres the lot; the rating is not a footer. The column stops
+           growing so the three sit as one block, and the nav lifts out of the
+           flow to stay pinned at the top. Phones keep the rating and the press
+           marks at the foot of the hero, which is a different design. */
+        @media screen and (min-width:768px){
+          .section-hero .ch-nav{position:absolute;top:0;left:0;right:0;z-index:30;}
+          .section-hero .hero_contents > .padding-global{flex:0 0 auto;margin-top:auto;}
+          .section-hero .hero_logos-wrapper{margin-top:0;padding-top:min(22px,2.72vh);padding-bottom:0;}
+          /* Figma 134:114's rhythm, measured ink to ink off the export at
+             1440x810: 28px between the heading's lines, 63 down to the control,
+             30 down to the rating. Ours had drifted to 37/52/82 -- the rating in
+             particular had floated away from the buttons, because the column
+             kept the 50px bottom padding it needed when it was a growing box. */
+          .section-hero .heading-style-h1{line-height:.92;}
+          .section-hero .hero_content .margin-bottom{margin-bottom:min(49px,6.05vh);}
+          .section-hero .hero_contents > .padding-global{padding-bottom:0;}
+          /* The press marks close the hero here too, not just on phones. Two
+             auto margins -- one above the group, one above the marquee -- split
+             the free space evenly, so the group still centres in what is left
+             above the marquee and the marquee sits on the floor. */
+          .ch-hero-press{display:flex;margin-top:auto;}
+        }
           </style>
           <nav class="ch-nav__bar" aria-label="Primary">
             <a href="oxford.html" aria-current="page" class="ch-nav__logo"><img src="images/cedar-hollow-owl.svg" loading="eager" alt="Cedar Hollow Oxford" class="ch-nav__owl"><span class="ch-nav__wordmark">Oxford</span></a>
