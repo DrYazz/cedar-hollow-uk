@@ -429,13 +429,15 @@ width:100%;
            the break fall where the full stop already does. */
         .ch-keep-whole{white-space:nowrap;}
 
-        /* A Glimpse of the Woods. The sub-site's own gallery grid, rebuilt here
-           because this page does not load its stylesheet: three across, the
-           390/294 frame, and the cream burn the rest of the site puts over a
-           photograph. Both tokens already exist in the shared stylesheet. */
-        .section-oxford-gallery{background-color:var(--offwhite,#f8f8e8);color:var(--accent,#3b4126);}
-        .ch-gallery{display:grid;grid-template-columns:repeat(3,1fr);grid-column-gap:1.5rem;grid-row-gap:1.5rem;margin:0;padding:0;list-style:none;}
-        .ch-gallery li{position:relative;overflow:hidden;aspect-ratio:390/294;background-color:var(--accent,#3b4126);border:1px solid rgba(59,65,38,.5);border-radius:1.5rem;box-shadow:0 .875rem 1.375rem rgba(0,0,0,.03);}
+        /* A wall of photographs, not a grid of cards. The page already carries
+           three card grids; this one is the atmosphere, so it loses the border,
+           the radius and the shadow and runs the full width, continuing the
+           full-bleed image directly above it. The cream burn stays -- that is
+           the treatment every photograph on the site gets. */
+        .section-oxford-gallery{background-color:var(--offwhite,#f8f8e8);}
+        .ch-gallery{display:grid;grid-template-columns:repeat(4,1fr);grid-column-gap:.5rem;grid-row-gap:.5rem;margin:0;padding:0;list-style:none;}
+        .ch-gallery li{position:relative;overflow:hidden;aspect-ratio:1;background-color:var(--accent,#3b4126);}
+        .ch-gallery li:first-child{grid-column:span 2;grid-row:span 2;}
         .ch-gallery img{display:block;width:100%;height:100%;object-fit:cover;}
         .ch-gallery li:after{content:"";position:absolute;inset:0;pointer-events:none;background-color:#f5f4e6;mix-blend-mode:color-burn;opacity:var(--image-burn-strength,.35);}
         .ch-tiles{display:grid;grid-template-columns:repeat(4,1fr);grid-column-gap:1.5rem;grid-row-gap:2.5rem;margin:0;padding:0;list-style:none;}
@@ -471,11 +473,8 @@ width:100%;
           .ch-tile__link{display:inline-flex;align-self:flex-start;}
         }
         @media screen and (max-width:767px){
-          .ch-gallery{grid-template-columns:1fr 1fr;grid-column-gap:.75rem;grid-row-gap:.75rem;}
-          .ch-gallery li{border-radius:1rem;}
-        }
-        @media screen and (max-width:479px){
-          .ch-gallery{grid-template-columns:1fr;}
+          .ch-gallery{grid-template-columns:repeat(2,1fr);grid-column-gap:.25rem;grid-row-gap:.25rem;}
+          .ch-gallery li:first-child{grid-column:span 2;grid-row:span 1;aspect-ratio:3/2;}
         }
 
         /* Oxford has three retreats, and Figma 73:168 draws them as a row
@@ -899,35 +898,22 @@ animation:marquee-scroll 70s linear infinite;
       <div class="full-bleed-img-wrap"><img src="images/full-bleed-golden-hour-1280.webp" loading="lazy" sizes="100vw" srcset="images/full-bleed-golden-hour-1280.webp 1280w, images/full-bleed-golden-hour-1920.webp 1920w, images/full-bleed-golden-hour-2880.webp 2880w" alt="Golden-hour sun through the canopy over a glamping pod and treehouse deck among the ferns" class="full-bleed-img"></div>
     </div>
 
-    <!-- The gallery the sub-site carries under the same heading. Same grid and
-         the same cream burn over each frame. -->
+    <!-- A wall of photographs rather than a grid of cards: full width, no
+         frames, the same cream burn the full-bleed image above it carries.
+         The first frame runs two by two so the block has a focal point and
+         does not read as another contact sheet. -->
     <section class="section-oxford-gallery">
-      <div class="padding-section-medium">
-        <div class="padding-global">
-          <div class="container-large">
-            <div class="text-align-center">
-              <div class="section-title-block">
-                <div class="max-width-xlarge align-center">
-                  <div class="margin-bottom margin-large">
-                    <h2 class="heading-style-h1">A Glimpse of <span class="text-style-italic">the Woods</span></h2>
-                  </div>
-                </div>
-              </div>
-              <ul role="list" class="ch-gallery">
-                <li><img src="images/gallery/oak-gal-treehouse-420.webp" srcset="images/gallery/oak-gal-treehouse-420.webp 420w, images/gallery/oak-gal-treehouse-840.webp 840w" sizes="(max-width: 479px) 92vw, (max-width: 767px) 45vw, 30vw" loading="lazy" alt="The Cedar Hollow treehouse seen through the beeches"></li>
-                <li><img src="images/gallery/oak-gal-balcony-420.webp" srcset="images/gallery/oak-gal-balcony-420.webp 420w, images/gallery/oak-gal-balcony-840.webp 840w" sizes="(max-width: 479px) 92vw, (max-width: 767px) 45vw, 30vw" loading="lazy" alt="The treehouse deck and its seating, open to the woods"></li>
-                <li><img src="images/gallery/oak-gal-beavers-den-420.webp" srcset="images/gallery/oak-gal-beavers-den-420.webp 420w, images/gallery/oak-gal-beavers-den-840.webp 840w" sizes="(max-width: 479px) 92vw, (max-width: 767px) 45vw, 30vw" loading="lazy" alt="Carved stone toadstool seats around a table beneath an ancient yew"></li>
-                <li><img src="images/gallery/oak-gal-narnia-420.webp" srcset="images/gallery/oak-gal-narnia-420.webp 420w, images/gallery/oak-gal-narnia-840.webp 840w" sizes="(max-width: 479px) 92vw, (max-width: 767px) 45vw, 30vw" loading="lazy" alt="A carved Book of Shadows on a wooden table in one of the retreats"></li>
-                <li><img src="images/gallery/oak-gal-tumnus-420.webp" srcset="images/gallery/oak-gal-tumnus-420.webp 420w, images/gallery/oak-gal-tumnus-840.webp 840w" sizes="(max-width: 479px) 92vw, (max-width: 767px) 45vw, 30vw" loading="lazy" alt="Carved woodland figures seated around a bench in a clearing"></li>
-                <li><img src="images/gallery/oak-gal-winter-sun-420.webp" srcset="images/gallery/oak-gal-winter-sun-420.webp 420w, images/gallery/oak-gal-winter-sun-840.webp 840w" sizes="(max-width: 479px) 92vw, (max-width: 767px) 45vw, 30vw" loading="lazy" alt="Low sun breaking through the trees over a woodland bench"></li>
-                <li><img src="images/gallery/oak-gal-punting-420.webp" srcset="images/gallery/oak-gal-punting-420.webp 420w, images/gallery/oak-gal-punting-840.webp 840w" sizes="(max-width: 479px) 92vw, (max-width: 767px) 45vw, 30vw" loading="lazy" alt="Punting on the river in Oxford, a short drive away"></li>
-                <li><img src="images/gallery/oak-gal-christmas-420.webp" srcset="images/gallery/oak-gal-christmas-420.webp 420w, images/gallery/oak-gal-christmas-840.webp 840w" sizes="(max-width: 479px) 92vw, (max-width: 767px) 45vw, 30vw" loading="lazy" alt="The retreats decorated for Christmas"></li>
-                <li><img src="images/gallery/oak-gal-together-420.webp" srcset="images/gallery/oak-gal-together-420.webp 420w, images/gallery/oak-gal-together-840.webp 840w" sizes="(max-width: 479px) 92vw, (max-width: 767px) 45vw, 30vw" loading="lazy" alt="A family on the tennis court under the trees"></li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
+      <ul role="list" class="ch-gallery">
+        <li><img src="images/gallery/oak-gal-treehouse-420.webp" srcset="images/gallery/oak-gal-treehouse-420.webp 420w, images/gallery/oak-gal-treehouse-840.webp 840w" sizes="(max-width: 479px) 92vw, (max-width: 767px) 45vw, 30vw" loading="lazy" alt="The Cedar Hollow treehouse seen through the beeches"></li>
+        <li><img src="images/gallery/oak-gal-balcony-420.webp" srcset="images/gallery/oak-gal-balcony-420.webp 420w, images/gallery/oak-gal-balcony-840.webp 840w" sizes="(max-width: 479px) 92vw, (max-width: 767px) 45vw, 30vw" loading="lazy" alt="The treehouse deck and its seating, open to the woods"></li>
+        <li><img src="images/gallery/oak-gal-beavers-den-420.webp" srcset="images/gallery/oak-gal-beavers-den-420.webp 420w, images/gallery/oak-gal-beavers-den-840.webp 840w" sizes="(max-width: 479px) 92vw, (max-width: 767px) 45vw, 30vw" loading="lazy" alt="Carved stone toadstool seats around a table beneath an ancient yew"></li>
+        <li><img src="images/gallery/oak-gal-narnia-420.webp" srcset="images/gallery/oak-gal-narnia-420.webp 420w, images/gallery/oak-gal-narnia-840.webp 840w" sizes="(max-width: 479px) 92vw, (max-width: 767px) 45vw, 30vw" loading="lazy" alt="A carved Book of Shadows on a wooden table in one of the retreats"></li>
+        <li><img src="images/gallery/oak-gal-tumnus-420.webp" srcset="images/gallery/oak-gal-tumnus-420.webp 420w, images/gallery/oak-gal-tumnus-840.webp 840w" sizes="(max-width: 479px) 92vw, (max-width: 767px) 45vw, 30vw" loading="lazy" alt="Carved woodland figures seated around a bench in a clearing"></li>
+        <li><img src="images/gallery/oak-gal-winter-sun-420.webp" srcset="images/gallery/oak-gal-winter-sun-420.webp 420w, images/gallery/oak-gal-winter-sun-840.webp 840w" sizes="(max-width: 479px) 92vw, (max-width: 767px) 45vw, 30vw" loading="lazy" alt="Low sun breaking through the trees over a woodland bench"></li>
+        <li><img src="images/gallery/oak-gal-punting-420.webp" srcset="images/gallery/oak-gal-punting-420.webp 420w, images/gallery/oak-gal-punting-840.webp 840w" sizes="(max-width: 479px) 92vw, (max-width: 767px) 45vw, 30vw" loading="lazy" alt="Punting on the river in Oxford, a short drive away"></li>
+        <li><img src="images/gallery/oak-gal-christmas-420.webp" srcset="images/gallery/oak-gal-christmas-420.webp 420w, images/gallery/oak-gal-christmas-840.webp 840w" sizes="(max-width: 479px) 92vw, (max-width: 767px) 45vw, 30vw" loading="lazy" alt="The retreats decorated for Christmas"></li>
+        <li><img src="images/gallery/oak-gal-together-420.webp" srcset="images/gallery/oak-gal-together-420.webp 420w, images/gallery/oak-gal-together-840.webp 840w" sizes="(max-width: 479px) 92vw, (max-width: 767px) 45vw, 30vw" loading="lazy" alt="A family on the tennis court under the trees"></li>
+      </ul>
     </section>
     <section class="bg-light">
       <div class="padding-section-medium">
