@@ -433,7 +433,19 @@ width:100%;
         .ch-tile__img{display:block;width:100%;height:auto;aspect-ratio:291/220;object-fit:cover;}
         .ch-tile__title{margin:0;font-family:var(--font-family--heading,Crimsonpro),serif;font-weight:400;font-size:clamp(1.75rem,3.47vw,3.125rem);line-height:1.1;letter-spacing:-.035em;text-align:center;}
         @media screen and (max-width:991px){.ch-tiles{grid-template-columns:repeat(2,1fr);}}
-        @media screen and (max-width:479px){.ch-tiles{grid-template-columns:1fr;}}
+        /* Phones lay each tile out as a row, the way the homepage handles its
+           "More Than A Place to Stay" cards: a fixed-shape photo on the left,
+           the title beside it. Stacked full width the four tiles ran to about
+           1360px of scrolling; as rows they come to roughly a quarter of that.
+           Same 38% column and 2/3 crop the homepage uses, so the two sections
+           read as the same treatment. */
+        @media screen and (max-width:767px){
+          .ch-tiles{grid-template-columns:1fr;grid-row-gap:1.25rem;}
+          .ch-tile{flex-direction:row;align-items:center;gap:1.25rem;}
+          .ch-tile__img-wrap{flex:0 0 38%;align-self:center;}
+          .ch-tile__img{aspect-ratio:2/3;height:100%;}
+          .ch-tile__title{flex:1 1 auto;min-width:0;text-align:left;font-size:2.25rem;}
+        }
 
         /* Oxford has three retreats, and Figma 73:168 draws them as a row
            rather than a deck. Three cards looping through a 3.4-card viewport
