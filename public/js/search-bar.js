@@ -421,8 +421,13 @@
   var GAP = 10;
   var EDGE = 8;
 
+  // Lines the panel up with the right edge of the nav group rather than the
+  // button, so it finishes flush with the burger and the page margin instead
+  // of stopping short of them.
+  var anchor = navBook.closest(".ch-nav__actions") || navBook;
+
   function place() {
-    var a = navBook.getBoundingClientRect();
+    var a = anchor.getBoundingClientRect();
     var vw = document.documentElement.clientWidth;
     var vh = document.documentElement.clientHeight;
 
