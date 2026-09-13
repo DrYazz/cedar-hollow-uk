@@ -909,6 +909,11 @@ animation:marquee-scroll 70s linear infinite;
             (function(){
               var row=document.getElementById("ch-press-row");
               if(!row||!row.firstChild)return;
+              /* Reduced motion turns the scroll off, and a marquee that cannot
+                 scroll is just a clipped row: on a 390px phone three of the six
+                 logos sat outside overflow:hidden with no way to reach them. So
+                 leave the static row alone, which wraps and shows all of them. */
+              if(window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches)return;
               var mq=document.createElement("div"); mq.className="logo-marquee";
               var track=document.createElement("div"); track.className="logo-marquee__track marquee-scroll";
               var first=document.createElement("div"); first.className="logo-marquee__content";
