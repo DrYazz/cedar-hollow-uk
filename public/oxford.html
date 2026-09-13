@@ -758,6 +758,35 @@ animation:marquee-scroll 70s linear infinite;
   .marquee-scroll {
     animation: none !important;
   }
+
+  /* With the scroll off, a marquee is only a clipped row: measured under the
+     preference, the homepage hero strip showed 2 of its 19 logos on a phone and
+     6 of 19 at 1440, the rest sitting outside overflow:hidden with no way to
+     reach them. So the strip becomes one the reader moves by hand, and the
+     loop's second copy goes -- it exists to make the animation seamless, and
+     with no animation it is the same logos announced twice. Scrolled rather
+     than wrapped because these strips sit on the floor of a 100vh hero whose
+     spacing is tuned to the pixel. The logos are links, so tabbing through
+     them scrolls them into view. */
+  .logo-marquee {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .logo-marquee::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Undoes the calc(200% + 2.5rem) that sizes the track to hold two copies. */
+  .logo-marquee__track {
+    min-width: 0;
+  }
+
+  .logo-marquee__track > .logo-marquee__content + .logo-marquee__content {
+    display: none;
+  }
 }
         @media (prefers-reduced-motion: reduce){
               .ch-nav__menu a{animation:none;opacity:1;transform:none;}
