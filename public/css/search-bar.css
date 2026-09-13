@@ -1,0 +1,510 @@
+/* ---------------------------------------------------------------------------
+   Availability search bar and its two pickers.
+   Figma: Search bar 280:293, Picker: When 281:1111, Picker: Who 282:1315.
+
+   Shared by /oxford and /dorset, which carry the same component and differ
+   only in the destination they post. Both pages used to hold their own copy
+   of these rules inline; one file keeps the two from drifting apart.
+
+   Colours are sampled off the Figma render rather than guessed: the panel and
+   bar are the cream #F1ECDB, type and the selected day are moss #3B4126, the
+   range pill is #E7E2D0 and the rules are moss at 19%.
+   --------------------------------------------------------------------------- */
+
+/* Sized to the bar rather than the column it sits in, so a picker anchored to
+   this box lines up with the bar's own edges instead of the container's. */
+.ch-search {
+  position: relative;
+  z-index: 3;
+  width: min(46.875rem, 92vw);
+  margin: 0 auto;
+}
+
+/* ---- the bar ---- */
+
+.ch-search__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(.75rem, 1.55vw, 1.4rem);
+  width: 100%;
+  margin: 0;
+  padding: .35rem .4rem .35rem clamp(1.125rem, 3.11vw, 2.8rem);
+  background-color: var(--brand, #efeed5);
+  border-radius: 50em;
+  box-shadow: 0 .875rem .7rem rgba(0, 0, 0, .03);
+}
+
+.ch-search__seg {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: .125rem;
+  min-width: 0;
+}
+
+/* The whole segment is the hit target, so the label and the value both open
+   the picker -- the design gives no separate affordance for either. */
+.ch-search__trigger {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: .125rem;
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  border-radius: .25rem;
+}
+
+.ch-search__trigger:focus-visible {
+  outline: 2px solid var(--accent, #3b4126);
+  outline-offset: 4px;
+}
+
+.ch-search__label {
+  display: block;
+  color: var(--accent, #3b4126);
+  opacity: .7;
+  font-size: clamp(.75rem, 1.17vw, 1.04938rem);
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -.005em;
+  text-transform: uppercase;
+}
+
+.ch-search__value {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  color: var(--accent, #3b4126);
+  background: none;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  margin: 0;
+  font-family: inherit;
+  font-size: clamp(.875rem, 1.46vw, 1.31181rem);
+  font-weight: 400;
+  line-height: 1.35;
+  letter-spacing: -.02em;
+  white-space: nowrap;
+}
+
+/* Nothing chosen yet reads as a prompt rather than a value. */
+.ch-search__value.is-empty {
+  opacity: .55;
+}
+
+.ch-search__value:focus-visible {
+  outline: 2px solid var(--accent, #3b4126);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+.ch-search__select {
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+.ch-search__rule {
+  flex: none;
+  width: 1.4px;
+  height: 2.875rem;
+  background-color: rgba(59, 65, 38, .25);
+}
+
+.ch-search__submit {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(2.75rem, 4.93vw, 4.43438rem);
+  height: clamp(2.75rem, 4.93vw, 4.43438rem);
+  padding: 0;
+  border: 0;
+  border-radius: 100%;
+  background-color: var(--accent, #3b4126);
+  color: var(--brand, #efeed5);
+  cursor: pointer;
+  transition: opacity .18s ease;
+}
+
+.ch-search__submit:hover,
+.ch-search__submit:focus-visible {
+  opacity: .88;
+}
+
+.ch-search__icon {
+  width: 44%;
+  display: block;
+}
+
+/* ---- shared panel shell ---- */
+
+.ch-pick {
+  position: absolute;
+  top: calc(100% + .75rem);
+  z-index: 40;
+  background-color: #f1ecdb;
+  border-radius: 1rem;
+  box-shadow: 0 1.5rem 3rem rgba(19, 21, 12, .22);
+  color: var(--accent, #3b4126);
+  font-size: .9375rem;
+  text-align: left;
+}
+
+.ch-pick[hidden] {
+  display: none;
+}
+
+.ch-pick button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+.ch-pick button:focus-visible {
+  outline: 2px solid var(--accent, #3b4126);
+  outline-offset: 2px;
+}
+
+/* ---- Picker: When ---- */
+
+.ch-pick--when {
+  left: 0;
+  display: grid;
+  grid-template-columns: 8rem 1fr;
+  grid-template-rows: 1fr 3.125rem;
+  width: 28.875rem;
+  height: 29.25rem;
+  overflow: hidden;
+}
+
+/* A single rule runs the full height between the month list and the calendar;
+   the footer sits under both, so the rule is drawn on the cells rather than
+   as one element spanning rows. */
+.ch-pick__months {
+  grid-column: 1;
+  grid-row: 1;
+  position: relative;
+  overflow-y: auto;
+  padding: .65625rem 0;
+  border-right: 1px solid rgba(59, 65, 38, .19);
+  scrollbar-width: none;
+}
+
+.ch-pick__months::-webkit-scrollbar {
+  display: none;
+}
+
+.ch-pick__month-btn {
+  display: block;
+  width: 100%;
+  height: 2.25rem;
+  padding: 0 1.125rem;
+  text-align: left;
+  line-height: 2.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ch-pick__month-btn:hover {
+  text-decoration: underline;
+}
+
+/* Marks the months currently in view in the calendar, so it can span more
+   than one row -- height and offset are set from script. */
+.ch-pick__month-mark {
+  position: absolute;
+  right: 0;
+  width: 3px;
+  border-radius: 2px;
+  background-color: var(--accent, #3b4126);
+  transition: top .15s ease, height .15s ease;
+  pointer-events: none;
+}
+
+.ch-pick__cal {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.ch-pick__weekdays {
+  flex: none;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  margin: 0 .75rem;
+  height: 2.75rem;
+  align-items: center;
+  border-bottom: 1px solid rgba(59, 65, 38, .19);
+  font-size: .8125rem;
+  font-weight: 500;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.ch-pick__scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 .75rem;
+  scrollbar-width: none;
+}
+
+.ch-pick__scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.ch-pick__mlabel {
+  padding: .875rem 0 .375rem;
+  font-size: .8125rem;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.ch-pick__grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-auto-rows: 2.75rem;
+}
+
+/* The cell carries the range pill so it can run edge to edge and close the
+   gaps between the 2.5rem day circles; the circle sits on top of it. */
+.ch-pick__cell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ch-pick__cell:before {
+  content: "";
+  position: absolute;
+  top: .125rem;
+  bottom: .125rem;
+  left: 0;
+  right: 0;
+  background-color: #e7e2d0;
+  opacity: 0;
+}
+
+/* The pill covers the nights stayed -- arrival through the night before
+   checkout -- so a Feb 21 to Mar 6 stay reads as the 13 nights it is, and the
+   checkout day sits outside it. */
+.ch-pick__cell.is-pill:before {
+  opacity: 1;
+}
+
+.ch-pick__cell.is-pill-left:before {
+  border-top-left-radius: 50em;
+  border-bottom-left-radius: 50em;
+}
+
+.ch-pick__cell.is-pill-right:before {
+  border-top-right-radius: 50em;
+  border-bottom-right-radius: 50em;
+}
+
+.ch-pick__day {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 100%;
+  font-size: .9375rem;
+  line-height: 1;
+}
+
+.ch-pick__day:hover {
+  box-shadow: inset 0 0 0 1px var(--accent, #3b4126);
+}
+
+/* Arrival is filled; checkout is ringed, the way the design distinguishes the
+   night you sleep from the morning you leave. */
+.ch-pick__cell.is-start .ch-pick__day {
+  background-color: var(--accent, #3b4126);
+  color: #f1ecdb;
+}
+
+.ch-pick__cell.is-end .ch-pick__day {
+  box-shadow: inset 0 0 0 1.5px var(--accent, #3b4126);
+}
+
+.ch-pick__day[disabled] {
+  opacity: .45;
+  cursor: default;
+}
+
+.ch-pick__day[disabled]:hover {
+  box-shadow: none;
+}
+
+.ch-pick__cell.is-empty {
+  pointer-events: none;
+}
+
+.ch-pick__foot {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.375rem;
+  border-top: 1px solid rgba(59, 65, 38, .19);
+}
+
+.ch-pick__nights {
+  font-size: .9375rem;
+}
+
+.ch-pick__clear {
+  font-size: .8125rem;
+  font-weight: 500;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.ch-pick__clear:hover {
+  text-decoration: underline;
+}
+
+/* ---- Picker: Who ---- */
+
+.ch-pick--who {
+  right: 0;
+  width: 31.375rem;
+  padding: 1rem;
+}
+
+.ch-pick__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: .4375rem 0;
+}
+
+.ch-pick__row + .ch-pick__row {
+  border-top: 1px solid rgba(59, 65, 38, .19);
+}
+
+.ch-pick__rowname {
+  font-size: 1.75rem;
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -.03em;
+}
+
+.ch-pick__rownote {
+  font-size: .9375rem;
+  line-height: 1.35;
+  letter-spacing: -.02em;
+}
+
+.ch-pick__rownote a {
+  color: inherit;
+}
+
+.ch-pick__step {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 9.265rem;
+}
+
+.ch-pick__stepbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 100%;
+  box-shadow: inset 0 0 0 1px currentColor;
+  transition: opacity .15s ease;
+}
+
+.ch-pick__stepbtn:hover:not([disabled]) {
+  opacity: .7;
+}
+
+.ch-pick__stepbtn[disabled] {
+  opacity: .35;
+  cursor: default;
+}
+
+.ch-pick__stepbtn svg {
+  display: block;
+  width: 1rem;
+  height: 1rem;
+}
+
+.ch-pick__count {
+  font-size: 1.5rem;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -.005em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- narrow screens ----
+   /dorset keeps the bar on a phone, so both panels have to work there. They
+   stop being popovers pinned to a segment and become full-width sheets. */
+
+@media screen and (max-width: 40em) {
+  .ch-pick {
+    left: 0;
+    right: 0;
+    width: auto;
+  }
+
+  .ch-pick--when {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 3.125rem;
+    height: min(26rem, 70vh);
+  }
+
+  .ch-pick__months {
+    display: none;
+  }
+
+  .ch-pick__cal {
+    grid-column: 1;
+  }
+
+  .ch-pick--who {
+    padding: .75rem;
+  }
+
+  .ch-pick__rowname {
+    font-size: 1.375rem;
+  }
+
+  .ch-pick__step {
+    width: 7.5rem;
+  }
+
+  .ch-pick__stepbtn {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+}
