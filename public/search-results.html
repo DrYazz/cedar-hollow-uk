@@ -9,6 +9,7 @@
   <link href="css/webflow.css" rel="stylesheet" type="text/css">
   <link href="css/cedar-hollow-uk.webflow.css?v=20260904a" rel="stylesheet" type="text/css">
   <link href="css/properties.css?v=20260906d" rel="stylesheet" type="text/css">
+  <link href="css/search-bar.css?v=20260913e" rel="stylesheet" type="text/css">
   <link href="images/favicon.svg" rel="icon" type="image/svg+xml">
   <link href="images/favicon.png" rel="icon" type="image/png" sizes="32x32" media="(prefers-color-scheme: light)">
   <link href="images/favicon-dark.png" rel="icon" type="image/png" sizes="32x32" media="(prefers-color-scheme: dark)">
@@ -131,6 +132,33 @@
     <div class="pp-content">
       <div class="pp-header">
         <h1 class="pp-title">Find <em>your</em> Retreat</h1>
+        <!-- Figma 280:293 with its two pickers, 281:1111 and 282:1315. Ships as
+             a native date input and guest select; js/search-bar.js swaps them
+             for the designed pickers, so it still works without script. -->
+        <div class="ch-search">
+          <form action="search-results.html" method="get" role="search" class="ch-search__bar" aria-label="Find a retreat">
+            <input type="hidden" name="destination" id="ch-search-destination" value="">
+            <div class="ch-search__seg">
+              <label for="ch-search-when" class="ch-search__label">When</label>
+              <input type="date" id="ch-search-when" name="from" class="ch-search__value ch-search__date">
+            </div>
+            <span class="ch-search__rule" aria-hidden="true"></span>
+            <div class="ch-search__seg">
+              <label for="ch-search-who" class="ch-search__label">Who</label>
+              <select id="ch-search-who" name="guests" class="ch-search__value ch-search__select">
+                <option value="1">1 adult</option>
+                <option value="2" selected>2 adults</option>
+                <option value="3">3 guests</option>
+                <option value="4">4 guests</option>
+                <option value="5">5 guests</option>
+                <option value="6">6 guests</option>
+              </select>
+            </div>
+            <button type="submit" class="ch-search__submit" aria-label="Search retreats"><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewbox="0 0 27 27" fill="none" class="ch-search__icon" aria-hidden="true">
+                <path d="M11.194 22.3881C13.6777 22.3876 16.0897 21.5561 18.0462 20.0261L24.1973 26.1772L26.1758 24.1987L20.0247 18.0476C21.5555 16.0909 22.3875 13.6783 22.3881 11.194C22.3881 5.02192 17.3661 0 11.194 0C5.02192 0 0 5.02192 0 11.194C0 17.3661 5.02192 22.3881 11.194 22.3881ZM11.194 2.79851C15.8242 2.79851 19.5896 6.5639 19.5896 11.194C19.5896 15.8242 15.8242 19.5896 11.194 19.5896C6.5639 19.5896 2.79851 15.8242 2.79851 11.194C2.79851 6.5639 6.5639 2.79851 11.194 2.79851Z" fill="currentColor"></path>
+              </svg></button>
+          </form>
+        </div>
         <ul class="pp-tiles" id="pp-tiles"></ul>
       </div>
       <div id="pp-list"></div>
@@ -225,7 +253,17 @@
         </svg></div>
     </section>
   <script src="js/listings.js?v=20260906a" type="text/javascript"></script>
-  <script src="js/properties-page.js?v=20260906e" type="text/javascript"></script>
+  <script src="js/properties-page.js?v=20260913e" type="text/javascript"></script>
+  <script>
+    // Refining from this page should stay in the same place, so the bar
+    // inherits whatever destination the URL already carries.
+    (function () {
+      var d = new URLSearchParams(location.search).get("destination");
+      var el = document.getElementById("ch-search-destination");
+      if (d && el) el.value = d;
+    })();
+  </script>
+  <script src="js/search-bar.js?v=20260913e" defer></script>
   <script src="js/analytics.js" type="text/javascript"></script>
 </body>
 </html>
