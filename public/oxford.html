@@ -1,6 +1,7 @@
 <!DOCTYPE html><!--  This site was created in Webflow. https://webflow.com  --><!--  Last Published: Mon Jul 20 2026 21:42:49 GMT+0000 (Coordinated Universal Time)  -->
 <html data-wf-page="69bd76122e424fd6b90fe01c" data-wf-site="69bd76102e424fd6b90fdfca" lang="en">
 <head>
+  <script>document.documentElement.className+=" js";</script>
   <meta charset="utf-8">
   <title>Cedar Hollow Oxford | An Enchanted Woodland Retreat</title>
   <meta content="width=device-width, initial-scale=1" name="viewport">
@@ -9,7 +10,7 @@
   <link href="css/normalize.css" rel="stylesheet" type="text/css">
   <link href="css/webflow.css" rel="stylesheet" type="text/css">
   <link href="css/cedar-hollow-uk.webflow.css?v=20260904a" rel="stylesheet" type="text/css">
-  <link href="css/search-bar.css?v=20260913b" rel="stylesheet" type="text/css">
+  <link href="css/search-bar.css?v=20260913c" rel="stylesheet" type="text/css">
   <script type="text/javascript">!function(o,c){var n=c.documentElement,t=" w-mod-";n.className+=t+"js",("ontouchstart"in o||o.DocumentTouch&&c instanceof DocumentTouch)&&(n.className+=t+"touch")}(window,document);</script>
   <link href="images/favicon.svg" rel="icon" type="image/svg+xml">
   <link href="images/favicon.png" rel="icon" type="image/png" sizes="32x32" media="(prefers-color-scheme: light)">
@@ -366,7 +367,7 @@ animation:marquee-scroll 70s linear infinite;
           </style>
           <nav class="ch-nav__bar" aria-label="Primary">
             <a href="oxford.html" aria-current="page" class="ch-nav__logo"><img src="images/cedar-hollow-owl.svg" loading="eager" alt="Cedar Hollow Oxford" class="ch-nav__owl"><span class="ch-nav__wordmark">Oxford</span></a>
-            <button class="ch-nav__toggle" type="button" aria-expanded="false" aria-controls="ch-nav-menu"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span><span class="ch-nav__sr">Menu</span></button>
+            <div class="ch-nav__actions"><button class="ch-nav__toggle" type="button" aria-expanded="false" aria-controls="ch-nav-menu"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span><span class="ch-nav__sr">Menu</span></button><a class="ch-nav__book" href="search-results.html?destination=Oxford">Book a stay</a></div>
           </nav>
           <div class="ch-nav__menu" id="ch-nav-menu" hidden>
             <a href="about.html">Our Story</a>
@@ -580,7 +581,7 @@ animation:marquee-scroll 70s linear infinite;
            its heading size, its button in place of the search bar, and its
            rating sitting in the same bottom stack. Desktop keeps the Figma
            hero -- 124px type over the search bar -- untouched. */
-        .ch-hero-book{display:none;}
+        .ch-hero-book{display:flex;}
         @media screen and (max-width:767px){
           /* Same rule the homepage uses: 12vw, capped so large phones and small
              tablets do not overshoot. */
@@ -605,7 +606,7 @@ animation:marquee-scroll 70s linear infinite;
         .ch-map__cta{position:absolute;left:50%;bottom:12px;z-index:3;transform:translateX(-50%);}
         .ch-map__cta .button{white-space:nowrap;}
       </style>
-      <script src="js/search-bar.js?v=20260913b" defer></script>
+      <script src="js/search-bar.js?v=20260913c" defer></script>
     </div>
     <section class="section-properties bg-brand-dark is-oxford">
       <div class="padding-section-medium">
