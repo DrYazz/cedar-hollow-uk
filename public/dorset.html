@@ -305,6 +305,11 @@ animation:marquee-scroll 70s linear infinite;
             .section-hero .logo-marquee{padding-top:min(24px,2.96vh);padding-bottom:min(36px,4.44vh);}
             /* 42px suited the 750px search bar; a 208px button groups better with the
                heading at a tighter gap. */
+            /* Hero subtext. Sits with the heading rather than after it, so the
+               existing gap below the block still separates the pair from the
+               buttons. Measured against the graded footage, not guessed. */
+            .section-hero .ch-hero-lead{max-width:34rem;text-wrap:balance;margin:min(18px,2.2vh) auto 0;color:#EFEED5;font-size:clamp(1rem,1.25vw,1.1875rem);line-height:1.5;letter-spacing:-.01em;text-align:center;}
+            @media screen and (max-width:767px){.section-hero .ch-hero-lead{max-width:24rem;font-size:clamp(.9375rem,3.8vw,1.0625rem);}}
             .section-hero .hero_content .margin-bottom{margin-bottom:min(32px,3.95vh);}
             /* Figma breaks the heading after "Award-Winning" and "Retreats in".
                These breaks are kept at every width: letting it wrap naturally on
@@ -445,6 +450,7 @@ animation:marquee-scroll 70s linear infinite;
               <div class="hero_content">
                 <div class="margin-bottom margin-large">
                   <h1 class="heading-style-h1"><span class="text-style-italic text-weight-normal">Luxurious Escape</span><br class="hero-br">to the Woods</h1>
+                  <p class="ch-hero-lead">Three award-winning treehouses in the Dorset woods, each sleeping two, with a rooftop sauna, wood‑fired hot tub and two‑person swing.</p>
                 </div>
               </div>
               <div class="button-group align-center ch-hero-book">
@@ -530,7 +536,7 @@ animation:marquee-scroll 70s linear infinite;
            heading measured 2.52:1 against the brightest patch behind it and
            the rating line 2.54:1, under the 3:1 and 4.5:1 they need. 55% is
            the same figure the homepage hero settled on, for the same reason. */
-        .section-hero .overlay{background-color:rgba(0,0,0,.55);background-image:linear-gradient(to top,rgba(0,0,0,.16) 0%,rgba(0,0,0,0) 20%);}
+        .section-hero .overlay{background-color:rgba(0,0,0,.55);background-image:linear-gradient(to bottom,rgba(0,0,0,0) 22%,rgba(0,0,0,.2) 46%,rgba(0,0,0,.2) 74%,rgba(0,0,0,0) 92%),linear-gradient(to top,rgba(0,0,0,.16) 0%,rgba(0,0,0,0) 20%);}
         /* The rating line sits at the foot of the frame over the brightest
            foliage in the picture and was still 4.31:1 at a flat 55%; the
            gradient above carries that strip alone rather than darkening the
