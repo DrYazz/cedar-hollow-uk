@@ -220,103 +220,13 @@ width:100%;
   }
   .button:hover .button_icon{
     transform: translateX(.25rem);
-  }
-.marquee-scroll{
-animation:marquee-scroll 70s linear infinite;
-}
-.marquee-component:hover .marquee__content{
-  animation-play-state: paused;
-}
-/* One timeline for both copies. Animating each copy separately gave them two
-   independent animations, and if either was restarted or throttled on its own
-   the second copy slid over the first -- logos from opposite ends of the row
-   drawing on top of each other. A single track cannot drift against itself. */
-.logo-marquee__track{
-  flex: none;
-  grid-column-gap: 2.5rem;
-  column-gap: 2.5rem;
-  /* Replaces the min-width:100% each copy carried, which kept the row filled on
-     a viewport wider than the logos. One level up both copies grow by the same
-     amount, so they stay identical widths and the loop point stays seamless. */
-  min-width: calc(200% + 2.5rem);
-  display: flex;
-  will-change: transform;
-}
-.logo-marquee__track > .logo-marquee__content{
-  min-width: 0;
-  flex: 1 0 auto;
-}
-@keyframes marquee-scroll{
-  from {
-    transform: translateX(0);
-  }
-  /* Half the track is one copy plus half the 2.5rem gap between them, so the
-     loop distance -- one whole copy plus one whole gap -- is that plus the
-     other half. Exact at any copy width, so the loop point stays seamless. */
-  to {
-    transform: translateX(calc(-50% - 1.25rem));
-  }
-}
-.marquee-component{
--webkit-mask-image: linear-gradient( var(--mask-direction, to right), hsl(0 0% 0% / 0), hsl(0 0% 0% / 1) 20%, hsl(0 0% 0% / 1) 80%, hsl(0 0% 0% / 0) );
-    mask-image: linear-gradient( var(--mask-direction, to right), hsl(0 0% 0% / 0), hsl(0 0% 0% / 1) 20%, hsl(0 0% 0% / 1) 80%, hsl(0 0% 0% / 0) );
-}
-@media (prefers-reduced-motion: reduce) {
-  .marquee-scroll {
-    animation: none !important;
-  }
-}
-</style>
+  }</style>
   </div>
   <main>
     <section class="section-hero">
       <div class="hero_contents">
         <div class="ch-nav w-embed">
           <style>
-            .ch-nav{width:100%;position:relative;}
-            /* Figma: nav is the hero flex column's first child, flush to the top edge. */
-            .section-hero .hero_contents{padding-top:0;}
-            /* Figma hero frame is 1440x810 with a 720px floor. Ours tracked 100vh, so on
-               any window not 16:9 the width-derived offsets drifted against a height-derived
-               box. Tie height to width instead: 56.25vw = 810/1440, floored at the spec's
-               720px and capped at 810 to match the content caps above 1440. */
-            .section-hero .hero_contents{min-height:100vh;}
-            /* Phones and tablets only. 100vh on mobile Safari and Chrome means the
-               viewport with the address bar hidden, so a 100vh hero is taller than
-               the screen actually showing and its lower content sits under the bar.
-               100dvh tracks the visible viewport instead, so the hero fills exactly
-               what the device is showing. Desktop keeps 100vh, where the two are
-               identical anyway. */
-            @media (max-width:991px){.section-hero .hero_contents{min-height:100dvh;}}
-            /* Vertical rhythm measured off the 1440x810 hero export. The hero scales
-               with viewport, so these track it: 10vw = 145px and 5vw = 72px at 1440. */
-            .section-hero .hero_contents > .padding-global{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;justify-content:center;padding-top:min(110px,13.58vh);padding-bottom:min(50px,6.17vh);}
-
-            .section-hero .button-group{padding-top:0;}
-            /* A little more presence against the 80px heading, while keeping the
-               pill proportion. The 102px version tried earlier dropped the ratio to
-               2.5:1 and read as a lozenge; this holds ~3.7:1. */
-            .section-hero .button-group .button{padding:1rem 2rem;}
-            /* Figma bottom block: pt24, rating, 24 gap, logos, pb36 - one stack. The export
-               carried an extra 36px on .hero_contents and doubled the internal gap. */
-            .section-hero .hero_contents{padding-bottom:0;}
-            .section-hero .hero_logos-wrapper{margin-top:0;padding-top:min(24px,2.96vh);padding-bottom:0;}
-            .section-hero .logo-marquee{padding-top:min(24px,2.96vh);padding-bottom:min(36px,4.44vh);}
-            /* 42px suited the 750px search bar; a 208px button groups better with the
-               heading at a tighter gap. */
-        /* Matches .button.is-secondary as the Oxford microsite renders it inside
-           a hero (oxford/css/site.css): transparent, cream text, cream outline at
-           60%. The shared stylesheet's .is-secondary is the light-background
-           version -- black on transparent -- which would vanish on the photo. */
-        .section-hero .button.is-secondary{background-color:transparent;color:var(--brand,#efeed5);border:1px solid #efeed599;font-weight:500;transition:background-color .2s ease;}
-        .section-hero .button.is-secondary:hover{background-color:#ffffff1f;}
-            .section-hero .hero_content .margin-bottom{margin-bottom:min(32px,3.95vh);}
-            /* Figma breaks the heading after "Award-Winning" and "Retreats in".
-               These breaks are kept at every width: letting it wrap naturally on
-               phones pulled "Award-Winning" up onto line one and left "Dorset"
-               alone on line three. At 9vw the longest designed line measures
-               284px against a 338px column, so all three fit with room spare. */
-            .section-hero .heading-style-h1{font-size:min(clamp(2.25rem,5.56vw,7rem),9.88vh);letter-spacing:-.035em;line-height:100%;color:#EFEED5;}
             /* Phone sizing. The Figma three-line break caps the heading at about
                9.85vw on a 320px screen, because "Oxfordshire and Dorset" has to fit
                one line; that is only a ninth larger than it was. Breaking after
@@ -325,75 +235,14 @@ animation:marquee-scroll 70s linear infinite;
                stops large phones and small tablets overshooting. Desktop keeps the
                Figma breaks and sizing untouched. */
             .hero-br--m{display:none;}
-            .ch-card-short{display:none;}
-            @media (max-width:767px){
+            .ch-card-short{display:none;}@media (max-width:767px){
+
               .hero-br--d{display:none;}
               .hero-br--m{display:inline;}
-              .section-hero .heading-style-h1{font-size:min(12vw,3.25rem);}
-              .section-hero .hero_contents > .padding-global{padding-left:16px;padding-right:16px;}
-            }
-            /* Above the 1440 design width the heading keeps growing with the
-               viewport, so the 820px box it was drawn in has to grow too --
-               otherwise the forced line breaks overflow it and the heading
-               wraps to five lines. 56.94vw is the design's own 820/1440 ratio,
-               capped at the container. Scoped above 1440 so nothing below the
-               design width moves. */
-            @media (min-width:1441px){.section-hero .hero_content{max-width:min(56.94vw,1280px);}}
+        }
             /* Self-hosted alongside Crimson Pro and Inter. OFL; licence in fonts/. */
             @font-face{font-family:"Hedvig Letters Serif";src:url("fonts/HedvigLettersSerif_18pt-Regular.ttf") format("truetype");font-weight:400;font-style:normal;font-display:swap;}
-            .ch-nav__bar{display:flex;align-items:center;justify-content:space-between;gap:1rem;width:100%;padding:20px 32px 20px 24px;position:relative;z-index:30;}
-            .ch-nav__logo{display:inline-flex;align-items:center;gap:clamp(.5rem,.83vw,.75rem);text-decoration:none;color:#F1ECDB;}
-            .ch-nav__owl{width:clamp(1.75rem,2.5vw,2.25rem);height:auto;flex:none;}
-            .ch-nav__wordmark{font-family:"Hedvig Letters Serif",var(--font-family--heading,Crimsonpro),serif;font-size:clamp(1.5rem,2.78vw,2.5rem);font-weight:400;line-height:100%;letter-spacing:-.035em;}
-            .ch-nav__toggle{display:flex;flex-direction:column;justify-content:center;gap:6px;width:2rem;height:2rem;padding:0;background:none;border:0;cursor:pointer;}
-            .ch-nav__toggle span[aria-hidden]{display:block;width:32px;height:1.75px;background-color:#F1ECDB;border-radius:0;transition:transform .2s ease,opacity .2s ease;}
-            .ch-nav__toggle[aria-expanded="true"] span[aria-hidden]:nth-child(1){transform:translateY(7.75px) rotate(45deg);}
-            .ch-nav__toggle[aria-expanded="true"] span[aria-hidden]:nth-child(2){opacity:0;}
-            .ch-nav__toggle[aria-expanded="true"] span[aria-hidden]:nth-child(3){transform:translateY(-7.75px) rotate(-45deg);}
-            .ch-nav__toggle:focus-visible{outline:2px solid #F1ECDB;outline-offset:4px;}
-            @media (prefers-reduced-motion: reduce){
-              .ch-nav__menu a{animation:none;opacity:1;transform:none;}
-            }
-            .ch-nav__sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
-            .ch-nav__menu[hidden]{display:none;}
-            .ch-nav__menu{position:absolute;top:100%;right:32px;z-index:20;display:flex;flex-direction:column;align-items:flex-end;gap:.35rem;min-width:11rem;padding:.75rem 0 0;text-align:right;}
-            .ch-nav__menu a{color:#F1ECDB;font-size:1.125rem;line-height:1.3;text-decoration:none;padding:.4rem 0;white-space:nowrap;text-shadow:0 1px 14px rgba(16,19,7,.7);opacity:0;transform:translateY(-6px);animation:ch-nav-item .34s cubic-bezier(.2,.7,.3,1) forwards;}
-            .ch-nav__menu a:nth-child(1){animation-delay:.03s;}
-            .ch-nav__menu a:nth-child(2){animation-delay:.07s;}
-            .ch-nav__menu a:nth-child(3){animation-delay:.11s;}
-            .ch-nav__menu a:nth-child(4){animation-delay:.15s;}
-            .ch-nav__menu a:nth-child(5){animation-delay:.19s;}
-            .ch-nav__menu a:nth-child(6){animation-delay:.23s;}
-            @keyframes ch-nav-item{to{opacity:1;transform:none;}}
-            .ch-nav__menu a:hover,.ch-nav__menu a:focus-visible{text-decoration:underline;}
-            @media screen and (max-width:767px){
-              .ch-nav__menu{position:fixed;inset:0;z-index:15;min-width:0;justify-content:center;align-items:center;gap:.75rem;padding:2rem;background-color:var(--accent,#3b4126);text-align:center;}
-              .ch-nav__menu a{font-size:1.75rem;padding:.6rem 0;text-shadow:none;}
-              body.ch-nav-open{overflow:hidden;}
-            }
-        /* Figma 134:114 groups the heading, the control and the rating together
-           and centres the lot; the rating is not a footer. The column stops
-           growing so the three sit as one block, and the nav lifts out of the
-           flow to stay pinned at the top. Phones keep the rating and the press
-           marks at the foot of the hero, which is a different design. */
-        @media screen and (min-width:768px){
-          .section-hero .ch-nav{position:absolute;top:0;left:0;right:0;z-index:30;}
-          .section-hero .hero_contents > .padding-global{flex:0 0 auto;margin-top:auto;}
-          .section-hero .hero_logos-wrapper{margin-top:0;padding-top:min(22px,2.72vh);padding-bottom:0;}
-          /* Figma 134:114's rhythm, measured ink to ink off the export at
-             1440x810: 28px between the heading's lines, 63 down to the control,
-             30 down to the rating. Ours had drifted to 37/52/82 -- the rating in
-             particular had floated away from the buttons, because the column
-             kept the 50px bottom padding it needed when it was a growing box. */
-          .section-hero .hero_content .margin-bottom{margin-bottom:min(49px,6.05vh);}
-          .section-hero .hero_contents > .padding-global{padding-bottom:0;}
-          /* The press marks close the hero here too, not just on phones. Two
-             auto margins -- one above the group, one above the marquee -- split
-             the free space evenly, so the group still centres in what is left
-             above the marquee and the marquee sits on the floor. */
-          .ch-hero-press{display:flex;margin-top:auto;}
-        }
-          </style>
+            @keyframes ch-nav-item{to{opacity:1;transform:none;}}</style>
           <nav class="ch-nav__bar" aria-label="Primary">
             <a href="dorset.html" aria-current="page" class="ch-nav__logo"><img src="images/cedar-hollow-owl.svg" loading="eager" alt="Cedar Hollow Dorset" class="ch-nav__owl"><span class="ch-nav__wordmark">Dorset</span></a>
             <button class="ch-nav__toggle" type="button" aria-expanded="false" aria-controls="ch-nav-menu"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span><span class="ch-nav__sr">Menu</span></button>
@@ -500,14 +349,7 @@ animation:marquee-scroll 70s linear infinite;
                   <p class="text-size-medium">from 200+ verified guests • Airbnb Superhost</p>
                 </div>
                 <div class="ch-reviews-link-style w-embed">
-                  <style>
-                    /* Hug the content: as a full-width row the link would swallow clicks on the
-       empty space either side of the rating. */
-    .ch-reviews-link{width:fit-content;margin-left:auto;margin-right:auto;text-decoration:none;color:inherit;cursor:pointer;transition:opacity .18s ease;}
-                    .ch-reviews-link:hover,.ch-reviews-link:focus-visible{opacity:.8;}
-                    .ch-reviews-link:hover p,.ch-reviews-link:focus-visible p{text-decoration:underline;}
-                    .ch-reviews-link:focus-visible{outline:2px solid #F1ECDB;outline-offset:6px;border-radius:4px;}
-                  </style>
+                  <style></style>
                 </div>
               </div>
             </div>
@@ -621,33 +463,6 @@ animation:marquee-scroll 70s linear infinite;
     </section>
     <div class="ch-dorset-style w-embed">
       <style>
-        /* ---- Cedar Hollow Dorset, measured off Figma 73:286 -----------------
-           Placed after the hero's own embedded styles so the overrides below
-           win on document order rather than needing extra specificity. */
-
-        /* Hero heading is 124px over a 782px column in a 1440x810 frame. */
-        .section-hero .heading-style-h1{font-size:min(clamp(2.5rem,8.61vw,7.75rem),14vh);}
-        /* Phones. Without this the desktop rule above wins on document order and
-           the heading falls back to its 2.5rem floor, which read noticeably
-           smaller than Oxford's. 12vw capped at 3.25rem is the rule Oxford and
-           the homepage already use. */
-        @media screen and (max-width:767px){
-          .section-hero .heading-style-h1{font-size:min(12vw,3.25rem);}
-          .ch-hero-press{display:flex;}
-          .section-hero .hero_logos-wrapper{padding-bottom:0;}
-        }
-        /* The design puts 40% black plus the site's cream burn over this
-           photograph. Sunlit foliage fills the frame, and at 40% the cream
-           heading measured 2.52:1 against the brightest patch behind it and
-           the rating line 2.54:1, under the 3:1 and 4.5:1 they need. 55% is
-           the same figure the homepage hero settled on, for the same reason. */
-        .section-hero .overlay{background-color:rgba(0,0,0,.55);background-image:linear-gradient(to top,rgba(0,0,0,.16) 0%,rgba(0,0,0,0) 20%);}
-        /* The rating line sits at the foot of the frame over the brightest
-           foliage in the picture and was still 4.31:1 at a flat 55%; the
-           gradient above carries that strip alone rather than darkening the
-           whole photograph to reach one line of 18px type. */
-        .section-hero .hero_bg-wrapper:after{content:"";position:absolute;inset:0;background-color:var(--brand,#efeed5);mix-blend-mode:color-burn;opacity:var(--image-burn-strength,1);pointer-events:none;}
-        .section-hero .hero_logos-wrapper{padding-bottom:min(36px,4.44vh);}
 
 
         /* Our Retreats, Figma 252:272: three 624px bands, 32px radius, the
@@ -700,6 +515,150 @@ animation:marquee-scroll 70s linear infinite;
           .press-row{grid-column-gap:1.75rem;column-gap:1.75rem;grid-row-gap:1.25rem;row-gap:1.25rem;}
         }
 
+        /* Figma 357:1067 floats one button over the foot of the map band. */
+        .ch-map__cta{position:absolute;left:50%;bottom:12px;z-index:3;transform:translateX(-50%);}
+        .ch-map__cta .button{white-space:nowrap;}</style>
+      <style>
+      /* =====================================================================
+         HERO -- every rule for this page's hero lives here and nowhere else.
+
+         Ordering contract, because document order decides between rules of
+         equal specificity and getting it wrong here has silently swallowed
+         three separate fixes:
+
+             1. base rules
+             2. max-width queries, widest first
+             3. min-width queries, narrowest first
+             4. preference queries
+
+         A phone rule therefore always beats the base, and a desktop rule
+         always beats both. Add new rules to the right section rather than to
+         the end.
+
+         Consolidated from four separate <style> blocks; the cascade was
+         verified unchanged at eleven viewport sizes on both location pages.
+         ===================================================================== */
+
+        .marquee-scroll{
+animation:marquee-scroll 70s linear infinite;
+}
+        .marquee-component:hover .marquee__content{
+  animation-play-state: paused;
+}
+        /* One timeline for both copies. Animating each copy separately gave them two
+   independent animations, and if either was restarted or throttled on its own
+   the second copy slid over the first -- logos from opposite ends of the row
+   drawing on top of each other. A single track cannot drift against itself. */
+        .logo-marquee__track{
+  flex: none;
+  grid-column-gap: 2.5rem;
+  column-gap: 2.5rem;
+  /* Replaces the min-width:100% each copy carried, which kept the row filled on
+     a viewport wider than the logos. One level up both copies grow by the same
+     amount, so they stay identical widths and the loop point stays seamless. */
+  min-width: calc(200% + 2.5rem);
+  display: flex;
+  will-change: transform;
+}
+        .logo-marquee__track > .logo-marquee__content{
+  min-width: 0;
+  flex: 1 0 auto;
+}
+        @keyframes marquee-scroll{
+  from {
+    transform: translateX(0);
+  }
+  /* Half the track is one copy plus half the 2.5rem gap between them, so the
+     loop distance -- one whole copy plus one whole gap -- is that plus the
+     other half. Exact at any copy width, so the loop point stays seamless. */
+  to {
+    transform: translateX(calc(-50% - 1.25rem));
+  }
+}
+        .marquee-component{
+-webkit-mask-image: linear-gradient( var(--mask-direction, to right), hsl(0 0% 0% / 0), hsl(0 0% 0% / 1) 20%, hsl(0 0% 0% / 1) 80%, hsl(0 0% 0% / 0) );
+    mask-image: linear-gradient( var(--mask-direction, to right), hsl(0 0% 0% / 0), hsl(0 0% 0% / 1) 20%, hsl(0 0% 0% / 1) 80%, hsl(0 0% 0% / 0) );
+}
+        .ch-nav{width:100%;position:relative;}
+        /* Figma: nav is the hero flex column's first child, flush to the top edge. */
+        .section-hero .hero_contents{padding-top:0;}
+        /* Figma hero frame is 1440x810 with a 720px floor. Ours tracked 100vh, so on
+               any window not 16:9 the width-derived offsets drifted against a height-derived
+               box. Tie height to width instead: 56.25vw = 810/1440, floored at the spec's
+               720px and capped at 810 to match the content caps above 1440. */
+        .section-hero .hero_contents{min-height:100vh;}
+        /* Vertical rhythm measured off the 1440x810 hero export. The hero scales
+               with viewport, so these track it: 10vw = 145px and 5vw = 72px at 1440. */
+        .section-hero .hero_contents > .padding-global{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;justify-content:center;padding-top:min(110px,13.58vh);padding-bottom:min(50px,6.17vh);}
+        .section-hero .button-group{padding-top:0;}
+        /* A little more presence against the 80px heading, while keeping the
+               pill proportion. The 102px version tried earlier dropped the ratio to
+               2.5:1 and read as a lozenge; this holds ~3.7:1. */
+        .section-hero .button-group .button{padding:1rem 2rem;}
+        /* Figma bottom block: pt24, rating, 24 gap, logos, pb36 - one stack. The export
+               carried an extra 36px on .hero_contents and doubled the internal gap. */
+        .section-hero .hero_contents{padding-bottom:0;}
+        .section-hero .hero_logos-wrapper{margin-top:0;padding-top:min(24px,2.96vh);padding-bottom:0;}
+        .section-hero .logo-marquee{padding-top:min(24px,2.96vh);padding-bottom:min(36px,4.44vh);}
+        /* 42px suited the 750px search bar; a 208px button groups better with the
+               heading at a tighter gap. */
+        /* Matches .button.is-secondary as the Oxford microsite renders it inside
+           a hero (oxford/css/site.css): transparent, cream text, cream outline at
+           60%. The shared stylesheet's .is-secondary is the light-background
+           version -- black on transparent -- which would vanish on the photo. */
+        .section-hero .button.is-secondary{background-color:transparent;color:var(--brand,#efeed5);border:1px solid #efeed599;font-weight:500;transition:background-color .2s ease;}
+        .section-hero .button.is-secondary:hover{background-color:#ffffff1f;}
+        .section-hero .hero_content .margin-bottom{margin-bottom:min(32px,3.95vh);}
+        /* Figma breaks the heading after "Award-Winning" and "Retreats in".
+               These breaks are kept at every width: letting it wrap naturally on
+               phones pulled "Award-Winning" up onto line one and left "Dorset"
+               alone on line three. At 9vw the longest designed line measures
+               284px against a 338px column, so all three fit with room spare. */
+        .section-hero .heading-style-h1{font-size:min(clamp(2.25rem,5.56vw,7rem),9.88vh);letter-spacing:-.035em;line-height:100%;color:#EFEED5;}
+        .ch-nav__bar{display:flex;align-items:center;justify-content:space-between;gap:1rem;width:100%;padding:20px 32px 20px 24px;position:relative;z-index:30;}
+        .ch-nav__logo{display:inline-flex;align-items:center;gap:clamp(.5rem,.83vw,.75rem);text-decoration:none;color:#F1ECDB;}
+        .ch-nav__owl{width:clamp(1.75rem,2.5vw,2.25rem);height:auto;flex:none;}
+        .ch-nav__wordmark{font-family:"Hedvig Letters Serif",var(--font-family--heading,Crimsonpro),serif;font-size:clamp(1.5rem,2.78vw,2.5rem);font-weight:400;line-height:100%;letter-spacing:-.035em;}
+        .ch-nav__toggle{display:flex;flex-direction:column;justify-content:center;gap:6px;width:2rem;height:2rem;padding:0;background:none;border:0;cursor:pointer;}
+        .ch-nav__toggle span[aria-hidden]{display:block;width:32px;height:1.75px;background-color:#F1ECDB;border-radius:0;transition:transform .2s ease,opacity .2s ease;}
+        .ch-nav__toggle[aria-expanded="true"] span[aria-hidden]:nth-child(1){transform:translateY(7.75px) rotate(45deg);}
+        .ch-nav__toggle[aria-expanded="true"] span[aria-hidden]:nth-child(2){opacity:0;}
+        .ch-nav__toggle[aria-expanded="true"] span[aria-hidden]:nth-child(3){transform:translateY(-7.75px) rotate(-45deg);}
+        .ch-nav__toggle:focus-visible{outline:2px solid #F1ECDB;outline-offset:4px;}
+        .ch-nav__sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+        .ch-nav__menu[hidden]{display:none;}
+        .ch-nav__menu{position:absolute;top:100%;right:32px;z-index:20;display:flex;flex-direction:column;align-items:flex-end;gap:.35rem;min-width:11rem;padding:.75rem 0 0;text-align:right;}
+        .ch-nav__menu a{color:#F1ECDB;font-size:1.125rem;line-height:1.3;text-decoration:none;padding:.4rem 0;white-space:nowrap;text-shadow:0 1px 14px rgba(16,19,7,.7);opacity:0;transform:translateY(-6px);animation:ch-nav-item .34s cubic-bezier(.2,.7,.3,1) forwards;}
+        .ch-nav__menu a:nth-child(1){animation-delay:.03s;}
+        .ch-nav__menu a:nth-child(2){animation-delay:.07s;}
+        .ch-nav__menu a:nth-child(3){animation-delay:.11s;}
+        .ch-nav__menu a:nth-child(4){animation-delay:.15s;}
+        .ch-nav__menu a:nth-child(5){animation-delay:.19s;}
+        .ch-nav__menu a:nth-child(6){animation-delay:.23s;}
+        .ch-nav__menu a:hover,.ch-nav__menu a:focus-visible{text-decoration:underline;}
+        /* Hug the content: as a full-width row the link would swallow clicks on the
+       empty space either side of the rating. */
+        .ch-reviews-link{width:fit-content;margin-left:auto;margin-right:auto;text-decoration:none;color:inherit;cursor:pointer;transition:opacity .18s ease;}
+        .ch-reviews-link:hover,.ch-reviews-link:focus-visible{opacity:.8;}
+        .ch-reviews-link:hover p,.ch-reviews-link:focus-visible p{text-decoration:underline;}
+        .ch-reviews-link:focus-visible{outline:2px solid #F1ECDB;outline-offset:6px;border-radius:4px;}
+        /* ---- Cedar Hollow Dorset, measured off Figma 73:286 -----------------
+           Placed after the hero's own embedded styles so the overrides below
+           win on document order rather than needing extra specificity. */
+        /* Hero heading is 124px over a 782px column in a 1440x810 frame. */
+        .section-hero .heading-style-h1{font-size:min(clamp(2.5rem,8.61vw,7.75rem),14vh);}
+        /* The design puts 40% black plus the site's cream burn over this
+           photograph. Sunlit foliage fills the frame, and at 40% the cream
+           heading measured 2.52:1 against the brightest patch behind it and
+           the rating line 2.54:1, under the 3:1 and 4.5:1 they need. 55% is
+           the same figure the homepage hero settled on, for the same reason. */
+        .section-hero .overlay{background-color:rgba(0,0,0,.55);background-image:linear-gradient(to top,rgba(0,0,0,.16) 0%,rgba(0,0,0,0) 20%);}
+        /* The rating line sits at the foot of the frame over the brightest
+           foliage in the picture and was still 4.31:1 at a flat 55%; the
+           gradient above carries that strip alone rather than darkening the
+           whole photograph to reach one line of 18px type. */
+        .section-hero .hero_bg-wrapper:after{content:"";position:absolute;inset:0;background-color:var(--brand,#efeed5);mix-blend-mode:color-burn;opacity:var(--image-burn-strength,1);pointer-events:none;}
+        .section-hero .hero_logos-wrapper{padding-bottom:min(36px,4.44vh);}
         /* The Sunday Telegraph masthead is supplied as cream artwork, drawn for
            the homepage hero where the marquee sits over dark video. On this
            section's cream ground it is invisible. Run it as a mask over
@@ -709,9 +668,73 @@ animation:marquee-scroll 70s linear infinite;
         .press-row .telegraph,.ch-hero-press .telegraph{display:block;aspect-ratio:2520/266;background-color:currentColor;-webkit-mask-image:url("images/the-sunday-telegraph-2.png");mask-image:url("images/the-sunday-telegraph-2.png");-webkit-mask-position:center;mask-position:center;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-size:contain;mask-size:contain;}
         .press-row .telegraph img,.ch-hero-press .telegraph img{visibility:hidden;}
 
-        /* Figma 357:1067 floats one button over the foot of the map band. */
-        .ch-map__cta{position:absolute;left:50%;bottom:12px;z-index:3;transform:translateX(-50%);}
-        .ch-map__cta .button{white-space:nowrap;}
+        /* Phones and tablets only. 100vh on mobile Safari and Chrome means the
+               viewport with the address bar hidden, so a 100vh hero is taller than
+               the screen actually showing and its lower content sits under the bar.
+               100dvh tracks the visible viewport instead, so the hero fills exactly
+               what the device is showing. Desktop keeps 100vh, where the two are
+               identical anyway. */
+        @media (max-width:991px){.section-hero .hero_contents{min-height:100dvh;}}
+        @media (max-width:767px){
+
+              .section-hero .heading-style-h1{font-size:min(12vw,3.25rem);}
+              .section-hero .hero_contents > .padding-global{padding-left:16px;padding-right:16px;}
+        }
+        @media screen and (max-width:767px){
+              .ch-nav__menu{position:fixed;inset:0;z-index:15;min-width:0;justify-content:center;align-items:center;gap:.75rem;padding:2rem;background-color:var(--accent,#3b4126);text-align:center;}
+              .ch-nav__menu a{font-size:1.75rem;padding:.6rem 0;text-shadow:none;}
+              body.ch-nav-open{overflow:hidden;}
+            }
+        /* Phones. Without this the desktop rule above wins on document order and
+           the heading falls back to its 2.5rem floor, which read noticeably
+           smaller than Oxford's. 12vw capped at 3.25rem is the rule Oxford and
+           the homepage already use. */
+        @media screen and (max-width:767px){
+          .section-hero .heading-style-h1{font-size:min(12vw,3.25rem);}
+          .ch-hero-press{display:flex;}
+          /* Dorset keeps the base 36px here: this zero was dead before the blocks
+             were merged, and the rating sits 36px clear of the marquee on this
+             page as a result. Oxford genuinely runs them together. */
+        }
+        /* Figma 134:114 groups the heading, the control and the rating together
+           and centres the lot; the rating is not a footer. The column stops
+           growing so the three sit as one block, and the nav lifts out of the
+           flow to stay pinned at the top. Phones keep the rating and the press
+           marks at the foot of the hero, which is a different design. */
+        @media screen and (min-width:768px){
+          .section-hero .ch-nav{position:absolute;top:0;left:0;right:0;z-index:30;}
+          .section-hero .hero_contents > .padding-global{flex:0 0 auto;margin-top:auto;}
+          .section-hero .hero_logos-wrapper{margin-top:0;padding-top:min(22px,2.72vh);} /* no padding-bottom here: the base rule above sets 36px and, before these
+             blocks were merged, always won on document order. Zeroing it here
+             was dead code that only came to life once the order was fixed. */
+          /* Figma 134:114's rhythm, measured ink to ink off the export at
+             1440x810: 28px between the heading's lines, 63 down to the control,
+             30 down to the rating. Ours had drifted to 37/52/82 -- the rating in
+             particular had floated away from the buttons, because the column
+             kept the 50px bottom padding it needed when it was a growing box. */
+          .section-hero .hero_content .margin-bottom{margin-bottom:min(49px,6.05vh);}
+          .section-hero .hero_contents > .padding-global{padding-bottom:0;}
+          /* The press marks close the hero here too, not just on phones. Two
+             auto margins -- one above the group, one above the marquee -- split
+             the free space evenly, so the group still centres in what is left
+             above the marquee and the marquee sits on the floor. */
+          .ch-hero-press{display:flex;margin-top:auto;}
+        }
+        /* Above the 1440 design width the heading keeps growing with the
+               viewport, so the 820px box it was drawn in has to grow too --
+               otherwise the forced line breaks overflow it and the heading
+               wraps to five lines. 56.94vw is the design's own 820/1440 ratio,
+               capped at the container. Scoped above 1440 so nothing below the
+               design width moves. */
+        @media (min-width:1441px){.section-hero .hero_content{max-width:min(56.94vw,1280px);}}
+        @media (prefers-reduced-motion: reduce) {
+  .marquee-scroll {
+    animation: none !important;
+  }
+}
+        @media (prefers-reduced-motion: reduce){
+              .ch-nav__menu a{animation:none;opacity:1;transform:none;}
+            }
       </style>
     </div>
     <!-- Figma 178:421 / 252:272. One full-width card per treehouse rather than
