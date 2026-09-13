@@ -587,12 +587,25 @@ animation:marquee-scroll 70s linear infinite;
 
         /* Oxford has three retreats, and Figma 73:168 draws them as a row
            rather than a deck. Three cards looping through a 3.4-card viewport
-           shows the same card twice at once, so on desktop they are laid out
-           statically; the initialiser below leaves this deck alone there, and
-           phones keep the swipeable version. */
-        @media screen and (min-width:992px){
+           shows the same card twice at once, so they are laid out statically
+           at every width and the initialiser leaves this deck alone.
+           A row from 768 up: min(420px,30vw) is 230px there, so three cards
+           and their gaps come to 722 inside a 768 viewport. */
+        @media screen and (min-width:768px){
           .splide.is-static-desktop .splide__list{justify-content:center;grid-column-gap:1rem;column-gap:1rem;}
           .splide.is-static-desktop .splide__slide{flex:0 0 min(420px,30vw);}
+        }
+        /* Phones read them one under the other rather than swiping through
+           three. Nothing is hidden off the side of the screen this way. */
+        @media screen and (max-width:767px){
+          .splide.is-static-desktop .splide__track{overflow:visible;}
+          /* The deck sits outside .padding-global so a carousel could bleed off
+             the edges. Stacked, it needs the gutter back, or the cards run to
+             the screen edge while the heading above them does not. The page's
+             gutter is 5vw, so this tracks it rather than guessing a fixed value
+             that only lines up at one width. */
+          .splide.is-static-desktop .splide__list{flex-direction:column;align-items:center;grid-row-gap:2.5rem;row-gap:2.5rem;padding-left:5vw;padding-right:5vw;}
+          .splide.is-static-desktop .splide__slide{flex:none;width:100%;max-width:26.25rem;}
         }
 
         /* Figma 163:230 / 357:725 draw this as a static centred row, not the
@@ -1203,7 +1216,7 @@ animation:marquee-scroll 70s linear infinite;
   <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1/dist/js/splide.min.js"></script>
   <!--  Splide AutoScroll Extension  -->
   <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide-extension-auto-scroll@0.5/dist/js/splide-extension-auto-scroll.min.js"></script>
-  <script src="js/listings.js?v=20260906a" type="text/javascript"></script>
+  <script src="js/listings.js?v=20260913g" type="text/javascript"></script>
   <script>
   // Populate the "Featured Properties" carousel from the catalogue BEFORE
   // Splide initialises below, so it mounts over the generated slides.
@@ -1221,6 +1234,13 @@ animation:marquee-scroll 70s linear infinite;
       ul.querySelectorAll(".cabin-item .button span").forEach(function (el) {
         el.textContent = "Check Availability";
       });
+      // Every card on this page says Oxford, which tells a reader nothing.
+      // The accommodation type does. The homepage mixes both locations, so it
+      // keeps the destination there.
+      ul.querySelectorAll(".cabin-item").forEach(function (card, i) {
+        var first = card.querySelector(".cabin-item_features p");
+        if (first && items[i] && items[i].type) first.textContent = items[i].type;
+      });
     }
   })();
   </script>
@@ -1231,9 +1251,10 @@ const MOBILE_BREAKPOINT = 767
 const STATIC_ROW_BREAKPOINT = 992
 const splideInstances = new Map()
 function initMarquee(marquee) {
-  // The featured row is static above the phone breakpoint on this page; tear
-  // down any instance left over from a narrower window and leave it as markup.
-  if (marquee.classList.contains('is-static-desktop') && window.innerWidth >= STATIC_ROW_BREAKPOINT) {
+  // Oxford's three retreats are never a deck: a row above the phone
+  // breakpoint, stacked below it. Tear down any instance left over from an
+  // earlier layout and leave it as markup at every width.
+  if (marquee.classList.contains('is-static-desktop')) {
     if (splideInstances.has(marquee)) {
       splideInstances.get(marquee).destroy()
       splideInstances.delete(marquee)
