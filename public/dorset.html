@@ -503,6 +503,13 @@ animation:marquee-scroll 70s linear infinite;
 
         /* Hero heading is 124px over a 782px column in a 1440x810 frame. */
         .section-hero .heading-style-h1{font-size:min(clamp(2.5rem,8.61vw,7.75rem),14vh);}
+        /* Phones. Without this the desktop rule above wins on document order and
+           the heading falls back to its 2.5rem floor, which read noticeably
+           smaller than Oxford's. 12vw capped at 3.25rem is the rule Oxford and
+           the homepage already use. */
+        @media screen and (max-width:767px){
+          .section-hero .heading-style-h1{font-size:min(12vw,3.25rem);}
+        }
         /* The design puts 40% black plus the site's cream burn over this
            photograph. Sunlit foliage fills the frame, and at 40% the cream
            heading measured 2.52:1 against the brightest patch behind it and
