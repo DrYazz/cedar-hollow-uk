@@ -609,3 +609,38 @@ body.ch-book-open{overflow:hidden}
 .ch-cutting__source{font-weight:600;color:var(--accent)}
 a.ch-cutting:hover .ch-cutting__caption{text-decoration:underline;text-underline-offset:.2em}
 @media print{.ch-nav,.section-footer .footer_logo_wrap,.ch-book__overlay{display:none!important}}
+
+/* ---- Full-index navigation menu -------------------------------------------
+   The bar carries six curated links at >=1150px and a burger below that. The
+   sub-site is 43 pages, so the burger now shows at every width and opens the
+   whole index, grouped. The six-link bar is untouched: it stays the curated
+   route, and this is the way to everything else.
+
+   These rules sit outside the max-width:1149px block on purpose. They come
+   later in the file, so at equal specificity they override both the global
+   .ch-nav__menu{display:none} and that block's own overlay rules, giving one
+   consistent panel at all widths. Markup, element id and site.js are
+   unchanged, so the existing open/close/Escape behaviour still drives it. */
+.ch-nav__toggle{display:flex}
+.ch-nav__menu:not([hidden]){display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:0;position:fixed;inset:0;z-index:15;padding:5.5rem clamp(1.25rem,4vw,3rem) 3rem;background-color:var(--accent);overflow:auto;-webkit-overflow-scrolling:touch;text-align:left}
+.ch-nav__panel{width:100%;max-width:68rem;margin:0 auto 2.25rem;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-column-gap:2rem;column-gap:2rem;grid-row-gap:1.75rem;row-gap:1.75rem;align-items:start}
+/* Eight groups, so four columns lands a clean two rows rather than the
+   ragged tail auto-fit leaves. */
+@media (min-width:700px){.ch-nav__panel{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (min-width:1000px){.ch-nav__panel{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.ch-navgroup{min-width:0;animation:ch-nav-item .34s cubic-bezier(.2,.7,.3,1) both}
+.ch-navgroup:nth-child(2){animation-delay:.03s}
+.ch-navgroup:nth-child(3){animation-delay:.06s}
+.ch-navgroup:nth-child(4){animation-delay:.09s}
+.ch-navgroup:nth-child(5){animation-delay:.12s}
+.ch-navgroup:nth-child(6){animation-delay:.15s}
+.ch-navgroup:nth-child(7){animation-delay:.18s}
+.ch-navgroup:nth-child(8){animation-delay:.21s}
+.ch-navgroup__title{margin:0 0 .5rem;padding-bottom:.4rem;border-bottom:1px solid #f1ecdb38;font-family:var(--font-family--body);font-size:.7rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#f1ecdb99}
+.ch-navgroup__list{list-style:none;margin:0;padding:0}
+.ch-navgroup__list a{display:block;padding:.3rem 0;color:#f1ecdb;font-family:var(--font-family--body);font-size:.95rem;font-weight:400;line-height:1.35;letter-spacing:normal;text-transform:none;text-decoration:none}
+.ch-navgroup__list a:hover,.ch-navgroup__list a:focus-visible{color:#fff;text-decoration:underline;text-underline-offset:.18em}
+.ch-navgroup__list a:focus-visible{outline:2px solid #f1ecdb;outline-offset:3px;border-radius:2px}
+.ch-navgroup__list a[aria-current="page"]{color:#fff;font-weight:600}
+.ch-navgroup__list a[aria-current="page"]::before{content:"";display:inline-block;width:.3rem;height:.3rem;margin-right:.45rem;vertical-align:.15em;border-radius:50%;background-color:currentColor}
+@media (prefers-reduced-motion:reduce){.ch-navgroup{animation:none}}

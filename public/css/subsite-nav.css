@@ -1,11 +1,16 @@
 /* ---------------------------------------------------------------------------
-   Cedar Hollow Dorset — the sub-site navigation panel.
+   Cedar Hollow — the sub-site navigation panel.
 
-   The sub-site is now 22 pages, which the exported nav's flat right-aligned
-   column cannot hold: at that length it runs off the bottom of the viewport on
-   a laptop and becomes an unreadable scroll on a phone. This replaces the list
-   with a grouped panel, and is loaded by all 22 pages so the menu is identical
-   everywhere.
+   Shared by the root-level sub-site pages: dorset.html, dorset-retreats.html,
+   the twenty dorset-*.html pages and oxford.html. All of them carry the same
+   Webflow-exported nav component, so all of them get the same panel. The pages
+   inside /oxford/ are a separate export with their own nav markup and their own
+   stylesheet, and carry an equivalent block in oxford/css/site.css.
+
+   A sub-site runs to dozens of pages, which the exported nav's flat
+   right-aligned column cannot hold: at that length it runs off the bottom of
+   the viewport on a laptop and becomes an unreadable scroll on a phone. This
+   replaces the list with a grouped panel.
 
    WHY THE ID SELECTORS: each page carries the exported nav's own rules in a
    <style> block inside <body>, which comes after this file's <link> in the
@@ -14,10 +19,10 @@
    .ch-nav__menu. The markup, the element id and the toggle script are
    untouched, so the existing open/close/Escape behaviour still drives it.
 
-   This file deliberately holds the whole nav. dorset.html and
-   dorset-retreats.html came out of Figma, and keeping their nav dependency to
-   one stylesheet link plus one markup block is what makes the change easy to
-   lift back out when the menu is redrawn in Figma.
+   This file deliberately holds the whole nav. dorset.html, dorset-retreats.html
+   and oxford.html came out of Figma, and keeping their nav dependency to one
+   stylesheet link plus one markup block is what makes the change easy to lift
+   back out when the menu is redrawn in Figma.
    --------------------------------------------------------------------------- */
 
 /* dorset.html sets this inline; dorset-retreats.html does not, which collapses
