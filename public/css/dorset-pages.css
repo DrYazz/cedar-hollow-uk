@@ -1,0 +1,461 @@
+/* ---------------------------------------------------------------------------
+   Cedar Hollow Dorset — shared styles for the sub-site's supplementary pages.
+
+   dorset.html and dorset-retreats.html came out of Figma and are live; their
+   styling stays where it is, inline, and this file deliberately never touches
+   it. Everything here is namespaced .dp-* so it cannot reach those two pages
+   even once they start loading this stylesheet.
+
+   The vocabulary is lifted from dorset-retreats.html so the new pages read as
+   the same site: Crimson Pro headings at weight 300 with -.035em tracking, the
+   cream page ground, and the blurred-photograph-under-near-black band used for
+   every page head.
+   --------------------------------------------------------------------------- */
+
+:root {
+  --dp-cream: #f1e6d7;        /* page ground, from .ret-page */
+  --dp-ink: #100b01;          /* near-black, from .section-footer */
+  --dp-brand: #efeed5;        /* type on dark */
+  --dp-accent: #3b4126;       /* Cedar Hollow green */
+  --dp-rule: #3b41262e;       /* hairline on cream */
+  --dp-muted: #5d5c4b;        /* --color-text */
+}
+
+/* --- Page shell ---------------------------------------------------------- */
+
+.dp-page {
+  display: flex;
+  flex-direction: column;
+  grid-row-gap: 2px;
+  row-gap: 2px;
+  background-color: var(--dp-cream);
+}
+
+/* --- Page head: the retreats band treatment, reused ---------------------- */
+
+.dp-head {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+  color: var(--dp-brand);
+}
+
+.dp-head__bg { position: absolute; inset: -8%; pointer-events: none; }
+.dp-head__blur { width: 100%; height: 100%; object-fit: cover; filter: blur(25px); }
+
+/* The blur makes the photograph its own stacking context, so these two need
+   explicit levels or the dark layer paints underneath it. Same reasoning as
+   .ret-item__bg in dorset-retreats.html. */
+.dp-head__bg:before {
+  content: ""; position: absolute; inset: 0; z-index: 1;
+  background-color: #130f0fd9;
+}
+.dp-head__bg:after {
+  content: ""; position: absolute; inset: 0; z-index: 2;
+  background-color: #f5f4e6; mix-blend-mode: color-burn;
+  opacity: var(--image-burn-strength, 1);
+}
+
+.dp-head__content {
+  position: relative; z-index: 1;
+  display: flex; flex-direction: column; align-items: center;
+  grid-row-gap: 1.5rem; row-gap: 1.5rem;
+  width: 100%;
+  padding: 3.125rem clamp(1.25rem, 4.44vw, 4rem) 5rem;
+  text-align: center;
+}
+
+.dp-head__eyebrow {
+  margin: 0;
+  font-size: .875rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  opacity: .8;
+}
+
+.dp-head__title {
+  margin: 0;
+  max-width: 38.75rem;
+  font-family: var(--font-family--heading, Crimsonpro), serif;
+  font-weight: 300;
+  font-size: clamp(2.5rem, 6.94vw, 6.25rem);
+  line-height: .8;
+  letter-spacing: -.035em;
+}
+
+.dp-head__standfirst {
+  margin: 0;
+  max-width: 32.375rem;
+  font-size: clamp(1rem, 1.39vw, 1.25rem);
+  line-height: 1.6;
+}
+
+/* --- Body sections on cream ---------------------------------------------- */
+
+.dp-body { background-color: var(--dp-cream); color: var(--dp-muted); }
+
+.dp-section {
+  padding: clamp(3rem, 6vw, 5.5rem) clamp(1.25rem, 5vw, 4rem);
+}
+.dp-section + .dp-section { padding-top: 0; }
+.dp-section__inner { width: 100%; max-width: 60rem; margin: 0 auto; }
+.dp-section--wide .dp-section__inner { max-width: 80rem; }
+
+.dp-h2 {
+  margin: 0 0 1.5rem;
+  font-family: var(--font-family--heading, Crimsonpro), serif;
+  font-weight: 300;
+  font-size: clamp(2rem, 4vw, 3.25rem);
+  line-height: .9;
+  letter-spacing: -.035em;
+  color: var(--dp-accent);
+}
+
+.dp-h3 {
+  margin: 0 0 .75rem;
+  font-family: var(--font-family--heading, Crimsonpro), serif;
+  font-weight: 400;
+  font-size: clamp(1.375rem, 2.2vw, 1.75rem);
+  line-height: 1.1;
+  letter-spacing: -.02em;
+  color: var(--dp-accent);
+}
+
+.dp-lede {
+  margin: 0 0 2rem;
+  max-width: 42rem;
+  font-size: clamp(1.125rem, 1.6vw, 1.375rem);
+  line-height: 1.55;
+  color: var(--dp-accent);
+}
+
+/* --- Prose --------------------------------------------------------------- */
+
+.dp-prose { max-width: 42rem; font-size: 1.0625rem; line-height: 1.7; }
+.dp-prose p { margin: 0 0 1.15rem; }
+.dp-prose p:last-child { margin-bottom: 0; }
+.dp-prose strong { color: var(--dp-accent); font-weight: 600; }
+.dp-prose a { color: var(--dp-accent); text-decoration: underline; text-underline-offset: .18em; }
+.dp-prose ul, .dp-prose ol { margin: 0 0 1.15rem; padding-left: 1.25rem; }
+.dp-prose li { margin-bottom: .5rem; }
+
+/* --- Rule ---------------------------------------------------------------- */
+
+.dp-rule { height: 1px; margin: 0; border: 0; background-color: var(--dp-rule); }
+
+/* --- Cards --------------------------------------------------------------- */
+
+.dp-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+  grid-gap: 1.5rem; gap: 1.5rem;
+}
+/* auto-fit would give three columns at desktop, which strands a fourth card
+   on its own row. These grids always hold two or four. */
+.dp-grid--two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media screen and (max-width: 700px) {
+  .dp-grid--two { grid-template-columns: minmax(0, 1fr); }
+}
+
+.dp-card {
+  display: flex; flex-direction: column;
+  padding: 1.75rem;
+  border: 1px solid var(--dp-rule);
+  border-radius: var(--radius--16, 1rem);
+  background-color: #fbf7ef;
+}
+.dp-card__title {
+  margin: 0 0 .5rem;
+  font-family: var(--font-family--heading, Crimsonpro), serif;
+  font-weight: 400; font-size: 1.5rem; line-height: 1.15; letter-spacing: -.02em;
+  color: var(--dp-accent);
+}
+.dp-card__meta {
+  margin: 0 0 .75rem;
+  font-size: .8125rem; letter-spacing: .1em; text-transform: uppercase;
+  color: #8a8874;
+}
+.dp-card p { margin: 0 0 .75rem; font-size: 1rem; line-height: 1.6; }
+.dp-card p:last-child { margin-bottom: 0; }
+.dp-card a { color: var(--dp-accent); }
+
+/* Whole-card link, used on the index hub. The card IS the anchor, so its own
+   text would otherwise take the UA link colour. */
+.dp-card--link { text-decoration: none; color: inherit; transition: border-color .2s ease, transform .2s ease; }
+.dp-card--link p { color: var(--dp-muted); }
+.dp-card--link:hover, .dp-card--link:focus-visible {
+  border-color: var(--dp-accent); transform: translateY(-2px);
+}
+
+/* --- Specification list (ticked features) -------------------------------- */
+
+.dp-specs { margin: 0; padding: 0; list-style: none; display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  grid-gap: .6rem 1.5rem; gap: .6rem 1.5rem; }
+.dp-specs li { position: relative; padding-left: 1.6rem; font-size: 1rem; line-height: 1.5; }
+.dp-specs li:before {
+  content: ""; position: absolute; left: 0; top: .45em;
+  width: .5rem; height: .5rem; border-radius: 50%;
+  background-color: var(--dp-accent);
+}
+
+/* --- Numbered steps, for the operating manuals --------------------------- */
+
+.dp-steps { margin: 0; padding: 0; list-style: none; counter-reset: dp-step; }
+.dp-steps > li {
+  position: relative; counter-increment: dp-step;
+  padding: 0 0 1.5rem 3.25rem;
+  font-size: 1.0625rem; line-height: 1.65;
+}
+.dp-steps > li:before {
+  content: counter(dp-step);
+  position: absolute; left: 0; top: -.1em;
+  display: flex; align-items: center; justify-content: center;
+  width: 2.25rem; height: 2.25rem;
+  border: 1px solid var(--dp-accent); border-radius: 50%;
+  font-family: var(--font-family--heading, Crimsonpro), serif;
+  font-size: 1.125rem; color: var(--dp-accent);
+}
+.dp-steps > li:last-child { padding-bottom: 0; }
+
+/* --- Callout ------------------------------------------------------------- */
+
+.dp-note {
+  margin: 2rem 0;
+  padding: 1.25rem 1.5rem;
+  border-left: 3px solid var(--dp-accent);
+  background-color: #e9dcc9;
+  border-radius: 0 var(--radius--16, 1rem) var(--radius--16, 1rem) 0;
+  font-size: 1rem; line-height: 1.6;
+}
+.dp-note p { margin: 0 0 .6rem; }
+.dp-note p:last-child { margin-bottom: 0; }
+.dp-note__label {
+  display: block; margin-bottom: .35rem;
+  font-size: .75rem; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--dp-accent); font-weight: 600;
+}
+.dp-note.is-warning { border-left-color: #8c3b1e; background-color: #efd9cb; }
+.dp-note.is-warning .dp-note__label { color: #8c3b1e; }
+
+/* --- Tables -------------------------------------------------------------- */
+
+/* Wide tables scroll inside their own box rather than pushing the page. */
+.dp-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 0 1.5rem; }
+.dp-table { width: 100%; min-width: 34rem; border-collapse: collapse; font-size: 1rem; }
+.dp-table caption { text-align: left; padding-bottom: .75rem; font-size: .9375rem; color: #8a8874; }
+.dp-table th, .dp-table td {
+  padding: .8rem 1rem; text-align: left; vertical-align: top;
+  border-bottom: 1px solid var(--dp-rule);
+}
+.dp-table thead th {
+  font-family: var(--font-family--heading, Crimsonpro), serif;
+  font-weight: 400; font-size: 1.125rem; color: var(--dp-accent);
+  border-bottom-color: var(--dp-accent);
+}
+.dp-table tbody th { font-weight: 500; color: var(--dp-accent); }
+.dp-table td.is-num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.dp-table .is-yes, .dp-table .is-no { text-align: center; }
+.dp-table .is-yes { color: var(--dp-accent); }
+.dp-table .is-no { color: #b3ae9a; }
+
+/* --- FAQ accordion ------------------------------------------------------- */
+
+.dp-faq { border-top: 1px solid var(--dp-rule); }
+.dp-faq__item { border-bottom: 1px solid var(--dp-rule); }
+.dp-faq__item > summary {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  grid-column-gap: 1rem; column-gap: 1rem;
+  padding: 1.15rem 0; cursor: pointer; list-style: none;
+  font-family: var(--font-family--heading, Crimsonpro), serif;
+  font-size: clamp(1.125rem, 1.8vw, 1.375rem); font-weight: 400;
+  line-height: 1.25; letter-spacing: -.015em; color: var(--dp-accent);
+}
+.dp-faq__item > summary::-webkit-details-marker { display: none; }
+.dp-faq__item > summary:after {
+  content: "+"; flex: none; font-size: 1.5rem; line-height: 1;
+  transition: transform .2s ease;
+}
+.dp-faq__item[open] > summary:after { transform: rotate(45deg); }
+.dp-faq__item > summary:focus-visible { outline: 2px solid var(--dp-accent); outline-offset: 3px; }
+.dp-faq__body { padding: 0 0 1.25rem; max-width: 42rem; font-size: 1.0625rem; line-height: 1.7; }
+.dp-faq__body p { margin: 0 0 .9rem; }
+.dp-faq__body p:last-child { margin-bottom: 0; }
+.dp-faq__body ul { margin: 0 0 .9rem; padding-left: 1.25rem; }
+.dp-faq__body li { margin-bottom: .4rem; }
+
+/* --- Figure / gallery ---------------------------------------------------- */
+
+.dp-figure { margin: 0 0 2rem; }
+.dp-figure img {
+  display: block; width: 100%; height: auto;
+  border-radius: 1.648rem; /* matches .ret-media */
+}
+.dp-figure figcaption { padding-top: .75rem; font-size: .9375rem; color: #8a8874; }
+
+.dp-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  grid-gap: 1rem; gap: 1rem;
+}
+.dp-gallery img {
+  display: block; width: 100%; height: 100%; aspect-ratio: 3/2;
+  object-fit: cover; border-radius: 1.648rem;
+}
+
+/* --- Definition rows, for at-a-glance facts ------------------------------ */
+
+.dp-facts { margin: 0; display: grid; grid-template-columns: minmax(8rem, 14rem) 1fr; }
+.dp-facts dt {
+  padding: .8rem 1rem .8rem 0; border-top: 1px solid var(--dp-rule);
+  font-size: .8125rem; letter-spacing: .1em; text-transform: uppercase; color: #8a8874;
+}
+.dp-facts dd {
+  margin: 0; padding: .8rem 0; border-top: 1px solid var(--dp-rule);
+  font-size: 1.0625rem; line-height: 1.5; color: var(--dp-accent);
+}
+
+/* --- Buttons ------------------------------------------------------------- */
+
+/* .button comes from the Webflow sheet; these are the two variants the new
+   pages need and it does not define. */
+.dp-actions { display: flex; flex-wrap: wrap; grid-gap: .75rem; gap: .75rem; margin-top: 2rem; }
+
+.button.is-outline-dark {
+  background-color: #0000;
+  border: 2px solid var(--dp-accent);
+  color: var(--dp-accent);
+  transition: background-color .2s ease, color .2s ease;
+}
+.button.is-outline-dark:hover, .button.is-outline-dark:focus-visible {
+  background-color: var(--dp-accent); color: var(--dp-brand);
+}
+
+/* --- Closing call to action ---------------------------------------------- */
+
+.dp-cta {
+  padding: clamp(3.5rem, 7vw, 6rem) clamp(1.25rem, 5vw, 4rem);
+  background-color: var(--dp-accent);
+  color: var(--dp-brand);
+  text-align: center;
+}
+.dp-cta__inner { max-width: 38rem; margin: 0 auto; }
+.dp-cta h2 {
+  margin: 0 0 1rem;
+  font-family: var(--font-family--heading, Crimsonpro), serif;
+  font-weight: 300; font-size: clamp(2rem, 4.5vw, 3.5rem);
+  line-height: .9; letter-spacing: -.035em;
+}
+.dp-cta p { margin: 0 0 2rem; font-size: 1.0625rem; line-height: 1.6; opacity: .9; }
+.dp-cta .button.is-outline {
+  background-color: #0000; border: 2px solid var(--dp-brand); color: var(--dp-brand);
+  transition: background-color .2s ease, color .2s ease;
+}
+.dp-cta .button.is-outline:hover, .dp-cta .button.is-outline:focus-visible {
+  background-color: var(--dp-brand); color: var(--dp-accent);
+}
+
+/* --- Breadcrumb / sub-nav ------------------------------------------------ */
+
+.dp-crumb {
+  display: flex; flex-wrap: wrap; align-items: center;
+  grid-column-gap: .5rem; column-gap: .5rem;
+  margin: 0 0 1.5rem; padding: 0; list-style: none;
+  font-size: .875rem; color: #8a8874;
+}
+.dp-crumb a { color: #8a8874; text-decoration: none; }
+.dp-crumb a:hover { color: var(--dp-accent); text-decoration: underline; }
+.dp-crumb li + li:before { content: "/"; padding-right: .5rem; color: #b3ae9a; }
+
+/* --- Footer, matching dorset-retreats.html ------------------------------- */
+
+.dp-page .section-footer { background-color: var(--dp-ink); color: var(--dp-brand); }
+.dp-page .section-footer .footer_link { color: var(--dp-brand); }
+.dp-page .section-footer .footer_link:after { background: var(--dp-brand); }
+.dp-page .section-footer .footer_logo_wrap { color: #efeed514; }
+
+/* --- Narrow screens ------------------------------------------------------ */
+
+@media screen and (max-width: 767px) {
+  .dp-head__content { grid-row-gap: 1rem; row-gap: 1rem; padding-top: 2rem; padding-bottom: 3.5rem; }
+  .dp-facts { grid-template-columns: 1fr; }
+  .dp-facts dt { padding-bottom: 0; border-top: 1px solid var(--dp-rule); }
+  .dp-facts dd { padding-top: .25rem; border-top: 0; }
+  .dp-card { padding: 1.25rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dp-card--link { transition: none; }
+  .dp-card--link:hover, .dp-card--link:focus-visible { transform: none; }
+}
+
+/* --- Nav ----------------------------------------------------------------- */
+
+/* dorset.html sets this inline and dorset-retreats.html does not, so the nav
+   wrapper collapses to its content there: the bar's own space-between never
+   takes effect, and .ch-nav__menu — absolutely positioned against this element
+   — opens against the collapsed box rather than the page edge. The Figma pages
+   are live and stay as they are, so this is scoped to the new ones. */
+.dp-page .ch-nav { width: 100%; position: relative; }
+
+/* The exported nav staggers its first six items. The sub-site menu is longer,
+   so the last two would otherwise appear instantly at opacity 0's end state. */
+.dp-page .ch-nav__menu a:nth-child(7) { animation-delay: .27s; }
+.dp-page .ch-nav__menu a:nth-child(8) { animation-delay: .31s; }
+.dp-page .ch-nav__menu a:nth-child(9) { animation-delay: .35s; }
+
+/* --- Forms --------------------------------------------------------------- */
+
+/* .form_input ships white-on-black-border and square, which is right on the
+   homepage's dark band and wrong on this cream. Scoped to .dp-form so the
+   homepage form is untouched. */
+.dp-form { max-width: 36rem; }
+
+.dp-form .form_field-label {
+  font-size: .8125rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: #8a8874;
+}
+
+.dp-form .form_input {
+  width: 100%;
+  background-color: #fbf7ef;
+  border: 1px solid var(--dp-rule);
+  border-radius: var(--radius--16, 1rem);
+  color: var(--dp-accent);
+  padding: .75rem 1rem;
+  transition: border-color .2s ease;
+}
+.dp-form .form_input::placeholder { color: #b3ae9a; }
+.dp-form .form_input:focus {
+  border-color: var(--dp-accent);
+  outline: 2px solid #3b412633;
+  outline-offset: 1px;
+}
+
+/* Native select keeps its own arrow; the shared chevron asset matches the ink. */
+.dp-form select.form_input {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("../images/chevron-down.svg");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: .75rem;
+  padding-right: 2.5rem;
+}
+
+.dp-form textarea.form_input { min-height: 9rem; resize: vertical; }
+
+.dp-form .button { justify-self: start; cursor: pointer; }
+
+.dp-form .form_message-success,
+.dp-form .form_message-error {
+  border-radius: var(--radius--16, 1rem);
+  padding: 1.5rem;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+.dp-form .form_message-success { color: var(--dp-accent); background-color: #e2e8d2; }

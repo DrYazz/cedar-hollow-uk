@@ -89,4 +89,29 @@
   <url><loc>https://cedarhollow.uk/oxford/wasps.html</loc><priority>0.4</priority></url>
   <url><loc>https://cedarhollow.uk/oxford/wellness.html</loc><priority>0.8</priority></url>
   <url><loc>https://cedarhollow.uk/oxford/working.html</loc><priority>0.5</priority></url>
+  <!-- Cedar Hollow Dorset, served from the root as /dorset and /dorset-*.
+       Paths are extensionless to match each page's rel="canonical", which is
+       what Cloudflare's asset handler serves foo.html from. -->
+  <url><loc>https://cedarhollow.uk/dorset</loc><priority>0.9</priority></url>
+  <url><loc>https://cedarhollow.uk/dorset-retreats</loc><priority>0.9</priority></url>
+  <url><loc>https://cedarhollow.uk/dorset-woodsmans-treehouse</loc><priority>0.9</priority></url>
+  <url><loc>https://cedarhollow.uk/dorset-dazzle-treehouse</loc><priority>0.9</priority></url>
+  <url><loc>https://cedarhollow.uk/dorset-pinwheel-treehouse</loc><priority>0.9</priority></url>
+  <url><loc>https://cedarhollow.uk/dorset-prices</loc><priority>0.8</priority></url>
+  <url><loc>https://cedarhollow.uk/dorset-compare</loc><priority>0.7</priority></url>
+  <url><loc>https://cedarhollow.uk/dorset-information</loc><priority>0.7</priority></url>
+  <url><loc>https://cedarhollow.uk/dorset-faq</loc><priority>0.7</priority></url>
+  <url><loc>https://cedarhollow.uk/dorset-directions</loc><priority>0.7</priority></url>
+  <url><loc>https://cedarhollow.uk/dorset-local-information</loc><priority>0.6</priority></url>
+  <url><loc>https://cedarhollow.uk/dorset-woodland</loc><priority>0.6</priority></url>
+  <url><loc>https://cedarhollow.uk/dorset-contact</loc><priority>0.6</priority></url>
+  <url><loc>https://cedarhollow.uk/dorset-gift-certificates</loc><priority>0.5</priority></url>
+  <url><loc>https://cedarhollow.uk/dorset-woodland-map</loc><priority>0.5</priority></url>
+  <url><loc>https://cedarhollow.uk/dorset-pre-arrival</loc><priority>0.5</priority></url>
+  <url><loc>https://cedarhollow.uk/dorset-guest-information</loc><priority>0.5</priority></url>
+  <url><loc>https://cedarhollow.uk/dorset-pizza-oven</loc><priority>0.4</priority></url>
+  <url><loc>https://cedarhollow.uk/dorset-woodsmans-manual</loc><priority>0.3</priority></url>
+  <url><loc>https://cedarhollow.uk/dorset-dazzle-manual</loc><priority>0.3</priority></url>
+  <url><loc>https://cedarhollow.uk/dorset-pinwheel-manual</loc><priority>0.3</priority></url>
+  <url><loc>https://cedarhollow.uk/dorset-press</loc><priority>0.3</priority></url>
 </urlset>
