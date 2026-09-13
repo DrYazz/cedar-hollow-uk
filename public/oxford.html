@@ -434,8 +434,11 @@ width:100%;
            the radius and the shadow and runs the full width, continuing the
            full-bleed image directly above it. The cream burn stays -- that is
            the treatment every photograph on the site gets. */
-        .section-oxford-gallery{background-color:var(--offwhite,#f8f8e8);}
-        .ch-gallery{display:grid;grid-template-columns:repeat(4,1fr);grid-column-gap:.5rem;grid-row-gap:.5rem;margin:0;padding:0;list-style:none;}
+        /* One value for the seam, so the gap above the wall cannot drift from the
+           gaps inside it. Top and bottom only: left and right stay flush to the
+           screen, which is what makes it continue the full-bleed image. */
+        .section-oxford-gallery{--gallery-seam:.5rem;background-color:var(--offwhite,#f8f8e8);padding:var(--gallery-seam) 0;}
+        .ch-gallery{display:grid;grid-template-columns:repeat(4,1fr);grid-column-gap:var(--gallery-seam);grid-row-gap:var(--gallery-seam);margin:0;padding:0;list-style:none;}
         .ch-gallery li{position:relative;overflow:hidden;aspect-ratio:1;background-color:var(--accent,#3b4126);}
         .ch-gallery li:first-child{grid-column:span 2;grid-row:span 2;}
         .ch-gallery img{display:block;width:100%;height:100%;object-fit:cover;}
@@ -473,7 +476,8 @@ width:100%;
           .ch-tile__link{display:inline-flex;align-self:flex-start;}
         }
         @media screen and (max-width:767px){
-          .ch-gallery{grid-template-columns:repeat(2,1fr);grid-column-gap:.25rem;grid-row-gap:.25rem;}
+          .section-oxford-gallery{--gallery-seam:.25rem;}
+          .ch-gallery{grid-template-columns:repeat(2,1fr);}
           .ch-gallery li:first-child{grid-column:span 2;grid-row:span 1;aspect-ratio:3/2;}
         }
 
