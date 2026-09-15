@@ -665,8 +665,13 @@ animation:marquee-scroll 70s linear infinite;
            currentColor, the way .okmag and .thetimes already are, so it takes
            whatever colour the section sets. Page-scoped: the hero marquee, where
            the cream artwork is correct, is left alone. */
-        .press-row .telegraph,.ch-hero-press .telegraph{display:block;aspect-ratio:2520/266;background-color:currentColor;-webkit-mask-image:url("images/the-sunday-telegraph-2.png");mask-image:url("images/the-sunday-telegraph-2.png");-webkit-mask-position:center;mask-position:center;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-size:contain;mask-size:contain;}
-        .press-row .telegraph img,.ch-hero-press .telegraph img{visibility:hidden;}
+        /* The Telegraph mark is drawn as a mask over currentColor -- the <img> below
+   is only the source for that mask and is hidden. Scoped to .logo-marquee
+   rather than .ch-hero-press so it holds wherever the strip is mounted: the
+   awards row is now a marquee too, and when it stopped being .press-row the
+   mask stopped matching, leaving the raw cream artwork on a cream ground. */
+        .press-row .telegraph,.logo-marquee .telegraph{display:block;aspect-ratio:2520/266;background-color:currentColor;-webkit-mask-image:url("images/the-sunday-telegraph-2.png");mask-image:url("images/the-sunday-telegraph-2.png");-webkit-mask-position:center;mask-position:center;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-size:contain;mask-size:contain;}
+        .press-row .telegraph img,.logo-marquee .telegraph img{visibility:hidden;}
 
         /* Phones and tablets only. 100vh on mobile Safari and Chrome means the
                viewport with the address bar hidden, so a 100vh hero is taller than
