@@ -452,9 +452,14 @@ width:100%;
         /* One value for the seam, so the gap above the wall cannot drift from the
            gaps inside it. Top and bottom only: left and right stay flush to the
            screen, which is what makes it continue the full-bleed image. */
-        .section-oxford-gallery{--gallery-seam:.5rem;background-color:var(--offwhite,#f8f8e8);padding:var(--gallery-seam) 0;}
+        /* Figma 73:191 sets image tiles at rounded-[16px] over moss with the #f5f4e6
+   colour burn -- the same --radius--16 the property cards use. The mosaic
+   already had the burn but not the radius, so it was the one image block on
+   the page with square corners. Padding goes on all four sides now, so the
+   outer tiles round against a margin rather than against the viewport. */
+        .section-oxford-gallery{--gallery-seam:.5rem;background-color:var(--offwhite,#f8f8e8);padding:var(--gallery-seam);}
         .ch-gallery{display:grid;grid-template-columns:repeat(4,1fr);grid-column-gap:var(--gallery-seam);grid-row-gap:var(--gallery-seam);margin:0;padding:0;list-style:none;}
-        .ch-gallery li{position:relative;overflow:hidden;aspect-ratio:1;background-color:var(--accent,#3b4126);}
+        .ch-gallery li{position:relative;overflow:hidden;border-radius:var(--radius--16,1rem);aspect-ratio:1;background-color:var(--accent,#3b4126);}
         .ch-gallery li:first-child{grid-column:span 2;grid-row:span 2;}
         .ch-gallery img{display:block;width:100%;height:100%;object-fit:cover;}
         .ch-gallery li:after{content:"";position:absolute;inset:0;pointer-events:none;background-color:#f5f4e6;mix-blend-mode:color-burn;opacity:var(--image-burn-strength,.35);}
