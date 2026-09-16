@@ -1,0 +1,337 @@
+/* ---------------------------------------------------------------------------
+   Two additions to the location homepages:
+
+   1. An Instagram grid. Instagram retired the Basic Display API in 2024 and its
+      replacement needs a server to refresh tokens, which a static export on
+      Railway does not have. So the posts are curated: five real posts with
+      their thumbnails served from our own images/instagram/, each linking to
+      the post, and a sixth cell that is the follow card. Nothing third-party,
+      nothing that expires -- Instagram's own CDN URLs are signed and die within
+      days, so hotlinking them would have left holes in the grid.
+
+   2. A mailing-list dialog carrying the monthly prize draw. It waits for a sign
+      of interest before it interrupts, remembers a dismissal, and never shows
+      again once someone has joined.
+
+   Radius follows --radius--16, the token the property cards and the Oxford
+   mosaic use.
+   --------------------------------------------------------------------------- */
+
+/* ===========================================================================
+   1. Instagram grid
+   =========================================================================== */
+
+.ch-ig__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: .75rem;
+  margin: 2.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ch-ig__grid li {
+  margin: 0;
+}
+
+.ch-ig__item {
+  position: relative;
+  display: block;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: var(--radius--16, 1rem);
+  background-color: var(--accent, #3b4126);
+}
+
+.ch-ig__item img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .5s cubic-bezier(.2, .7, .3, 1);
+}
+
+.ch-ig__item:hover img,
+.ch-ig__item:focus-visible img {
+  transform: scale(1.04);
+}
+
+.ch-ig__item:focus-visible {
+  outline: 2px solid var(--accent, #3b4126);
+  outline-offset: 3px;
+}
+
+/* The glyph marks a reel without needing a second asset per tile. */
+.ch-ig__badge {
+  position: absolute;
+  top: .625rem;
+  right: .625rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #fff;
+  filter: drop-shadow(0 1px 3px rgba(16, 19, 7, .5));
+  pointer-events: none;
+}
+
+/* The sixth cell: same square, but the invitation rather than a post. */
+.ch-ig__follow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .625rem;
+  aspect-ratio: 1;
+  padding: 1rem;
+  border-radius: var(--radius--16, 1rem);
+  background-color: var(--accent, #3b4126);
+  color: #f1ecdb;
+  text-align: center;
+  text-decoration: none;
+  transition: opacity .2s ease;
+}
+
+.ch-ig__follow:hover,
+.ch-ig__follow:focus-visible {
+  opacity: .88;
+}
+
+.ch-ig__follow svg {
+  width: 2rem;
+  height: 2rem;
+  flex: none;
+}
+
+.ch-ig__handle {
+  font-size: clamp(.8125rem, 1.1vw, 1rem);
+  font-weight: 500;
+  line-height: 1.25;
+  letter-spacing: -.01em;
+  overflow-wrap: anywhere;
+}
+
+.ch-ig__follow-cta {
+  font-size: .75rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  opacity: .8;
+}
+
+@media screen and (max-width: 767px) {
+  .ch-ig__grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: .5rem;
+    margin-top: 2rem;
+  }
+}
+
+/* ===========================================================================
+   2. Mailing-list dialog
+   =========================================================================== */
+
+.ch-join {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  background-color: rgba(16, 19, 7, .62);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .3s ease, visibility 0s linear .3s;
+}
+
+.ch-join.is-open {
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+.ch-join[hidden] {
+  display: none;
+}
+
+.ch-join__panel {
+  position: relative;
+  width: 100%;
+  max-width: 30rem;
+  max-height: calc(100dvh - 2.5rem);
+  overflow-y: auto;
+  padding: clamp(1.75rem, 4vw, 2.5rem);
+  border-radius: var(--radius--16, 1rem);
+  background-color: var(--brand, #efeed5);
+  color: var(--accent, #3b4126);
+  text-align: center;
+  box-shadow: 0 1.5rem 3.5rem rgba(16, 19, 7, .42);
+  transform: translateY(1rem) scale(.97);
+  transition: transform .34s cubic-bezier(.2, .7, .3, 1);
+}
+
+.ch-join.is-open .ch-join__panel {
+  transform: none;
+}
+
+.ch-join__close {
+  position: absolute;
+  top: .625rem;
+  right: .625rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border: 0;
+  border-radius: 100%;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  transition: background-color .18s ease;
+}
+
+.ch-join__close:hover {
+  background-color: rgba(59, 65, 38, .1);
+}
+
+.ch-join__close:focus-visible {
+  outline: 2px solid var(--accent, #3b4126);
+  outline-offset: 2px;
+}
+
+.ch-join__close svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.ch-join__eyebrow {
+  margin: 0 0 .5rem;
+  font-size: .75rem;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  opacity: .7;
+}
+
+.ch-join__title {
+  margin: 0 0 .75rem;
+  font-family: var(--font-family--heading, Crimsonpro), serif;
+  font-size: clamp(1.75rem, 4.2vw, 2.5rem);
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: -.03em;
+}
+
+.ch-join__copy {
+  margin: 0 0 1.5rem;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.ch-join__form {
+  display: flex;
+  flex-direction: column;
+  gap: .625rem;
+  margin: 0;
+}
+
+.ch-join__form .form_input,
+.ch-join__input {
+  width: 100%;
+  height: 3rem;
+  margin: 0;
+  padding: 0 1rem;
+  border: 1px solid rgba(59, 65, 38, .35);
+  border-radius: 50em;
+  background-color: #fff;
+  color: var(--accent, #3b4126);
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+.ch-join__input:focus {
+  outline: 2px solid var(--accent, #3b4126);
+  outline-offset: 1px;
+}
+
+.ch-join__submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 3rem;
+  border: 0;
+  border-radius: 50em;
+  background-color: var(--accent, #3b4126);
+  color: #f1ecdb;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity .18s ease;
+}
+
+.ch-join__submit:hover:not(:disabled),
+.ch-join__submit:focus-visible {
+  opacity: .9;
+}
+
+.ch-join__submit:disabled {
+  opacity: .6;
+  cursor: default;
+}
+
+/* The honeypot: named, so the handler forwards it, but never shown or focusable. */
+.ch-join__pot {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+.ch-join__small {
+  margin: 1rem 0 0;
+  font-size: .8125rem;
+  line-height: 1.45;
+  opacity: .75;
+}
+
+.ch-join__small a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: .15em;
+}
+
+.ch-join__msg {
+  margin: 0;
+  padding: .875rem 1rem;
+  border-radius: .75rem;
+  font-size: .9375rem;
+  line-height: 1.45;
+}
+
+.ch-join__msg.is-done {
+  background-color: rgba(59, 65, 38, .1);
+}
+
+.ch-join__msg.is-fail {
+  background-color: rgba(150, 50, 30, .12);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ch-join,
+  .ch-join__panel,
+  .ch-ig__item img {
+    transition: opacity .01s linear, visibility 0s linear .01s;
+    transform: none;
+  }
+
+  .ch-ig__item:hover img,
+  .ch-ig__item:focus-visible img {
+    transform: none;
+  }
+}
