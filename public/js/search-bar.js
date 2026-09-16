@@ -12,8 +12,13 @@
   "use strict";
 
   var form = document.querySelector(".ch-search__bar");
-  var navBook = document.querySelector(".ch-nav__book");
-  if (!form || !navBook) return;
+  var bar = document.querySelector(".ch-searchbar");
+  if (!form || !bar) return;
+
+  var barSegs = Array.prototype.slice.call(bar.querySelectorAll(".ch-searchbar__seg"));
+  var barWhen = bar.querySelector("[data-bar-when]");
+  var barWho = bar.querySelector("[data-bar-who]");
+  var barSubmit = bar.querySelector(".ch-searchbar__submit");
 
   var whenInput = form.querySelector("#ch-search-when");
   var whoSelect = form.querySelector("#ch-search-who");
@@ -406,13 +411,30 @@
     return SHORT[a.getMonth()] + " " + a.getDate() + " – " + SHORT[b.getMonth()] + " " + b.getDate();
   }
 
-  /* The trigger keeps its label; what is chosen shows inside the panel and in
-     the dates line under the calendar. */
+  /* Unlike the nav button this replaced, the bar is the design's readout: it
+     shows the dates and the party as they are chosen. "Add dates" is the empty
+     state the design leaves implied. */
+  function plural(n, word) { return n + " " + word + (n === 1 ? "" : "s"); }
+
+  /* The design reads "2 adults", so adults are named while they are the whole
+     party; the moment anyone else is counted the headline becomes guests and
+     the rest is listed after it. */
+  function guestLabel() {
+    if (!state.children && !state.infants && !state.pets) return plural(state.adults, "adult");
+    var out = plural(state.adults + state.children, "guest");
+    if (state.infants) out += ", " + plural(state.infants, "infant");
+    if (state.pets) out += ", " + plural(state.pets, "pet");
+    return out;
+  }
+
   function syncTrigger() {
     var dates = dateLabel();
-    navBook.setAttribute("aria-label", dates
-      ? "Book a stay, " + dates + ", " + (state.adults + state.children) + " guests"
-      : "Book a stay");
+    if (barWhen) barWhen.textContent = dates || "Add dates";
+    if (barWho) barWho.textContent = guestLabel();
+    barSegs.forEach(function (b) {
+      b.setAttribute("aria-label", (b.contains(barWhen) ? "Dates: " : "Guests: ")
+        + (b.contains(barWhen) ? (dates || "not set") : guestLabel()) + ". Change");
+    });
   }
 
   /* ---- open / close ------------------------------------------------------ */
@@ -421,20 +443,18 @@
   var GAP = 10;
   var EDGE = 8;
 
-  // Lines the panel up with the right edge of the nav group rather than the
-  // button, so it finishes flush with the burger and the page margin instead
-  // of stopping short of them.
-  var anchor = navBook.closest(".ch-nav__actions") || navBook;
-
+  // Hangs off the bar's left edge, which is where the design puts both pickers.
+  // Clamped to the viewport so a narrow window pulls it back in rather than
+  // letting it run off the right.
   function place() {
-    var a = anchor.getBoundingClientRect();
+    var a = bar.getBoundingClientRect();
     var vw = document.documentElement.clientWidth;
     var vh = document.documentElement.clientHeight;
 
     panel.style.maxHeight = (vh - a.bottom - GAP - EDGE) + "px";
 
     var w = panel.offsetWidth;
-    var left = Math.max(EDGE, Math.min(a.right - w, vw - w - EDGE));
+    var left = Math.max(EDGE, Math.min(a.left, vw - w - EDGE));
     panel.style.left = Math.round(left) + "px";
     panel.style.top = Math.round(a.bottom + GAP) + "px";
   }
@@ -442,7 +462,7 @@
   function show() {
     open = true;
     panel.hidden = false;
-    navBook.setAttribute("aria-expanded", "true");
+    barSegs.forEach(function (b) { b.setAttribute("aria-expanded", "true"); });
     place();
     if (!state.start) scroll.scrollTop = 0;
     syncMark();
@@ -452,26 +472,34 @@
     if (!open) return;
     open = false;
     panel.hidden = true;
-    navBook.setAttribute("aria-expanded", "false");
+    barSegs.forEach(function (b) { b.setAttribute("aria-expanded", "false"); });
   }
 
-  navBook.setAttribute("role", "button");
-  navBook.setAttribute("aria-expanded", "false");
-  navBook.setAttribute("aria-controls", "ch-book-panel");
-  navBook.addEventListener("click", function (e) {
-    e.preventDefault();          // it is a real link until script takes over
-    e.stopPropagation();
-    if (open) close(); else show();
+  barSegs.forEach(function (b) {
+    b.addEventListener("click", function (e) {
+      e.stopPropagation();
+      if (open) close(); else show();
+    });
   });
+
+  // The button is outside the form, which script moved into the panel, so it
+  // has to ask the form to submit rather than being its submit button.
+  if (barSubmit) {
+    barSubmit.addEventListener("click", function (e) {
+      e.stopPropagation();
+      close();
+      if (form.requestSubmit) form.requestSubmit(); else form.submit();
+    });
+  }
 
   panel.addEventListener("click", function (e) { e.stopPropagation(); });
 
   document.addEventListener("click", function (e) {
-    if (open && !panel.contains(e.target) && e.target !== navBook) close();
+    if (open && !panel.contains(e.target) && !bar.contains(e.target)) close();
   });
 
   document.addEventListener("keydown", function (e) {
-    if (e.key === "Escape" && open) { close(); navBook.focus(); }
+    if (e.key === "Escape" && open) { close(); barSegs[0].focus(); }
   });
 
   window.addEventListener("resize", function () { if (open) place(); });

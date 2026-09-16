@@ -14,7 +14,105 @@
    #3B4126 type and selected day, #E7E2D0 range pill, rules moss at 19%.
    --------------------------------------------------------------------------- */
 
-/* ---- the nav trigger ---- */
+/* ---- the bar itself, Figma 280:293 ---- */
+
+/* It sits where the wordmark used to, at the top left. Numbers are the design's
+   own, converted from its 750px frame: 16.791/20.989px type, a 46px rule, a
+   70.953px search button on 5.597px of vertical padding. They are clamped
+   rather than fixed so the bar can give ground on a narrow screen instead of
+   pushing the burger off the edge.
+
+   Script-only. Without it the native bar further down the page is the one that
+   works, and this would be a trigger for a panel that never gets built. */
+.ch-searchbar {
+  display: none;
+}
+
+.js .ch-searchbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(.5rem, 1.5vw, 1.4rem);
+  flex: 0 1 46.875rem;              /* 750px */
+  min-width: 0;
+  padding: .35rem .4rem .35rem clamp(1rem, 3.1vw, 2.8rem);
+  border-radius: 50em;
+  background-color: #f1ecdb;
+  box-shadow: 0 .875rem .7rem rgba(0, 0, 0, .03);
+}
+
+.ch-searchbar__seg {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent, #3b4126);
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ch-searchbar__seg:focus-visible {
+  outline: 2px solid var(--accent, #3b4126);
+  outline-offset: 4px;
+  border-radius: .25rem;
+}
+
+.ch-searchbar__label {
+  font-size: clamp(.6875rem, 1.17vw, 1.05rem);
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -.005em;
+  text-transform: uppercase;
+  opacity: .7;
+}
+
+.ch-searchbar__value {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: clamp(.875rem, 1.46vw, 1.3125rem);
+  line-height: 1.35;
+  letter-spacing: -.02em;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.ch-searchbar__rule {
+  flex: none;
+  width: 1px;
+  height: clamp(1.75rem, 3.2vw, 2.875rem);
+  background-color: rgba(59, 65, 38, .25);
+}
+
+.ch-searchbar__submit {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(2.5rem, 4.93vw, 4.434rem);
+  aspect-ratio: 1;
+  padding: 0;
+  border: 0;
+  border-radius: 100%;
+  background-color: var(--accent, #3b4126);
+  color: #f1ecdb;
+  cursor: pointer;
+  transition: opacity .18s ease;
+}
+
+.ch-searchbar__submit:hover,
+.ch-searchbar__submit:focus-visible {
+  opacity: .9;
+}
+
+.ch-searchbar__submit svg {
+  width: 38%;
+  height: 38%;
+}
 
 .ch-nav__actions {
   display: flex;
@@ -22,36 +120,9 @@
   gap: 1rem;
 }
 
-/* Moss on cream, not the other way round: this page's background is the cream,
-   so the light pill the location-page heroes used disappeared into it. */
-.ch-nav__book {
-  display: inline-flex;
-  align-items: center;
-  height: 2.5rem;
-  padding: 0 1.25rem;
-  border: 0;
-  border-radius: 50em;
-  background-color: var(--accent, #3b4126);
-  color: #f1ecdb;
-  font-family: inherit;
-  font-size: .9375rem;
-  font-weight: 500;
-  letter-spacing: -.01em;
-  line-height: 1;
-  white-space: nowrap;
-  text-decoration: none;
-  cursor: pointer;
-  transition: opacity .18s ease;
-}
-
-.ch-nav__book:hover,
-.ch-nav__book:focus-visible {
-  opacity: .88;
-}
-
-/* The bar is only a no-script fallback now. Hidden off the html.js flag set
-   in <head> rather than from the component script, so it never paints first
-   and then vanishes; without script it stays, and still works. */
+/* The native bar under the page heading is the no-script fallback. Hidden off
+   the html.js flag set in <head> rather than from this script, so it never
+   paints first and then vanishes; without script it stays, and still works. */
 .js .ch-search {
   display: none;
 }
@@ -420,12 +491,6 @@
 /* ---- narrow screens ---- */
 
 @media screen and (max-width: 30em) {
-  .ch-nav__book {
-    height: 2.25rem;
-    padding: 0 .875rem;
-    font-size: .875rem;
-  }
-
   .ch-nav__actions {
     gap: .75rem;
   }
