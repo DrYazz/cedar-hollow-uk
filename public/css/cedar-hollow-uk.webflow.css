@@ -2298,6 +2298,60 @@ img {
   width: 10rem;
 }
 
+/* ---- "Book your Stay" in the nav panel ----
+   Every other item in the panel is a plain link. This one is what people opened
+   the menu for, so it is a filled pill at the foot of the list rather than a
+   sixth line of text.
+
+   It has to hold in three places: over a photographed hero, over the dark band
+   the content pages open with, and over the moss of the phone overlay. All
+   three want a cream pill, so that is the base. Only the properties page puts
+   the panel on cream, and there it inverts.
+
+   Selected by id, not class: subsite-nav.css colours the grouped menus through
+   "#ch-nav-menu a", and one id outweighs any number of classes -- so the
+   class-based version of this rule left the pill cream on cream across all 23
+   of those pages. */
+#ch-nav-menu .ch-nav__book-cta {
+  display: inline-flex;
+  align-items: center;
+  margin-top: .75rem;
+  padding: .7rem 1.4rem;
+  border-radius: 50em;
+  background-color: #f1ecdb;
+  color: var(--accent, #3b4126);
+  font-size: 1.0625rem;
+  font-weight: 500;
+  line-height: 1.2;
+  text-shadow: none;
+  white-space: nowrap;
+  transition: opacity .18s ease;
+}
+
+#ch-nav-menu .ch-nav__book-cta:hover,
+#ch-nav-menu .ch-nav__book-cta:focus-visible {
+  opacity: .88;
+  text-decoration: none;
+}
+
+/* The properties page is the one whose panel sits on cream, so its type is moss
+   and a cream pill would vanish. */
+.pp #ch-nav-menu .ch-nav__book-cta {
+  background-color: var(--accent, #3b4126);
+  color: #f1ecdb;
+}
+
+/* The phone overlay is moss whatever the page, so the pill is cream again. */
+@media screen and (max-width: 767px) {
+  #ch-nav-menu .ch-nav__book-cta,
+  .pp #ch-nav-menu .ch-nav__book-cta {
+    padding: .8rem 1.6rem;
+    background-color: #f1ecdb;
+    color: var(--accent, #3b4126);
+    font-size: 1.25rem;
+  }
+}
+
 /* ---- Awards & Recognition ----
    The row itself is untouched from before this became a carousel: same gap,
    same per-badge caps, so page one renders exactly as the section always has.
