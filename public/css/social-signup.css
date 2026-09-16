@@ -21,11 +21,15 @@
    1. Instagram grid
    =========================================================================== */
 
+/* Four across at the full container width, matching .ch-tiles under "Not Just
+   Woodland" -- same column count, same 1.5rem gutter, same breakpoints. The
+   grid is a sibling of the title block rather than a child of
+   .max-width-xlarge, which was holding it to 960 of the container's 1280. */
 .ch-ig__grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: .75rem;
-  margin: 2.5rem 0 0;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin: 0;
   padding: 0;
   list-style: none;
 }
@@ -73,54 +77,17 @@
   pointer-events: none;
 }
 
-/* The sixth cell: same square, but the invitation rather than a post. */
-.ch-ig__follow {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: .625rem;
-  aspect-ratio: 1;
-  padding: 1rem;
-  border-radius: var(--radius--16, 1rem);
-  background-color: var(--accent, #3b4126);
-  color: #f1ecdb;
-  text-align: center;
-  text-decoration: none;
-  transition: opacity .2s ease;
-}
-
-.ch-ig__follow:hover,
-.ch-ig__follow:focus-visible {
-  opacity: .88;
-}
-
-.ch-ig__follow svg {
-  width: 2rem;
-  height: 2rem;
-  flex: none;
-}
-
-.ch-ig__handle {
-  font-size: clamp(.8125rem, 1.1vw, 1rem);
-  font-weight: 500;
-  line-height: 1.25;
-  letter-spacing: -.01em;
-  overflow-wrap: anywhere;
-}
-
-.ch-ig__follow-cta {
-  font-size: .75rem;
-  letter-spacing: .06em;
-  text-transform: uppercase;
-  opacity: .8;
-}
-
-@media screen and (max-width: 767px) {
+@media screen and (max-width: 991px) {
   .ch-ig__grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: .5rem;
-    margin-top: 2rem;
+  }
+}
+
+/* .ch-tiles drops to one column here; four photographs at full width would be
+   an enormous scroll, so these stay two up. */
+@media screen and (max-width: 767px) {
+  .ch-ig__grid {
+    gap: .75rem;
   }
 }
 
