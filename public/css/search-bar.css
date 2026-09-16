@@ -50,11 +50,14 @@
      shadow the only thing between them. So it takes the treatment this page
      already gives a card on cream: a moss hairline at 20%, over white rather
      than cream, and a shadow with something in it. */
-  /* White on a moss hairline. The design's cream disappeared into this page's
-     identical cream; moss was tried and read as too heavy for the nav. */
-  border: 1px solid var(--border--accent-20, #3b412633);
-  background-color: #fff;
-  box-shadow: 0 1px 2px rgba(16, 19, 7, .04), 0 .625rem 1.5rem rgba(16, 19, 7, .08);
+  /* The design's own cream, which is the same cream as this page -- so unlike
+     the white version, the fill contributes nothing and the edge carries the
+     whole job. Hence 35% rather than the 20% the site's cards use: at 20% over
+     a fill that was already lighter than the page it was a hint, and here it
+     would be the only thing there. */
+  border: 1px solid rgba(59, 65, 38, .35);
+  background-color: #f1ecdb;
+  box-shadow: 0 1px 2px rgba(16, 19, 7, .05), 0 .625rem 1.5rem rgba(16, 19, 7, .09);
 }
 
 .ch-searchbar__seg {
@@ -153,12 +156,12 @@
   left: 0;
   z-index: 1000;
   max-width: calc(100vw - 1rem);
-  /* Same treatment as the bar they hang from, and for the same reason: cream
-     on this page's cream leaves only the shadow doing the work. */
-  background-color: #fff;
-  border: 1px solid var(--border--accent-20, #3b412633);
+  /* Same treatment as the bar they hang from: the design's cream, which is
+     this page's cream too, so the edge and the shadow carry them. */
+  background-color: #f1ecdb;
+  border: 1px solid rgba(59, 65, 38, .35);
   border-radius: 1rem;
-  box-shadow: 0 1.5rem 3rem rgba(19, 21, 12, .22);
+  box-shadow: 0 1.5rem 3rem rgba(19, 21, 12, .24);
   color: var(--accent, #3b4126);
   font-size: .9375rem;
   text-align: left;
