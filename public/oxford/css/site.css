@@ -641,6 +641,8 @@ a.ch-cutting:hover .ch-cutting__caption{text-decoration:underline;text-underline
 .ch-navgroup__list a{display:block;padding:.3rem 0;color:#f1ecdb;font-family:var(--font-family--body);font-size:.95rem;font-weight:400;line-height:1.35;letter-spacing:normal;text-transform:none;text-decoration:none}
 .ch-navgroup__list a:hover,.ch-navgroup__list a:focus-visible{color:#fff;text-decoration:underline;text-underline-offset:.18em}
 .ch-navgroup__list a:focus-visible{outline:2px solid #f1ecdb;outline-offset:3px;border-radius:2px}
-.ch-navgroup__list a[aria-current="page"]{color:#fff;font-weight:600}
-.ch-navgroup__list a[aria-current="page"]::before{content:"";display:inline-block;width:.3rem;height:.3rem;margin-right:.45rem;vertical-align:.15em;border-radius:50%;background-color:currentColor}
+/* "page" is the page you are on; "true" is the section you are in, used by
+   the Bee Museum exhibits now that they are not listed in the panel. */
+.ch-navgroup__list a[aria-current]{color:#fff;font-weight:600}
+.ch-navgroup__list a[aria-current]::before{content:"";display:inline-block;width:.3rem;height:.3rem;margin-right:.45rem;vertical-align:.15em;border-radius:50%;background-color:currentColor}
 @media (prefers-reduced-motion:reduce){.ch-navgroup{animation:none}}
