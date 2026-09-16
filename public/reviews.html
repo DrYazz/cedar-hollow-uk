@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Experiences | Cedar Hollow</title>
+  <title>Guest Reviews | Cedar Hollow</title>
   <meta content="width=device-width, initial-scale=1" name="viewport">
-  <meta name="description" content="Things to do at Cedar Hollow's woodland retreats in Oxfordshire and on the Dorset Jurassic Coast.">
+  <meta name="description" content="What guests say about Cedar Hollow: a five-star record across Google, Tripadvisor and Airbnb, and the people who have stayed.">
   <link href="css/normalize.css" rel="stylesheet" type="text/css">
   <link href="css/webflow.css" rel="stylesheet" type="text/css">
   <link href="css/cedar-hollow-uk.webflow.css?v=20260904a" rel="stylesheet" type="text/css">
@@ -15,13 +15,13 @@
   <link href="site.webmanifest" rel="manifest">
   <meta content="#3B4126" name="theme-color">
   <!--  Link previews. See index.html for why these are absolute.  -->
-  <link href="https://cedarhollow.uk/experiences.html" rel="canonical">
+  <link href="https://cedarhollow.uk/reviews.html" rel="canonical">
   <meta content="Cedar Hollow" property="og:site_name">
   <meta content="website" property="og:type">
   <meta content="en_GB" property="og:locale">
-  <meta content="Experiences | Cedar Hollow" property="og:title">
-  <meta content="Things to do at Cedar Hollow's woodland retreats in Oxfordshire and on the Dorset Jurassic Coast." property="og:description">
-  <meta content="https://cedarhollow.uk/experiences.html" property="og:url">
+  <meta content="Guest Reviews | Cedar Hollow" property="og:title">
+  <meta content="What guests say about Cedar Hollow: a five-star record across Google, Tripadvisor and Airbnb, and the people who have stayed." property="og:description">
+  <meta content="https://cedarhollow.uk/reviews.html" property="og:url">
   <meta content="https://cedarhollow.uk/images/og-image.jpg" property="og:image">
   <meta content="1200" property="og:image:width">
   <meta content="630" property="og:image:height">
@@ -29,6 +29,15 @@
   <meta content="A timber cabin lit from within, among ferns in golden-hour woodland" property="og:image:alt">
   <meta content="summary_large_image" name="twitter:card">
   <link href="css/page.css" rel="stylesheet" type="text/css">
+  <style>
+    /* page.css styles .ch-prose links but not .ch-list ones, so these were
+       rendering as default browser blue; and .ch-list is not in the accent
+       section's colour rule, so the dark band was showing dark text. */
+    .ch-list a{color:inherit;text-decoration:underline;text-underline-offset:.18em;}
+    .ch-list a:hover,.ch-list a:focus-visible{text-decoration-thickness:2px;}
+    .ch-section--accent .ch-list{color:var(--brand,#efeed5);}
+    .ch-list li{line-height:1.6;}
+  </style>
 </head>
 <body class="cp">
   <section class="ch-page-hero">
@@ -106,7 +115,7 @@
             <a href="about.html">Our Story</a>
             <a href="search-results.html">Properties</a>
             <a href="sustainability.html">Sustainability</a>
-            <a href="experiences.html" aria-current="page">Experiences</a>
+            <a href="experiences.html">Experiences</a>
             <a href="mailto:hello@cedarhollow.uk">Contact</a>
           </div>
           <script>
@@ -129,13 +138,13 @@
         </div>
     <div class="ch-page-hero__body padding-global"><div class="container-large">
       <div class="text-align-center"><div class="max-width-xlarge align-center">
-        <p class="ch-page-hero__eyebrow text-size-medium text-style-allcaps">Things to do</p>
-        <h1 class="heading-style-h1"><span class="text-style-italic">Experi</span>ences</h1>
-        <p class="ch-page-hero__lead text-size-large">Mostly, a stay here is about doing less. But when you want to venture out, there is plenty within reach.</p>
+        <p class="ch-page-hero__eyebrow text-size-medium text-style-allcaps">What our guests say</p>
+        <h1 class="heading-style-h1">Guest <span class="text-style-italic">Reviews</span></h1>
+        <p class="ch-page-hero__lead text-size-large">Five stars, several hundred times over, and the people who left them.</p>
       </div></div>
     </div></div>
   </section>
-  <main>
+
     <section class="bg-light">
       <div class="padding-section-medium">
         <div class="padding-global">
@@ -144,21 +153,24 @@
               <div class="max-width-xlarge align-center">
                 <div class="section-title-block">
                   <div class="margin-bottom margin-large">
-                    <h2 class="heading-style-h1">Slow days, in two <span class="text-style-italic">very different</span> landscapes</h2>
+                    <h2 class="heading-style-h1">Rated <span class="text-style-italic">five stars</span></h2>
                   </div>
                 </div>
-                <div class="margin-bottom margin-large">
-                  <p class="heading-style-h3">A stay at Cedar Hollow is mostly about doing less.</p>
+                <div class="ch-prose text-size-large">
+                  <p>Cedar Hollow Oxford holds a 5.0 rating from 267 verified reviews across Google, Tripadvisor and Airbnb, where we are a Superhost. The woodland is a VisitEngland Gold award winner and Silver for Best Self-Catering Accommodation of the Year 2026.</p>
+                  <p>We do not reprint reviews here. They are worth more where you can see they are real, so read them at the source.</p>
                 </div>
-                <div class="margin-bottom margin-large">
-                  <div class="ch-prose text-size-large"><p>But when you do want to venture out, our two locations pull in completely different directions: ancient Oxfordshire woodland on one side, the Dorset coast on the other.</p></div>
-                </div>
+                <ul class="ch-list text-size-large" style="margin-top:2.5rem;">
+                  <li><a href="https://www.tripadvisor.co.uk/Hotel_Review-g186361-d32973964-Reviews-Cedar_Hollow_Oxford_The_Oaks-Oxford_Oxfordshire_England.html" target="_blank" rel="noopener">Tripadvisor</a> &mdash; Cedar Hollow Oxford, The Oaks</li>
+                  <li><a href="https://www.ratedtrips.com/camping/england/oxfordshire/oxford/cedar-hollow-ox38gh" target="_blank" rel="noopener">VisitEngland Rated Trips</a> &mdash; our national assessor&#x27;s listing</li>
+                </ul>
               </div>
             </div>
           </div>
         </div>
       </div>
     </section>
+
     <section class="ch-section--accent">
       <div class="padding-section-medium">
         <div class="padding-global">
@@ -167,44 +179,19 @@
               <div class="max-width-xlarge align-center">
                 <div class="section-title-block">
                   <div class="margin-bottom margin-large">
-                    <h2 class="heading-style-h1">At the <span class="text-style-italic">retreat</span></h2>
+                    <h2 class="heading-style-h1">Guests who have <span class="text-style-italic">stayed</span></h2>
                   </div>
                 </div>
-                <ul class="ch-cards"><li><h3 class="heading-style-h4">Hot tub under the canopy</h3><p>Several of our retreats have a private hot tub on the deck, best used late, with the lights off and the sky doing the work.</p></li><li><h3 class="heading-style-h4">Wood-burners and long evenings</h3><p>Wood-fired warmth, deep sofas and no particular reason to be anywhere. This is what most guests remember.</p></li><li><h3 class="heading-style-h4">Stargazing</h3><p>Away from town light, the sky over the woodland is genuinely dark. Wrap up and look up.</p></li></ul>
-                <div class="margin-bottom margin-large"><ul class="ch-photos"><li><img src="images/gallery/exp-copper-tub-530.webp" srcset="images/gallery/exp-copper-tub-530.webp 530w, images/gallery/exp-copper-tub-800.webp 800w" sizes="(max-width: 767px) 92vw, (max-width: 1360px) 30vw, 410px" loading="lazy" alt="A copper hot tub on the treehouse deck, open to the canopy"></li><li><img src="images/gallery/woodsmans-treehouse-3-530.webp" srcset="images/gallery/woodsmans-treehouse-3-530.webp 530w, images/gallery/woodsmans-treehouse-3-1060.webp 1060w" sizes="(max-width: 767px) 92vw, (max-width: 1360px) 30vw, 410px" loading="lazy" alt="The rotating wood burner and roll-top bath inside the Woodsman's Treehouse"></li><li><img src="images/gallery/exp-starlit-shower-530.webp" srcset="images/gallery/exp-starlit-shower-530.webp 530w, images/gallery/exp-starlit-shower-1060.webp 1060w" sizes="(max-width: 767px) 92vw, (max-width: 1360px) 30vw, 410px" loading="lazy" alt="The outdoor shower under a starry night sky"></li></ul></div>
+                <div class="ch-prose text-size-large">
+                  <p>Among many others: Luke Newton (Colin in <em>Bridgerton</em>), Aston Merrygold and family (JLS), Stephanie Davis and Sarah-Jayne Dunn (Sinead and Mandy in <em>Hollyoaks</em>), Ali Bastian (<em>Hollyoaks</em>, <em>The Bill</em>), Danny Cipriani and Andrew Trimble (rugby union), Suzannah Lipscomb (historian and broadcaster), Quirijn de Lang (operatic baritone), Jade Davies (<em>Britain&#x27;s Got Talent</em>, West End), Georgia Louise Harrison MBE, Vicky Pattison (winner, <em>I&#x27;m a Celebrity</em>), Amber Davies (winner, <em>Love Island</em> 2017), Bianca Gascoigne, Jessica Revell, Malin Andersson, Abbie Holborn and Sophie Kasaei.</p>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
     </section>
-    <div class="section-full-bleed-img">
-      <div class="full-bleed-img-wrap"><img src="images/full-bleed-golden-hour-1920.webp" srcset="images/full-bleed-golden-hour-1280.webp 1280w, images/full-bleed-golden-hour-1920.webp 1920w, images/full-bleed-golden-hour-2880.webp 2880w" sizes="100vw" loading="lazy" alt="Golden-hour sun through the canopy over a glamping pod and treehouse deck among the ferns" class="full-bleed-img"></div>
-    </div>
-        <section>
-      <div class="padding-section-medium">
-        <div class="padding-global">
-          <div class="container-large">
-            <div class="text-align-center">
-              <div class="max-width-xlarge align-center">
-                <div class="section-title-block">
-                  <div class="margin-bottom margin-large">
-                    <h2 class="heading-style-h1">At Cedar Hollow <span class="text-style-italic">Oxford</span></h2>
-                  </div>
-                </div>
-                <div class="margin-bottom margin-large">
-                  <p class="heading-style-h3">Magic, honey, bats and C.S. Lewis, all on-site for you to enjoy.</p>
-                </div>
-                <div class="margin-bottom margin-large">
-                  <ul class="ch-cards"><li><h3 class="heading-style-h4">The Bee Museum</h3><p>Maison du Miel, our bee museum and apiary: working hives, hands-on displays and honey harvested a few steps away.</p></li><li><h3 class="heading-style-h4">Trail of Illusions</h3><p>Illusions woven through the estate by a member of The Magic Circle, from hidden carvings to an AI-powered talking mirror. Book with a Keeper of the Keys.</p></li><li><h3 class="heading-style-h4">Escape rooms</h3><p>Two story-led games, exclusive to guests. Self-guided for &pound;15, or &pound;65 with a dedicated Game Master. Each game lasts about an hour.</p></li><li><h3 class="heading-style-h4">Honey tasting</h3><p>Three honeys from our own hives, tasted and paired with cheese, fig and honeycomb, ending in a blind test against a supermarket jar. &pound;25 per person.</p></li><li><h3 class="heading-style-h4">An evening of magic</h3><p>The Lost Experiments of an Edwardian Magician: an intimate, story-led show by the Wizards of Ox. Daily at 6pm, &pound;15 per person.</p></li><li><h3 class="heading-style-h4">The bats of Shotover</h3><p>Borrow a bat detector and a red-light torch and step outside at dusk. The colonies are most active from April to October.</p></li><li><h3 class="heading-style-h4">Birdwatching</h3><p>Red kites overhead, tawny owls at dusk, woodpeckers and nuthatches in the canopy on the walk out to Shotover Country Park.</p></li><li><h3 class="heading-style-h4">Lewis&rsquo;s Oxford, guided by Jack</h3><p>An interactive walking tour of C.S. Lewis&rsquo;s Oxford, made with the C.S. Lewis Foundation, from the Inklings&rsquo; pubs to Magdalen College.</p></li><li><h3 class="heading-style-h4">The C.S. Lewis Trail</h3><p>A quiet woodland tribute: a Routemaster above Lewis&rsquo;s former garden, a 1926 Triumph and sidecar, and stonework from the church where he is buried.</p></li></ul>
-                </div>
-                <div class="margin-bottom margin-large"><ul class="ch-photos"><li><img src="images/gallery/oak-bee-museum-530.webp" srcset="images/gallery/oak-bee-museum-530.webp 530w, images/gallery/oak-bee-museum-1060.webp 1060w" sizes="(max-width: 767px) 92vw, (max-width: 1360px) 30vw, 410px" loading="lazy" alt="Honeycomb display cases inside the Bee Museum at Cedar Hollow Oxford"></li><li><img src="images/gallery/oak-phonebox-530.webp" srcset="images/gallery/oak-phonebox-530.webp 530w, images/gallery/oak-phonebox-1060.webp 1060w" sizes="(max-width: 767px) 92vw, (max-width: 1360px) 30vw, 410px" loading="lazy" alt="The red telephone box in the woodland, home of the Call Beyond the Lamp Post escape game"></li><li><img src="images/gallery/oak-routemaster-530.webp" srcset="images/gallery/oak-routemaster-530.webp 530w, images/gallery/oak-routemaster-1060.webp 1060w" sizes="(max-width: 767px) 92vw, (max-width: 1360px) 30vw, 410px" loading="lazy" alt="The Routemaster bus on the C.S. Lewis Trail through the Oxford woodland"></li></ul></div><a data-wf--button--variant="base" href="oxford/experiences.html" class="button w-inline-block"><span>See details and book</span><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewbox="0 0 17 12" fill="none" class="button_icon"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.2443 5.03644L9.48927 1.21321L10.6935 0L16.5 5.91195L10.6783 11.55L9.50444 10.3067L13.17 6.75673H0V5.03644H13.2443Z" fill="currentColor"></path></svg></a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+
     <section class="bg-light">
       <div class="padding-section-medium">
         <div class="padding-global">
@@ -213,15 +200,14 @@
               <div class="max-width-xlarge align-center">
                 <div class="section-title-block">
                   <div class="margin-bottom margin-large">
-                    <h2 class="heading-style-h1">At Cedar Hollow <span class="text-style-italic">Dorset</span></h2>
+                    <h2 class="heading-style-h1">And in <span class="text-style-italic">the press</span></h2>
                   </div>
                 </div>
-                <div class="margin-bottom margin-large">
-                  <p class="heading-style-h3">Several exciting experiences are coming soon to the Dorset woodland.</p>
+                <div class="ch-prose text-size-large">
+                  <p>Twenty-three features and seven screen appearances, for both woodlands, are gathered on their own page.</p>
                 </div>
-                <div class="margin-bottom margin-large">
-                  <ul class="ch-cards"><li><h3 class="heading-style-h4">Woodland wellness</h3><p>Bookable wellness facilities among the trees: a sauna, hot tub and cold plunge.</p></li><li><h3 class="heading-style-h4">Craft workshops</h3><p>Craft-centred workshops and classes, carrying on the making tradition this woodland has taught for twenty years.</p></li><li><h3 class="heading-style-h4">And more to come</h3><p>More experiences are in preparation. We will announce each one as it opens.</p></li></ul>
-                <div class="margin-bottom margin-large"><ul class="ch-photos"><li><img src="images/gallery/exp-sauna-530.webp" srcset="images/gallery/exp-sauna-530.webp 530w, images/gallery/exp-sauna-893.webp 893w" sizes="(max-width: 767px) 92vw, (max-width: 1360px) 30vw, 410px" loading="lazy" alt="The light timber sauna interior"></li><li><img src="images/gallery/exp-oak-bath-530.webp" srcset="images/gallery/exp-oak-bath-530.webp 530w, images/gallery/exp-oak-bath-1060.webp 1060w" sizes="(max-width: 767px) 92vw, (max-width: 1360px) 30vw, 410px" loading="lazy" alt="A freestanding bath on the deck beside the ancient oak"></li><li><img src="images/gallery/exp-tree-shower-530.webp" srcset="images/gallery/exp-tree-shower-530.webp 530w, images/gallery/exp-tree-shower-750.webp 750w" sizes="(max-width: 767px) 92vw, (max-width: 1360px) 30vw, 410px" loading="lazy" alt="The outdoor tree shower among the leaves"></li></ul></div>
+                <div class="button-group align-center" style="margin-top:2.5rem;">
+                  <a href="press.html" class="button w-inline-block"><span>View All Press</span><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewbox="0 0 17 12" fill="none" class="button_icon"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.2443 5.03644L9.48927 1.21321L10.6935 0L16.5 5.91195L10.6783 11.55L9.50444 10.3067L13.17 6.75673H0V5.03644H13.2443Z" fill="currentColor"></path></svg></a>
                 </div>
               </div>
             </div>
@@ -229,29 +215,7 @@
         </div>
       </div>
     </section>
-    <section>
-      <div class="padding-section-medium">
-        <div class="padding-global">
-          <div class="container-large">
-            <div class="text-align-center">
-              <div class="max-width-xlarge align-center">
-                <div class="section-title-block">
-                  <div class="margin-bottom margin-large">
-                    <h2 class="heading-style-h1">Explore our <span class="text-style-italic">properties</span></h2>
-                  </div>
-                </div>
-                <div class="margin-bottom margin-large">
-                  <p class="heading-style-h3">Six woodland retreats across Oxfordshire and Dorset, from a two-person hideaway to a treehouse built for a gathering.</p>
-                </div>
-                <a data-wf--button--variant="base" href="search-results.html" class="button w-inline-block"><span>Browse the properties</span><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewbox="0 0 17 12" fill="none" class="button_icon"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.2443 5.03644L9.48927 1.21321L10.6935 0L16.5 5.91195L10.6783 11.55L9.50444 10.3067L13.17 6.75673H0V5.03644H13.2443Z" fill="currentColor"></path></svg></a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
-  <section class="section-footer">
+<section class="section-footer">
       <div class="padding-section-small">
         <div class="padding-global">
           <div class="container-large">
