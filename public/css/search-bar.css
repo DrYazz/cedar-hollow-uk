@@ -24,6 +24,29 @@
 
    Script-only. Without it the native bar further down the page is the one that
    works, and this would be a trigger for a panel that never gets built. */
+/* Owl and bar travel together on the left; the burger keeps the right edge.
+   Without the group the nav's space-between would strand the bar in the middle. */
+.ch-nav__brand {
+  display: flex;
+  align-items: center;
+  gap: clamp(.5rem, 1.1vw, 1rem);
+  min-width: 0;
+  /* The group carries the width, not the bar. A flex item inside a
+     shrink-to-fit flex item contributes its content size, not its basis, so
+     leaving the 503px on the bar collapsed it to 271 the moment it gained this
+     wrapper. 555px is the owl, the gap and the bar together; the bar then
+     fills whatever the owl leaves. */
+  flex: 0 1 34.6875rem;
+}
+
+/* Under ~380px the owl costs the bar the 36px that keeps "2 adults" whole, and
+   a clipped value is worse than no mark. */
+@media screen and (max-width: 379px) {
+  .ch-nav__owl {
+    display: none;
+  }
+}
+
 .ch-searchbar {
   display: none;
 }
@@ -33,9 +56,9 @@
   align-items: center;
   justify-content: space-between;
   gap: clamp(.5rem, 1.5vw, 1.4rem);
-  /* 503px: the design's 750 scaled by the same 55/82 the height is, so the
-     bar keeps its 9.1:1 proportion rather than stretching thin. */
-  flex: 0 1 31.4375rem;
+  /* Fills what the owl leaves of .ch-nav__brand's 555px, which works out at
+     the 503px the design's 750 scales to at this height -- 9.1:1, its own. */
+  flex: 1 1 auto;
   min-width: 0;
   /* Height tracks the wordmark this replaced -- 45px at 1440 in an 85px nav.
      At the design's own 82px the bar stood 37px taller than the logo and
