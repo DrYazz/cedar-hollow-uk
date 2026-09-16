@@ -467,11 +467,13 @@ width:100%;
         .ch-spread-wrap{max-width:68rem;margin:0 auto;padding:clamp(3.5rem,7vw,6rem) 0;}
         /* A label, not a heading: the section directly below opens with a
            centred h1-sized heading, and two headings back to back would fight.
-           Left-aligned, where every other block on this page is centred, which
-           is most of what tells a reader this one is a spread. */
-        .ch-spread__eyebrow{margin:0 0 clamp(2rem,4vw,3rem);color:var(--accent,#3b4126);opacity:.55;font-family:var(--font-family--body,Inter),sans-serif;font-size:.8125rem;font-weight:600;letter-spacing:.08em;line-height:1;text-transform:uppercase;}
-        .ch-spread{display:grid;grid-template-columns:repeat(12,1fr);grid-column-gap:2rem;grid-row-gap:clamp(2.5rem,5vw,4rem);align-items:start;margin:0;padding:0;list-style:none;counter-reset:plate;}
-        .ch-spread>li{margin:0;counter-increment:plate;}
+           The metrics are .ch-page-hero__eyebrow's and .dp-head__eyebrow's --
+           .875rem, 600, uppercase -- recoloured for a cream ground rather than
+           a green one. Left-aligned, where every other block on this page is
+           centred, which is most of what tells a reader this one is a spread. */
+        .ch-spread__eyebrow{margin:0 0 clamp(2rem,4vw,3rem);color:var(--accent,#3b4126);opacity:.7;font-size:.875rem;font-weight:600;letter-spacing:.14em;line-height:1.1;text-transform:uppercase;}
+        .ch-spread{display:grid;grid-template-columns:repeat(12,1fr);grid-column-gap:2rem;grid-row-gap:clamp(2.5rem,5vw,4rem);align-items:start;margin:0;padding:0;list-style:none;}
+        .ch-spread>li{margin:0;}
         /* Wide left and tall right, then tall left and wide right, then wide
            left again. The weight changing sides down the page is what stops
            six frames settling back into the grid they came from. */
@@ -483,7 +485,7 @@ width:100%;
         .ch-spread>li:nth-child(2n){margin-top:clamp(1.25rem,3.5vw,3rem);}
         .ch-plate{display:block;color:inherit;text-decoration:none;}
         .ch-plate__fig{margin:0;}
-        .ch-plate__frame{position:relative;overflow:hidden;border-radius:var(--radius--16,1rem);background-color:var(--accent,#3b4126);}
+        .ch-plate__frame{position:relative;overflow:hidden;border:1px solid #3b412666;border-radius:var(--radius--16,1rem);background-color:var(--accent,#3b4126);}
         /* Two shapes only. The landscape frame is the originals' own 4:3, so
            those three are not cropped at all; the portrait frame takes a 4:5
            slice, and the per-image object-position in the markup decides what
@@ -496,11 +498,13 @@ width:100%;
         .ch-plate__frame:after{content:"";position:absolute;inset:0;pointer-events:none;background-color:#f5f4e6;mix-blend-mode:color-burn;opacity:var(--image-burn-strength,.35);}
         .ch-plate:hover .ch-plate__frame img,.ch-plate:focus-visible .ch-plate__frame img{transform:scale(1.04);}
         .ch-plate:focus-visible{outline:2px solid var(--accent,#3b4126);outline-offset:.5rem;border-radius:var(--radius--16,1rem);}
-        /* Numbered from a counter rather than typed into the markup, so
-           reordering or dropping a frame cannot leave the numbers lying. */
-        .ch-plate__caption{display:flex;align-items:baseline;grid-column-gap:.75rem;column-gap:.75rem;margin:1rem .25rem 0;}
-        .ch-plate__caption:before{content:counter(plate,decimal-leading-zero);flex:none;font-family:var(--font-family--body,Inter),sans-serif;font-size:.6875rem;font-weight:600;letter-spacing:.08em;color:var(--accent,#3b4126);opacity:.45;}
-        .ch-plate__label{font-family:var(--font-family--heading,Crimsonpro),serif;font-size:1.0625rem;line-height:1.35;letter-spacing:-.01em;color:var(--accent,#3b4126);}
+        /* Crimson Pro at 400 with the negative tracking .ch-tile__title uses
+           in the section above, a couple of steps down the scale. A label under
+           a photograph is set in the serif everywhere else on the site.
+           text-align is spelled out because webflow.css centres every
+           figcaption, which puts the caption off the frame's left edge. */
+        .ch-plate__caption{margin:1rem 0 0;text-align:left;}
+        .ch-plate__label{font-family:var(--font-family--heading,Crimsonpro),serif;font-weight:400;font-size:1.125rem;line-height:1.35;letter-spacing:-.02em;color:var(--accent,#3b4126);}
         .ch-plate:hover .ch-plate__label{text-decoration:underline;text-underline-offset:.18em;text-decoration-thickness:1px;}
         @media (prefers-reduced-motion:reduce){
           .ch-plate__frame img{transition:none;}
@@ -1048,7 +1052,7 @@ animation:marquee-scroll 70s linear infinite;
          sitting directly above this section. -->
     <section class="section-oxford-gallery">
       <div class="ch-spread-wrap">
-        <p class="ch-spread__eyebrow">Around the estate</p>
+        <p class="ch-spread__eyebrow">The estate</p>
         <ul role="list" class="ch-spread">
           <li class="is-wide">
             <a class="ch-plate" href="oxford/map.html">
@@ -1136,7 +1140,7 @@ animation:marquee-scroll 70s linear infinite;
             <div class="ch-charity">
               <p class="ch-charity__badge"><img src="images/can-logo-400.webp" loading="lazy" width="400" height="190" alt="Congenital Anaemia Network"></p>
               <h2 class="heading-style-h1">Together <span class="text-style-italic">We Can</span></h2>
-              <p class="ch-charity__copy text-size-large">We founded the <a href="https://togetherwecan.uk/" target="_blank" rel="noopener">Congenital Anaemia Network</a>, a national charity for people living with rare inherited blood disorders. A portion of every stay helps sustain it &mdash; and one weekend each month the retreats go to patients and their families, free of charge.</p>
+              <p class="ch-charity__copy text-size-large">We founded the <a href="https://togetherwecan.uk/" target="_blank" rel="noopener">Congenital Anaemia Network</a>, a national charity for people living with rare inherited blood disorders. A portion of every stay helps sustain it. One weekend each month the retreats go to patients and their families, free of charge.</p>
               <div class="button-group align-center">
                 <a href="https://www.justgiving.com/congenital-anaemia-network" target="_blank" rel="noopener" class="button w-inline-block"><span>Donate</span><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewbox="0 0 17 12" fill="none" class="button_icon"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.2443 5.03644L9.48927 1.21321L10.6935 0L16.5 5.91195L10.6783 11.55L9.50444 10.3067L13.17 6.75673H0V5.03644H13.2443Z" fill="currentColor"></path></svg></a>
                 <a href="oxford/makeamemory.html" class="button is-secondary w-inline-block"><span>Make a Memory</span><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewbox="0 0 17 12" fill="none" class="button_icon"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.2443 5.03644L9.48927 1.21321L10.6935 0L16.5 5.91195L10.6783 11.55L9.50444 10.3067L13.17 6.75673H0V5.03644H13.2443Z" fill="currentColor"></path></svg></a>
@@ -1499,7 +1503,7 @@ animation:marquee-scroll 70s linear infinite;
             <button class="ch-join__submit" type="submit" data-wait="Joining&#x2026;">Join and enter the draw</button>
           </form>
           <div class="w-form-done ch-join__msg is-done" style="display:none;">
-            <p>You are in. Look out for an email from us &mdash; and good luck in this month&#x27;s draw.</p>
+            <p>You are in. Look out for an email from us, and good luck in this month&#x27;s draw.</p>
           </div>
           <div class="w-form-fail ch-join__msg is-fail" style="display:none;">
             <p>That did not send. Please try again, or email <a href="mailto:hello@cedarhollow.uk">hello@cedarhollow.uk</a>.</p>
