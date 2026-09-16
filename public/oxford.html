@@ -440,7 +440,13 @@ width:100%;
            centred h1-sized heading, and two headings back to back would fight.
            Left-aligned, where every other block on this page is centred, which
            is most of what tells a reader this one is a spread. */
-        .ch-spread__eyebrow{margin:0 0 clamp(2rem,4vw,3rem);color:var(--accent,#3b4126);opacity:.7;font-size:.875rem;font-weight:600;letter-spacing:.1em;line-height:1.1;text-transform:uppercase;}
+        /* Case, weight, tracking and line-height come from .text-style-allcaps
+           on the element, the way every other label on the main site is built
+           -- "As featured in" further down this page and the nine page-hero
+           eyebrows all carry it. Only what actually differs is set here: the
+           .875rem the hero eyebrows override to, and a moss green at .7 for a
+           cream ground rather than the cream at .7 they use on green. */
+        .ch-spread__eyebrow{margin:0 0 clamp(2rem,4vw,3rem);color:var(--accent,#3b4126);opacity:.7;font-size:.875rem;}
         .ch-spread{display:grid;grid-template-columns:repeat(12,1fr);grid-column-gap:2rem;grid-row-gap:clamp(2.5rem,5vw,4rem);align-items:start;margin:0;padding:0;list-style:none;counter-reset:plate;}
         .ch-spread>li{margin:0;counter-increment:plate;}
         /* Wide left and tall right, then tall left and wide right, then wide
@@ -1033,7 +1039,7 @@ animation:marquee-scroll 70s linear infinite;
          without reading as a second set of property cards. -->
     <section class="section-oxford-gallery">
       <div class="ch-spread-wrap">
-        <p class="ch-spread__eyebrow">Around the estate</p>
+        <p class="ch-spread__eyebrow text-style-allcaps">Around the estate</p>
         <ul role="list" class="ch-spread">
           <li class="is-wide">
             <a class="ch-plate" href="oxford/map.html">
