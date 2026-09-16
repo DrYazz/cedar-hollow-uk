@@ -14,10 +14,22 @@ else, so each page keeps its own markup:
   * the rating numeral after the stars
   * the fill on the fifth star, so 4.9 does not draw as five full stars
   * the "from N guest reviews" line
-  * the aria-label, where the strip is a link
+  * the aria-label and the href, where the strip is a link: each woodland's
+    strip points at its own review page, "all" points at the hub
 
 To add a strip to a new page, wrap it in the markers and run this. The star
 gradient is inserted on first run.
+
+Three more markers fill in the review pages themselves:
+
+    <!-- ch:reviews-breakdown oxford -->  ... <!-- /ch:reviews-breakdown -->
+    <!-- ch:reviews-breakdown -->         ... <!-- /ch:reviews-breakdown -->
+    <!-- ch:reviews-index -->             ... <!-- /ch:reviews-index -->
+
+A breakdown names every platform a woodland is rated on, with its own rating,
+count and link, so a reader can add the total up. Naming a property limits it
+to that one; leaving it bare lists them all. The index is the hub listing: one
+line per woodland, linking to its page.
 
 Usage:
     python3 scripts/update-reviews.py           # write the figures
@@ -36,14 +48,16 @@ PAGES = ROOT / "public"
 
 BLOCK_RE = re.compile(r"<!-- ch:reviews ([\w-]+) -->(.*?)<!-- /ch:reviews -->", re.S)
 BREAKDOWN_RE = re.compile(
-    r"(<!-- ch:reviews-breakdown -->)(.*?)(<!-- /ch:reviews-breakdown -->)", re.S
+    r"(<!-- ch:reviews-breakdown ?([\w-]*) -->)(.*?)(<!-- /ch:reviews-breakdown -->)", re.S
 )
+INDEX_RE = re.compile(r"(<!-- ch:reviews-index -->)(.*?)(<!-- /ch:reviews-index -->)", re.S)
 NUMERAL_RE = re.compile(r"(</svg><span>)[\d.]+(\s*</span>)")
 LINE_RE = re.compile(r'(<p class="text-size-medium">).*?(</p>)', re.S)
 ARIA_RE = re.compile(r'(aria-label=")Read guest reviews:[^"]*(")')
 SVG_OPEN_RE = re.compile(r"<svg\b[^>]*\bclass=\"hero_rating-stars\"[^>]*>")
 LAST_STAR_RE = re.compile(r"(<path\b(?:(?!</path>).)*?)fill=\"currentColor\"((?:(?!</path>).)*?></path>)(?!.*<path\b(?:(?!</path>).)*?fill=\"currentColor\")", re.S)
 STOP_RE = re.compile(r'(<stop offset=")[\d.]+(%")')
+HREF_RE = re.compile(r'(<a href=")[^"]*("[^>]*\bch-reviews-link\b)')
 
 
 def aggregate(sources):
@@ -96,12 +110,13 @@ def ensure_gradient(block, grad_id, rating):
     )
 
 
-def render(block, name, rating, count, badge, grad_id):
+def render(block, name, rating, count, badge, grad_id, page):
     rating_text = f"{rating:.1f}"
     line = f"from {count:,} guest reviews • {badge}"
     block = ensure_gradient(block, grad_id, rating)
     block = NUMERAL_RE.sub(lambda m: m.group(1) + rating_text + m.group(2), block)
     block = LINE_RE.sub(lambda m: m.group(1) + line + m.group(2), block)
+    block = HREF_RE.sub(lambda m: m.group(1) + page + m.group(2), block)
     block = ARIA_RE.sub(
         lambda m: m.group(1)
         + f"Read guest reviews: rated {rating_text} from {count:,} guest reviews, {badge}"
@@ -117,11 +132,13 @@ def fmt_rating(rating):
     return text[:-1] if text.endswith("0") else text
 
 
-def breakdown(data, figs, indent):
-    """The per-platform evidence behind the headline numbers, for reviews.html."""
+def breakdown(data, figs, indent, scope=""):
+    """The per-platform evidence behind a headline number."""
     checked = _long_date(data["checked"])
+    wanted = [scope] if scope else list(data["properties"])
     lines = []
-    for key, prop in data["properties"].items():
+    for key in wanted:
+        prop = data["properties"][key]
         rating, count = figs[key]
         lines.append(
             f'<p class="text-size-large"><strong>{html.escape(prop["name"])}</strong>'
@@ -145,6 +162,31 @@ def breakdown(data, figs, indent):
     )
     body = ("\n" + indent).join(lines)
     return f"\n{indent}{body}\n{indent}"
+
+
+def index_links(data, figs, indent):
+    """Hub listing: each woodland's headline figure, linking to its own page."""
+    lines = ['<ul class="ch-list text-size-large">']
+    for key, prop in data["properties"].items():
+        rating, count = figs[key]
+        lines.append(
+            f'  <li><a href="{prop["page"]}">{html.escape(prop["short"])}</a>'
+            f' &mdash; {rating:.1f} from {count:,} guest reviews'
+            f' on {sources_sentence(prop)}</li>'
+        )
+    lines.append("</ul>")
+    return "\n" + indent + ("\n" + indent).join(lines) + "\n" + indent
+
+
+def sources_sentence(prop):
+    """"Google, Tripadvisor and Airbnb" — each platform once, in data order."""
+    seen = []
+    for src in prop["sources"]:
+        if src["platform"] not in seen:
+            seen.append(html.escape(src["platform"]))
+    if len(seen) == 1:
+        return seen[0]
+    return ", ".join(seen[:-1]) + " and " + seen[-1]
 
 
 def _long_date(iso):
@@ -172,17 +214,30 @@ def main():
             seen[name] = seen.get(name, 0) + 1
             grad_id = f"chStars-{name}-{seen[name]}"
             rating, count = figs[name]
-            body = render(block, name, rating, count, badge, grad_id)
+            page = (data["properties"][name]["page"] if name in data["properties"]
+                    else data["hub_page"])
+            body = render(block, name, rating, count, badge, grad_id, page)
             return f"<!-- ch:reviews {name} -->{body}<!-- /ch:reviews -->"
 
-        def replace_breakdown(match):
+        def marker_indent(match):
             line_start = match.string.rfind("\n", 0, match.start()) + 1
             indent = match.string[line_start : match.start()]
-            if indent.strip():
-                indent = ""
-            return match.group(1) + breakdown(data, figs, indent) + match.group(3)
+            return "" if indent.strip() else indent
 
-        updated = BREAKDOWN_RE.sub(replace_breakdown, BLOCK_RE.sub(replace, text))
+        def replace_breakdown(match):
+            scope = match.group(2)
+            if scope and scope not in data["properties"]:
+                sys.exit(f"{path.name}: unknown review breakdown '{scope}'")
+            body = breakdown(data, figs, marker_indent(match), scope)
+            return match.group(1) + body + match.group(4)
+
+        def replace_index(match):
+            body = index_links(data, figs, marker_indent(match))
+            return match.group(1) + body + match.group(3)
+
+        updated = BLOCK_RE.sub(replace, text)
+        updated = BREAKDOWN_RE.sub(replace_breakdown, updated)
+        updated = INDEX_RE.sub(replace_index, updated)
         if updated != text:
             changed.append(path.relative_to(ROOT))
             if not check:

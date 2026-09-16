@@ -19,6 +19,8 @@
   "properties": {
     "oxford": {
       "name": "Cedar Hollow Oxford, The Oaks",
+      "short": "Cedar Hollow Oxford",
+      "page": "oxford-reviews.html",
       "sources": [
         {
           "platform": "Google",
@@ -50,6 +52,8 @@
     },
     "dorset": {
       "name": "Mallinson's Woodland Retreat",
+      "short": "Cedar Hollow Dorset",
+      "page": "dorset-reviews.html",
       "sources": [
         {
           "platform": "Google",
@@ -65,5 +69,6 @@
         }
       ]
     }
-  }
+  },
+  "hub_page": "reviews.html"
 }
