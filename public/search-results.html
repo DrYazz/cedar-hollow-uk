@@ -10,7 +10,7 @@
   <link href="css/webflow.css" rel="stylesheet" type="text/css">
   <link href="css/cedar-hollow-uk.webflow.css?v=20260904a" rel="stylesheet" type="text/css">
   <link href="css/properties.css?v=20260906d" rel="stylesheet" type="text/css">
-  <link href="css/search-bar.css?v=20260916d" rel="stylesheet" type="text/css">
+  <link href="css/search-bar.css?v=20260916e" rel="stylesheet" type="text/css">
   <link href="images/favicon.svg" rel="icon" type="image/svg+xml">
   <link href="images/favicon.png" rel="icon" type="image/png" sizes="32x32" media="(prefers-color-scheme: light)">
   <link href="images/favicon-dark.png" rel="icon" type="image/png" sizes="32x32" media="(prefers-color-scheme: dark)">
@@ -70,7 +70,9 @@
             @media (max-width:479px){.section-hero .heading-style-h1{font-size:9vw;}}
             /* Self-hosted alongside Crimson Pro and Inter. OFL; licence in fonts/. */
             @font-face{font-family:"Hedvig Letters Serif";src:url("fonts/HedvigLettersSerif_18pt-Regular.ttf") format("truetype");font-weight:400;font-style:normal;font-display:swap;}
-            .ch-nav__bar{display:flex;align-items:center;justify-content:space-between;gap:1rem;width:100%;padding:20px 32px 20px 24px;position:relative;z-index:30;}
+            /* 14px rather than the usual 20: the bar is 57px where the wordmark was 45,
+               and the nav stays at 85px by giving up the difference in padding. */
+            .ch-nav__bar{display:flex;align-items:center;justify-content:space-between;gap:1rem;width:100%;padding:14px 32px 14px 24px;position:relative;z-index:30;}
             .ch-nav__logo{display:inline-flex;align-items:center;gap:clamp(.5rem,.83vw,.75rem);text-decoration:none;color:#F1ECDB;}
             .ch-nav__owl{width:clamp(1.75rem,2.5vw,2.25rem);height:auto;flex:none;}
             .ch-nav__wordmark{font-family:"Hedvig Letters Serif",var(--font-family--heading,Crimsonpro),serif;font-size:clamp(1.5rem,2.78vw,2.5rem);font-weight:400;line-height:100%;letter-spacing:-.035em;}
@@ -268,7 +270,7 @@
         </svg></div>
     </section>
   <script src="js/listings.js?v=20260916a" type="text/javascript"></script>
-  <script src="js/properties-page.js?v=20260906e" type="text/javascript"></script>
+  <script src="js/properties-page.js?v=20260916a" type="text/javascript"></script>
   <script>
     // Refining from this page should stay in the same place, so the bar
     // inherits whatever destination the URL already carries.

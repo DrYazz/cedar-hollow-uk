@@ -158,16 +158,30 @@
 
     // Tell people what they are looking at, and give them the way out. Without
     // this a narrowed list is indistinguishable from a shorter catalogue.
+    var note = document.createElement("p");
+    note.className = "pp-filter";
+
     if (filtered) {
       var said = [];
       if (wantPlace) said.push("Cedar Hollow " + items[0].destination);
       if (wantGuests) said.push(wantGuests + (wantGuests === 1 ? " guest" : " guests"));
-      var note = document.createElement("p");
-      note.className = "pp-filter";
       note.innerHTML = "Showing " + esc(said.join(" \u00b7 ")) +
         ' <a href="search-results.html">Show all retreats</a>';
-      tiles.parentNode.insertBefore(note, tiles);
+    } else {
+      // Unfiltered, the line does the opposite job: it says so, and offers the
+      // places as the way in. Read off the catalogue rather than typed, so a
+      // third location would appear here without anyone remembering to.
+      var places = [];
+      items.forEach(function (it) {
+        if (places.indexOf(it.destination) < 0) places.push(it.destination);
+      });
+      note.innerHTML = "Showing all retreats" + places.map(function (place) {
+        return ' <a href="search-results.html?destination=' +
+          encodeURIComponent(place) + '">' + esc(place) + "</a>";
+      }).join("");
     }
+
+    tiles.parentNode.insertBefore(note, tiles);
 
     // A Featured Properties card links here as ?q=<property name>. Both the
     // tiles and the cards are rendered above, so at the moment the browser
