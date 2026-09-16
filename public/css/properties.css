@@ -45,7 +45,13 @@
 }
 .pp-filter a { color: inherit; text-decoration: underline; margin-left: .5em; }
 
-.pp-tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin: 0; padding: 0; list-style: none; }
+/* Rows get twice the columns' gap. Each tile is a photograph with its name
+   under it, so the vertical space falls after the caption rather than after
+   the photo: at an even 24px the caption of one row sat as close to the
+   photo below it as to its own, and read as a label for the wrong tile.
+   Only the grid needs this -- under 992px the tiles are a single scrolling
+   strip with no second row. */
+.pp-tiles { display: grid; grid-template-columns: repeat(3, 1fr); column-gap: 24px; row-gap: 48px; margin: 0; padding: 0; list-style: none; }
 /* Six full-width tiles stacked down a phone was the same six photographs the
    cards below already show, at the same size, so it read as the page starting
    twice. They run as a scrolling strip instead: small enough to be a jump-to
