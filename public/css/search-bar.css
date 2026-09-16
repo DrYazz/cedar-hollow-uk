@@ -45,8 +45,15 @@
   height: clamp(2.25rem, 3.13vw, 2.8125rem);
   padding: 0 .1875rem 0 clamp(.875rem, 1.7vw, 1.5rem);
   border-radius: 50em;
-  background-color: #f1ecdb;
-  box-shadow: 0 .875rem .7rem rgba(0, 0, 0, .03);
+  /* The design's frame sits on a dark canvas, where a cream pill reads as
+     raised. This page's background is that same cream -- measured, bar and
+     page were rgb(241,236,219) on rgb(241,236,219), separation 1.00, with a 3%
+     shadow the only thing between them. So it takes the treatment this page
+     already gives a card on cream: a moss hairline at 20%, over white rather
+     than cream, and a shadow with something in it. */
+  border: 1px solid var(--border--accent-20, #3b412633);
+  background-color: #fff;
+  box-shadow: 0 1px 2px rgba(16, 19, 7, .04), 0 .625rem 1.5rem rgba(16, 19, 7, .08);
 }
 
 .ch-searchbar__seg {
@@ -145,9 +152,12 @@
   left: 0;
   z-index: 1000;
   max-width: calc(100vw - 1rem);
-  background-color: #f1ecdb;
+  /* Same treatment as the bar they hang from, and for the same reason: cream
+     on this page's cream leaves only the shadow doing the work. */
+  background-color: #fff;
+  border: 1px solid var(--border--accent-20, #3b412633);
   border-radius: 1rem;
-  box-shadow: 0 1.5rem 3rem rgba(19, 21, 12, .28);
+  box-shadow: 0 1.5rem 3rem rgba(19, 21, 12, .22);
   color: var(--accent, #3b4126);
   font-size: .9375rem;
   text-align: left;
