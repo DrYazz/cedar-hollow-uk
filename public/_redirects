@@ -1,3 +1,7 @@
 # Retired pages. Make a Memory was folded into the philanthropy page, which now
 # carries the CAN complimentary-stay detail in its own section.
 /oxford/makeamemory.html  /oxford/philanthropy.html#make-a-memory  301
+
+# The 3D tour landing page was a wrapper around the external tour, which the
+# Oxford page links directly. Old links go to the page that offers it.
+/oxford/vr.html  /oxford.html  301

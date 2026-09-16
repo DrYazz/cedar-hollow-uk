@@ -955,7 +955,14 @@ animation:marquee-scroll 70s linear infinite;
         <div class="hero_logos-wrapper">
           <div class="padding-global">
             <div class="container-large">
-              <div class="margin-bottom margin-xxsmall">
+              <!-- Figma 357:723 (Oaks) and 163:228 (Default) both lay this container
+                   out as a column with a 20px gap, so the label sits 20px above the
+                   logos. The Webflow spacing scale runs .25, .75, 1, 1.5rem -- 4, 12,
+                   16, 24px -- so there is no token for 20 and margin-xxsmall's 12 was
+                   the nearest step below it. The exact value is stated here rather
+                   than added to the stylesheet, which would move the cache key on
+                   every page that loads it. -->
+              <div class="margin-bottom" style="margin-bottom:1.25rem">
                 <div class="rating-title-wrapper">
                   <p class="text-size-medium text-style-allcaps">As featured in</p>
                 </div>
