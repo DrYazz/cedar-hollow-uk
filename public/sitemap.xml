@@ -39,6 +39,16 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://cedarhollow.uk/oxford-press</loc>
+    <lastmod>2026-09-16</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://cedarhollow.uk/dorset-press</loc>
+    <lastmod>2026-09-16</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://cedarhollow.uk/reviews</loc>
     <lastmod>2026-09-16</lastmod>
     <priority>0.6</priority>
@@ -143,5 +153,5 @@
   <url><loc>https://cedarhollow.uk/dorset-woodsmans-manual</loc><priority>0.3</priority></url>
   <url><loc>https://cedarhollow.uk/dorset-dazzle-manual</loc><priority>0.3</priority></url>
   <url><loc>https://cedarhollow.uk/dorset-pinwheel-manual</loc><priority>0.3</priority></url>
-  <url><loc>https://cedarhollow.uk/dorset-press</loc><priority>0.3</priority></url>
+  <url><loc>https://cedarhollow.uk/dorset-press-enquiries</loc><priority>0.3</priority></url>
 </urlset>
