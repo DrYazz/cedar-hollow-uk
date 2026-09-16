@@ -280,8 +280,20 @@
     mark.style.height = (z.offsetTop + z.offsetHeight - a.offsetTop) + "px";
   }
 
-  scroll.addEventListener("scroll", syncMark);
-  monthList.addEventListener("scroll", syncMark);
+  /* Drops the bottom fade when a list is scrolled to its end, so the fade only
+     ever means "there is more", never decorates the last row. */
+  function edgeFade(el) {
+    el.classList.toggle("is-at-end",
+      el.scrollTop + el.clientHeight >= el.scrollHeight - 1);
+  }
+
+  function syncEdges() {
+    edgeFade(scroll);
+    edgeFade(monthList);
+  }
+
+  scroll.addEventListener("scroll", function () { syncMark(); edgeFade(scroll); });
+  monthList.addEventListener("scroll", function () { syncMark(); edgeFade(monthList); });
 
   /* ---- guests ------------------------------------------------------------ */
 
@@ -473,6 +485,7 @@
     if (which.panel === whenPanel) {
       if (!state.start) scroll.scrollTop = 0;
       syncMark();
+      syncEdges();      // heights are only real once the panel is shown
     }
   }
 

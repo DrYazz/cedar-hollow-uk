@@ -311,6 +311,23 @@
   display: none;
 }
 
+/* A date row cut in half by the container edge reads as broken rather than as
+   more-below, and no fixed height fixes it: month labels sit between the rows,
+   so the 40px rhythm shifts every month. Fade the last rows out instead, and
+   drop the fade once there is nothing further down -- otherwise the end of the
+   list looks faded for no reason. */
+.ch-pick__scroll,
+.ch-pick__months {
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 2.25rem), transparent);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 2.25rem), transparent);
+}
+
+.ch-pick__scroll.is-at-end,
+.ch-pick__months.is-at-end {
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
 .ch-pick__mlabel {
   padding: .75rem 0 .25rem;
   font-size: .75rem;
