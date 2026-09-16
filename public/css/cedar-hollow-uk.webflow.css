@@ -2315,7 +2315,13 @@ img {
 #ch-nav-menu .ch-nav__book-cta {
   display: inline-flex;
   align-items: center;
-  margin-top: .75rem;
+  /* Top of the panel, hard right. The flat menus already align their items to
+     the right edge, so being first is enough there. The grouped menus are a
+     grid, so it takes a row of its own across all the columns and sits at the
+     right-hand end of it rather than dropping into the first cell. */
+  grid-column: 1 / -1;
+  justify-self: end;
+  margin-bottom: .75rem;
   padding: .7rem 1.4rem;
   border-radius: 50em;
   background-color: #f1ecdb;
