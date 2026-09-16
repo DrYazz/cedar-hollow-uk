@@ -160,10 +160,12 @@
      while its open transform is still running. */
   isolation: isolate;
   width: 100%;
-  max-width: 30rem;
+  max-width: 32rem;
   max-height: calc(100dvh - 2.5rem);
   overflow-y: auto;
-  padding: clamp(1.75rem, 4vw, 2.5rem);
+  /* Roomier than a plain dialog would need, because the owl leans into the
+     top right and the type has to keep clear of it. */
+  padding: clamp(2rem, 5vw, 3rem);
   border-radius: var(--radius--16, 1rem);
   background-color: var(--brand, #efeed5);
   color: var(--accent, #3b4126);
@@ -187,12 +189,12 @@
    other single-colour marks. The panel's own overflow does the cropping. */
 .ch-join__owl {
   position: absolute;
-  top: -2%;
+  top: -9%;
   right: 0;
   z-index: -1;
-  width: 9rem;
+  width: 8rem;
   aspect-ratio: 36 / 45;
-  transform: translateX(38%) rotate(-60deg);
+  transform: translateX(46%) rotate(-60deg);
   background-color: #d8d5ad;
   -webkit-mask-image: url("../images/cedar-hollow-owl.svg");
   mask-image: url("../images/cedar-hollow-owl.svg");
@@ -207,7 +209,7 @@
 
 @media screen and (max-width: 479px) {
   .ch-join__owl {
-    width: 7rem;
+    width: 6.25rem;
   }
 }
 
