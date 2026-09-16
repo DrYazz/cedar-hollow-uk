@@ -136,7 +136,6 @@
   top: 0;
   left: 0;
   z-index: 1000;
-  width: 30rem;
   max-width: calc(100vw - 1rem);
   background-color: #f1ecdb;
   border-radius: 1rem;
@@ -150,6 +149,17 @@
 
 .ch-book[hidden] {
   display: none;
+}
+
+/* Figma 281:1111 is 462x468 and 282:1315 is 502x328. Widths are the design's;
+   the When picker's height is too, since its calendar scrolls inside it. */
+.ch-book--when {
+  width: 28.875rem;                 /* 462px */
+}
+
+.ch-book--who {
+  width: 31.375rem;                 /* 502px */
+  padding: 1rem;                    /* the design's 16px inset */
 }
 
 .ch-book button {
@@ -166,34 +176,20 @@
   outline-offset: 2px;
 }
 
-.ch-book__form {
-  display: flex;
-  flex-direction: column;
-  padding: 1rem;
-  gap: .25rem;
-}
-
-.ch-book__label {
-  padding: .25rem 0 .5rem;
-  font-size: .8125rem;
-  font-weight: 600;
-  letter-spacing: .06em;
-  text-transform: uppercase;
-  opacity: .7;
-}
-
-.ch-book__rule {
-  height: 1px;
-  margin: .75rem 0;
-  background-color: rgba(59, 65, 38, .19);
+/* Only hidden inputs live here now; both pickers sit outside it. */
+.ch-book__form[hidden] {
+  display: none;
 }
 
 /* ---- dates ---- */
 
+/* 128px sidebar and a 466px-tall body, per the design's own columns. The
+   calendar scrolls within it rather than the card growing. */
 .ch-book__cal {
   display: grid;
-  grid-template-columns: 7rem 1fr;
-  height: 15rem;
+  grid-template-columns: 8rem 1fr;
+  height: 26rem;
+  border-bottom: 1px solid rgba(59, 65, 38, .19);
 }
 
 .ch-pick__months {
@@ -365,9 +361,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 2.5rem;
-  padding-top: .5rem;
-  border-top: 1px solid rgba(59, 65, 38, .19);
+  height: 3.125rem;                 /* the design's 50px bar */
+  padding: 0 1.3125rem;
 }
 
 .ch-pick__nights {
@@ -392,7 +387,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding: .375rem 0;
+  padding: .875rem 0;
 }
 
 .ch-pick__row + .ch-pick__row {
@@ -458,35 +453,6 @@
 }
 
 /* ---- submit ---- */
-
-/* Needs to outrank the `.ch-book button` reset above, which strips background
-   and colour from every button in the panel. */
-.ch-book button.ch-book__submit {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: .5rem;
-  width: 100%;
-  height: 3rem;
-  margin-top: 1rem;
-  border-radius: 50em;
-  background-color: var(--accent, #3b4126);
-  color: #f1ecdb;
-  font-size: 1rem;
-  font-weight: 500;
-  letter-spacing: -.01em;
-  transition: opacity .18s ease;
-}
-
-.ch-book button.ch-book__submit:hover,
-.ch-book button.ch-book__submit:focus-visible {
-  opacity: .9;
-}
-
-.ch-book button.ch-book__submit svg {
-  width: 1rem;
-  height: 1rem;
-}
 
 /* ---- narrow screens ---- */
 

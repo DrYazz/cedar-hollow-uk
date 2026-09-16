@@ -50,18 +50,28 @@
 
   /* ---- panel shell ------------------------------------------------------- */
 
-  var panel = document.createElement("div");
-  panel.className = "ch-book";
-  panel.id = "ch-book-panel";
-  panel.setAttribute("role", "dialog");
-  panel.setAttribute("aria-label", "Book a stay");
-  panel.hidden = true;
-  document.body.appendChild(panel);
+  /* Two panels, as the design draws them: Picker: When (462x468) hangs under
+     the WHEN segment, Picker: Who (502x328) under WHO. They were one joined
+     panel before, which the design never asked for. */
+  function makePanel(id, label, mod) {
+    var p = document.createElement("div");
+    p.className = "ch-book ch-book--" + mod;
+    p.id = id;
+    p.setAttribute("role", "dialog");
+    p.setAttribute("aria-label", label);
+    p.hidden = true;
+    document.body.appendChild(p);
+    return p;
+  }
 
-  // The form moves in whole, so the submit button still submits it and the
-  // destination hidden field rides along untouched.
-  panel.appendChild(form);
+  var whenPanel = makePanel("ch-pick-when", "Choose dates", "when");
+  var whoPanel = makePanel("ch-pick-who", "Choose guests", "who");
+
+  // The form keeps its hidden fields and nothing else, out of sight. The bar's
+  // search button is what asks it to submit.
   form.className = "ch-book__form";
+  form.hidden = true;
+  document.body.appendChild(form);
   Array.prototype.slice.call(form.children).forEach(function (child) {
     if (child.tagName !== "INPUT" || child.type !== "hidden") child.remove();
   });
@@ -75,16 +85,7 @@
     form.appendChild(el);
   });
 
-  function heading(text) {
-    var h = document.createElement("div");
-    h.className = "ch-book__label";
-    h.textContent = text;
-    return h;
-  }
-
   /* ---- dates ------------------------------------------------------------- */
-
-  form.appendChild(heading("When"));
 
   var calWrap = document.createElement("div");
   calWrap.className = "ch-book__cal";
@@ -112,7 +113,7 @@
   cal.appendChild(scroll);
   calWrap.appendChild(monthList);
   calWrap.appendChild(cal);
-  form.appendChild(calWrap);
+  whenPanel.appendChild(calWrap);
 
   var datesFoot = document.createElement("div");
   datesFoot.className = "ch-book__dates-foot";
@@ -124,7 +125,7 @@
   clearBtn.textContent = "Clear dates";
   datesFoot.appendChild(nightsEl);
   datesFoot.appendChild(clearBtn);
-  form.appendChild(datesFoot);
+  whenPanel.appendChild(datesFoot);
 
   var monthBlocks = [];
   var monthButtons = [];
@@ -284,11 +285,6 @@
 
   /* ---- guests ------------------------------------------------------------ */
 
-  var rule = document.createElement("div");
-  rule.className = "ch-book__rule";
-  form.appendChild(rule);
-  form.appendChild(heading("Who"));
-
   var ROWS = [
     { key: "adults", name: "Adults", note: "Ages 13 or above" },
     { key: "children", name: "Children", note: "Ages 2-12" },
@@ -335,7 +331,7 @@
 
     wrap.appendChild(text);
     wrap.appendChild(step);
-    form.appendChild(wrap);
+    whoPanel.appendChild(wrap);
   });
 
   function stepButton(kind, rowName) {
@@ -370,13 +366,6 @@
 
   /* ---- submit ------------------------------------------------------------ */
 
-  var submit = document.createElement("button");
-  submit.type = "submit";
-  submit.className = "ch-book__submit";
-  submit.innerHTML = '<svg viewBox="0 0 27 27" fill="none" aria-hidden="true">' +
-    '<path d="M11.194 22.3881C13.6777 22.3876 16.0897 21.5561 18.0462 20.0261L24.1973 26.1772L26.1758 24.1987L20.0247 18.0476C21.5555 16.0909 22.3875 13.6783 22.3881 11.194C22.3881 5.02192 17.3661 0 11.194 0C5.02192 0 0 5.02192 0 11.194C0 17.3661 5.02192 22.3881 11.194 22.3881ZM11.194 2.79851C15.8242 2.79851 19.5896 6.5639 19.5896 11.194C19.5896 15.8242 15.8242 19.5896 11.194 19.5896C6.5639 19.5896 2.79851 15.8242 2.79851 11.194C2.79851 6.5639 6.5639 2.79851 11.194 2.79851Z" fill="currentColor"/></svg>' +
-    '<span>Search</span>';
-  form.appendChild(submit);
 
   function commit() {
     fields.from.value = state.start ? ymd(state.start) : "";
@@ -439,15 +428,14 @@
 
   /* ---- open / close ------------------------------------------------------ */
 
-  var open = false;
+  var openPanel = null;
   var GAP = 10;
   var EDGE = 8;
 
-  // Hangs off the bar's left edge, which is where the design puts both pickers.
-  // Clamped to the viewport so a narrow window pulls it back in rather than
-  // letting it run off the right.
-  function place() {
-    var a = bar.getBoundingClientRect();
+  /* Each picker hangs off its own segment, left edges aligned, and is pulled
+     back from the right edge if the window is too narrow to hold it there. */
+  function place(panel, seg) {
+    var a = seg.getBoundingClientRect();
     var vw = document.documentElement.clientWidth;
     var vh = document.documentElement.clientHeight;
 
@@ -459,31 +447,43 @@
     panel.style.top = Math.round(a.bottom + GAP) + "px";
   }
 
-  function show() {
-    open = true;
-    panel.hidden = false;
-    barSegs.forEach(function (b) { b.setAttribute("aria-expanded", "true"); });
-    place();
-    if (!state.start) scroll.scrollTop = 0;
-    syncMark();
-  }
+  var PICKERS = [
+    { panel: whenPanel, seg: barSegs[0] },
+    { panel: whoPanel, seg: barSegs[1] }
+  ];
 
   function close() {
-    if (!open) return;
-    open = false;
-    panel.hidden = true;
-    barSegs.forEach(function (b) { b.setAttribute("aria-expanded", "false"); });
+    if (!openPanel) return;
+    openPanel.panel.hidden = true;
+    openPanel.seg.setAttribute("aria-expanded", "false");
+    openPanel = null;
   }
 
-  barSegs.forEach(function (b) {
-    b.addEventListener("click", function (e) {
+  function show(which) {
+    if (openPanel === which) return;
+    close();                       // only ever one open, as in the design
+    openPanel = which;
+    which.panel.hidden = false;
+    which.seg.setAttribute("aria-expanded", "true");
+    place(which.panel, which.seg);
+    if (which.panel === whenPanel) {
+      if (!state.start) scroll.scrollTop = 0;
+      syncMark();
+    }
+  }
+
+  PICKERS.forEach(function (which) {
+    if (!which.seg) return;
+    which.seg.setAttribute("aria-controls", which.panel.id);
+    which.seg.addEventListener("click", function (e) {
       e.stopPropagation();
-      if (open) close(); else show();
+      if (openPanel === which) close(); else show(which);
     });
+    which.panel.addEventListener("click", function (e) { e.stopPropagation(); });
   });
 
-  // The button is outside the form, which script moved into the panel, so it
-  // has to ask the form to submit rather than being its submit button.
+  // The button sits outside the form, which is hidden away with only its
+  // fields, so it has to ask the form to submit rather than being its submit.
   if (barSubmit) {
     barSubmit.addEventListener("click", function (e) {
       e.stopPropagation();
@@ -492,18 +492,21 @@
     });
   }
 
-  panel.addEventListener("click", function (e) { e.stopPropagation(); });
-
   document.addEventListener("click", function (e) {
-    if (open && !panel.contains(e.target) && !bar.contains(e.target)) close();
+    if (openPanel && !bar.contains(e.target)) close();
   });
 
   document.addEventListener("keydown", function (e) {
-    if (e.key === "Escape" && open) { close(); barSegs[0].focus(); }
+    if (e.key === "Escape" && openPanel) {
+      var seg = openPanel.seg;
+      close();
+      seg.focus();
+    }
   });
 
-  window.addEventListener("resize", function () { if (open) place(); });
-  window.addEventListener("scroll", function () { if (open) place(); }, { passive: true });
+  function reposition() { if (openPanel) place(openPanel.panel, openPanel.seg); }
+  window.addEventListener("resize", reposition);
+  window.addEventListener("scroll", reposition, { passive: true });
 
   paintDates();
   paintGuests();
