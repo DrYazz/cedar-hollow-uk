@@ -35,13 +35,13 @@
   gap: clamp(.5rem, 1.5vw, 1.4rem);
   /* 521px: the design's 750 scaled by the same 57/82 the height is, so the
      bar keeps its 9.1:1 proportion rather than stretching thin. */
-  flex: 0 1 32.5625rem;
+  flex: 0 1 30.3125rem;
   min-width: 0;
   /* Height tracks the wordmark this replaced -- 45px at 1440 in an 85px nav.
      At the design's own 82px the bar stood 37px taller than the logo and
      pushed the page heading down with it, which is the one thing swapping
      them was not meant to do. Everything inside scales off this. */
-  height: clamp(2.75rem, 3.96vw, 3.5625rem);
+  height: clamp(2.625rem, 3.68vw, 3.3125rem);
   padding: 0 .25rem 0 clamp(1rem, 2.16vw, 1.9375rem);
   border-radius: 50em;
   /* The design's frame sits on a dark canvas, where a cream pill reads as
@@ -50,9 +50,13 @@
      shadow the only thing between them. So it takes the treatment this page
      already gives a card on cream: a moss hairline at 20%, over white rather
      than cream, and a shadow with something in it. */
-  border: 1px solid var(--border--accent-20, #3b412633);
-  background-color: #fff;
-  box-shadow: 0 1px 2px rgba(16, 19, 7, .04), 0 .625rem 1.5rem rgba(16, 19, 7, .08);
+  /* Moss, not the design's cream and not the white that replaced it. Cream on
+     cream vanished; white read as a control borrowed from another site. The
+     brand's own green is the one fill on this page that cannot be mistaken for
+     the background, and it matches the buttons the site already uses. */
+  background-color: var(--accent, #3b4126);
+  color: #f1ecdb;
+  box-shadow: 0 .625rem 1.5rem rgba(16, 19, 7, .14);
 }
 
 .ch-searchbar__seg {
@@ -64,20 +68,20 @@
   padding: 0;
   border: 0;
   background: none;
-  color: var(--accent, #3b4126);
+  color: inherit;
   font-family: inherit;
   text-align: left;
   cursor: pointer;
 }
 
 .ch-searchbar__seg:focus-visible {
-  outline: 2px solid var(--accent, #3b4126);
+  outline: 2px solid #f1ecdb;
   outline-offset: 4px;
   border-radius: .25rem;
 }
 
 .ch-searchbar__label {
-  font-size: clamp(.625rem, .83vw, .75rem);
+  font-size: clamp(.625rem, .76vw, .6875rem);
   font-weight: 600;
   line-height: 1.05;
   letter-spacing: -.005em;
@@ -88,7 +92,7 @@
 .ch-searchbar__value {
   max-width: 100%;
   overflow: hidden;
-  font-size: clamp(.8125rem, 1.11vw, 1rem);
+  font-size: clamp(.8125rem, 1.04vw, .9375rem);
   line-height: 1.35;
   letter-spacing: -.02em;
   white-space: nowrap;
@@ -99,7 +103,7 @@
   flex: none;
   width: 1px;
   height: 62%;
-  background-color: rgba(59, 65, 38, .25);
+  background-color: rgba(241, 236, 219, .3);
 }
 
 .ch-searchbar__submit {
@@ -112,8 +116,8 @@
   padding: 0;
   border: 0;
   border-radius: 100%;
-  background-color: var(--accent, #3b4126);
-  color: #f1ecdb;
+  background-color: #f1ecdb;
+  color: var(--accent, #3b4126);
   cursor: pointer;
   transition: opacity .18s ease;
 }

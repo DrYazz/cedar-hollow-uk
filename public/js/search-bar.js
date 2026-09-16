@@ -436,15 +436,19 @@
      back from the right edge if the window is too narrow to hold it there. */
   function place(panel, seg) {
     var a = seg.getBoundingClientRect();
+    // Horizontally the picker follows its segment, vertically the whole bar:
+    // hanging it off the segment put its top wherever the text happened to end,
+    // which at the bar's current height left the two touching.
+    var pill = bar.getBoundingClientRect();
     var vw = document.documentElement.clientWidth;
     var vh = document.documentElement.clientHeight;
 
-    panel.style.maxHeight = (vh - a.bottom - GAP - EDGE) + "px";
+    panel.style.maxHeight = (vh - pill.bottom - GAP - EDGE) + "px";
 
     var w = panel.offsetWidth;
     var left = Math.max(EDGE, Math.min(a.left, vw - w - EDGE));
     panel.style.left = Math.round(left) + "px";
-    panel.style.top = Math.round(a.bottom + GAP) + "px";
+    panel.style.top = Math.round(pill.bottom + GAP) + "px";
   }
 
   var PICKERS = [
