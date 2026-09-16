@@ -646,3 +646,75 @@ a.ch-cutting:hover .ch-cutting__caption{text-decoration:underline;text-underline
 .ch-navgroup__list a[aria-current]{color:#fff;font-weight:600}
 .ch-navgroup__list a[aria-current]::before{content:"";display:inline-block;width:.3rem;height:.3rem;margin-right:.45rem;vertical-align:.15em;border-radius:50%;background-color:currentColor}
 @media (prefers-reduced-motion:reduce){.ch-navgroup{animation:none}}
+
+/* ---- The dropdown navigation panel ----------------------------------------
+   Every page except index2.html opens the panel that /oxford opens: a card
+   hanging off the burger, not a full-screen takeover. That panel is drawn by
+   css/subsite-nav.css against the root-level export's markup, which lists its
+   links as bare <a> inside .ch-navgroup; the pages in here now carry the same
+   markup, so these are those rules restated for this stylesheet.
+
+   Scoped to .is-dropdown on purpose. index2.html keeps the exported overlay
+   above -- it is the one page that still has the six-link bar to fall back on,
+   and it shares this stylesheet, so an unscoped rule would convert it too. */
+.ch-nav__menu.is-dropdown:not([hidden]){
+  /* The overlay rule above is inset:0. Only top/right are restated here, so
+     bottom/left must be cleared by hand or the panel stretches to the left
+     edge and left:0 beats right:32px. */
+  position:absolute;top:100%;right:32px;bottom:auto;left:auto;z-index:20;
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(9.5rem,1fr));
+  justify-content:start;
+  grid-column-gap:1.75rem;column-gap:1.75rem;grid-row-gap:1.5rem;row-gap:1.5rem;
+  align-items:start;
+  /* Wide enough for four columns, never wider than the viewport allows. */
+  width:max-content;min-width:0;max-width:min(44rem,calc(100vw - 64px));
+  /* A long panel scrolls inside itself rather than off the screen. */
+  max-height:calc(100vh - 6rem);overflow-y:auto;overscroll-behavior:contain;
+  padding:1.5rem 1.75rem 1.75rem;text-align:left;
+  background-color:#130f0fd6;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  border:1px solid #f1ecdb2e;border-radius:1rem;box-shadow:0 18px 50px #100b0159;
+}
+.ch-nav__menu.is-dropdown .ch-navgroup{display:flex;flex-direction:column;min-width:0}
+.ch-nav__menu.is-dropdown .ch-navgroup__title{
+  margin:0 0 .45rem;padding-bottom:0;border-bottom:0;
+  font-size:.6875rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:#f1ecdb85;
+}
+.ch-nav__menu.is-dropdown a{
+  display:block;padding:.28rem 0;font-size:.9375rem;line-height:1.35;
+  white-space:normal;text-shadow:none;color:#f1ecdb;text-decoration:none;
+}
+.ch-nav__menu.is-dropdown a:hover,
+.ch-nav__menu.is-dropdown a:focus-visible{color:#fff;text-decoration:underline;text-underline-offset:.18em}
+.ch-nav__menu.is-dropdown a:focus-visible{outline:2px solid #f1ecdb;outline-offset:3px;border-radius:2px}
+/* Where you already are. */
+.ch-nav__menu.is-dropdown a[aria-current="page"]{color:#fff;font-weight:500}
+.ch-nav__menu.is-dropdown a[aria-current="page"]::before{
+  content:"";display:inline-block;width:.3rem;height:.3rem;margin-right:.45rem;
+  vertical-align:.15em;border-radius:50%;background-color:currentColor;
+}
+/* Leaves the site. */
+.ch-nav__menu.is-dropdown a[target="_blank"]::after{content:" \2197";opacity:.5}
+
+/* Phones: keep the overlay, drop the centring -- a scrolling list of this
+   length reads far better left-aligned. */
+@media screen and (max-width:767px){
+  .ch-nav__menu.is-dropdown:not([hidden]){
+    position:fixed;inset:0;z-index:15;
+    display:block;width:auto;max-width:none;max-height:none;
+    overflow-y:auto;-webkit-overflow-scrolling:touch;
+    /* Clears the bar, so the burger stays reachable while scrolling. */
+    padding:5rem 1.75rem 3rem;
+    background-color:var(--accent);
+    -webkit-backdrop-filter:none;backdrop-filter:none;
+    border:0;border-radius:0;box-shadow:none;text-align:left;
+  }
+  .ch-nav__menu.is-dropdown .ch-navgroup + .ch-navgroup{margin-top:1.5rem}
+  .ch-nav__menu.is-dropdown .ch-navgroup__title{margin-bottom:.35rem;padding-bottom:.35rem;border-bottom:1px solid #f1ecdb26}
+  .ch-nav__menu.is-dropdown a{font-size:1.0625rem;padding:.45rem 0}
+}
+
+/* The hero clips to hold its background image inside the frame, which would
+   also clip a panel hanging below the bar. site.js marks the body while the
+   menu is open, so release the clip for exactly that long. The background is
+   inset:0 inside the hero and cannot itself overflow. */
+body.ch-nav-open .ch-page-hero{overflow:visible}
