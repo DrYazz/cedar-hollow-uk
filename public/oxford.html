@@ -476,14 +476,15 @@ width:100%;
         .ch-plate:focus-visible{outline:2px solid var(--accent,#3b4126);outline-offset:.5rem;border-radius:var(--radius--16,1rem);}
         /* Numbered from a counter rather than typed into the markup, so
            reordering or dropping a frame cannot leave the numbers lying. */
-        /* None of these declare a font-family: every other label on the site
-           inherits one, and this block was the only place in the codebase that
-           set it. The number takes the .1em tracking five of the site's labels
-           share; the caption takes Crimson Pro at 400 with no tracking, which
-           is how the serif is set at this size elsewhere. */
+        /* The caption is set as the property cards' tag text -- the
+           "Cave / Sleeps 2 / 1 bedroom" line under a cabin card. Figma records
+           that on .cabin-item_body p as "details are 16px at 1.6, specs
+           Regular", and a rendered card measures Inter 16px / 400 / 25.6px.
+           Body is 500 at 1.5, so weight and line-height are both stated; the
+           family is left alone because body's Inter is already right. */
         .ch-plate__caption{display:flex;align-items:baseline;grid-column-gap:.75rem;column-gap:.75rem;margin:1rem .25rem 0;}
         .ch-plate__caption:before{content:counter(plate,decimal-leading-zero);flex:none;font-size:.6875rem;font-weight:600;letter-spacing:.1em;color:var(--accent,#3b4126);opacity:.65;}
-        .ch-plate__label{font-family:var(--font-family--heading,Crimsonpro),serif;font-weight:400;font-size:1.0625rem;line-height:1.35;color:var(--accent,#3b4126);}
+        .ch-plate__label{font-weight:400;font-size:1rem;line-height:1.6;color:var(--accent,#3b4126);}
         .ch-plate:hover .ch-plate__label{text-decoration:underline;text-underline-offset:.18em;text-decoration-thickness:1px;}
         @media (prefers-reduced-motion:reduce){
           .ch-plate__frame img{transition:none;}
