@@ -320,7 +320,7 @@ width:100%;
             <div>
               <div class="hero_content">
                 <div class="margin-bottom margin-large">
-                  <h1 class="heading-style-h1"><span class="text-style-italic text-weight-normal">Luxurious Escape</span><br class="hero-br">to the Woods</h1>
+                  <h1 class="heading-style-h1">A <span class="text-style-italic text-weight-normal">Luxurious Escape</span><br class="hero-br">to the Woods</h1>
                 </div>
               </div>
               <div class="button-group align-center ch-hero-book">
@@ -1021,7 +1021,7 @@ animation:marquee-scroll 70s linear infinite;
           // a coordinate, which is what building the URL from lat/lng used to do.
           var LOCATIONS = [
             { name: "Cedar Hollow Dorset", place: "Holditch, Dorset",
-              lat: 50.82062, lng: -2.929622, site: "https://mallinson.co.uk",
+              lat: 50.82062, lng: -2.929622, site: "search-results.html?destination=Dorset",
               directions: "https://maps.app.goo.gl/YBHhqEu2greQmPHY7" }
           ];
           var booted = false;
@@ -1122,7 +1122,7 @@ animation:marquee-scroll 70s linear infinite;
                 .addTo(map)
                 .bindTooltip(loc.name.replace("Cedar Hollow ", ""), { permanent: true, direction: "top", className: "ch-map__label" })
                 .bindPopup("<strong>" + loc.name + "</strong><br>" +
-                  '<a href="' + loc.site + '" target="_blank" rel="noopener">Visit site</a>' +
+                  '<a href="' + loc.site + '">See retreats</a>' +
                   '<a href="' + dir + '" target="_blank" rel="noopener">Directions</a>');
             });
             /* One location, so there is nothing to fit: fitBounds on a single
