@@ -33,15 +33,15 @@
   align-items: center;
   justify-content: space-between;
   gap: clamp(.5rem, 1.5vw, 1.4rem);
-  /* 521px: the design's 750 scaled by the same 57/82 the height is, so the
+  /* 503px: the design's 750 scaled by the same 55/82 the height is, so the
      bar keeps its 9.1:1 proportion rather than stretching thin. */
-  flex: 0 1 30.3125rem;
+  flex: 0 1 31.4375rem;
   min-width: 0;
   /* Height tracks the wordmark this replaced -- 45px at 1440 in an 85px nav.
      At the design's own 82px the bar stood 37px taller than the logo and
      pushed the page heading down with it, which is the one thing swapping
      them was not meant to do. Everything inside scales off this. */
-  height: clamp(2.625rem, 3.68vw, 3.3125rem);
+  height: clamp(2.6875rem, 3.82vw, 3.4375rem);
   padding: 0 .25rem 0 clamp(1rem, 2.16vw, 1.9375rem);
   border-radius: 50em;
   /* The design's frame sits on a dark canvas, where a cream pill reads as
@@ -82,7 +82,7 @@
 }
 
 .ch-searchbar__label {
-  font-size: clamp(.625rem, .76vw, .6875rem);
+  font-size: clamp(.625rem, .79vw, .71875rem);
   font-weight: 600;
   line-height: 1.05;
   letter-spacing: -.005em;
@@ -93,7 +93,7 @@
 .ch-searchbar__value {
   max-width: 100%;
   overflow: hidden;
-  font-size: clamp(.8125rem, 1.04vw, .9375rem);
+  font-size: clamp(.8125rem, 1.08vw, .96875rem);
   line-height: 1.35;
   letter-spacing: -.02em;
   white-space: nowrap;
