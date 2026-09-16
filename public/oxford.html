@@ -469,7 +469,7 @@ width:100%;
            centred h1-sized heading, and two headings back to back would fight.
            Left-aligned, where every other block on this page is centred, which
            is most of what tells a reader this one is a spread. */
-        .ch-spread__eyebrow{margin:0 0 clamp(2rem,4vw,3rem);color:var(--accent,#3b4126);opacity:.55;font-family:var(--font-family--body,Inter),sans-serif;font-size:.8125rem;font-weight:600;letter-spacing:.08em;line-height:1;text-transform:uppercase;}
+        .ch-spread__eyebrow{margin:0 0 clamp(2rem,4vw,3rem);color:var(--accent,#3b4126);opacity:.7;font-size:.875rem;font-weight:600;letter-spacing:.1em;line-height:1.1;text-transform:uppercase;}
         .ch-spread{display:grid;grid-template-columns:repeat(12,1fr);grid-column-gap:2rem;grid-row-gap:clamp(2.5rem,5vw,4rem);align-items:start;margin:0;padding:0;list-style:none;counter-reset:plate;}
         .ch-spread>li{margin:0;counter-increment:plate;}
         /* Wide left and tall right, then tall left and wide right, then wide
@@ -498,9 +498,14 @@ width:100%;
         .ch-plate:focus-visible{outline:2px solid var(--accent,#3b4126);outline-offset:.5rem;border-radius:var(--radius--16,1rem);}
         /* Numbered from a counter rather than typed into the markup, so
            reordering or dropping a frame cannot leave the numbers lying. */
+        /* None of these declare a font-family: every other label on the site
+           inherits one, and this block was the only place in the codebase that
+           set it. The number takes the .1em tracking five of the site's labels
+           share; the caption takes Crimson Pro at 400 with no tracking, which
+           is how the serif is set at this size elsewhere. */
         .ch-plate__caption{display:flex;align-items:baseline;grid-column-gap:.75rem;column-gap:.75rem;margin:1rem .25rem 0;}
-        .ch-plate__caption:before{content:counter(plate,decimal-leading-zero);flex:none;font-family:var(--font-family--body,Inter),sans-serif;font-size:.6875rem;font-weight:600;letter-spacing:.08em;color:var(--accent,#3b4126);opacity:.45;}
-        .ch-plate__label{font-family:var(--font-family--heading,Crimsonpro),serif;font-size:1.0625rem;line-height:1.35;letter-spacing:-.01em;color:var(--accent,#3b4126);}
+        .ch-plate__caption:before{content:counter(plate,decimal-leading-zero);flex:none;font-size:.6875rem;font-weight:600;letter-spacing:.1em;color:var(--accent,#3b4126);opacity:.65;}
+        .ch-plate__label{font-family:var(--font-family--heading,Crimsonpro),serif;font-weight:400;font-size:1.0625rem;line-height:1.35;color:var(--accent,#3b4126);}
         .ch-plate:hover .ch-plate__label{text-decoration:underline;text-underline-offset:.18em;text-decoration-thickness:1px;}
         @media (prefers-reduced-motion:reduce){
           .ch-plate__frame img{transition:none;}
@@ -1070,7 +1075,7 @@ animation:marquee-scroll 70s linear infinite;
             <a class="ch-plate" href="search-results.html?q=Faun%27s%20Hideaway">
               <figure class="ch-plate__fig">
                 <div class="ch-plate__frame"><img src="images/gallery/oak-faun-fire-1060.webp" srcset="images/gallery/oak-faun-fire-530.webp 530w, images/gallery/oak-faun-fire-1060.webp 1060w" sizes="(max-width: 767px) 92vw, (max-width: 1087px) 38vw, 435px" loading="lazy" decoding="async" alt="The carved fireplace glowing inside Faun&#x27;s Hideaway"></div>
-                <figcaption class="ch-plate__caption"><span class="ch-plate__label">Faun&rsquo;s Hideaway, carved into the hill</span></figcaption>
+                <figcaption class="ch-plate__caption"><span class="ch-plate__label">Faun&rsquo;s Hideaway, lit by lantern light</span></figcaption>
               </figure>
             </a>
           </li>
@@ -1094,7 +1099,7 @@ animation:marquee-scroll 70s linear infinite;
             <a class="ch-plate" href="oxford/availability.html">
               <figure class="ch-plate__fig">
                 <div class="ch-plate__frame"><img src="images/gallery/oak-gal-narnia-840.webp" srcset="images/gallery/oak-gal-narnia-420.webp 420w, images/gallery/oak-gal-narnia-840.webp 840w" sizes="(max-width: 767px) 92vw, (max-width: 1087px) 38vw, 435px" loading="lazy" decoding="async" alt="A carved Book of Shadows on a wooden table in one of the retreats" style="object-position:42% 50%"></div>
-                <figcaption class="ch-plate__caption"><span class="ch-plate__label">A Book of Shadows, in one of the retreats</span></figcaption>
+                <figcaption class="ch-plate__caption"><span class="ch-plate__label">A carved Book of Shadows</span></figcaption>
               </figure>
             </a>
           </li>
@@ -1146,7 +1151,41 @@ animation:marquee-scroll 70s linear infinite;
         </div>
       </div>
     </section>
-    <section class="ch-map w-embed">
+    
+    
+    <!-- Instagram, curated rather than fed: the Basic Display API was retired in
+         2024 and its replacement needs a server to keep a token alive, which a
+         static export does not have. Five real posts, thumbnails served from our
+         own images/instagram/ because Instagram's CDN URLs are signed and expire
+         within days. To refresh: replace the images and the five post codes. -->
+    <section class="section-instagram bg-light">
+      <div class="padding-section-medium">
+        <div class="padding-global">
+          <div class="container-large">
+            <div class="text-align-center">
+              <div class="max-width-xlarge align-center">
+                <div class="section-title-block">
+                  <div class="margin-bottom margin-large">
+                    <h2 class="heading-style-h1">Lately on <span class="text-style-italic">Instagram</span></h2>
+                  </div>
+                </div>
+                <div class="ch-prose text-size-large"><p>Building, carving, awarding and feeding people. Posted as it happens.</p></div>
+                <ul class="ch-ig__grid">
+                  <li><a class="ch-ig__item" href="https://www.instagram.com/cedarhollowoxford/p/DdUYCYzDoAg/" target="_blank" rel="noopener"><img src="images/instagram/oxford-DdUYCYzDoAg.webp" width="600" height="600" loading="lazy" decoding="async" alt="A railway carriage lifted in by crane beside the barn"></a></li>
+                  <li><a class="ch-ig__item" href="https://www.instagram.com/cedarhollowoxford/p/DdH6seSDfK1/" target="_blank" rel="noopener"><img src="images/instagram/oxford-DdH6seSDfK1.webp" width="600" height="600" loading="lazy" decoding="async" alt="Guests inside the bus, under its red drapes"></a></li>
+                  <li><a class="ch-ig__item" href="https://www.instagram.com/cedarhollowoxford/reel/DdEZUzfI-sR/" target="_blank" rel="noopener"><img src="images/instagram/oxford-DdEZUzfI-sR.webp" width="600" height="600" loading="lazy" decoding="async" alt="A sculpted figure being finished by hand"><svg class="ch-ig__badge" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2.5 7h19M8.5 2.5 11 7M15 2.5 17.5 7" stroke="currentColor" stroke-width="1.8" fill="none"/><path d="M3 7h18a1 1 0 0 1 1 1v12a1.5 1.5 0 0 1-1.5 1.5h-17A1.5 1.5 0 0 1 2 20V8a1 1 0 0 1 1-1Z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m10.5 11.5 4.5 2.75-4.5 2.75z"/></svg></a></li>
+                  <li><a class="ch-ig__item" href="https://www.instagram.com/cedarhollowoxford/p/DdCYsRHjifc/" target="_blank" rel="noopener"><img src="images/instagram/oxford-DdCYsRHjifc.webp" width="600" height="600" loading="lazy" decoding="async" alt="Holding the VisitEngland award for Faun&#x27;s Hideaway"></a></li>
+                  <li><a class="ch-ig__item" href="https://www.instagram.com/cedarhollowoxford/p/Dc7cupECO88/" target="_blank" rel="noopener"><img src="images/instagram/oxford-Dc7cupECO88.webp" width="600" height="600" loading="lazy" decoding="async" alt="Tables of food under the marquee at a garden party"></a></li>
+                  <li><a class="ch-ig__follow" href="https://www.instagram.com/cedarhollowoxford/" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M13 0H5C2.23858 0 0 2.23858 0 5V13C0 15.7614 2.23858 18 5 18H13C15.7614 18 18 15.7614 18 13V5C18 2.23858 15.7614 0 13 0ZM16.25 13C16.2445 14.7926 14.7926 16.2445 13 16.25H5C3.20735 16.2445 1.75549 14.7926 1.75 13V5C1.75549 3.20735 3.20735 1.75549 5 1.75H13C14.7926 1.75549 16.2445 3.20735 16.25 5V13ZM13.75 5.25C14.3023 5.25 14.75 4.80228 14.75 4.25C14.75 3.69772 14.3023 3.25 13.75 3.25C13.1977 3.25 12.75 3.69772 12.75 4.25C12.75 4.80228 13.1977 5.25 13.75 5.25ZM9 4.5C6.51472 4.5 4.5 6.51472 4.5 9C4.5 11.4853 6.51472 13.5 9 13.5C11.4853 13.5 13.5 11.4853 13.5 9C13.5027 7.8057 13.0294 6.65957 12.1849 5.81508C11.3404 4.97059 10.1943 4.49734 9 4.5ZM6.25 9C6.25 10.5188 7.4812 11.75 9 11.75C10.5188 11.75 11.75 10.5188 11.75 9C11.75 7.4812 10.5188 6.25 9 6.25C7.4812 6.25 6.25 7.4812 6.25 9Z"/></svg><span class="ch-ig__handle">@cedarhollowoxford</span><span class="ch-ig__follow-cta">Follow</span></a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+<section class="ch-map w-embed">
       <style>
         /* Band ratio from Figma node 357:1040; the live map fills it, with the
            static export underneath as the no-JS / slow-network fallback. */
@@ -1446,39 +1485,6 @@ animation:marquee-scroll 70s linear infinite;
       </script>
       <div class="ch-map__cta"><a href="https://maps.app.goo.gl/95imeHn77mPDHBsE7" target="_blank" rel="noopener" class="button w-inline-block"><span>Open in Google Maps</span><img src="images/icon-external-link.svg" loading="lazy" alt="" aria-hidden="true" class="button_icon"></a></div>
     </section>
-    
-    <!-- Instagram, curated rather than fed: the Basic Display API was retired in
-         2024 and its replacement needs a server to keep a token alive, which a
-         static export does not have. Five real posts, thumbnails served from our
-         own images/instagram/ because Instagram's CDN URLs are signed and expire
-         within days. To refresh: replace the images and the five post codes. -->
-    <section class="section-instagram bg-light">
-      <div class="padding-section-medium">
-        <div class="padding-global">
-          <div class="container-large">
-            <div class="text-align-center">
-              <div class="max-width-xlarge align-center">
-                <div class="section-title-block">
-                  <div class="margin-bottom margin-large">
-                    <h2 class="heading-style-h1">Lately on <span class="text-style-italic">Instagram</span></h2>
-                  </div>
-                </div>
-                <div class="ch-prose text-size-large"><p>Building, carving, awarding and feeding people. Posted as it happens.</p></div>
-                <ul class="ch-ig__grid">
-                  <li><a class="ch-ig__item" href="https://www.instagram.com/cedarhollowoxford/p/DdUYCYzDoAg/" target="_blank" rel="noopener"><img src="images/instagram/oxford-DdUYCYzDoAg.webp" width="600" height="600" loading="lazy" decoding="async" alt="A railway carriage lifted in by crane beside the barn"></a></li>
-                  <li><a class="ch-ig__item" href="https://www.instagram.com/cedarhollowoxford/p/DdH6seSDfK1/" target="_blank" rel="noopener"><img src="images/instagram/oxford-DdH6seSDfK1.webp" width="600" height="600" loading="lazy" decoding="async" alt="Guests inside the bus, under its red drapes"></a></li>
-                  <li><a class="ch-ig__item" href="https://www.instagram.com/cedarhollowoxford/reel/DdEZUzfI-sR/" target="_blank" rel="noopener"><img src="images/instagram/oxford-DdEZUzfI-sR.webp" width="600" height="600" loading="lazy" decoding="async" alt="A sculpted figure being finished by hand"><svg class="ch-ig__badge" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2.5 7h19M8.5 2.5 11 7M15 2.5 17.5 7" stroke="currentColor" stroke-width="1.8" fill="none"/><path d="M3 7h18a1 1 0 0 1 1 1v12a1.5 1.5 0 0 1-1.5 1.5h-17A1.5 1.5 0 0 1 2 20V8a1 1 0 0 1 1-1Z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m10.5 11.5 4.5 2.75-4.5 2.75z"/></svg></a></li>
-                  <li><a class="ch-ig__item" href="https://www.instagram.com/cedarhollowoxford/p/DdCYsRHjifc/" target="_blank" rel="noopener"><img src="images/instagram/oxford-DdCYsRHjifc.webp" width="600" height="600" loading="lazy" decoding="async" alt="Holding the VisitEngland award for Faun&#x27;s Hideaway"></a></li>
-                  <li><a class="ch-ig__item" href="https://www.instagram.com/cedarhollowoxford/p/Dc7cupECO88/" target="_blank" rel="noopener"><img src="images/instagram/oxford-Dc7cupECO88.webp" width="600" height="600" loading="lazy" decoding="async" alt="Tables of food under the marquee at a garden party"></a></li>
-                  <li><a class="ch-ig__follow" href="https://www.instagram.com/cedarhollowoxford/" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M13 0H5C2.23858 0 0 2.23858 0 5V13C0 15.7614 2.23858 18 5 18H13C15.7614 18 18 15.7614 18 13V5C18 2.23858 15.7614 0 13 0ZM16.25 13C16.2445 14.7926 14.7926 16.2445 13 16.25H5C3.20735 16.2445 1.75549 14.7926 1.75 13V5C1.75549 3.20735 3.20735 1.75549 5 1.75H13C14.7926 1.75549 16.2445 3.20735 16.25 5V13ZM13.75 5.25C14.3023 5.25 14.75 4.80228 14.75 4.25C14.75 3.69772 14.3023 3.25 13.75 3.25C13.1977 3.25 12.75 3.69772 12.75 4.25C12.75 4.80228 13.1977 5.25 13.75 5.25ZM9 4.5C6.51472 4.5 4.5 6.51472 4.5 9C4.5 11.4853 6.51472 13.5 9 13.5C11.4853 13.5 13.5 11.4853 13.5 9C13.5027 7.8057 13.0294 6.65957 12.1849 5.81508C11.3404 4.97059 10.1943 4.49734 9 4.5ZM6.25 9C6.25 10.5188 7.4812 11.75 9 11.75C10.5188 11.75 11.75 10.5188 11.75 9C11.75 7.4812 10.5188 6.25 9 6.25C7.4812 6.25 6.25 7.4812 6.25 9Z"/></svg><span class="ch-ig__handle">@cedarhollowoxford</span><span class="ch-ig__follow-cta">Follow</span></a></li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <!-- Mailing list + the monthly draw. Terms live on prize-draw-terms.html.
          The form is a .w-form with a name, so js/form-submit.js intercepts it and
          POSTs to the form endpoint; js/signup-popup.js only handles when the
