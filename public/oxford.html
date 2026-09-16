@@ -489,6 +489,14 @@ width:100%;
         }
         .ch-tiles{display:grid;grid-template-columns:repeat(4,1fr);grid-column-gap:1.5rem;grid-row-gap:2.5rem;margin:0;padding:0;list-style:none;}
         .ch-tile{display:flex;flex-direction:column;align-items:center;gap:1rem;}
+        /* The whole tile is the link. Figma 73:185 draws this row as photo
+           and label with no button, so above 767px there is nothing visible
+           to click; wrapping the tile keeps one anchor per card and one
+           accessible name, rather than a hit area laid over dead markup.
+           It carries the layout because .ch-tile now has a single child. */
+        .ch-tile__hit{display:flex;flex-direction:column;align-items:center;gap:1rem;width:100%;color:inherit;text-decoration:none;}
+        .ch-tile__hit:hover .ch-tile__title{text-decoration:underline;text-underline-offset:.12em;text-decoration-thickness:1px;}
+        .ch-tile__hit:focus-visible{outline:2px solid currentColor;outline-offset:6px;border-radius:var(--radius--16,1rem);}
         .ch-tile__img-wrap{position:relative;width:100%;border-radius:var(--radius--16,1rem);overflow:hidden;}
         /* The same cream burn the property and full-bleed images carry, so the
            tiles sit in the site's palette rather than reading as raw photos. */
@@ -512,6 +520,7 @@ width:100%;
         @media screen and (max-width:767px){
           .ch-tiles{grid-template-columns:1fr;grid-row-gap:1.25rem;}
           .ch-tile{flex-direction:row;align-items:center;gap:1.25rem;}
+          .ch-tile__hit{flex-direction:row;align-items:center;gap:1.25rem;}
           .ch-tile__img-wrap{flex:0 0 38%;align-self:center;}
           .ch-tile__img{aspect-ratio:2/3;height:100%;}
           .ch-tile__body{flex:1 1 auto;min-width:0;align-items:flex-start;gap:.5rem;}
@@ -875,36 +884,44 @@ animation:marquee-scroll 70s linear infinite;
             </div>
             <ul role="list" class="ch-tiles">
               <li class="ch-tile">
+                <a class="ch-tile__hit" href="oxford/facilities.html">
                 <div class="ch-tile__img-wrap"><img src="images/gallery/oak-pool-600.webp" srcset="images/gallery/oak-pool-600.webp 600w, images/gallery/oak-pool-1200.webp 1200w" sizes="(max-width: 767px) 38vw, (max-width: 991px) 45vw, 291px" loading="lazy" alt="The indoor heated swimming pool at Cedar Hollow Oxford" class="ch-tile__img"></div>
                 <div class="ch-tile__body">
                   <h3 class="ch-tile__title">Facilities</h3>
                   <p class="ch-tile__copy">Tennis court, swimming pool, jacuzzi, table tennis and horse riding.</p>
-                  <a href="oxford/facilities.html" class="button ch-tile__link w-inline-block"><span>Explore facilities</span><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewbox="0 0 17 12" fill="none" class="button_icon"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.2443 5.03644L9.48927 1.21321L10.6935 0L16.5 5.91195L10.6783 11.55L9.50444 10.3067L13.17 6.75673H0V5.03644H13.2443Z" fill="currentColor"></path></svg></a>
+                  <span class="button ch-tile__link w-inline-block"><span>Explore facilities</span><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewbox="0 0 17 12" fill="none" class="button_icon"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.2443 5.03644L9.48927 1.21321L10.6935 0L16.5 5.91195L10.6783 11.55L9.50444 10.3067L13.17 6.75673H0V5.03644H13.2443Z" fill="currentColor"></path></svg></span>
                 </div>
+                </a>
               </li>
               <li class="ch-tile">
+                <a class="ch-tile__hit" href="oxford/wellness.html">
                 <div class="ch-tile__img-wrap"><img src="images/gallery/oak-sauna-600.webp" srcset="images/gallery/oak-sauna-600.webp 600w, images/gallery/oak-sauna-800.webp 800w" sizes="(max-width: 767px) 38vw, (max-width: 991px) 45vw, 291px" loading="lazy" alt="The woodland sauna at Cedar Hollow Oxford" class="ch-tile__img"></div>
                 <div class="ch-tile__body">
                   <h3 class="ch-tile__title">Wellness</h3>
                   <p class="ch-tile__copy">The jacuzzi, the sauna, a massage, or a few quiet lengths of the pool.</p>
-                  <a href="oxford/wellness.html" class="button ch-tile__link w-inline-block"><span>Explore wellness</span><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewbox="0 0 17 12" fill="none" class="button_icon"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.2443 5.03644L9.48927 1.21321L10.6935 0L16.5 5.91195L10.6783 11.55L9.50444 10.3067L13.17 6.75673H0V5.03644H13.2443Z" fill="currentColor"></path></svg></a>
+                  <span class="button ch-tile__link w-inline-block"><span>Explore wellness</span><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewbox="0 0 17 12" fill="none" class="button_icon"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.2443 5.03644L9.48927 1.21321L10.6935 0L16.5 5.91195L10.6783 11.55L9.50444 10.3067L13.17 6.75673H0V5.03644H13.2443Z" fill="currentColor"></path></svg></span>
                 </div>
+                </a>
               </li>
               <li class="ch-tile">
+                <a class="ch-tile__hit" href="oxford/experiences.html">
                 <div class="ch-tile__img-wrap"><img src="images/gallery/oak-illusions-600.webp" srcset="images/gallery/oak-illusions-600.webp 600w, images/gallery/oak-illusions-900.webp 900w" sizes="(max-width: 767px) 38vw, (max-width: 991px) 45vw, 291px" loading="lazy" alt="The Trail of Illusions through the Eastern Woods" class="ch-tile__img"></div>
                 <div class="ch-tile__body">
                   <h3 class="ch-tile__title">Experiences</h3>
                   <p class="ch-tile__copy">Two escape rooms, a trail of illusions and a museum of bees.</p>
-                  <a href="oxford/experiences.html" class="button ch-tile__link w-inline-block"><span>Explore experiences</span><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewbox="0 0 17 12" fill="none" class="button_icon"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.2443 5.03644L9.48927 1.21321L10.6935 0L16.5 5.91195L10.6783 11.55L9.50444 10.3067L13.17 6.75673H0V5.03644H13.2443Z" fill="currentColor"></path></svg></a>
+                  <span class="button ch-tile__link w-inline-block"><span>Explore experiences</span><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewbox="0 0 17 12" fill="none" class="button_icon"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.2443 5.03644L9.48927 1.21321L10.6935 0L16.5 5.91195L10.6783 11.55L9.50444 10.3067L13.17 6.75673H0V5.03644H13.2443Z" fill="currentColor"></path></svg></span>
                 </div>
+                </a>
               </li>
               <li class="ch-tile">
+                <a class="ch-tile__hit" href="oxford/dining.html">
                 <div class="ch-tile__img-wrap"><img src="images/gallery/oak-private-chef-600.webp" srcset="images/gallery/oak-private-chef-600.webp 600w, images/gallery/oak-private-chef-1200.webp 1200w" sizes="(max-width: 767px) 38vw, (max-width: 991px) 45vw, 291px" loading="lazy" alt="A private chef dinner cooked and served in the retreat" class="ch-tile__img"></div>
                 <div class="ch-tile__body">
                   <h3 class="ch-tile__title">Dining</h3>
                   <p class="ch-tile__copy">A private chef at your table, room service breakfast, or the gastropubs nearby.</p>
-                  <a href="oxford/dining.html" class="button ch-tile__link w-inline-block"><span>Explore dining</span><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewbox="0 0 17 12" fill="none" class="button_icon"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.2443 5.03644L9.48927 1.21321L10.6935 0L16.5 5.91195L10.6783 11.55L9.50444 10.3067L13.17 6.75673H0V5.03644H13.2443Z" fill="currentColor"></path></svg></a>
+                  <span class="button ch-tile__link w-inline-block"><span>Explore dining</span><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewbox="0 0 17 12" fill="none" class="button_icon"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.2443 5.03644L9.48927 1.21321L10.6935 0L16.5 5.91195L10.6783 11.55L9.50444 10.3067L13.17 6.75673H0V5.03644H13.2443Z" fill="currentColor"></path></svg></span>
                 </div>
+                </a>
               </li>
             </ul>
           </div>
