@@ -1,0 +1,69 @@
+{
+  "_comment": [
+    "Single source of truth for the guest-review figures shown on the site.",
+    "Every number here was read off the platform's own public listing on the",
+    "date in 'checked'. Nothing is estimated. Edit this file, then run",
+    "  python3 scripts/update-reviews.py",
+    "to push the figures into every page that shows them.",
+    "",
+    "Ratings are shown to one decimal place; the site rating for a property is",
+    "the review-count-weighted mean of its sources, which is why Oxford reads",
+    "5.0 (4.99 before rounding) and Dorset reads 4.9.",
+    "",
+    "Do NOT put these figures into schema.org AggregateRating markup. Google's",
+    "structured-data policy does not allow a site to mark up ratings it has",
+    "gathered from other platforms. Visible on-page text is fine."
+  ],
+  "checked": "2026-09-16",
+  "badge": "VisitEngland Gold",
+  "properties": {
+    "oxford": {
+      "name": "Cedar Hollow Oxford, The Oaks",
+      "sources": [
+        {
+          "platform": "Google",
+          "rating": 5.0,
+          "count": 100,
+          "url": "https://www.google.com/travel/hotels/entity/CgsInOXTpI3TstrTARAB"
+        },
+        {
+          "platform": "Tripadvisor",
+          "rating": 5.0,
+          "count": 64,
+          "url": "https://www.tripadvisor.co.uk/Hotel_Review-g186361-d32973964-Reviews-Cedar_Hollow_Oxford_The_Oaks-Oxford_Oxfordshire_England.html"
+        },
+        {
+          "platform": "Airbnb",
+          "listing": "Whimsical Treehouse in C. S. Lewis' footsteps",
+          "rating": 4.97,
+          "count": 35,
+          "url": "https://www.airbnb.co.uk/rooms/722435848290391530"
+        },
+        {
+          "platform": "Airbnb",
+          "listing": "Narnia Inspired Mr Tumnus Cave",
+          "rating": 4.97,
+          "count": 70,
+          "url": "https://www.airbnb.co.uk/rooms/1280483083604154655"
+        }
+      ]
+    },
+    "dorset": {
+      "name": "Mallinson's Woodland Retreat",
+      "sources": [
+        {
+          "platform": "Google",
+          "rating": 5.0,
+          "count": 53,
+          "url": "https://share.google/l7CQQex4bleR7Txlq"
+        },
+        {
+          "platform": "Tripadvisor",
+          "rating": 4.9,
+          "count": 155,
+          "url": "https://www.tripadvisor.co.uk/Hotel_Review-g4041688-d5063870-Reviews-Mallinson_s_Woodland_Retreat-Holditch_Dorset_England.html"
+        }
+      ]
+    }
+  }
+}
