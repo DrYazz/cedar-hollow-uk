@@ -1,0 +1,182 @@
+/* ---------------------------------------------------------------------------
+   The review wall: the latest guest reviews, drawn from the same Repuso feed
+   that supplies the headline figures (see js/reviews-live.js).
+
+   Built rather than embedded. Repuso's own widget ships its stylesheet, its
+   fonts and its branding, none of which match this site; we take the JSON and
+   draw the cards ourselves.
+
+   No reviewer photographs. The feed carries an avatar URL for most reviews,
+   but hotlinking them would mean a third-party image request per card on a
+   page that promises no third-party tracking, and a broken face whenever one
+   404s. An initial on a tinted chip carries the same weight and costs nothing.
+
+   Radius and colours follow the tokens the property cards and search bar use.
+   --------------------------------------------------------------------------- */
+
+.ch-wall[hidden] {
+  display: none;
+}
+
+.ch-wall {
+  margin-top: 3rem;
+  text-align: left;
+}
+
+.ch-wall__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ch-wall__card {
+  display: flex;
+  flex-direction: column;
+  gap: .875rem;
+  margin: 0;
+  padding: 1.5rem;
+  border: 1px solid rgba(59, 65, 38, .35);
+  border-radius: var(--radius--16, 1rem);
+  background-color: #f1ecdb;
+  color: var(--accent, #3b4126);
+}
+
+/* Beyond the first row the cards are hidden until the button is pressed,
+   so the section does not open at three screens tall. */
+.ch-wall__card[hidden] {
+  display: none;
+}
+
+.ch-wall__head {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+}
+
+.ch-wall__avatar {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 100%;
+  background-color: rgba(59, 65, 38, .12);
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.ch-wall__who {
+  min-width: 0;
+}
+
+.ch-wall__name {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ch-wall__meta {
+  margin: .125rem 0 0;
+  font-size: .8125rem;
+  line-height: 1.3;
+  opacity: .72;
+}
+
+.ch-wall__stars {
+  margin: 0;
+  font-size: .9375rem;
+  letter-spacing: .12em;
+  line-height: 1;
+}
+
+/* Reviews run from one line to several paragraphs. Clamping keeps the grid
+   even; the link underneath goes to the full text at the source. */
+.ch-wall__text {
+  margin: 0;
+  font-size: .9375rem;
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-line-clamp: 9;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.ch-wall__src {
+  margin-top: auto;
+  padding-top: .25rem;
+  color: inherit;
+  font-size: .875rem;
+  text-decoration: underline;
+  text-underline-offset: .18em;
+}
+
+.ch-wall__src:hover,
+.ch-wall__src:focus-visible {
+  text-decoration-thickness: 2px;
+}
+
+.ch-wall__more {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 2rem;
+  padding: .8rem 1.6rem;
+  border: 0;
+  border-radius: 50em;
+  background-color: var(--accent, #3b4126);
+  color: #f1ecdb;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity .18s ease;
+}
+
+.ch-wall__more:hover,
+.ch-wall__more:focus-visible {
+  opacity: .9;
+}
+
+/* On the dark band the cards keep their cream, but the button has to invert
+   or it disappears into the background. */
+.ch-section--accent .ch-wall__more {
+  background-color: #f1ecdb;
+  color: var(--accent, #3b4126);
+}
+
+.ch-wall__note {
+  margin: 1.25rem 0 0;
+  font-size: .8125rem;
+  line-height: 1.5;
+  opacity: .72;
+}
+
+@media screen and (max-width: 991px) {
+  .ch-wall__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media screen and (max-width: 767px) {
+  .ch-wall__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ch-wall__text {
+    -webkit-line-clamp: 7;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ch-wall__more {
+    transition: none;
+  }
+}

@@ -33,6 +33,15 @@ review, or a decision) — none are blocked on further build work.
     "the booking path is fake", is readable by anyone. Fixed at cutover.
   - [ ] Pick one canonical host (root or `www`) and redirect the other.
     Do it as a Cloudflare Redirect Rule during Phase 3.
+- [ ] **Check the Repuso plan covers cedarhollow.uk.** The review wall and the
+  live figures both read the owner's Repuso feed, which is configured against
+  theoaks.uk. The endpoint is public and unauthenticated so nothing blocks us
+  technically, but his plan may be licensed per website, and Repuso is the
+  party holding the arrangement with Google and Tripadvisor for redisplaying
+  review text. Worth a look at his account before this is promoted anywhere.
+  Note also that reviews can be hidden inside Repuso, so the wall shows what
+  the feed returns, not necessarily everything a platform holds — the on-page
+  wording claims only "most recent first", which stays true either way.
 - [ ] **Confirm what makes up Oxford's Airbnb figure.** The site now shows the
   owner's own Repuso total (`js/reviews-live.js`), which reports Airbnb as 141
   reviews across two merged channels. The two public listings we link to add up

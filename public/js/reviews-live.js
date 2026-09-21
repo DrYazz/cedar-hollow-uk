@@ -268,9 +268,11 @@
     return esc(seen.slice(0, -1).join(", ")) + " and " + esc(seen[seen.length - 1]);
   }
 
-  function apply(key, fig, platforms) {
+  function apply(key, fig, platforms, items) {
     var prop = DATA.properties[key];
     var badge = DATA.badge || "";
+
+    renderWall(key, items);
 
     /* The combined figure: this property live, every other one as published.
        Computed whether or not a combined strip is on this page, because the
@@ -316,6 +318,143 @@
     });
   }
 
+  /* ---------------------------------------------------------------------
+     The review wall
+
+     The same response carries the reviews themselves. Unlike the figures,
+     these have no server-rendered fallback -- there is nothing sensible to
+     show in place of "the latest reviews" -- so the section ships hidden and
+     is revealed only once there is something real to put in it.
+     --------------------------------------------------------------------- */
+
+  var PLATFORMS = {
+    googleplace: "Google",
+    google: "Google",
+    tripadvisor: "Tripadvisor",
+    airbnb: "Airbnb",
+    facebook: "Facebook",
+    booking: "Booking.com"
+  };
+
+  var VISIBLE = 6;
+
+  function platformName(type) {
+    return PLATFORMS[String(type || "").toLowerCase()] || "";
+  }
+
+  /* The only markup the feed carries is <br />. Strip every tag, escape what
+     is left, then put the line breaks back -- so nothing a reviewer typed can
+     become markup on our page. */
+  function reviewHTML(raw) {
+    var text = String(raw || "")
+      .replace(/<br\s*\/?>/gi, "\n")
+      .replace(/<[^>]*>/g, "")
+      .replace(/[ \t]+\n/g, "\n")
+      .trim();
+    return esc(text).replace(/\n+/g, "<br>");
+  }
+
+  function monthYear(stamp) {
+    var m = String(stamp || "").match(/^(\d{4})-(\d{2})/);
+    if (!m) return "";
+    var months = ["January", "February", "March", "April", "May", "June", "July",
+      "August", "September", "October", "November", "December"];
+    return months[Number(m[2]) - 1] + " " + m[1];
+  }
+
+  function initial(name) {
+    var c = String(name || "").trim().charAt(0);
+    return c ? c.toUpperCase() : "•";
+  }
+
+  function usable(items) {
+    var seen = {};
+    return (items || []).filter(function (i) {
+      if (!i || i.disabled || i.status !== 1) return false;
+      if (!String(i.text || "").trim()) return false;
+      if (!platformName(i.type)) return false;
+      if (seen[i.id]) return false;
+      seen[i.id] = 1;
+      return true;
+    }).sort(function (a, b) {
+      return String(b.posted_on || "").localeCompare(String(a.posted_on || ""));
+    });
+  }
+
+  function card(item, hidden) {
+    var platform = platformName(item.type);
+    var name = String(item.from_name || "").trim() || "A guest";
+    var when = monthYear(item.posted_on);
+    var rating = Math.max(1, Math.min(5, Math.round(Number(item.rating_value) || 5)));
+    var meta = when ? platform + " &middot; " + esc(when) : platform;
+
+    var li = document.createElement("li");
+    li.className = "ch-wall__card";
+    if (hidden) li.hidden = true;
+
+    var source = "";
+    if (item.post_url && /^https:\/\//i.test(item.post_url)) {
+      source = '<a class="ch-wall__src" href="' + esc(item.post_url) +
+        '" target="_blank" rel="noopener nofollow">Read it on ' + platform + "</a>";
+    }
+
+    li.innerHTML =
+      '<div class="ch-wall__head">' +
+        '<span class="ch-wall__avatar" aria-hidden="true">' + esc(initial(name)) + "</span>" +
+        '<div class="ch-wall__who">' +
+          '<p class="ch-wall__name">' + esc(name) + "</p>" +
+          '<p class="ch-wall__meta">' + meta + "</p>" +
+        "</div>" +
+      "</div>" +
+      '<p class="ch-wall__stars" role="img" aria-label="Rated ' + rating +
+        ' out of 5">' + new Array(rating + 1).join("★") + "</p>" +
+      '<div class="ch-wall__text">' + reviewHTML(item.text) + "</div>" +
+      source;
+    return li;
+  }
+
+  function renderWall(key, items) {
+    var hosts = document.querySelectorAll('[data-ch-wall="' + key + '"]');
+    if (!hosts.length) return;
+    var usableItems = usable(items);
+    if (!usableItems.length) return;
+
+    Array.prototype.forEach.call(hosts, function (host) {
+      var grid = host.querySelector(".ch-wall__grid");
+      var button = host.querySelector(".ch-wall__more");
+      if (!grid) return;
+
+      grid.innerHTML = "";
+      usableItems.forEach(function (item, i) {
+        grid.appendChild(card(item, i >= VISIBLE));
+      });
+
+      if (button) {
+        var hiddenCount = Math.max(0, usableItems.length - VISIBLE);
+        if (!hiddenCount) {
+          button.hidden = true;
+        } else {
+          button.hidden = false;
+          button.textContent = "Show " + hiddenCount + " more";
+          button.addEventListener("click", function () {
+            Array.prototype.forEach.call(grid.children, function (li) {
+              li.hidden = false;
+            });
+            button.hidden = true;
+            /* Send the keyboard somewhere sensible now the button is gone. */
+            var revealed = grid.children[VISIBLE];
+            if (revealed) {
+              revealed.setAttribute("tabindex", "-1");
+              revealed.focus();
+            }
+          });
+        }
+      }
+
+      host.hidden = false;
+    });
+  }
+
   /* Totals quoted in running prose, wrapped by the generator. */
   function markTotals(name, fig) {
     var sel = '[data-ch-total="' + name + '"]';
@@ -334,19 +473,37 @@
       if (!raw) return null;
       var parsed = JSON.parse(raw);
       if (Date.now() - parsed.at > CACHE_MS) return null;
-      return parsed.badge;
+      return parsed;
     } catch (e) {
       return null;
     }
   }
 
-  function cache(key, badge) {
+  /* Only the fields actually rendered are kept: the raw response is ~80KB of
+     widget presentation, far more than belongs in session storage. */
+  function cache(key, badge, items) {
     try {
       window.sessionStorage.setItem(
         CACHE_KEY + key,
-        JSON.stringify({ at: Date.now(), badge: badge })
+        JSON.stringify({ at: Date.now(), badge: badge, items: items })
       );
     } catch (e) {}
+  }
+
+  function slim(items) {
+    return (items || []).slice(0, 60).map(function (i) {
+      return {
+        id: i.id,
+        type: i.type,
+        status: i.status,
+        disabled: i.disabled,
+        text: i.text,
+        from_name: i.from_name,
+        posted_on: i.posted_on,
+        rating_value: i.rating_value,
+        post_url: i.post_url
+      };
+    });
   }
 
   /* Repuso's payload carries a `badge` array, one entry per platform. Anything
@@ -370,9 +527,9 @@
 
     var hit = cached(key);
     if (hit) {
-      var fromCache = platformsFrom(hit);
+      var fromCache = platformsFrom(hit.badge);
       if (fromCache) {
-        apply(key, weighted(fromCache), fromCache);
+        apply(key, weighted(fromCache), fromCache, hit.items);
         return;
       }
     }
@@ -392,14 +549,23 @@
       })
       .then(function (json) {
         window.clearTimeout(timer);
+        var items = slim(json && json.items);
         var platforms = platformsFrom(json && json.badge);
-        if (!platforms) return;
+        /* The reviews can still be shown when the badge is missing or has
+           changed shape; they are independent halves of the same response. */
+        if (!platforms) {
+          if (items.length) renderWall(key, items);
+          return;
+        }
         var fig = weighted(platforms);
         /* A total that collapses is far more likely to be a changed payload
            than a real drop, so treat it as a failure and keep the fallback. */
-        if (fig.count < prop.count * 0.75) return;
-        cache(key, json.badge);
-        apply(key, fig, platforms);
+        if (fig.count < prop.count * 0.75) {
+          if (items.length) renderWall(key, items);
+          return;
+        }
+        cache(key, json.badge, items);
+        apply(key, fig, platforms, items);
       })
       .catch(function () {
         window.clearTimeout(timer);
