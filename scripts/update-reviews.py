@@ -45,6 +45,7 @@ import sys
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 DATA = ROOT / "docs" / "reviews-data.json"
 PAGES = ROOT / "public"
+LIVE_JS = ROOT / "public" / "js" / "reviews-live.js"
 
 BLOCK_RE = re.compile(r"<!-- ch:reviews ([\w-]+) -->(.*?)<!-- /ch:reviews -->", re.S)
 BREAKDOWN_RE = re.compile(
@@ -58,6 +59,7 @@ SVG_OPEN_RE = re.compile(r"<svg\b[^>]*\bclass=\"hero_rating-stars\"[^>]*>")
 LAST_STAR_RE = re.compile(r"(<path\b(?:(?!</path>).)*?)fill=\"currentColor\"((?:(?!</path>).)*?></path>)(?!.*<path\b(?:(?!</path>).)*?fill=\"currentColor\")", re.S)
 STOP_RE = re.compile(r'(<stop offset=")[\d.]+(%")')
 HREF_RE = re.compile(r'(<a href=")[^"]*("[^>]*\bch-reviews-link\b)')
+JS_DATA_RE = re.compile(r"(/\* ch:data\b.*?\*/\n)(.*?)(\n[ \t]*/\* /ch:data \*/)", re.S)
 
 
 def aggregate(sources):
@@ -155,11 +157,25 @@ def breakdown(data, figs, indent, scope=""):
                 f' from {src["count"]:,} reviews</li>'
             )
         lines.append("</ul>")
-    lines.append(
-        f'<p class="text-size-medium">Each figure was read from that platform&#x27;s'
-        f" own listing on {checked}. We do not use a review widget, so the numbers"
-        f" move only when someone updates them here.</p>"
-    )
+        # The sentence has to be true of whatever the reader is actually
+        # looking at. For a property on the live feed this markup is the
+        # fallback -- real figures, read by hand, possibly a little behind --
+        # and js/reviews-live.js replaces the whole block when it can reach
+        # the feed. For a property without one, this is all there ever is.
+        if prop.get("live"):
+            lines.append(
+                f'<p class="text-size-medium">Each figure was read from that'
+                f" platform&#x27;s own listing on {checked}, and updates to the"
+                f" platform&#x27;s current total automatically where your browser"
+                f" can reach it.</p>"
+            )
+        else:
+            lines.append(
+                f'<p class="text-size-medium">Each figure was read from that'
+                f" platform&#x27;s own listing on {checked}."
+                f" {html.escape(prop['short'])} is not on the live feed, so these"
+                f" move only when someone updates them here.</p>"
+            )
     body = ("\n" + indent).join(lines)
     return f"\n{indent}{body}\n{indent}"
 
@@ -194,6 +210,57 @@ def _long_date(iso):
     months = ("January", "February", "March", "April", "May", "June", "July",
               "August", "September", "October", "November", "December")
     return f"{d} {months[m - 1]} {y}"
+
+
+def live_config(data, figs):
+    """The slice of the data file js/reviews-live.js needs at runtime.
+
+    It carries the hand-read figures as the fallback, the endpoint for any
+    property on a live feed, and each platform's link so the refreshed
+    breakdown can still point a reader at the source.
+    """
+    props = {}
+    for key, prop in data["properties"].items():
+        rating, count = figs[key]
+        entry = {
+            "name": prop["name"],
+            "short": prop["short"],
+            "page": prop["page"],
+            "rating": rating,
+            "count": count,
+            "sources": [
+                {
+                    "platform": s["platform"],
+                    "listing": s.get("listing", ""),
+                    "url": s["url"],
+                }
+                for s in prop["sources"]
+            ],
+        }
+        if prop.get("live"):
+            entry["live"] = {"endpoint": prop["live"]["endpoint"]}
+        props[key] = entry
+    return {"badge": data["badge"], "checked": data["checked"], "properties": props}
+
+
+def write_live_config(data, figs, check):
+    """Keep the generated DATA blob in js/reviews-live.js in step."""
+    if not LIVE_JS.exists():
+        return None
+    text = LIVE_JS.read_text(encoding="utf-8")
+    match = JS_DATA_RE.search(text)
+    if not match:
+        sys.exit(f"{LIVE_JS.name}: ch:data markers not found")
+    blob = json.dumps(live_config(data, figs), indent=2, ensure_ascii=False)
+    blob = "\n".join(
+        ("  " + line) if line else line for line in f"var DATA = {blob};".split("\n")
+    )
+    updated = text[: match.start(2)] + blob + text[match.end(2) :]
+    if updated == text:
+        return None
+    if not check:
+        LIVE_JS.write_text(updated, encoding="utf-8")
+    return LIVE_JS.relative_to(ROOT)
 
 
 def main():
@@ -243,9 +310,15 @@ def main():
             if not check:
                 path.write_text(updated, encoding="utf-8")
 
+    live_changed = write_live_config(data, figs, check)
+    if live_changed:
+        changed.append(live_changed)
+
     for key in sorted(figs):
         rating, count = figs[key]
-        print(f"  {key:<8} {rating:.1f} from {count:,} reviews")
+        live = key in data["properties"] and data["properties"][key].get("live")
+        note = f"  (live via {data['properties'][key]['live']['provider']})" if live else ""
+        print(f"  {key:<8} {rating:.1f} from {count:,} reviews{note}")
     print()
     if not changed:
         print("All review strips are up to date.")

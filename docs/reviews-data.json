@@ -12,7 +12,15 @@
     "",
     "Do NOT put these figures into schema.org AggregateRating markup. Google's",
     "structured-data policy does not allow a site to mark up ratings it has",
-    "gathered from other platforms. Visible on-page text is fine."
+    "gathered from other platforms. Visible on-page text is fine. The owner's",
+    "Repuso widget on theoaks.uk does emit that markup; we deliberately do not",
+    "copy it.",
+    "",
+    "A property with a 'live' block has its figures refreshed in the browser by",
+    "js/reviews-live.js, which reads the owner's own Repuso feed. The numbers",
+    "below are then the FALLBACK, shown when that fetch fails and to anyone",
+    "without JavaScript, so keep them roughly current even for a live property.",
+    "Dorset has no Repuso widget, so it stays manual."
   ],
   "checked": "2026-09-16",
   "badge": "VisitEngland Gold",
@@ -21,6 +29,20 @@
       "name": "Cedar Hollow Oxford, The Oaks",
       "short": "Cedar Hollow Oxford",
       "page": "oxford-reviews.html",
+      "live": {
+        "provider": "Repuso",
+        "widget": "34454",
+        "endpoint": "https://api.thereviewsplace.com/v1/widgets/posts/34454",
+        "note": [
+          "The owner's own Repuso subscription, embedded on theoaks.uk as a Wix",
+          "custom-HTML block. Public JSON, no key, Access-Control-Allow-Origin: *.",
+          "Its 'badge' array carries one entry per platform with a count and a",
+          "score; Repuso merges two Tripadvisor channels and two Airbnb channels,",
+          "which is why its per-platform totals run ahead of the single listings",
+          "counted below. Undocumented endpoint, so treat a failure as normal and",
+          "fall back rather than showing an error."
+        ]
+      },
       "sources": [
         {
           "platform": "Google",
