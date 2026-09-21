@@ -126,7 +126,13 @@
 .pp-item__row { display: flex; gap: 24px; align-items: stretch; justify-content: center; width: 100%; }
 @media (max-width: 991px) { .pp-item__row { flex-direction: column; gap: 32px; } }
 
-.pp-item__media { position: relative; flex: 0 0 762px; max-width: 762px; }
+/* 762px is the Figma width, but as a basis rather than a floor: with
+   `flex: 0 0 762px` the image refused to shrink, so between the 991px stacking
+   breakpoint and roughly 1100px the whole 762 stayed put, .pp-info (basis 0)
+   was squeezed toward nothing -- measured at 52px wide at a 992px viewport --
+   and the row then overflowed the page sideways. Letting the image shrink and
+   giving .pp-info a real basis makes the two columns give way together. */
+.pp-item__media { position: relative; flex: 0 1 762px; max-width: 762px; min-width: 0; }
 @media (max-width: 991px) { .pp-item__media { flex: 1 1 auto; max-width: none; } }
 .pp-item__media .pp-frame { height: 100%; aspect-ratio: auto; min-height: 100%; }
 @media (max-width: 991px) {
@@ -155,7 +161,10 @@
 }
 
 .pp-info {
-  flex: 1 1 0; min-width: 0;
+  /* A 320px basis, not 0: the booking panel inside needs real width before the
+     buttons start wrapping. Above ~1100px there is slack and this still grows
+     to fill whatever the image leaves, so wide screens are unchanged. */
+  flex: 1 1 320px; min-width: 0;
   display: flex; flex-direction: column; gap: 28px; align-items: center; justify-content: center;
   background: rgba(246, 245, 235, .3);
   border: 1px solid rgba(59, 65, 38, .2); border-radius: 24px;
@@ -205,6 +214,12 @@
 }
 .pp-book__facts dd { margin: 0; font-size: 1rem; line-height: 1.6; color: var(--accent, #3b4126); }
 .pp-book .button { padding: 1rem 2rem; }
+/* Below this the panel is narrow enough that 2rem of side padding pushes
+   "Check availability" onto a second line. Trimming the padding buys the ~30px
+   that keeps it on one. Between 992 and 1100 the panel is narrower still and
+   the label does wrap; widening it there costs the photograph 200px, which is
+   a poor trade for a pill that reads perfectly well over two lines. */
+@media (max-width: 1200px) { .pp-book .button { padding: 1rem 1.25rem; } }
 /* Booking and the 3D tour are one group, so they sit closer to each other than
    to the facts above or the note below, which the panel's own 20px gap sets. */
 .pp-book__actions {

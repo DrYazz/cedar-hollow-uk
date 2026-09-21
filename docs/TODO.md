@@ -86,9 +86,11 @@ complete and verified live:
 
 ### Still open from the audit (not yet started)
 
-- [ ] `detail_properties.html` is still an empty shell; no internal property-detail
-  page. (Bookings intentionally hand off to partner sites — see
-  [[site-search-and-booking-ctas]] — but a detail page + real booking engine remain.)
+- [x] `detail_properties.html` is no longer an empty shell answering 200: it now
+  forwards to `search-results.html`, which became the property-detail page in
+  practice (gallery, facts, description, booking and 3D tour per property).
+  (Bookings still hand off to partner sites — see
+  [[site-search-and-booking-ctas]] — so a real booking engine remains open.)
 - [ ] SEO gaps remain on the original pages: no Open Graph / Twitter / JSON-LD /
   canonical, no `sitemap.xml` or `robots.txt`; `style-guide.html` still indexable
   and shipped to production. (New content/legal pages are `noindex` with meta
@@ -109,11 +111,10 @@ complete and verified live:
   literal text `<div>Checked.in widget</div>` (`search-results.html:183,248,313`).
   No widget, iframe, or script exists anywhere. Embed the real booking/availability
   engine or a working "Book" CTA. *(Original TODO item — search page not wired.)*
-- [ ] **`detail_properties.html` is an empty shell.** The entire `<body>`
-  (`detail_properties.html:40-43`) is two `<script>` tags — no nav, content,
-  gallery, price, or `<h1>`; nothing links to it. Build out the property-detail
-  template (gallery, description, amenities, pricing, booking CTA) or remove it.
-  *(Original TODO item — property detail page not built.)*
+- [x] **`detail_properties.html` is an empty shell.** Resolved by removing it:
+  the shell now forwards to `search-results.html`, which carries the gallery,
+  description, facts, pricing and booking CTA the template was meant to hold.
+  Nothing ever linked to it and it was never in the sitemap.
 - [ ] **Dead CTAs everywhere.** `index.html` has 19 `href="#"` links. The hero
   "Explore Retreats" button (`index.html:109`) is dead; half the "View Treehouse"
   buttons (`index.html:415,467`) are dead. Point every CTA at a real destination.

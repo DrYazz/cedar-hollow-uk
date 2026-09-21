@@ -1,9 +1,10 @@
 User-agent: *
 Allow: /
 
-# style-guide.html and detail_properties.html are deliberately not disallowed
-# here: they carry a noindex meta tag, and a crawler has to fetch a page to see
-# that. Blocking them in robots.txt would hide the tag and could leave them
-# indexed on inbound links alone.
+# style-guide.html is deliberately not disallowed here: it carries a noindex
+# meta tag, and a crawler has to fetch a page to see that. Blocking it in
+# robots.txt would hide the tag and could leave it indexed on inbound links
+# alone. The same applies to detail_properties.html, now a forwarder to the
+# properties search rather than the empty Webflow shell it used to be.
 
 Sitemap: https://cedarhollow.uk/sitemap.xml
