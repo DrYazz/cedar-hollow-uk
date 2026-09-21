@@ -13,3 +13,9 @@
 /oxford/reviews.html         /oxford-reviews.html         301
 /oxford/sustainability.html  /oxford-sustainability.html  301
 /oxford/index2.html          /oxford.html                 301
+
+# The 3D tour landing pages. The tour itself is hosted off-site and linked from
+# the Oxford page, so these go there rather than straight out to another domain.
+/oxford/vr.html           /oxford.html  301
+/oxford/vr2.html          /oxford.html  301
+/oxford/copy-of-map.html  /oxford.html  301

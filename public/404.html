@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Page not found | Cedar Hollow</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <meta name="description" content="That page is not here. Find our retreats in Oxfordshire and Dorset, or get in touch.">
+  <link href="images/favicon.svg" rel="icon" type="image/svg+xml">
+  <link href="images/favicon.png" rel="icon" type="image/png" sizes="32x32">
+  <!-- Deliberately self-contained: no stylesheet, no font file, no image
+       request. An error page that depends on other assets is an error page that
+       can fail for the same reason the visitor is already here. wrangler.toml
+       sets not_found_handling to "404-page", so the Worker serves this once it
+       takes over; Railway may or may not, which is why nothing here assumes it
+       is reached only as a 404. -->
+  <style>
+    :root { color-scheme: light; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1.25rem;
+      padding: 2rem 1.5rem;
+      background-color: #f1ecdb;
+      color: #3b4126;
+      font: 16px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif;
+      text-align: center;
+    }
+    h1 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2rem, 6vw, 3.25rem);
+      font-weight: 400;
+      line-height: 1.05;
+      letter-spacing: -.03em;
+    }
+    h1 em { font-style: italic; }
+    p { margin: 0; max-width: 34rem; font-size: 1.0625rem; }
+    ul {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: .75rem 1.5rem;
+      margin: .5rem 0 0;
+      padding: 0;
+      list-style: none;
+    }
+    a { color: inherit; text-decoration: underline; text-underline-offset: .18em; }
+    .cta {
+      display: inline-flex;
+      align-items: center;
+      margin-top: .25rem;
+      padding: .8rem 1.6rem;
+      border-radius: 50em;
+      background-color: #3b4126;
+      color: #f1ecdb;
+      font-weight: 500;
+      text-decoration: none;
+    }
+    .cta:hover, .cta:focus-visible { opacity: .9; }
+  </style>
+</head>
+<body>
+  <h1>Not all who wander <em>are lost</em>.</h1>
+  <p>This one, though, is. The page you were after is not here &mdash; it may have moved, or the address may have a typo in it.</p>
+  <a class="cta" href="/search-results.html">Find a retreat</a>
+  <ul>
+    <li><a href="/">Home</a></li>
+    <li><a href="/oxford.html">Oxfordshire</a></li>
+    <li><a href="/dorset.html">Dorset</a></li>
+    <li><a href="/about.html">Our Story</a></li>
+    <li><a href="mailto:hello@cedarhollow.uk">Contact us</a></li>
+  </ul>
+</body>
+</html>
