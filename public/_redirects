@@ -6,3 +6,10 @@
 # lists the same three stays. Anchors map to the per-property cards; the gift
 # card block moved to the Oxford vouchers page.
 /oxford/availability.html  /search-results.html?destination=Oxford  301
+
+# The Oxford sub-site's own reviews and sustainability pages duplicated the
+# root ones the nav points at, and index2.html was its homepage, orphaned once
+# every sub-site logo was repointed at /oxford. All three now forward.
+/oxford/reviews.html         /oxford-reviews.html         301
+/oxford/sustainability.html  /oxford-sustainability.html  301
+/oxford/index2.html          /oxford.html                 301
