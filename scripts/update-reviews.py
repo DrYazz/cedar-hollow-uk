@@ -134,29 +134,55 @@ def fmt_rating(rating):
     return text[:-1] if text.endswith("0") else text
 
 
+def stars(rating):
+    """Five stars with the fifth clipped to whatever fraction the rating earns."""
+    pct = max(0.0, min(1.0, rating - 4)) * 100
+    return (
+        '<span class="ch-plat__stars" role="img" aria-label="Rated '
+        f'{fmt_rating(rating)} out of 5">'
+        '<span class="ch-plat__stars-off">\u2605\u2605\u2605\u2605\u2605</span>'
+        f'<span class="ch-plat__stars-on" style="width:{80 + pct / 5:g}%">'
+        '\u2605\u2605\u2605\u2605\u2605</span></span>'
+    )
+
+
+def platform_card(src):
+    """One platform, as a card: the score first, then who says so."""
+    label = html.escape(src["platform"])
+    sub = f'<span class="ch-plat__listing">{html.escape(src["listing"])}</span>' if src.get("listing") else ""
+    return (
+        f'  <li class="ch-plat" style="--plat:{html.escape(src.get("colour", "#3b4126"))}">'
+        f'<a class="ch-plat__link" href="{html.escape(src["url"])}" target="_blank" rel="noopener">'
+        f'<span class="ch-plat__score">{fmt_rating(src["rating"])}</span>'
+        f'{stars(src["rating"])}'
+        f'<span class="ch-plat__name">{label}</span>{sub}'
+        f'<span class="ch-plat__count">{src["count"]:,} reviews</span>'
+        f'</a></li>'
+    )
+
+
 def breakdown(data, figs, indent, scope=""):
-    """The per-platform evidence behind a headline number."""
+    """The per-platform evidence behind a headline number, as cards.
+
+    A plain list made the reader do the arithmetic before they could see the
+    shape of it. The cards put each score first and the platform under it, so
+    the evidence reads at a glance and still adds up to the headline above.
+    """
     checked = _long_date(data["checked"])
     wanted = [scope] if scope else list(data["properties"])
     lines = []
     for key in wanted:
         prop = data["properties"][key]
         rating, count = figs[key]
+        lines.append('<div class="ch-plat-block">')
         lines.append(
-            f'<p class="text-size-large"><strong>{html.escape(prop["name"])}</strong>'
+            f'  <p class="ch-plat__headline"><strong>{html.escape(prop["name"])}</strong>'
             f" &mdash; {rating:.1f} from {count:,} guest reviews</p>"
         )
-        lines.append('<ul class="ch-list text-size-large">')
+        lines.append('  <ul class="ch-plat-grid">')
         for src in prop["sources"]:
-            label = html.escape(src["platform"])
-            if src.get("listing"):
-                label += f' &mdash; {html.escape(src["listing"])}'
-            lines.append(
-                f'  <li><a href="{html.escape(src["url"])}" target="_blank"'
-                f' rel="noopener">{label}</a> &mdash; {fmt_rating(src["rating"])}'
-                f' from {src["count"]:,} reviews</li>'
-            )
-        lines.append("</ul>")
+            lines.append("  " + platform_card(src))
+        lines.append("  </ul>")
         # The sentence has to be true of whatever the reader is actually
         # looking at. For a property on the live feed this markup is the
         # fallback -- real figures, read by hand, possibly a little behind --
@@ -164,32 +190,60 @@ def breakdown(data, figs, indent, scope=""):
         # the feed. For a property without one, this is all there ever is.
         if prop.get("live"):
             lines.append(
-                f'<p class="text-size-medium">Each figure was read from that'
+                f'  <p class="text-size-medium">Each figure was read from that'
                 f" platform&#x27;s own listing on {checked}, and updates to the"
                 f" platform&#x27;s current total automatically where your browser"
                 f" can reach it.</p>"
             )
         else:
             lines.append(
-                f'<p class="text-size-medium">Each figure was read from that'
+                f'  <p class="text-size-medium">Each figure was read from that'
                 f" platform&#x27;s own listing on {checked}."
                 f" {html.escape(prop['short'])} is not on the live feed, so these"
                 f" move only when someone updates them here.</p>"
             )
+        lines.append("</div>")
     body = ("\n" + indent).join(lines)
     return f"\n{indent}{body}\n{indent}"
 
 
 def index_links(data, figs, indent):
-    """Hub listing: each woodland's headline figure, linking to its own page."""
-    lines = ['<ul class="ch-list text-size-large">']
+    """Hub listing: each woodland as a card -- its photograph, score and sources.
+
+    This was two lines of text, which made the hub the least visual page of the
+    three despite being the one people land on. The figures still come from the
+    same place and still say the same thing.
+    """
+    lines = ['<ul class="ch-prop-grid">']
     for key, prop in data["properties"].items():
         rating, count = figs[key]
+        photo = prop.get("photo")
+        lines.append('  <li class="ch-prop">')
         lines.append(
-            f'  <li><a href="{prop["page"]}">{html.escape(prop["short"])}</a>'
-            f' &mdash; {rating:.1f} from {count:,} guest reviews'
-            f' on {sources_sentence(prop)}</li>'
+            f'    <a class="ch-prop__link" href="{html.escape(prop["page"])}">'
         )
+        if photo:
+            lines.append(
+                f'      <span class="ch-prop__shot"><img src="{html.escape(photo["src"])}"'
+                f' srcset="{html.escape(photo["srcset"])}"'
+                f' sizes="(max-width: 767px) 100vw, 26rem" loading="lazy"'
+                f' decoding="async" alt="{html.escape(photo["alt"])}"></span>'
+            )
+        lines.append('      <span class="ch-prop__body">')
+        lines.append(
+            f'        <span class="ch-prop__name">{html.escape(prop["short"])}</span>'
+        )
+        lines.append(
+            f'        <span class="ch-prop__score">{rating:.1f}'
+            f'{stars(rating)}</span>'
+        )
+        lines.append(
+            f'        <span class="ch-prop__meta">from {count:,} guest reviews'
+            f' on {sources_sentence(prop)}</span>'
+        )
+        lines.append("      </span>")
+        lines.append("    </a>")
+        lines.append("  </li>")
     lines.append("</ul>")
     return "\n" + indent + ("\n" + indent).join(lines) + "\n" + indent
 
@@ -233,9 +287,11 @@ def live_config(data, figs):
                     "platform": s["platform"],
                     "listing": s.get("listing", ""),
                     "url": s["url"],
+                    "colour": s.get("colour", "#3b4126"),
                 }
                 for s in prop["sources"]
             ],
+            "photo": prop.get("photo"),
         }
         if prop.get("live"):
             entry["live"] = {"endpoint": prop["live"]["endpoint"]}

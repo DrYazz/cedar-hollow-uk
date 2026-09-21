@@ -46,24 +46,33 @@
           {
             "platform": "Google",
             "listing": "",
-            "url": "https://www.google.com/travel/hotels/entity/CgsInOXTpI3TstrTARAB"
+            "url": "https://www.google.com/travel/hotels/entity/CgsInOXTpI3TstrTARAB",
+            "colour": "#1DA362"
           },
           {
             "platform": "Tripadvisor",
             "listing": "",
-            "url": "https://www.tripadvisor.co.uk/Hotel_Review-g186361-d32973964-Reviews-Cedar_Hollow_Oxford_The_Oaks-Oxford_Oxfordshire_England.html"
+            "url": "https://www.tripadvisor.co.uk/Hotel_Review-g186361-d32973964-Reviews-Cedar_Hollow_Oxford_The_Oaks-Oxford_Oxfordshire_England.html",
+            "colour": "#5AA041"
           },
           {
             "platform": "Airbnb",
             "listing": "Whimsical Treehouse in C. S. Lewis' footsteps",
-            "url": "https://www.airbnb.co.uk/rooms/722435848290391530"
+            "url": "https://www.airbnb.co.uk/rooms/722435848290391530",
+            "colour": "#FF585A"
           },
           {
             "platform": "Airbnb",
             "listing": "Narnia Inspired Mr Tumnus Cave",
-            "url": "https://www.airbnb.co.uk/rooms/1280483083604154655"
+            "url": "https://www.airbnb.co.uk/rooms/1280483083604154655",
+            "colour": "#FF585A"
           }
         ],
+        "photo": {
+          "src": "images/property-cedar-hollow-treehouse-1060.webp",
+          "srcset": "images/property-cedar-hollow-treehouse-530.webp 530w, images/property-cedar-hollow-treehouse-1060.webp 1060w",
+          "alt": "The Cedar Hollow treehouse among the oaks at Cedar Hollow Oxford"
+        },
         "live": {
           "endpoint": "https://api.thereviewsplace.com/v1/widgets/posts/34454"
         }
@@ -78,14 +87,21 @@
           {
             "platform": "Google",
             "listing": "",
-            "url": "https://share.google/l7CQQex4bleR7Txlq"
+            "url": "https://share.google/l7CQQex4bleR7Txlq",
+            "colour": "#1DA362"
           },
           {
             "platform": "Tripadvisor",
             "listing": "",
-            "url": "https://www.tripadvisor.co.uk/Hotel_Review-g4041688-d5063870-Reviews-Mallinson_s_Woodland_Retreat-Holditch_Dorset_England.html"
+            "url": "https://www.tripadvisor.co.uk/Hotel_Review-g4041688-d5063870-Reviews-Mallinson_s_Woodland_Retreat-Holditch_Dorset_England.html",
+            "colour": "#5AA041"
           }
-        ]
+        ],
+        "photo": {
+          "src": "images/property-woodsmans-treehouse-999.webp",
+          "srcset": "images/property-woodsmans-treehouse-530.webp 530w, images/property-woodsmans-treehouse-999.webp 999w",
+          "alt": "The Woodsman's Treehouse wrapped around its oak at Cedar Hollow Dorset"
+        }
       }
     }
   };
@@ -211,35 +227,53 @@
     });
   }
 
-  /* One row per platform, matching how Repuso groups them, so the rows add up
-     to the headline. Where a platform has several listings behind it, they are
-     named after the figure rather than hidden. */
+  function fmtRating(r) {
+    var s = r.toFixed(2);
+    return s.charAt(s.length - 1) === "0" ? s.slice(0, -1) : s;
+  }
+
+  /* Five stars with the filled row clipped to the fraction the rating earns.
+     Must match what scripts/update-reviews.py writes, so a block looks the
+     same whether it came from the server or from the feed. */
+  function starsHTML(rating) {
+    var pct = Math.max(0, Math.min(1, rating - 4)) * 100;
+    return '<span class="ch-plat__stars" role="img" aria-label="Rated ' +
+      fmtRating(rating) + ' out of 5">' +
+      '<span class="ch-plat__stars-off">★★★★★</span>' +
+      '<span class="ch-plat__stars-on" style="width:' + (80 + pct / 5) + '%">' +
+      '★★★★★</span></span>';
+  }
+
+  /* One card per platform, matching how Repuso groups them, so the cards add
+     up to the headline. Where a platform has several listings behind it, the
+     card says so rather than pretending there is one. */
   function breakdownHTML(prop, fig, platforms) {
-    var rows = platforms.map(function (p) {
+    var cards = platforms.map(function (p) {
       var links = listingsFor(prop, p.label);
-      var rating = p.rating % 1 === 0 ? p.rating.toFixed(1) : String(p.rating);
-      var label;
-      if (links.length === 1) {
-        label = '<a href="' + esc(links[0].url) + '" target="_blank" rel="noopener">' +
-          esc(p.label) + "</a>";
+      var url = links.length ? links[0].url : "";
+      var colour = links.length ? (links[0].colour || "#3b4126") : "#3b4126";
+      var listing = "";
+      if (links.length === 1 && links[0].listing) {
+        listing = '<span class="ch-plat__listing">' + esc(links[0].listing) + "</span>";
       } else if (links.length > 1) {
-        label = esc(p.label) + " <span class=\"ch-reviews__listings\">(" +
-          links.map(function (l) {
-            return '<a href="' + esc(l.url) + '" target="_blank" rel="noopener">' +
-              esc(l.listing || l.platform) + "</a>";
-          }).join(", ") + ")</span>";
-      } else {
-        label = esc(p.label);
+        listing = '<span class="ch-plat__listing">' + links.length + " listings</span>";
       }
-      return "  <li>" + label + " &mdash; " + rating + " from " + num(p.count) + " reviews</li>";
+      return '  <li class="ch-plat" style="--plat:' + esc(colour) + '">' +
+        '<a class="ch-plat__link" href="' + esc(url) + '" target="_blank" rel="noopener">' +
+        '<span class="ch-plat__score">' + fmtRating(p.rating) + "</span>" +
+        starsHTML(p.rating) +
+        '<span class="ch-plat__name">' + esc(p.label) + "</span>" + listing +
+        '<span class="ch-plat__count">' + num(p.count) + " reviews</span>" +
+        "</a></li>";
     });
 
-    return '<p class="text-size-large"><strong>' + esc(prop.name) + "</strong> &mdash; " +
+    return '<div class="ch-plat-block">\n' +
+      '  <p class="ch-plat__headline"><strong>' + esc(prop.name) + "</strong> &mdash; " +
       fig.rating.toFixed(1) + " from " + num(fig.count) + " guest reviews</p>\n" +
-      '<ul class="ch-list text-size-large">\n' + rows.join("\n") + "\n</ul>\n" +
-      '<p class="text-size-medium">Each figure comes from that platform&#x27;s own ' +
+      '  <ul class="ch-plat-grid">\n' + cards.join("\n") + "\n  </ul>\n" +
+      '  <p class="text-size-medium">Each figure comes from that platform&#x27;s own ' +
       "listing and refreshes automatically, so the total here is the one the " +
-      "platforms are showing right now.</p>";
+      "platforms are showing right now.</p>\n</div>";
   }
 
   function replaceBetween(start, end, html) {
@@ -305,16 +339,28 @@
       replaceBetween(hit.node, span.end, breakdownHTML(prop, fig, platforms));
     });
 
-    /* The hub listing: one line per woodland. Rebuilt from the data rather
-       than patched, so there is no half-replaced sentence to go wrong. */
+    /* The hub listing: one card per woodland. Only the two figures inside the
+       card are rewritten, so the photograph and the markup around it stay
+       exactly as the generator wrote them. */
     comments(/^ch:reviews-index$/).forEach(function (hit) {
       var span = between(hit.node, "/ch:reviews-index");
       var item = find(span.nodes, 'a[href="' + prop.page + '"]');
-      if (!item || !item.parentNode) return;
-      item.parentNode.innerHTML =
-        '<a href="' + esc(prop.page) + '">' + esc(prop.short) + "</a> &mdash; " +
-        fig.rating.toFixed(1) + " from " + num(fig.count) +
-        " guest reviews on " + sourcesSentence(prop);
+      if (!item) return;
+      var score = item.querySelector(".ch-prop__score");
+      var meta = item.querySelector(".ch-prop__meta");
+      if (score) score.innerHTML = fig.rating.toFixed(1) + starsHTML(fig.rating);
+      if (meta) {
+        meta.innerHTML = "from " + num(fig.count) + " guest reviews on " +
+          sourcesSentence(prop);
+      }
+      /* A page still carrying the old one-line markup: replace the whole line
+         rather than leave a stale figure sitting there. */
+      if (!score && !meta && item.parentNode) {
+        item.parentNode.innerHTML =
+          '<a href="' + esc(prop.page) + '">' + esc(prop.short) + "</a> &mdash; " +
+          fig.rating.toFixed(1) + " from " + num(fig.count) +
+          " guest reviews on " + sourcesSentence(prop);
+      }
     });
   }
 

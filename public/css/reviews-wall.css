@@ -180,3 +180,222 @@
     transition: none;
   }
 }
+
+/* ===========================================================================
+   3. Platform cards, and the hub's property cards
+
+   The evidence behind a headline figure used to be a bulleted list, which made
+   a reader parse "Google - 5.0 from 101 reviews" before they could see the
+   shape of it. As cards the score comes first and the platform sits under it,
+   so the record reads at a glance and still adds up to the number above.
+
+   --plat is the platform's own brand colour, set per card by the generator and
+   used only for a hairline along the top edge. We do not reproduce the
+   platforms' logos: the only copies in reach are 28px, and a trademark blown
+   up from a thumbnail looks worse than type set properly.
+   =========================================================================== */
+
+.ch-plat-block + .ch-plat-block {
+  margin-top: 3rem;
+}
+
+.ch-plat__headline {
+  margin: 0 0 1.25rem;
+  font-size: 1.125rem;
+  line-height: 1.5;
+}
+
+.ch-plat-grid {
+  /* Capped rather than 1fr: with auto-fit the empty tracks collapse and three
+     cards stretched to 309px each on a wide screen, which made a two-digit
+     score look lost in the middle of a banner. Centred so a row of two or
+     three still sits under the headline rather than off to the left. */
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 14rem));
+  justify-content: center;
+  gap: 1rem;
+  margin: 0 0 1.25rem;
+  padding: 0;
+  list-style: none;
+}
+
+.ch-plat {
+  margin: 0;
+}
+
+.ch-plat__link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .25rem;
+  height: 100%;
+  padding: 1.25rem 1rem;
+  border: 1px solid rgba(59, 65, 38, .35);
+  /* The brand colour reads as a marker on the card, not as a fill. */
+  border-top: 3px solid var(--plat, #3b4126);
+  border-radius: var(--radius--16, 1rem);
+  background-color: #f1ecdb;
+  color: var(--accent, #3b4126);
+  text-align: center;
+  text-decoration: none;
+  transition: transform .25s cubic-bezier(.2, .7, .3, 1), box-shadow .25s ease;
+}
+
+.ch-plat__link:hover,
+.ch-plat__link:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 .625rem 1.25rem rgba(16, 19, 7, .12);
+}
+
+.ch-plat__score {
+  font-family: var(--font-family--heading, Crimsonpro), serif;
+  font-size: 2.5rem;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -.03em;
+}
+
+/* Two copies of the same five stars, the filled row clipped to the width the
+   rating earns, so 4.9 does not draw as five full stars. */
+.ch-plat__stars {
+  position: relative;
+  display: inline-block;
+  font-size: .875rem;
+  letter-spacing: .1em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.ch-plat__stars-off {
+  opacity: .25;
+}
+
+.ch-plat__stars-on {
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+}
+
+.ch-plat__name {
+  margin-top: .375rem;
+  font-size: .9375rem;
+  font-weight: 600;
+}
+
+.ch-plat__listing {
+  font-size: .75rem;
+  line-height: 1.35;
+  opacity: .7;
+}
+
+.ch-plat__count {
+  font-size: .8125rem;
+  opacity: .7;
+}
+
+/* --- the hub's two woodlands ------------------------------------------- */
+
+.ch-prop-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: 1.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ch-prop {
+  margin: 0;
+}
+
+.ch-prop__link {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid rgba(59, 65, 38, .35);
+  border-radius: var(--radius--16, 1rem);
+  background-color: #f1ecdb;
+  color: var(--accent, #3b4126);
+  text-decoration: none;
+  transition: transform .3s cubic-bezier(.2, .7, .3, 1), box-shadow .3s ease;
+}
+
+.ch-prop__link:hover,
+.ch-prop__link:focus-visible {
+  transform: translateY(-3px);
+  box-shadow: 0 .75rem 1.75rem rgba(16, 19, 7, .16);
+}
+
+.ch-prop__shot {
+  display: block;
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  background-color: rgba(59, 65, 38, .08);
+}
+
+.ch-prop__shot img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ch-prop__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: .375rem;
+  padding: 1.25rem;
+  text-align: left;
+}
+
+.ch-prop__name {
+  font-family: var(--font-family--heading, Crimsonpro), serif;
+  font-size: 1.5rem;
+  line-height: 1.15;
+  letter-spacing: -.02em;
+}
+
+.ch-prop__score {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.ch-prop__meta {
+  font-size: .875rem;
+  line-height: 1.5;
+  opacity: .75;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ch-plat__link,
+  .ch-prop__link {
+    transition: none;
+  }
+
+  .ch-plat__link:hover,
+  .ch-prop__link:hover {
+    transform: none;
+  }
+}
+
+/* The cross-links under a breakdown ("Cedar Hollow Dorset has its own
+   reviews...") sit outside both .ch-prose and .ch-list, the two things the
+   page-level styles colour, so nothing claimed them and they rendered in
+   default browser blue against the cream. Scoped to exclude the platform
+   cards, which are links but carry their own treatment. */
+.ch-review-sources a:not(.ch-plat__link):not(.ch-prop__link) {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: .18em;
+}
+
+.ch-review-sources a:not(.ch-plat__link):not(.ch-prop__link):hover,
+.ch-review-sources a:not(.ch-plat__link):not(.ch-prop__link):focus-visible {
+  text-decoration-thickness: 2px;
+}

@@ -20,7 +20,11 @@
     "js/reviews-live.js, which reads the owner's own Repuso feed. The numbers",
     "below are then the FALLBACK, shown when that fetch fails and to anyone",
     "without JavaScript, so keep them roughly current even for a live property.",
-    "Dorset has no Repuso widget, so it stays manual."
+    "Dorset has no Repuso widget, so it stays manual.",
+    "",
+    "Each source carries a 'colour', the platform's own brand colour as the",
+    "Repuso feed reports it. It is used for a hairline accent on the platform",
+    "cards, nothing more -- we do not reproduce the platforms' logos."
   ],
   "checked": "2026-09-16",
   "badge": "VisitEngland Gold",
@@ -48,29 +52,38 @@
           "platform": "Google",
           "rating": 5.0,
           "count": 100,
-          "url": "https://www.google.com/travel/hotels/entity/CgsInOXTpI3TstrTARAB"
+          "url": "https://www.google.com/travel/hotels/entity/CgsInOXTpI3TstrTARAB",
+          "colour": "#1DA362"
         },
         {
           "platform": "Tripadvisor",
           "rating": 5.0,
           "count": 64,
-          "url": "https://www.tripadvisor.co.uk/Hotel_Review-g186361-d32973964-Reviews-Cedar_Hollow_Oxford_The_Oaks-Oxford_Oxfordshire_England.html"
+          "url": "https://www.tripadvisor.co.uk/Hotel_Review-g186361-d32973964-Reviews-Cedar_Hollow_Oxford_The_Oaks-Oxford_Oxfordshire_England.html",
+          "colour": "#5AA041"
         },
         {
           "platform": "Airbnb",
           "listing": "Whimsical Treehouse in C. S. Lewis' footsteps",
           "rating": 4.97,
           "count": 35,
-          "url": "https://www.airbnb.co.uk/rooms/722435848290391530"
+          "url": "https://www.airbnb.co.uk/rooms/722435848290391530",
+          "colour": "#FF585A"
         },
         {
           "platform": "Airbnb",
           "listing": "Narnia Inspired Mr Tumnus Cave",
           "rating": 4.97,
           "count": 70,
-          "url": "https://www.airbnb.co.uk/rooms/1280483083604154655"
+          "url": "https://www.airbnb.co.uk/rooms/1280483083604154655",
+          "colour": "#FF585A"
         }
-      ]
+      ],
+      "photo": {
+        "src": "images/property-cedar-hollow-treehouse-1060.webp",
+        "srcset": "images/property-cedar-hollow-treehouse-530.webp 530w, images/property-cedar-hollow-treehouse-1060.webp 1060w",
+        "alt": "The Cedar Hollow treehouse among the oaks at Cedar Hollow Oxford"
+      }
     },
     "dorset": {
       "name": "Mallinson's Woodland Retreat",
@@ -81,15 +94,22 @@
           "platform": "Google",
           "rating": 5.0,
           "count": 53,
-          "url": "https://share.google/l7CQQex4bleR7Txlq"
+          "url": "https://share.google/l7CQQex4bleR7Txlq",
+          "colour": "#1DA362"
         },
         {
           "platform": "Tripadvisor",
           "rating": 4.9,
           "count": 155,
-          "url": "https://www.tripadvisor.co.uk/Hotel_Review-g4041688-d5063870-Reviews-Mallinson_s_Woodland_Retreat-Holditch_Dorset_England.html"
+          "url": "https://www.tripadvisor.co.uk/Hotel_Review-g4041688-d5063870-Reviews-Mallinson_s_Woodland_Retreat-Holditch_Dorset_England.html",
+          "colour": "#5AA041"
         }
-      ]
+      ],
+      "photo": {
+        "src": "images/property-woodsmans-treehouse-999.webp",
+        "srcset": "images/property-woodsmans-treehouse-530.webp 530w, images/property-woodsmans-treehouse-999.webp 999w",
+        "alt": "The Woodsman's Treehouse wrapped around its oak at Cedar Hollow Dorset"
+      }
     }
   },
   "hub_page": "reviews.html"
