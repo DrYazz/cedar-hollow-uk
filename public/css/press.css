@@ -32,14 +32,66 @@
 .ch-press__card {
   display: flex;
   flex-direction: column;
-  gap: .75rem;
   height: 100%;
   margin: 0;
-  padding: 1.5rem;
+  /* No padding on the card itself: the photograph runs to the edges and the
+     padding lives on .ch-press__body instead. overflow:hidden is what keeps
+     the image's square corners inside the card's rounded ones. */
+  overflow: hidden;
   border: 1px solid rgba(59, 65, 38, .35);
   border-radius: var(--radius--16, 1rem);
   background-color: #f1ecdb;
   color: var(--accent, #3b4126);
+}
+
+/* A photograph of the retreat the piece is about, from our own library.
+   Fixed ratio so a row of cards lines up whatever each image's proportions. */
+.ch-press__shot {
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background-color: rgba(59, 65, 38, .08);
+}
+
+.ch-press__shot img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ch-press__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: .75rem;
+  padding: 1.5rem;
+}
+
+/* Mastheads are drawn as a mask over a colour rather than as an <img>, which
+   is how the site draws its other single-colour marks, and here it is the only
+   thing that works: these files were built to sit inside the awards marquee,
+   where surrounding CSS coloured them. Standing alone they fail in two
+   different ways -- logo-the-times.svg has fill="none" on the root and no fill
+   on its paths, so it renders as nothing, and logo-evening-standard.svg has
+   its paths filled #F1ECDB, cream on a cream card. A mask ignores whatever is
+   inside the file and paints the silhouette in our own ink, so every masthead
+   comes out the same weight and colour whatever it was drawn as.
+
+   mask-size: contain with a left origin lets each one keep its proportions
+   inside a common height, so a square roundel and a long wordmark both sit on
+   the same baseline without being stretched to match. */
+.ch-press__logo {
+  display: block;
+  width: 100%;
+  max-width: 11rem;
+  height: 1.5rem;
+  background-color: var(--accent, #3b4126);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-position: left center;
+  mask-position: left center;
 }
 
 .ch-press__pub {

@@ -35,32 +35,67 @@ def marker_indent(match):
     return "" if indent.strip() else indent
 
 
+def asset(path):
+    """Fail loudly on a missing file rather than shipping a broken image."""
+    if not (ROOT / "public" / path).exists():
+        sys.exit("press-data.json: no such file: public/%s" % path)
+    return html.escape(path, quote=True)
+
+
 def card(item):
     """One article: who ran it, what they called it, and a line from the piece."""
     pub = html.escape(item["publication"])
     url = html.escape(item["url"], quote=True)
     headline = html.escape(item["headline"])
     quote = item.get("quote")
+    logo = item.get("logo")
+    image = item.get("image")
 
-    parts = [
-        '<article class="ch-press__card%s">' % ("" if quote else " ch-press__card--bare"),
-        '  <p class="ch-press__pub">%s</p>' % pub,
-        '  <h3 class="ch-press__headline">'
-        '<a href="%s" target="_blank" rel="noopener">%s</a></h3>' % (url, headline),
-    ]
+    parts = ['<article class="ch-press__card%s">' % ("" if quote else " ch-press__card--bare")]
+
+    if image:
+        # Our own photograph of the retreat the piece is about -- not the
+        # article's own picture, which belongs to the publication that ran it.
+        # Decorative: the headline beneath already says what this is, so an
+        # alt here would only repeat it to a screen reader.
+        parts.append(
+            '  <div class="ch-press__shot"><img src="%s" srcset="%s" '
+            'sizes="(max-width: 767px) 100vw, 30rem" loading="lazy" '
+            'decoding="async" alt=""></div>'
+            % (asset(image["src"]), html.escape(image["srcset"], quote=True))
+        )
+
+    parts.append('  <div class="ch-press__body">')
+    if logo:
+        # Drawn as a mask (see press.css), so the file is named in a style
+        # rather than a src. role/aria-label carry the masthead, so the
+        # publication is still announced once to a screen reader.
+        src = asset(logo)
+        parts.append(
+            '    <span class="ch-press__logo" role="img" aria-label="%s" '
+            "style=\"-webkit-mask-image:url('%s');mask-image:url('%s')\"></span>"
+            % (pub, src, src)
+        )
+    else:
+        parts.append('    <p class="ch-press__pub">%s</p>' % pub)
+    parts.append(
+        '    <h3 class="ch-press__headline">'
+        '<a href="%s" target="_blank" rel="noopener">%s</a></h3>' % (url, headline)
+    )
     if quote:
         # &ldquo;/&rdquo; rather than bare quotes: this is someone else's
         # sentence and it should look like one.
         parts.append(
-            '  <blockquote class="ch-press__quote"><p>&ldquo;%s&rdquo;</p></blockquote>'
+            '    <blockquote class="ch-press__quote"><p>&ldquo;%s&rdquo;</p></blockquote>'
             % html.escape(quote)
         )
     elif item.get("note"):
-        parts.append('  <p class="ch-press__note">%s</p>' % html.escape(item["note"]))
+        parts.append('    <p class="ch-press__note">%s</p>' % html.escape(item["note"]))
     parts.append(
-        '  <a class="ch-press__link" href="%s" target="_blank" rel="noopener">'
+        '    <a class="ch-press__link" href="%s" target="_blank" rel="noopener">'
         "Read it on %s</a>" % (url, pub)
     )
+    parts.append("  </div>")
     parts.append("</article>")
     return parts
 

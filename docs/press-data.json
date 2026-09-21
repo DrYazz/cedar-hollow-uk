@@ -33,79 +33,140 @@
           "publication": "The Times",
           "headline": "My visit to the Oxfordshire woodland that inspired Narnia",
           "url": "https://www.thetimes.com/travel/inspiration/family-travel/my-visit-to-the-oxfordshire-woodland-that-inspired-narnia-7fwtlsffc",
-          "quote": "Cedar Hollow is a treehouse sleeping four, with a circular main room that seems a lot larger inside than out; there’s curiously carved furniture, medieval arched windows and, naturally, a magic wardrobe."
+          "quote": "Cedar Hollow is a treehouse sleeping four, with a circular main room that seems a lot larger inside than out; there’s curiously carved furniture, medieval arched windows and, naturally, a magic wardrobe.",
+          "logo": "images/logo-the-times.svg",
+          "image": {
+            "src": "images/gallery/cedar-hollow-treehouse-s01-1060.webp",
+            "srcset": "images/gallery/cedar-hollow-treehouse-s01-530.webp 530w, images/gallery/cedar-hollow-treehouse-s01-1060.webp 1060w"
+          }
         },
         {
           "publication": "The Times",
           "headline": "11 of the best Airbnbs in Oxford",
           "url": "https://www.thetimes.com/travel/destinations/uk-travel/england/oxford/best-airbnbs-in-oxford-0t0mnf2vx",
-          "quote": "This extraordinary place takes its inspiration from his beloved Narnia books, and sets out to recreate the home of Mr Tumnus, the faun who befriends the main characters."
+          "quote": "This extraordinary place takes its inspiration from his beloved Narnia books, and sets out to recreate the home of Mr Tumnus, the faun who befriends the main characters.",
+          "logo": "images/logo-the-times.svg",
+          "image": {
+            "src": "images/gallery/fauns-hideaway-s01-1060.webp",
+            "srcset": "images/gallery/fauns-hideaway-s01-530.webp 530w, images/gallery/fauns-hideaway-s01-1060.webp 1060w"
+          }
         },
         {
           "publication": "BBC News",
           "headline": "Narnia in Oxfordshire: The doctor, the treehouse and the wardrobe",
           "url": "https://www.bbc.co.uk/news/articles/cp8l8pge349o",
-          "quote": "Cedar Hollow is inspired by C.S Lewis' Chronicles of Narnia and even features the eponymous wardrobe from the first book in the series."
+          "quote": "Cedar Hollow is inspired by C.S Lewis' Chronicles of Narnia and even features the eponymous wardrobe from the first book in the series.",
+          "logo": "images/press/bbc.svg",
+          "image": {
+            "src": "images/gallery/cedar-hollow-treehouse-s02-1060.webp",
+            "srcset": "images/gallery/cedar-hollow-treehouse-s02-530.webp 530w, images/gallery/cedar-hollow-treehouse-s02-1060.webp 1060w"
+          }
         },
         {
           "publication": "Evening Standard",
           "headline": "Cool stay of the week: a fairytale treehouse in the Oxfordshire woodlands",
           "url": "https://www.standard.co.uk/lifestyle/travel/cool-stay-of-the-week-treehouse-oxfordshire-woodlands-a3911831.html",
-          "quote": "Perched among the canopy of the majestic Shotover Country Park, Cedar Hollow Treehouse is the perfect long weekend escape."
+          "quote": "Perched among the canopy of the majestic Shotover Country Park, Cedar Hollow Treehouse is the perfect long weekend escape.",
+          "logo": "images/logo-evening-standard.svg",
+          "image": {
+            "src": "images/gallery/cedar-hollow-treehouse-s03-1060.webp",
+            "srcset": "images/gallery/cedar-hollow-treehouse-s03-530.webp 530w, images/gallery/cedar-hollow-treehouse-s03-1060.webp 1060w"
+          }
         },
         {
           "publication": "Time Out",
           "headline": "The best treehouse stays in the UK – bookable on Airbnb",
           "url": "https://www.timeout.com/uk/things-to-do/amazing-uk-treehouses-you-can-actually-stay-in",
-          "quote": "This magical treehouse Airbnb borders CS Lewis's old garden – a great place for literature fans and budding writers."
+          "quote": "This magical treehouse Airbnb borders CS Lewis's old garden – a great place for literature fans and budding writers.",
+          "logo": "images/press/timeout.svg",
+          "image": {
+            "src": "images/gallery/cedar-hollow-treehouse-s04-1060.webp",
+            "srcset": "images/gallery/cedar-hollow-treehouse-s04-530.webp 530w, images/gallery/cedar-hollow-treehouse-s04-1060.webp 1060w"
+          }
         },
         {
           "publication": "The Sun",
           "headline": "I built ‘Britain’s best treehouse’ inspired by fantasy world with ‘magic’ wardrobe",
           "url": "https://www.thesun.co.uk/travel/31781255/britains-best-treehouse-fantasy-world-magic-wardrobe/",
-          "quote": "Cedar Hollow treehouse is inspired by The Lion, the Witch and the Wardrobe and is just two doors down from where famous author Lewis lived."
+          "quote": "Cedar Hollow treehouse is inspired by The Lion, the Witch and the Wardrobe and is just two doors down from where famous author Lewis lived.",
+          "logo": "images/press/thesun.svg",
+          "image": {
+            "src": "images/gallery/cedar-hollow-treehouse-s05-1060.webp",
+            "srcset": "images/gallery/cedar-hollow-treehouse-s05-530.webp 530w, images/gallery/cedar-hollow-treehouse-s05-1060.webp 1060w"
+          }
         },
         {
           "publication": "The Tab",
           "headline": "Inside the whimsical treehouse Adrienne and Matt stayed in on MAFS UK",
           "url": "https://thetab.com/2023/11/09/inside-the-whimsical-narnia-inspired-treehouse-adrienne-and-matt-stayed-in-on-mafs-uk",
-          "quote": "The treehouse is set in Shotover Country Park in Oxford and is themed around Narnia."
+          "quote": "The treehouse is set in Shotover Country Park in Oxford and is themed around Narnia.",
+          "logo": "images/logo-the-tab.png",
+          "image": {
+            "src": "images/gallery/fauns-hideaway-s02-1060.webp",
+            "srcset": "images/gallery/fauns-hideaway-s02-530.webp 530w, images/gallery/fauns-hideaway-s02-1060.webp 1060w"
+          }
         },
         {
           "publication": "OK! Magazine",
           "headline": "Inside Amber Davies and boyfriend Nick Kyriacou's romantic treehouse retreat",
           "url": "https://www.ok.co.uk/lifestyle/amber-davies-boyfriend-holiday-nick-23167635",
-          "quote": "In a clip uploaded to her Instagram story, the musical theatre actress gave a full tour of the Cedar Hollow retreat nestled in the Oxfordshire woodland."
+          "quote": "In a clip uploaded to her Instagram story, the musical theatre actress gave a full tour of the Cedar Hollow retreat nestled in the Oxfordshire woodland.",
+          "logo": "images/logo-ok-news.png",
+          "image": {
+            "src": "images/gallery/fauns-hideaway-s04-1060.webp",
+            "srcset": "images/gallery/fauns-hideaway-s04-530.webp 530w, images/gallery/fauns-hideaway-s04-1060.webp 1060w"
+          }
         },
         {
           "publication": "Oxfordshire Live",
           "headline": "The Narnia-inspired treehouse hidden in Shotover Country Park",
           "url": "https://www.oxfordshirelive.co.uk/whats-on/whats-on-news/narnia-inspired-treehouse-hidden-shotover-8121466",
-          "quote": "Inspired by C.S Lewis' world of Narnia, the treehouse is a memorable stay, blending in with the nature surrounding it."
+          "quote": "Inspired by C.S Lewis' world of Narnia, the treehouse is a memorable stay, blending in with the nature surrounding it.",
+          "logo": "images/logo-oxfordshire-live.png",
+          "image": {
+            "src": "images/gallery/fauns-hideaway-s05-1060.webp",
+            "srcset": "images/gallery/fauns-hideaway-s05-530.webp 530w, images/gallery/fauns-hideaway-s05-1060.webp 1060w"
+          }
         },
         {
           "publication": "Secret London",
           "headline": "This Narnia-themed treehouse near London is the perfect staycation",
           "url": "https://secretldn.com/treehouse-rental-cedar-hollow/",
-          "quote": "Cedar Hollow Treehouse is nestled in the magical Oxfordshire woodlands, hidden in Shotover Country Park, which boasts over 100 acres of ever-changing colours, wildlife, and mystique."
+          "quote": "Cedar Hollow Treehouse is nestled in the magical Oxfordshire woodlands, hidden in Shotover Country Park, which boasts over 100 acres of ever-changing colours, wildlife, and mystique.",
+          "image": {
+            "src": "images/gallery/fauns-hideaway-s06-1024.webp",
+            "srcset": "images/gallery/fauns-hideaway-s06-530.webp 530w, images/gallery/fauns-hideaway-s06-1024.webp 1024w"
+          }
         },
         {
           "publication": "Manchester Evening News",
           "headline": "Inside Narnia-themed treehouse that features its own ‘magic’ wardrobe",
           "url": "https://www.manchestereveningnews.co.uk/news/property/inside-narnia-themed-treehouse-features-30398002",
-          "quote": "The impressive property comes complete with a magic wardrobe door that 'transports' visitors straight into the countryside."
+          "quote": "The impressive property comes complete with a magic wardrobe door that 'transports' visitors straight into the countryside.",
+          "image": {
+            "src": "images/gallery/fauns-hideaway-s07-1060.webp",
+            "srcset": "images/gallery/fauns-hideaway-s07-530.webp 530w, images/gallery/fauns-hideaway-s07-1060.webp 1060w"
+          }
         },
         {
           "publication": "Good News Network",
           "headline": "Narnia themed treehouse built next to C.S. Lewis’ home features magic wardrobe",
           "url": "https://www.goodnewsnetwork.org/narnia-themed-treehouse-built-next-to-c-s-lewis-home-features-magic-wardrobe-now-its-a-rental/",
-          "quote": "The property in Oxford, England, features rooms inspired by the beavers’ den and Mr. Tumnus’s cave from the Narnia books written by C.S. Lewis."
+          "quote": "The property in Oxford, England, features rooms inspired by the beavers’ den and Mr. Tumnus’s cave from the Narnia books written by C.S. Lewis.",
+          "image": {
+            "src": "images/gallery/beavers-den-s01-1060.webp",
+            "srcset": "images/gallery/beavers-den-s01-530.webp 530w, images/gallery/beavers-den-s01-1060.webp 1060w"
+          }
         },
         {
           "publication": "Euro Weekly News",
           "headline": "A storybook-themed stay in the UK Narnia fans will love",
           "url": "https://euroweeklynews.com/2024/11/27/a-storybook-themed-stay-in-the-uk-narnia-fans-will-love-this/",
-          "quote": "Entering Cedar Hollow Treehouse is like stepping into a fairytale."
+          "quote": "Entering Cedar Hollow Treehouse is like stepping into a fairytale.",
+          "image": {
+            "src": "images/gallery/beavers-den-s02-1060.webp",
+            "srcset": "images/gallery/beavers-den-s02-530.webp 530w, images/gallery/beavers-den-s02-1060.webp 1060w"
+          }
         }
       ]
     },
@@ -129,49 +190,87 @@
           "publication": "The Telegraph",
           "headline": "Inside The Woodsman's, Dorset: is this England's most luxurious treehouse?",
           "url": "https://www.telegraph.co.uk/travel/destinations/europe/united-kingdom/england/dorset/articles/inside-woodsmans-treehouse-hotel-dorset/",
-          "note": "Behind the Telegraph's paywall, so no extract is quoted here."
+          "note": "Behind the Telegraph's paywall, so no extract is quoted here.",
+          "logo": "images/the-sunday-telegraph.png",
+          "image": {
+            "src": "images/gallery/woodsmans-treehouse-s01-1000.webp",
+            "srcset": "images/gallery/woodsmans-treehouse-s01-530.webp 530w, images/gallery/woodsmans-treehouse-s01-1000.webp 1000w"
+          }
         },
         {
           "publication": "The Independent",
           "headline": "Woodsman's Treehouse review: Glamping in style in the Dorset woods",
           "url": "https://www.independent.co.uk/travel/uk/england/dorset/woodsmans-treehouse-dorset-hotel-review-b2257213.html",
-          "quote": "The Woodsman’s Treehouse, all £150,000-worth of it, wrapped around a magnificent oak."
+          "quote": "The Woodsman’s Treehouse, all £150,000-worth of it, wrapped around a magnificent oak.",
+          "logo": "images/press/independent.svg",
+          "image": {
+            "src": "images/gallery/woodsmans-treehouse-s02-1060.webp",
+            "srcset": "images/gallery/woodsmans-treehouse-s02-530.webp 530w, images/gallery/woodsmans-treehouse-s02-1060.webp 1060w"
+          }
         },
         {
           "publication": "GQ",
           "headline": "The Woodman's Treehouse, Dorset, UK: the GQ review",
           "url": "https://www.gq-magazine.co.uk/article/woodmans-treehouse-dorset-uk-review",
-          "quote": "Guy Mallinson's dream was to create a treehouse that was both entirely in sync with its woodland surroundings - so almost like a 'tree', really – but still comfortable enough for any adult, no matter how fearful of spiders or anything remotely 'Bear Grylls', to luxuriate in."
+          "quote": "Guy Mallinson's dream was to create a treehouse that was both entirely in sync with its woodland surroundings - so almost like a 'tree', really – but still comfortable enough for any adult, no matter how fearful of spiders or anything remotely 'Bear Grylls', to luxuriate in.",
+          "logo": "images/press/gq.svg",
+          "image": {
+            "src": "images/gallery/woodsmans-treehouse-s03-1060.webp",
+            "srcset": "images/gallery/woodsmans-treehouse-s03-530.webp 530w, images/gallery/woodsmans-treehouse-s03-1060.webp 1060w"
+          }
         },
         {
           "publication": "Evening Standard",
           "headline": "Cool stay of the week: a luxury woodland treehouse in Dorset",
           "url": "https://www.standard.co.uk/lifestyle/travel/the-woodmans-treehouse-dorset-cool-stays-luxury-freestanding-bath-a3698281.html",
-          "quote": "If you've always imagined stepping into a fairytale, you could find your happily ever after at The Woodsman's Treehouse."
+          "quote": "If you've always imagined stepping into a fairytale, you could find your happily ever after at The Woodsman's Treehouse.",
+          "logo": "images/logo-evening-standard.svg",
+          "image": {
+            "src": "images/gallery/woodsmans-treehouse-s04-935.webp",
+            "srcset": "images/gallery/woodsmans-treehouse-s04-530.webp 530w, images/gallery/woodsmans-treehouse-s04-935.webp 935w"
+          }
         },
         {
           "publication": "Country Living",
           "headline": "10 incredible treehouses to visit in the UK",
           "url": "https://www.countryliving.com/uk/travel-ideas/staycation-uk/a26656349/treehouses-uk-visit/",
-          "quote": "A suspended wooden walkway leads you to a luxurious treehouse, with a private roof-top sauna and hot tub, an all mod-cons interior and an outdoor tree shower that makes you feel as though you're bathing in warm monsoon rain."
+          "quote": "A suspended wooden walkway leads you to a luxurious treehouse, with a private roof-top sauna and hot tub, an all mod-cons interior and an outdoor tree shower that makes you feel as though you're bathing in warm monsoon rain.",
+          "logo": "images/press/countryliving.svg",
+          "image": {
+            "src": "images/gallery/woodsmans-treehouse-s05-868.webp",
+            "srcset": "images/gallery/woodsmans-treehouse-s05-530.webp 530w, images/gallery/woodsmans-treehouse-s05-868.webp 868w"
+          }
         },
         {
           "publication": "Daily Mail",
           "headline": "Britain's most luxurious treehouse comes with a sauna",
           "url": "https://www.dailymail.co.uk/travel/travel_news/article-4127672/Britain-s-best-treehouses.html",
-          "quote": "The treehouse was designed by architect Keith Brownlie in partnership with craftsman Guy Mallinson."
+          "quote": "The treehouse was designed by architect Keith Brownlie in partnership with craftsman Guy Mallinson.",
+          "image": {
+            "src": "images/gallery/woodsmans-treehouse-s06-710.webp",
+            "srcset": "images/gallery/woodsmans-treehouse-s06-530.webp 530w, images/gallery/woodsmans-treehouse-s06-710.webp 710w"
+          }
         },
         {
           "publication": "Metro",
           "headline": "This luxury treehouse in Dorset is a perfect romantic weekend break",
           "url": "https://metro.co.uk/2017/03/21/treehouse-holiday-live-out-your-childhood-fantasies-in-luxury-with-a-stay-in-the-woodmans-treehouse-in-dorset-6495819/",
-          "quote": "For Guy Mallinson, the brains and brawn behind The Woodman's Treehouse in Dorset – once dubbed 'England's most luxurious treehouse' – all of this resonates with him and his family, and then some."
+          "quote": "For Guy Mallinson, the brains and brawn behind The Woodman's Treehouse in Dorset – once dubbed 'England's most luxurious treehouse' – all of this resonates with him and his family, and then some.",
+          "logo": "images/press/metro.svg",
+          "image": {
+            "src": "images/gallery/woodsmans-treehouse-s07-999.webp",
+            "srcset": "images/gallery/woodsmans-treehouse-s07-530.webp 530w, images/gallery/woodsmans-treehouse-s07-999.webp 999w"
+          }
         },
         {
           "publication": "designboom",
           "headline": "woodman's treehouse: a sustainable sanctuary near the jurassic coast",
           "url": "https://www.designboom.com/architecture/woodmans-treehouse-west-dorset-guy-mallinson-brownlie-ernst-and-marks-10-16-2016/",
-          "quote": "accommodating two adults, the treehouse is entered across a stressed ribbon bridge to the lobby with its stacked log walls contained in heavy oak framing."
+          "quote": "accommodating two adults, the treehouse is entered across a stressed ribbon bridge to the lobby with its stacked log walls contained in heavy oak framing.",
+          "image": {
+            "src": "images/gallery/woodsmans-treehouse-s08-1060.webp",
+            "srcset": "images/gallery/woodsmans-treehouse-s08-530.webp 530w, images/gallery/woodsmans-treehouse-s08-1060.webp 1060w"
+          }
         }
       ]
     }
