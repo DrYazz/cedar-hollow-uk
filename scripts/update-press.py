@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Render the press cards in public/press.html from docs/press-data.json.
+"""Render the press tiles from docs/press-data.json.
 
 A press block is any run of markup wrapped in marker comments:
 
@@ -7,9 +7,10 @@ A press block is any run of markup wrapped in marker comments:
     <!-- ch:press dorset -->  ...  <!-- /ch:press -->
 
 The name is a section key from the data file. Everything between the markers is
-regenerated, so the cards are never edited in the HTML directly -- the data file
+regenerated, so the tiles are never edited in the HTML directly -- the data file
 is the only place a quote or a URL is written down, which is what makes it
-possible to re-check the whole set against the live articles in one pass.
+possible to re-check the whole set against the live articles in one pass, and
+what keeps the combined page and the two location pages from drifting apart.
 
 Usage:
     python3 scripts/update-press.py           # write the cards
@@ -24,7 +25,14 @@ import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 DATA = ROOT / "docs" / "press-data.json"
-PAGE = ROOT / "public" / "press.html"
+# Every page carrying press markers. The combined page shows both sections;
+# each location page shows its own. One data file feeds all three, so a
+# corrected URL or a new quote lands everywhere at once.
+PAGES = [
+    ROOT / "public" / "press.html",
+    ROOT / "public" / "oxford-press.html",
+    ROOT / "public" / "dorset-press.html",
+]
 
 BLOCK_RE = re.compile(r"(<!-- ch:press ([\w-]+) -->)(.*?)(<!-- /ch:press -->)", re.S)
 
@@ -49,8 +57,6 @@ def card(item):
     headline = html.escape(item["headline"])
     quote = item.get("quote")
     logo = item.get("logo")
-    image = item.get("image")
-
     shot = item.get("shot")
 
     parts = ['<article class="ch-press__card%s">' % ("" if quote else " ch-press__card--bare")]
@@ -127,43 +133,53 @@ def main():
     check = "--check" in sys.argv
     data = json.loads(DATA.read_text(encoding="utf-8"))
     sections = data["sections"]
-    text = PAGE.read_text(encoding="utf-8")
-    seen = []
+    changed = []
+    total = 0
 
-    def replace(match):
-        name = match.group(2)
-        if name not in sections:
-            sys.exit("press.html: unknown press section '%s'" % name)
-        body = render(sections[name], marker_indent(match))
-        if body is None:
-            # No verified items yet: leave whatever is between the markers
-            # alone rather than replacing real content with an empty grid.
-            seen.append((name, 0))
-            return match.group(0)
-        seen.append((name, len(sections[name]["items"])))
-        return match.group(1) + body + match.group(4)
+    for page in PAGES:
+        if not page.exists():
+            sys.exit("missing page: %s" % page)
+        text = page.read_text(encoding="utf-8")
+        seen = []
 
-    updated = BLOCK_RE.sub(replace, text)
+        def replace(match):
+            name = match.group(2)
+            if name not in sections:
+                sys.exit("%s: unknown press section '%s'" % (page.name, name))
+            body = render(sections[name], marker_indent(match))
+            if body is None:
+                seen.append((name, 0))
+                return match.group(0)
+            seen.append((name, len(sections[name]["items"])))
+            return match.group(1) + body + match.group(4)
 
-    if not seen:
-        sys.exit("press.html: no ch:press markers found")
+        updated = BLOCK_RE.sub(replace, text)
+        if not seen:
+            sys.exit("%s: no ch:press markers found" % page.name)
 
-    for name, count in seen:
-        quoted = sum(
-            1 for i in sections[name].get("items", []) if i.get("quote")
-        )
-        state = "skipped (no items yet)" if not count else "%d cards, %d with a quote" % (count, quoted)
-        print("  %-8s %s" % (name, state))
+        for name, count in seen:
+            quoted = sum(1 for i in sections[name].get("items", []) if i.get("quote"))
+            state = "skipped (no items yet)" if not count else "%d tiles, %d quoted" % (count, quoted)
+            print("  %-18s %-8s %s" % (page.name, name, state))
+            total += count
+
+        if updated != text:
+            changed.append(page.relative_to(ROOT))
+            if not check:
+                page.write_text(updated, encoding="utf-8")
+
     print()
-
-    if updated == text:
-        print("press.html is up to date.")
+    if not changed:
+        print("All press pages are up to date (%d tiles rendered)." % total)
         return
     if check:
-        print("press.html is out of date.")
+        print("Out of date:")
+        for c in changed:
+            print("  %s" % c)
         sys.exit(1)
-    PAGE.write_text(updated, encoding="utf-8")
-    print("Updated public/press.html")
+    print("Updated:")
+    for c in changed:
+        print("  %s" % c)
 
 
 if __name__ == "__main__":
