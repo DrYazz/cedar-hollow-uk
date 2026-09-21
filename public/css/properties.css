@@ -205,6 +205,11 @@
 }
 .pp-book__facts dd { margin: 0; font-size: 1rem; line-height: 1.6; color: var(--accent, #3b4126); }
 .pp-book .button { padding: 1rem 2rem; }
+/* Booking and the 3D tour are one group, so they sit closer to each other than
+   to the facts above or the note below, which the panel's own 20px gap sets. */
+.pp-book__actions {
+  display: flex; flex-direction: column; align-items: center; gap: 12px; width: 100%;
+}
 .pp-book__note { margin: 0; font-size: .8125rem; line-height: 1.5; color: var(--accent, #3b4126); opacity: .7; }
 @media (max-width: 991px) { .pp-book__facts { gap: 28px; } }
 

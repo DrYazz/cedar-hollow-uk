@@ -105,8 +105,18 @@
           ? "<div><dt>Minimum stay</dt><dd>" + esc(item.minimumStay) + "</dd></div>"
           : "") +
       "</dl>" +
-      '<a class="button w-inline-block" href="' + esc(item.bookingUrl) +
-        '" target="_blank" rel="noopener"><span>Check availability</span>' + ARROW + "</a>" +
+      '<div class="pp-book__actions">' +
+        '<a class="button w-inline-block" href="' + esc(item.bookingUrl) +
+          '" target="_blank" rel="noopener"><span>Check availability</span>' + ARROW + "</a>" +
+        // The Oxford three each open the one krpano tour at their own scene,
+        // set by the ?ss= on the URL. An unknown scene name falls back to the
+        // aerial without complaining, so these are checked rather than guessed.
+        // The Dorset three have no tour at all and get no second button.
+        (item.tourUrl
+          ? '<a class="button is-secondary w-inline-block" href="' + esc(item.tourUrl) +
+            '" target="_blank" rel="noopener"><span>Take a 3D Tour</span></a>'
+          : "") +
+      "</div>" +
       '<p class="pp-book__note">Booking opens on the ' +
         (item.region === "Dorset" ? "Mallinson" : "Oaks") + " site</p>" +
       "</div>";
