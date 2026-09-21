@@ -51,18 +51,23 @@ def card(item):
     logo = item.get("logo")
     image = item.get("image")
 
+    shot = item.get("shot")
+
     parts = ['<article class="ch-press__card%s">' % ("" if quote else " ch-press__card--bare")]
 
-    if image:
-        # Our own photograph of the retreat the piece is about -- not the
-        # article's own picture, which belongs to the publication that ran it.
-        # Decorative: the headline beneath already says what this is, so an
-        # alt here would only repeat it to a screen reader.
+    if shot:
+        # The clipping is the tile, as on the Oaks reviews page: the article as
+        # it was published, masthead and headline and lead picture together.
+        # The whole thing is the link, so the headline is not repeated as text
+        # underneath -- it is already in the image. aria-label carries it for
+        # anyone who cannot see the clipping, which is why the <img> alt is
+        # empty: the label would otherwise be read out twice.
         parts.append(
-            '  <div class="ch-press__shot"><img src="%s" srcset="%s" '
-            'sizes="(max-width: 767px) 100vw, 30rem" loading="lazy" '
-            'decoding="async" alt=""></div>'
-            % (asset(image["src"]), html.escape(image["srcset"], quote=True))
+            '  <a class="ch-press__clip" href="%s" target="_blank" rel="noopener" '
+            'aria-label="Read &ldquo;%s&rdquo; on %s"><img src="%s" srcset="%s" '
+            'sizes="(max-width: 767px) 45vw, 14rem" loading="lazy" decoding="async" '
+            'alt=""></a>' % (url, headline, pub, asset(shot["src"]),
+                             html.escape(shot["srcset"], quote=True))
         )
 
     parts.append('  <div class="ch-press__body">')
@@ -78,10 +83,12 @@ def card(item):
         )
     else:
         parts.append('    <p class="ch-press__pub">%s</p>' % pub)
-    parts.append(
-        '    <h3 class="ch-press__headline">'
-        '<a href="%s" target="_blank" rel="noopener">%s</a></h3>' % (url, headline)
-    )
+
+    if not shot:
+        parts.append(
+            '    <h3 class="ch-press__headline">'
+            '<a href="%s" target="_blank" rel="noopener">%s</a></h3>' % (url, headline)
+        )
     if quote:
         # &ldquo;/&rdquo; rather than bare quotes: this is someone else's
         # sentence and it should look like one.
@@ -91,10 +98,6 @@ def card(item):
         )
     elif item.get("note"):
         parts.append('    <p class="ch-press__note">%s</p>' % html.escape(item["note"]))
-    parts.append(
-        '    <a class="ch-press__link" href="%s" target="_blank" rel="noopener">'
-        "Read it on %s</a>" % (url, pub)
-    )
     parts.append("  </div>")
     parts.append("</article>")
     return parts

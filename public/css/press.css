@@ -1,18 +1,17 @@
 /* ---------------------------------------------------------------------------
-   Press cards: a publication, its headline, and a line from the piece itself.
+   Press tiles: the article itself, as it was published.
 
    The page used to be a list of mastheads and titles, which asked a reader to
-   take the coverage on trust. A sentence from each article shows what was
-   actually written, and the headline links to the source so it can be checked.
+   take the coverage on trust. Each entry is now a clipping of the article --
+   masthead, headline, byline and lead picture -- captured at phone width, with
+   the publication's own mark and a line from the piece underneath. It follows
+   the shape of the reviews page on theoaks.uk, where the coverage is shown
+   rather than described.
 
-   Every quote here is verbatim from the article it is attributed to, copied
-   from the live page. Where an article sits behind a paywall and could not be
-   read, the card carries no quote rather than a paraphrase -- hence
-   .ch-press__card--bare, which is not a styling variant so much as an honesty
-   one: no blockquote, no invented words, just the citation and the link.
-
-   Shares its shape with the review wall (.ch-wall): same cream, same hairline,
-   same radius token, so the two read as one family.
+   Every quote is verbatim from the article it is attributed to. Where one sits
+   behind a paywall and could not be read, the tile carries no quote rather
+   than a paraphrase -- hence .ch-press__card--bare, which is less a styling
+   variant than an honesty one.
    --------------------------------------------------------------------------- */
 
 .ch-press {
@@ -21,9 +20,11 @@
 }
 
 .ch-press__grid {
+  /* Four across on a wide screen, and never fewer than two, so the tiles stay
+     portrait clippings rather than growing into banners. */
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+  gap: 2rem 1.5rem;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -32,39 +33,53 @@
 .ch-press__card {
   display: flex;
   flex-direction: column;
+  gap: .875rem;
   height: 100%;
   margin: 0;
-  /* No padding on the card itself: the photograph runs to the edges and the
-     padding lives on .ch-press__body instead. overflow:hidden is what keeps
-     the image's square corners inside the card's rounded ones. */
-  overflow: hidden;
-  border: 1px solid rgba(59, 65, 38, .35);
-  border-radius: var(--radius--16, 1rem);
-  background-color: #f1ecdb;
+  /* No frame around the card: the clipping already has the publication's own
+     white page behind it, and a second border around that reads as a box in a
+     box. The Oaks page lets the clippings sit on the background too. */
+  background: none;
+  border: 0;
   color: var(--accent, #3b4126);
 }
 
-/* A photograph of the retreat the piece is about, from our own library.
-   Fixed ratio so a row of cards lines up whatever each image's proportions. */
-.ch-press__shot {
-  aspect-ratio: 16 / 10;
+/* The article as it was published, standing in for the card. */
+.ch-press__clip {
+  display: block;
+  aspect-ratio: 412 / 740;
   overflow: hidden;
-  background-color: rgba(59, 65, 38, .08);
+  border-radius: var(--radius--16, 1rem);
+  background-color: #fff;
+  box-shadow: 0 .5rem 1.5rem rgba(16, 19, 7, .16);
+  transition: transform .35s cubic-bezier(.2, .7, .3, 1), box-shadow .35s ease;
 }
 
-.ch-press__shot img {
+.ch-press__clip img {
   display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: top center;
+}
+
+.ch-press__clip:hover,
+.ch-press__clip:focus-visible {
+  transform: translateY(-4px);
+  box-shadow: 0 .875rem 2rem rgba(16, 19, 7, .24);
+}
+
+.ch-press__clip:focus-visible {
+  outline: 2px solid var(--accent, #3b4126);
+  outline-offset: 3px;
 }
 
 .ch-press__body {
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: .75rem;
-  padding: 1.5rem;
+  gap: .5rem;
+  padding: 0;
 }
 
 /* Mastheads are drawn as a mask over a colour rather than as an <img>, which
@@ -83,9 +98,9 @@
 .ch-press__logo {
   display: block;
   width: 100%;
-  max-width: 11rem;
-  height: 1.5rem;
-  background-color: var(--accent, #3b4126);
+  max-width: 8rem;
+  height: 1.125rem;
+  background-color: currentColor;
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
   -webkit-mask-size: contain;
@@ -128,14 +143,15 @@
    without the cost of a full pull-quote treatment on every card. */
 .ch-press__quote {
   margin: 0;
-  padding-left: 1rem;
-  border-left: 2px solid rgba(59, 65, 38, .3);
+  padding-left: .75rem;
+  border-left: 2px solid currentColor;
+  opacity: .999; /* keeps the rule below from bleeding the border into the text */
 }
 
 .ch-press__quote p {
   margin: 0;
-  font-size: .9375rem;
-  line-height: 1.6;
+  font-size: .8125rem;
+  line-height: 1.5;
 }
 
 .ch-press__link {
@@ -170,12 +186,32 @@
 }
 
 @media screen and (max-width: 767px) {
+  /* Two across rather than one: a clipping blown up to full phone width is a
+     screenshot of a webpage the size of a webpage, which helps nobody. */
   .ch-press__grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem 1rem;
   }
 
   .ch-press__headline {
     font-size: 1.25rem;
   }
+
+  .ch-press__logo {
+    max-width: 6rem;
+    height: 1rem;
+  }
+}
+
+/* The Dorset half sits on the moss band. Until the tiles lost their cream
+   backing this did not matter -- the ink was moss on cream inside each card.
+   With the clippings sitting straight on the band, moss ink lands on a moss
+   ground and disappears, so everything under a clipping flips to cream here.
+   The masthead follows because its mask is painted in currentColor. */
+.ch-section--accent .ch-press__card {
+  color: var(--brand, #efeed5);
+}
+
+.ch-section--accent .ch-press__quote {
+  border-left-color: rgba(239, 238, 213, .4);
 }
