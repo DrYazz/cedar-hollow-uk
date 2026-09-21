@@ -1,0 +1,118 @@
+{
+  "_comment": [
+    "Single source of truth for the press page. Edit this file, then run",
+    "  python3 scripts/update-press.py",
+    "to render the cards into press.html.",
+    "",
+    "RULES FOR THIS FILE, which matter more than usual because the content is",
+    "other people's writing:",
+    "",
+    "1. Every 'quote' is VERBATIM from the article at 'url'. Not a paraphrase,",
+    "   not a tidied version, not a sentence assembled from two places. Each one",
+    "   below was checked by loading the live article and asserting the string",
+    "   appears in the page text character for character (allowing only for",
+    "   curly quotes and dashes).",
+    "2. A quote is a COMPLETE sentence. A fragment cut to fit is a misquote.",
+    "3. No quote, no problem: omit the field and the card renders as a citation",
+    "   with a link. Never invent one to fill the gap.",
+    "4. Every 'url' has been fetched and confirmed to load and to be about this",
+    "   property. Several URLs on the old version of this page did not: two",
+    "   redirected to unrelated articles (a football report and a boxing",
+    "   preview) because their article IDs were invented, and nine returned 404.",
+    "   Do not add a URL that has not been opened.",
+    "",
+    "'checked' is when the whole set was last verified end to end."
+  ],
+  "checked": "2026-09-21",
+  "sections": {
+    "oxford": {
+      "heading": "Oxfordshire <span class=\"text-style-italic\">in print</span>",
+      "intro": "The Narnia-inspired treehouse, the cave hideaway and the woodland around them.",
+      "items": [
+        {
+          "publication": "The Times",
+          "headline": "My visit to the Oxfordshire woodland that inspired Narnia",
+          "url": "https://www.thetimes.com/travel/inspiration/family-travel/my-visit-to-the-oxfordshire-woodland-that-inspired-narnia-7fwtlsffc",
+          "quote": "Cedar Hollow is a treehouse sleeping four, with a circular main room that seems a lot larger inside than out; there’s curiously carved furniture, medieval arched windows and, naturally, a magic wardrobe."
+        },
+        {
+          "publication": "The Times",
+          "headline": "11 of the best Airbnbs in Oxford",
+          "url": "https://www.thetimes.com/travel/destinations/uk-travel/england/oxford/best-airbnbs-in-oxford-0t0mnf2vx",
+          "quote": "This extraordinary place takes its inspiration from his beloved Narnia books, and sets out to recreate the home of Mr Tumnus, the faun who befriends the main characters."
+        },
+        {
+          "publication": "BBC News",
+          "headline": "Narnia in Oxfordshire: The doctor, the treehouse and the wardrobe",
+          "url": "https://www.bbc.co.uk/news/articles/cp8l8pge349o",
+          "quote": "Cedar Hollow is inspired by C.S Lewis' Chronicles of Narnia and even features the eponymous wardrobe from the first book in the series."
+        },
+        {
+          "publication": "Evening Standard",
+          "headline": "Cool stay of the week: a fairytale treehouse in the Oxfordshire woodlands",
+          "url": "https://www.standard.co.uk/lifestyle/travel/cool-stay-of-the-week-treehouse-oxfordshire-woodlands-a3911831.html",
+          "quote": "Perched among the canopy of the majestic Shotover Country Park, Cedar Hollow Treehouse is the perfect long weekend escape."
+        },
+        {
+          "publication": "Time Out",
+          "headline": "The best treehouse stays in the UK – bookable on Airbnb",
+          "url": "https://www.timeout.com/uk/things-to-do/amazing-uk-treehouses-you-can-actually-stay-in",
+          "quote": "This magical treehouse Airbnb borders CS Lewis's old garden – a great place for literature fans and budding writers."
+        },
+        {
+          "publication": "The Sun",
+          "headline": "I built ‘Britain’s best treehouse’ inspired by fantasy world with ‘magic’ wardrobe",
+          "url": "https://www.thesun.co.uk/travel/31781255/britains-best-treehouse-fantasy-world-magic-wardrobe/",
+          "quote": "Cedar Hollow treehouse is inspired by The Lion, the Witch and the Wardrobe and is just two doors down from where famous author Lewis lived."
+        },
+        {
+          "publication": "The Tab",
+          "headline": "Inside the whimsical treehouse Adrienne and Matt stayed in on MAFS UK",
+          "url": "https://thetab.com/2023/11/09/inside-the-whimsical-narnia-inspired-treehouse-adrienne-and-matt-stayed-in-on-mafs-uk",
+          "quote": "The treehouse is set in Shotover Country Park in Oxford and is themed around Narnia."
+        },
+        {
+          "publication": "OK! Magazine",
+          "headline": "Inside Amber Davies and boyfriend Nick Kyriacou's romantic treehouse retreat",
+          "url": "https://www.ok.co.uk/lifestyle/amber-davies-boyfriend-holiday-nick-23167635",
+          "quote": "In a clip uploaded to her Instagram story, the musical theatre actress gave a full tour of the Cedar Hollow retreat nestled in the Oxfordshire woodland."
+        },
+        {
+          "publication": "Oxfordshire Live",
+          "headline": "The Narnia-inspired treehouse hidden in Shotover Country Park",
+          "url": "https://www.oxfordshirelive.co.uk/whats-on/whats-on-news/narnia-inspired-treehouse-hidden-shotover-8121466",
+          "quote": "Inspired by C.S Lewis' world of Narnia, the treehouse is a memorable stay, blending in with the nature surrounding it."
+        },
+        {
+          "publication": "Secret London",
+          "headline": "This Narnia-themed treehouse near London is the perfect staycation",
+          "url": "https://secretldn.com/treehouse-rental-cedar-hollow/",
+          "quote": "Cedar Hollow Treehouse is nestled in the magical Oxfordshire woodlands, hidden in Shotover Country Park, which boasts over 100 acres of ever-changing colours, wildlife, and mystique."
+        },
+        {
+          "publication": "Manchester Evening News",
+          "headline": "Inside Narnia-themed treehouse that features its own ‘magic’ wardrobe",
+          "url": "https://www.manchestereveningnews.co.uk/news/property/inside-narnia-themed-treehouse-features-30398002",
+          "quote": "The impressive property comes complete with a magic wardrobe door that 'transports' visitors straight into the countryside."
+        },
+        {
+          "publication": "Good News Network",
+          "headline": "Narnia themed treehouse built next to C.S. Lewis’ home features magic wardrobe",
+          "url": "https://www.goodnewsnetwork.org/narnia-themed-treehouse-built-next-to-c-s-lewis-home-features-magic-wardrobe-now-its-a-rental/",
+          "quote": "The property in Oxford, England, features rooms inspired by the beavers’ den and Mr. Tumnus’s cave from the Narnia books written by C.S. Lewis."
+        },
+        {
+          "publication": "Euro Weekly News",
+          "headline": "A storybook-themed stay in the UK Narnia fans will love",
+          "url": "https://euroweeklynews.com/2024/11/27/a-storybook-themed-stay-in-the-uk-narnia-fans-will-love-this/",
+          "quote": "Entering Cedar Hollow Treehouse is like stepping into a fairytale."
+        }
+      ]
+    },
+    "dorset": {
+      "heading": "Dorset <span class=\"text-style-italic\">in print</span>",
+      "intro": "The Woodsman's Treehouse and the retreats that followed it.",
+      "items": []
+    }
+  }
+}

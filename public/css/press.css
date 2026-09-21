@@ -1,0 +1,129 @@
+/* ---------------------------------------------------------------------------
+   Press cards: a publication, its headline, and a line from the piece itself.
+
+   The page used to be a list of mastheads and titles, which asked a reader to
+   take the coverage on trust. A sentence from each article shows what was
+   actually written, and the headline links to the source so it can be checked.
+
+   Every quote here is verbatim from the article it is attributed to, copied
+   from the live page. Where an article sits behind a paywall and could not be
+   read, the card carries no quote rather than a paraphrase -- hence
+   .ch-press__card--bare, which is not a styling variant so much as an honesty
+   one: no blockquote, no invented words, just the citation and the link.
+
+   Shares its shape with the review wall (.ch-wall): same cream, same hairline,
+   same radius token, so the two read as one family.
+   --------------------------------------------------------------------------- */
+
+.ch-press {
+  margin-top: 2.5rem;
+  text-align: left;
+}
+
+.ch-press__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ch-press__card {
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+  height: 100%;
+  margin: 0;
+  padding: 1.5rem;
+  border: 1px solid rgba(59, 65, 38, .35);
+  border-radius: var(--radius--16, 1rem);
+  background-color: #f1ecdb;
+  color: var(--accent, #3b4126);
+}
+
+.ch-press__pub {
+  margin: 0;
+  font-size: .75rem;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  opacity: .7;
+}
+
+.ch-press__headline {
+  margin: 0;
+  font-family: var(--font-family--heading, Crimsonpro), serif;
+  font-size: 1.375rem;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: -.02em;
+}
+
+.ch-press__headline a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.ch-press__headline a:hover,
+.ch-press__headline a:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: .18em;
+}
+
+/* The quote carries the weight on this page, so it is set as running text
+   rather than shrunk into a caption. The rule marks it as quoted material
+   without the cost of a full pull-quote treatment on every card. */
+.ch-press__quote {
+  margin: 0;
+  padding-left: 1rem;
+  border-left: 2px solid rgba(59, 65, 38, .3);
+}
+
+.ch-press__quote p {
+  margin: 0;
+  font-size: .9375rem;
+  line-height: 1.6;
+}
+
+.ch-press__link {
+  margin-top: auto;
+  padding-top: .25rem;
+  color: inherit;
+  font-size: .875rem;
+  text-decoration: underline;
+  text-underline-offset: .18em;
+}
+
+.ch-press__link:hover,
+.ch-press__link:focus-visible {
+  text-decoration-thickness: 2px;
+}
+
+/* Said plainly on the card, so a reader is not left wondering why some have a
+   quote and some do not. */
+.ch-press__note {
+  margin: 0;
+  font-size: .8125rem;
+  line-height: 1.5;
+  font-style: italic;
+  opacity: .65;
+}
+
+.ch-press__foot {
+  margin: 1.5rem 0 0;
+  font-size: .8125rem;
+  line-height: 1.5;
+  opacity: .7;
+}
+
+@media screen and (max-width: 767px) {
+  .ch-press__grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .ch-press__headline {
+    font-size: 1.25rem;
+  }
+}
