@@ -33,6 +33,18 @@ review, or a decision) — none are blocked on further build work.
     "the booking path is fake", is readable by anyone. Fixed at cutover.
   - [ ] Pick one canonical host (root or `www`) and redirect the other.
     Do it as a Cloudflare Redirect Rule during Phase 3.
+- [ ] **Confirm what makes up Oxford's Airbnb figure.** The site now shows the
+  owner's own Repuso total (`js/reviews-live.js`), which reports Airbnb as 141
+  reviews across two merged channels. The two public listings we link to add up
+  to 106. The 35-review difference is only visible inside his Repuso account:
+  either a listing we cannot see (Beaver's Den sells direct and is on no OTA we
+  found) or a stale duplicate channel inflating it. Ask him to read off the
+  per-channel counts. Until then we are publishing a number we cannot fully
+  account for — it is his own published figure, but it is not independently
+  checkable from the links on the page, which is the standard the rest of that
+  page sets. His Tripadvisor entry likewise merges two channels (66 against the
+  65 on the live listing); the second is almost certainly the dead
+  `d15009143` vacation-rental page.
 - [ ] **Review the legal copy before relying on it.** `privacy-policy.html`,
   `terms-of-service.html`, `cookies.html` are real drafts, publicly live, dated
   23 Jul 2026. Accurate about how the site behaves, but not a lawyer's review.
