@@ -112,7 +112,68 @@
     "dorset": {
       "heading": "Dorset <span class=\"text-style-italic\">in print</span>",
       "intro": "The Woodsman's Treehouse and the retreats that followed it.",
-      "items": []
+      "_dropped": [
+        "The Guardian: the cited URL 404s and no Guardian article about this",
+        "property could be found under either spelling, under Guy Mallinson, or",
+        "under Mallinson's Woodland Retreat. The cited date of 4 February 2015",
+        "also predates the treehouse, which was completed in 2016, so the piece",
+        "as described could not exist. Removed rather than replaced.",
+        "",
+        "Tatler: the cited May 2016 article is not among the archived URLs for",
+        "that month and does not exist. A real 2020 Tatler glamping gallery does",
+        "mention the site, but under its former name Crafty Camping and without",
+        "naming the treehouse, so it will not carry the claim. Removed."
+      ],
+      "items": [
+        {
+          "publication": "The Telegraph",
+          "headline": "Inside The Woodsman's, Dorset: is this England's most luxurious treehouse?",
+          "url": "https://www.telegraph.co.uk/travel/destinations/europe/united-kingdom/england/dorset/articles/inside-woodsmans-treehouse-hotel-dorset/",
+          "note": "Behind the Telegraph's paywall, so no extract is quoted here."
+        },
+        {
+          "publication": "The Independent",
+          "headline": "Woodsman's Treehouse review: Glamping in style in the Dorset woods",
+          "url": "https://www.independent.co.uk/travel/uk/england/dorset/woodsmans-treehouse-dorset-hotel-review-b2257213.html",
+          "quote": "The Woodsman’s Treehouse, all £150,000-worth of it, wrapped around a magnificent oak."
+        },
+        {
+          "publication": "GQ",
+          "headline": "The Woodman's Treehouse, Dorset, UK: the GQ review",
+          "url": "https://www.gq-magazine.co.uk/article/woodmans-treehouse-dorset-uk-review",
+          "quote": "Guy Mallinson's dream was to create a treehouse that was both entirely in sync with its woodland surroundings - so almost like a 'tree', really – but still comfortable enough for any adult, no matter how fearful of spiders or anything remotely 'Bear Grylls', to luxuriate in."
+        },
+        {
+          "publication": "Evening Standard",
+          "headline": "Cool stay of the week: a luxury woodland treehouse in Dorset",
+          "url": "https://www.standard.co.uk/lifestyle/travel/the-woodmans-treehouse-dorset-cool-stays-luxury-freestanding-bath-a3698281.html",
+          "quote": "If you've always imagined stepping into a fairytale, you could find your happily ever after at The Woodsman's Treehouse."
+        },
+        {
+          "publication": "Country Living",
+          "headline": "10 incredible treehouses to visit in the UK",
+          "url": "https://www.countryliving.com/uk/travel-ideas/staycation-uk/a26656349/treehouses-uk-visit/",
+          "quote": "A suspended wooden walkway leads you to a luxurious treehouse, with a private roof-top sauna and hot tub, an all mod-cons interior and an outdoor tree shower that makes you feel as though you're bathing in warm monsoon rain."
+        },
+        {
+          "publication": "Daily Mail",
+          "headline": "Britain's most luxurious treehouse comes with a sauna",
+          "url": "https://www.dailymail.co.uk/travel/travel_news/article-4127672/Britain-s-best-treehouses.html",
+          "quote": "The treehouse was designed by architect Keith Brownlie in partnership with craftsman Guy Mallinson."
+        },
+        {
+          "publication": "Metro",
+          "headline": "This luxury treehouse in Dorset is a perfect romantic weekend break",
+          "url": "https://metro.co.uk/2017/03/21/treehouse-holiday-live-out-your-childhood-fantasies-in-luxury-with-a-stay-in-the-woodmans-treehouse-in-dorset-6495819/",
+          "quote": "For Guy Mallinson, the brains and brawn behind The Woodman's Treehouse in Dorset – once dubbed 'England's most luxurious treehouse' – all of this resonates with him and his family, and then some."
+        },
+        {
+          "publication": "designboom",
+          "headline": "woodman's treehouse: a sustainable sanctuary near the jurassic coast",
+          "url": "https://www.designboom.com/architecture/woodmans-treehouse-west-dorset-guy-mallinson-brownlie-ernst-and-marks-10-16-2016/",
+          "quote": "accommodating two adults, the treehouse is entered across a stressed ribbon bridge to the lobby with its stacked log walls contained in heavy oak framing."
+        }
+      ]
     }
   }
 }
