@@ -37,3 +37,7 @@
 # was changed to "Vouchers" but whose filename never was.)
 /oxford/copy-of-facilities.html  /search-results.html?destination=Oxford  301
 /dorset-gift-certificates.html   /search-results.html?destination=Dorset  301
+
+# The Klevio app instructions. Check-in now runs through the guest web-app,
+# which the Oxford FAQ explains and links, so that is where this goes.
+/oxford/klevio.html  /oxford/faq.html  301
