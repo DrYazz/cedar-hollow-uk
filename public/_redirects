@@ -23,3 +23,17 @@
 /oxford/vr.html           /oxford.html  301
 /oxford/vr2.html          /oxford.html  301
 /oxford/copy-of-map.html  /oxford.html  301
+
+# The shop and its two product pages. Neither ever had a checkout behind it, so
+# this is a closure rather than a pause; the honey and the chocolate keep their
+# own editorial pages, which is where each product page points.
+/oxford/shop.html             /oxford.html            301
+/oxford/product-honey.html    /oxford/honey.html      301
+/oxford/product-bonbons.html  /oxford/chocolate.html  301
+
+# Vouchers, both woodlands. Not on sale at the moment and due to return as part
+# of booking a stay, so both point at the retreats rather than at a dead end.
+# (The Oxford one is copy-of-facilities.html: a Webflow duplicate whose title
+# was changed to "Vouchers" but whose filename never was.)
+/oxford/copy-of-facilities.html  /search-results.html?destination=Oxford  301
+/dorset-gift-certificates.html   /search-results.html?destination=Dorset  301

@@ -102,7 +102,6 @@
   <url><loc>https://cedarhollow.uk/oxford/bees.html</loc><priority>0.4</priority></url>
   <url><loc>https://cedarhollow.uk/oxford/chocolate.html</loc><priority>0.6</priority></url>
   <url><loc>https://cedarhollow.uk/oxford/colonial.html</loc><priority>0.4</priority></url>
-  <url><loc>https://cedarhollow.uk/oxford/copy-of-facilities.html</loc><priority>0.2</priority></url>
   <url><loc>https://cedarhollow.uk/oxford/dining.html</loc><priority>0.8</priority></url>
   <url><loc>https://cedarhollow.uk/oxford/enemies.html</loc><priority>0.4</priority></url>
   <url><loc>https://cedarhollow.uk/oxford/events.html</loc><priority>0.5</priority></url>
@@ -121,10 +120,7 @@
   <url><loc>https://cedarhollow.uk/oxford/parasitoid.html</loc><priority>0.4</priority></url>
   <url><loc>https://cedarhollow.uk/oxford/philanthropy.html</loc><priority>0.6</priority></url>
   <url><loc>https://cedarhollow.uk/oxford/privacy.html</loc><priority>0.3</priority></url>
-  <url><loc>https://cedarhollow.uk/oxford/product-bonbons.html</loc><priority>0.4</priority></url>
-  <url><loc>https://cedarhollow.uk/oxford/product-honey.html</loc><priority>0.4</priority></url>
   <url><loc>https://cedarhollow.uk/oxford/schoolgroups.html</loc><priority>0.5</priority></url>
-  <url><loc>https://cedarhollow.uk/oxford/shop.html</loc><priority>0.5</priority></url>
   <url><loc>https://cedarhollow.uk/oxford/story.html</loc><priority>0.7</priority></url>
   <url><loc>https://cedarhollow.uk/oxford/terms.html</loc><priority>0.3</priority></url>
   <url><loc>https://cedarhollow.uk/oxford/todo.html</loc><priority>0.8</priority></url>
@@ -147,7 +143,6 @@
   <url><loc>https://cedarhollow.uk/dorset-local-information</loc><priority>0.6</priority></url>
   <url><loc>https://cedarhollow.uk/dorset-woodland</loc><priority>0.6</priority></url>
   <url><loc>https://cedarhollow.uk/dorset-contact</loc><priority>0.6</priority></url>
-  <url><loc>https://cedarhollow.uk/dorset-gift-certificates</loc><priority>0.5</priority></url>
   <url><loc>https://cedarhollow.uk/dorset-woodland-map</loc><priority>0.5</priority></url>
   <url><loc>https://cedarhollow.uk/dorset-pre-arrival</loc><priority>0.5</priority></url>
   <url><loc>https://cedarhollow.uk/dorset-guest-information</loc><priority>0.5</priority></url>
