@@ -46,8 +46,10 @@ def marker_indent(match):
 
 def asset(path):
     """Fail loudly on a missing file rather than shipping a broken image."""
-    if not (ROOT / "public" / path).exists():
-        sys.exit("press-data.json: no such file: public/%s" % path)
+    # A cache-busting ?v= stamp is part of the URL, not part of the filename.
+    bare = path.split("?", 1)[0]
+    if not (ROOT / "public" / bare).exists():
+        sys.exit("press-data.json: no such file: public/%s" % bare)
     return html.escape(path, quote=True)
 
 
