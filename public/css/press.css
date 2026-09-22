@@ -215,3 +215,151 @@
 .ch-section--accent .ch-press__quote {
   border-left-color: rgba(239, 238, 213, .4);
 }
+
+/* ===========================================================================
+   Television and film: a still with a play button, not an iframe.
+
+   js/press-video.js swaps the button for the player on click. Until then the
+   page has asked YouTube for nothing at all -- the still is ours, served from
+   images/press-video/. See that file for why.
+   =========================================================================== */
+
+.ch-vid-wrap {
+  margin-top: 2.5rem;
+  text-align: left;
+}
+
+.ch-vid-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+  gap: 2rem 1.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ch-vid {
+  display: flex;
+  flex-direction: column;
+  gap: .625rem;
+  height: 100%;
+}
+
+/* The still, the frame that replaces it and the button all share one box, so
+   nothing shifts when the player loads. */
+.ch-vid__play,
+.ch-vid__frame {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 0;
+  border-radius: var(--radius--16, 1rem);
+  background-color: rgba(16, 19, 7, .35);
+}
+
+.ch-vid__play {
+  position: relative;
+  padding: 0;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform .3s cubic-bezier(.2, .7, .3, 1), box-shadow .3s ease;
+}
+
+.ch-vid__play img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ch-vid__play:hover,
+.ch-vid__play:focus-visible {
+  transform: translateY(-3px);
+  box-shadow: 0 .75rem 1.75rem rgba(16, 19, 7, .22);
+}
+
+.ch-vid__play:focus-visible {
+  outline: 2px solid var(--accent, #3b4126);
+  outline-offset: 3px;
+}
+
+.ch-vid__icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4.25rem;
+  height: 3rem;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+/* YouTube's own red only on hover; at rest the mark sits back in our palette
+   so a row of stills does not read as a row of adverts. */
+.ch-vid__icon-bg {
+  fill: rgba(16, 19, 7, .72);
+  transition: fill .2s ease;
+}
+
+.ch-vid__play:hover .ch-vid__icon-bg,
+.ch-vid__play:focus-visible .ch-vid__icon-bg {
+  fill: #f00;
+}
+
+.ch-vid__meta {
+  display: flex;
+  flex-direction: column;
+  gap: .125rem;
+  margin: 0;
+}
+
+.ch-vid__title {
+  font-family: var(--font-family--heading, Crimsonpro), serif;
+  font-size: 1.1875rem;
+  line-height: 1.2;
+  letter-spacing: -.02em;
+}
+
+.ch-vid__source {
+  font-size: .8125rem;
+  opacity: .7;
+}
+
+.ch-vid__link {
+  margin-top: auto;
+  color: inherit;
+  font-size: .875rem;
+  text-decoration: underline;
+  text-underline-offset: .18em;
+}
+
+.ch-vid__link:hover,
+.ch-vid__link:focus-visible {
+  text-decoration-thickness: 2px;
+}
+
+.ch-vid__note {
+  margin: 1.25rem 0 0;
+  font-size: .8125rem;
+  line-height: 1.5;
+  opacity: .7;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ch-vid__play {
+    transition: none;
+  }
+
+  .ch-vid__play:hover {
+    transform: none;
+  }
+}
+
+/* On the location pages the television section sits on the moss band, where
+   the inherited text colour is rgb(93,92,75) -- a dark olive on a dark green,
+   measured at 1.57:1, which is unreadable. Nothing in the cascade claimed
+   these, so they claim themselves. The combined page keeps its cream ground
+   and is unaffected. */
+.ch-section--accent .ch-vid,
+.ch-section--accent .ch-vid__note {
+  color: var(--brand, #efeed5);
+}

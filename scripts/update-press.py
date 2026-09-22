@@ -35,6 +35,7 @@ PAGES = [
 ]
 
 BLOCK_RE = re.compile(r"(<!-- ch:press ([\w-]+) -->)(.*?)(<!-- /ch:press -->)", re.S)
+SCREEN_RE = re.compile(r"(<!-- ch:press-screen ([\w-]+) -->)(.*?)(<!-- /ch:press-screen -->)", re.S)
 
 
 def marker_indent(match):
@@ -109,6 +110,58 @@ def card(item):
     return parts
 
 
+def video_card(v):
+    """A video as a still with a play button, not an iframe.
+
+    Pressing play is what inserts the player -- see js/press-video.js. Until
+    then nothing is requested from YouTube at all: the thumbnail is ours, and
+    the embed uses youtube-nocookie.com when it does load. cookies.html tells
+    readers that other companies' cookies apply once they arrive at those
+    sites, and an iframe sitting on the page from the start would quietly make
+    that untrue.
+    """
+    title = html.escape(v["title"])
+    source = html.escape(v["source"])
+    return [
+        '<article class="ch-vid">',
+        '  <button class="ch-vid__play" type="button" data-video="%s"' % html.escape(v["id"], quote=True),
+        '          aria-label="Play &ldquo;%s&rdquo; (%s) \u2014 opens the YouTube player">' % (title, source),
+        '    <img src="%s" srcset="%s" sizes="(max-width: 767px) 92vw, 22rem"'
+        % (asset(v["thumb"]["src"]), html.escape(v["thumb"]["srcset"], quote=True)),
+        '         loading="lazy" decoding="async" alt="">',
+        '    <span class="ch-vid__icon" aria-hidden="true">'
+        '<svg viewBox="0 0 68 48" width="100%" height="100%">'
+        '<path class="ch-vid__icon-bg" d="M66.5 7.7c-.8-2.9-2.5-5.4-5.4-6.2C55.8 0 34 0 34 0S12.2 0 6.9 1.4C4 2.2 2.3 4.8 1.5 7.7 0 13 0 24 0 24s0 11 1.5 16.3c.8 2.9 2.5 5.4 5.4 6.2C12.2 48 34 48 34 48s21.8 0 27.1-1.5c2.9-.8 4.6-3.3 5.4-6.2C68 35 68 24 68 24s0-11-1.5-16.3z"></path>'
+        '<path d="M45 24 27 14v20" fill="#fff"></path></svg></span>',
+        "  </button>",
+        '  <p class="ch-vid__meta"><span class="ch-vid__title">%s</span>' % title,
+        '    <span class="ch-vid__source">%s%s</span></p>'
+        % (source, "" if v.get("duration", "\u2014") == "\u2014" else " &middot; " + html.escape(v["duration"])),
+        '  <a class="ch-vid__link" href="%s" target="_blank" rel="noopener">Watch on YouTube</a>'
+        % html.escape(v["url"], quote=True),
+        "</article>",
+    ]
+
+
+def render_screen(section, indent):
+    videos = section.get("screen") or []
+    if not videos:
+        return None
+    lines = ['<div class="ch-vid-wrap">', '  <ul class="ch-vid-grid">']
+    for v in videos:
+        lines.append("    <li>")
+        lines.extend("      " + line for line in video_card(v))
+        lines.append("    </li>")
+    lines.append("  </ul>")
+    lines.append(
+        '  <p class="ch-vid__note">Nothing is requested from YouTube until you '
+        "press play.</p>"
+    )
+    lines.append("</div>")
+    body = ("\n" + indent).join(lines)
+    return "\n%s%s\n%s" % (indent, body, indent)
+
+
 def render(section, indent):
     items = section.get("items") or []
     if not items:
@@ -148,18 +201,34 @@ def main():
                 sys.exit("%s: unknown press section '%s'" % (page.name, name))
             body = render(sections[name], marker_indent(match))
             if body is None:
-                seen.append((name, 0))
+                seen.append((name, 0, "tiles"))
                 return match.group(0)
-            seen.append((name, len(sections[name]["items"])))
+            seen.append((name, len(sections[name]["items"]), "tiles"))
+            return match.group(1) + body + match.group(4)
+
+        def replace_screen(match):
+            name = match.group(2)
+            if name not in sections:
+                sys.exit("%s: unknown press section '%s'" % (page.name, name))
+            body = render_screen(sections[name], marker_indent(match))
+            if body is None:
+                return match.group(0)
+            seen.append((name, len(sections[name]["screen"]), "screen"))
             return match.group(1) + body + match.group(4)
 
         updated = BLOCK_RE.sub(replace, text)
+        updated = SCREEN_RE.sub(replace_screen, updated)
         if not seen:
             sys.exit("%s: no ch:press markers found" % page.name)
 
-        for name, count in seen:
-            quoted = sum(1 for i in sections[name].get("items", []) if i.get("quote"))
-            state = "skipped (no items yet)" if not count else "%d tiles, %d quoted" % (count, quoted)
+        for name, count, kind in seen:
+            if kind == "screen":
+                state = "%d videos" % count
+            elif not count:
+                state = "skipped (no items yet)"
+            else:
+                quoted = sum(1 for i in sections[name].get("items", []) if i.get("quote"))
+                state = "%d tiles, %d quoted" % (count, quoted)
             print("  %-18s %-8s %s" % (page.name, name, state))
             total += count
 

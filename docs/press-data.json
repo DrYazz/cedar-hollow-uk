@@ -24,7 +24,13 @@
     "   preview) because their article IDs were invented, and nine returned 404.",
     "   Do not add a URL that has not been opened.",
     "",
-    "'checked' is when the whole set was last verified end to end."
+    "'checked' is when the whole set was last verified end to end.",
+    "",
+    "'screen' is the television and film coverage, shown as click-to-load video",
+    "cards. The thumbnail is stored under public/images/press-video/ rather than",
+    "hotlinked from i.ytimg.com, and the YouTube player is only inserted once a",
+    "visitor presses play -- cookies.html says third-party cookies apply once you",
+    "arrive at their site, and an iframe on load would quietly make that untrue."
   ],
   "checked": "2026-09-21",
   "sections": {
@@ -171,6 +177,52 @@
             "srcset": "images/press-shots/euroweekly-206.webp 206w, images/press-shots/euroweekly-412.webp 412w"
           }
         }
+      ],
+      "screen": [
+        {
+          "id": "fPdU-01UL1Q",
+          "title": "Cedar Hollow on Married at First Sight UK",
+          "source": "Channel 4",
+          "duration": "0:57",
+          "url": "https://www.youtube.com/watch?v=fPdU-01UL1Q",
+          "thumb": {
+            "src": "images/press-video/fPdU-01UL1Q-640.webp",
+            "srcset": "images/press-video/fPdU-01UL1Q-320.webp 320w, images/press-video/fPdU-01UL1Q-640.webp 640w"
+          }
+        },
+        {
+          "id": "gQYoL97OArg",
+          "title": "The Engineer, the Magician and the Narnia Inspired Treehouse",
+          "source": "BBC",
+          "duration": "0:38",
+          "url": "https://www.youtube.com/watch?v=gQYoL97OArg",
+          "thumb": {
+            "src": "images/press-video/gQYoL97OArg-640.webp",
+            "srcset": "images/press-video/gQYoL97OArg-320.webp 320w, images/press-video/gQYoL97OArg-640.webp 640w"
+          }
+        },
+        {
+          "id": "SkR9W_XbE1c",
+          "title": "Come Dine With Me — AJ Edition",
+          "source": "Beta Squad",
+          "duration": "—",
+          "url": "https://www.youtube.com/watch?v=SkR9W_XbE1c",
+          "thumb": {
+            "src": "images/press-video/SkR9W_XbE1c-640.webp",
+            "srcset": "images/press-video/SkR9W_XbE1c-320.webp 320w, images/press-video/SkR9W_XbE1c-640.webp 640w"
+          }
+        },
+        {
+          "id": "nM3sZNHlARs",
+          "title": "Parallel Universe",
+          "source": "Cassa Jackson — music video",
+          "duration": "—",
+          "url": "https://www.youtube.com/watch?v=nM3sZNHlARs",
+          "thumb": {
+            "src": "images/press-video/nM3sZNHlARs-640.webp",
+            "srcset": "images/press-video/nM3sZNHlARs-320.webp 320w, images/press-video/nM3sZNHlARs-640.webp 640w"
+          }
+        }
       ]
     },
     "dorset": {
@@ -273,6 +325,41 @@
           "shot": {
             "src": "images/press-shots/designboom-412.webp",
             "srcset": "images/press-shots/designboom-206.webp 206w, images/press-shots/designboom-412.webp 412w"
+          }
+        }
+      ],
+      "screen": [
+        {
+          "id": "C71PZaFHOwQ",
+          "title": "Grand Designs: House of the Year",
+          "source": "Channel 4",
+          "duration": "—",
+          "url": "https://www.youtube.com/watch?v=C71PZaFHOwQ",
+          "thumb": {
+            "src": "images/press-video/C71PZaFHOwQ-640.webp",
+            "srcset": "images/press-video/C71PZaFHOwQ-320.webp 320w, images/press-video/C71PZaFHOwQ-640.webp 640w"
+          }
+        },
+        {
+          "id": "lZqNpbfB5MU",
+          "title": "George Clarke’s Amazing Spaces",
+          "source": "Channel 4",
+          "duration": "6:04",
+          "url": "https://www.youtube.com/watch?v=lZqNpbfB5MU",
+          "thumb": {
+            "src": "images/press-video/lZqNpbfB5MU-640.webp",
+            "srcset": "images/press-video/lZqNpbfB5MU-320.webp 320w, images/press-video/lZqNpbfB5MU-640.webp 640w"
+          }
+        },
+        {
+          "id": "al53RiDKCVk",
+          "title": "World’s Most Secret Hotels",
+          "source": "Channel 5",
+          "duration": "7:29",
+          "url": "https://www.youtube.com/watch?v=al53RiDKCVk",
+          "thumb": {
+            "src": "images/press-video/al53RiDKCVk-640.webp",
+            "srcset": "images/press-video/al53RiDKCVk-320.webp 320w, images/press-video/al53RiDKCVk-640.webp 640w"
           }
         }
       ]
