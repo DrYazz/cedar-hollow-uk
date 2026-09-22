@@ -65,7 +65,7 @@
   height: 2.5rem;
   border-radius: 100%;
   background-color: rgba(59, 65, 38, .12);
-  font-size: 1.0625rem;
+  font-size: 1.125rem;
   font-weight: 600;
   line-height: 1;
 }
@@ -86,14 +86,14 @@
 
 .ch-wall__meta {
   margin: .125rem 0 0;
-  font-size: .8125rem;
+  font-size: 1rem;
   line-height: 1.3;
   opacity: .72;
 }
 
 .ch-wall__stars {
   margin: 0;
-  font-size: .9375rem;
+  font-size: 1.125rem;
   letter-spacing: .12em;
   line-height: 1;
 }
@@ -102,7 +102,7 @@
    even; the link underneath goes to the full text at the source. */
 .ch-wall__text {
   margin: 0;
-  font-size: .9375rem;
+  font-size: 1.125rem;
   line-height: 1.6;
   display: -webkit-box;
   -webkit-line-clamp: 9;
@@ -114,7 +114,7 @@
   margin-top: auto;
   padding-top: .25rem;
   color: inherit;
-  font-size: .875rem;
+  font-size: 1.125rem;
   text-decoration: underline;
   text-underline-offset: .18em;
 }
@@ -154,7 +154,7 @@
 
 .ch-wall__note {
   margin: 1.25rem 0 0;
-  font-size: .8125rem;
+  font-size: 1rem;
   line-height: 1.5;
   opacity: .72;
 }
@@ -260,7 +260,7 @@
 .ch-plat__stars {
   position: relative;
   display: inline-block;
-  font-size: .875rem;
+  font-size: 1.125rem;
   letter-spacing: .1em;
   line-height: 1;
   white-space: nowrap;
@@ -279,18 +279,18 @@
 
 .ch-plat__name {
   margin-top: .375rem;
-  font-size: .9375rem;
+  font-size: 1.125rem;
   font-weight: 600;
 }
 
 .ch-plat__listing {
-  font-size: .75rem;
+  font-size: 1rem;
   line-height: 1.35;
   opacity: .7;
 }
 
 .ch-plat__count {
-  font-size: .8125rem;
+  font-size: 1rem;
   opacity: .7;
 }
 
@@ -367,7 +367,7 @@
 }
 
 .ch-prop__meta {
-  font-size: .875rem;
+  font-size: 1.125rem;
   line-height: 1.5;
   opacity: .75;
 }

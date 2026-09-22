@@ -111,7 +111,7 @@
 
 .ch-press__pub {
   margin: 0;
-  font-size: .75rem;
+  font-size: 1rem;
   font-weight: 600;
   letter-spacing: .1em;
   text-transform: uppercase;
@@ -150,7 +150,7 @@
 
 .ch-press__quote p {
   margin: 0;
-  font-size: .8125rem;
+  font-size: 1rem;
   line-height: 1.5;
 }
 
@@ -158,7 +158,7 @@
   margin-top: auto;
   padding-top: .25rem;
   color: inherit;
-  font-size: .875rem;
+  font-size: 1.125rem;
   text-decoration: underline;
   text-underline-offset: .18em;
 }
@@ -172,7 +172,7 @@
    quote and some do not. */
 .ch-press__note {
   margin: 0;
-  font-size: .8125rem;
+  font-size: 1rem;
   line-height: 1.5;
   font-style: italic;
   opacity: .65;
@@ -180,7 +180,7 @@
 
 .ch-press__foot {
   margin: 1.5rem 0 0;
-  font-size: .8125rem;
+  font-size: 1rem;
   line-height: 1.5;
   opacity: .7;
 }
@@ -313,20 +313,20 @@
 
 .ch-vid__title {
   font-family: var(--font-family--heading, Crimsonpro), serif;
-  font-size: 1.1875rem;
+  font-size: 1.25rem;
   line-height: 1.2;
   letter-spacing: -.02em;
 }
 
 .ch-vid__source {
-  font-size: .8125rem;
+  font-size: 1rem;
   opacity: .7;
 }
 
 .ch-vid__link {
   margin-top: auto;
   color: inherit;
-  font-size: .875rem;
+  font-size: 1.125rem;
   text-decoration: underline;
   text-underline-offset: .18em;
 }
@@ -338,7 +338,7 @@
 
 .ch-vid__note {
   margin: 1.25rem 0 0;
-  font-size: .8125rem;
+  font-size: 1rem;
   line-height: 1.5;
   opacity: .7;
 }
@@ -395,7 +395,7 @@
   background: none;
   color: inherit;
   font-family: inherit;
-  font-size: .9375rem;
+  font-size: 1.125rem;
   line-height: 1;
   cursor: pointer;
   transition: background-color .2s ease, color .2s ease, border-color .2s ease;
@@ -419,7 +419,7 @@
 }
 
 .ch-feed__count {
-  font-size: .75rem;
+  font-size: 1rem;
   opacity: .65;
 }
 
@@ -429,7 +429,7 @@
 
 .ch-feed__status {
   margin: 0 0 1.75rem;
-  font-size: .8125rem;
+  font-size: 1rem;
   text-align: center;
   opacity: .7;
 }
@@ -487,7 +487,7 @@
   align-items: baseline;
   gap: .375rem .5rem;
   margin: -.125rem 0 0;
-  font-size: .75rem;
+  font-size: 1rem;
   line-height: 1.4;
   opacity: .7;
 }
@@ -505,7 +505,7 @@
 
   .ch-feed__btn {
     padding: .5rem .875rem;
-    font-size: .875rem;
+    font-size: 1.125rem;
   }
 }
 
@@ -574,7 +574,7 @@
 .ch-lightbox__caption {
   margin: 0;
   color: #f1ecdb;
-  font-size: .9375rem;
+  font-size: 1.125rem;
   line-height: 1.4;
   text-align: center;
   opacity: .85;
@@ -628,11 +628,20 @@
 
 .ch-feed__empty {
   margin: 2rem 0 0;
-  font-size: .9375rem;
+  font-size: 1.125rem;
   text-align: center;
   opacity: .75;
 }
 
 .ch-feed__empty[hidden] {
   display: none;
+}
+
+/* Below this two columns plus the gap overshoot the screen, and a clipping
+   gets too small to read anyway. */
+@media screen and (max-width: 359px) {
+  .ch-press__grid,
+  .ch-feed__grid {
+    grid-template-columns: 1fr;
+  }
 }

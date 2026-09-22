@@ -12,7 +12,7 @@ body { background: var(--offwhite, #f8f8e8); color: var(--color-text, #5d5c4b); 
 .ch-page-hero__body { padding-top: clamp(2rem, 5vw, 4rem); padding-bottom: clamp(3rem, 7vw, 5.5rem); }
 .ch-page-hero__eyebrow {
   color: var(--brand, #efeed5); opacity: .7; margin: 0 0 1.25rem;
-  font-size: .875rem; font-weight: 600; letter-spacing: .01em;
+  font-size: 1rem; font-weight: 600; letter-spacing: .01em;
   line-height: 1.1; text-transform: uppercase;
 }
 .ch-page-hero .heading-style-h1 { color: var(--brand, #efeed5); margin: 0; }
