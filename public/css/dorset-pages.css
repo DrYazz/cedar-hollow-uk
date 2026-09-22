@@ -41,7 +41,9 @@
    --------------------------------------------------------------------------- */
 
 :root {
-  --dp-cream: #f1e6d7;        /* page ground, from .ret-page */
+  --dp-cream: #f1e6d7;      /* page ground and the hairline between bands, from .ret-page */
+  --dp-sand: #efeed5;       /* section ground, Figma 55:962 */
+  --dp-sand-warm: #f7f5e1;  /* the alternate, Figma 55:684 */
   --dp-ink: #100b01;          /* near-black, from .section-footer */
   --dp-brand: #efeed5;        /* type on dark */
   --dp-accent: #3b4126;       /* Cedar Hollow green */
@@ -122,12 +124,34 @@
 
 /* --- Body sections on cream ---------------------------------------------- */
 
-.dp-body { background-color: var(--dp-cream); color: var(--dp-muted); }
+/* The sections are children of .dp-body, not of .dp-page, so the row-gap on
+   .dp-page only ever separated head / body / CTA -- between the sections
+   themselves it measured 0. The banding machinery belongs here, one level
+   down, where the bands actually are. */
+.dp-body {
+  display: flex;
+  flex-direction: column;
+  grid-row-gap: 2px;
+  row-gap: 2px;
+  background-color: var(--dp-cream);
+  color: var(--dp-muted);
+}
 
+/* Each section is its own band, and the 2px gap above shows the page ground
+   between them as a hairline -- which is exactly how .ret-page divides the
+   Figma retreats page into full-bleed bands.
+
+   Without a background here every section was transparent, the hairline had
+   nothing to separate, and .dp-section + .dp-section stripped the top padding
+   as well, so a run of sections read as one undivided column of text. The
+   Figma homepage never does that: it alternates #f7f5e1 and #efeed5 down the
+   page (55:684 against 55:962) so no two touching bands share a colour, and
+   breaks the run with full-bleed photography and the awards strip. */
 .dp-section {
+  background-color: var(--dp-sand);
   padding: 5rem clamp(1.25rem, 4.44vw, 4rem);
 }
-.dp-section + .dp-section { padding-top: 0; }
+.dp-section:nth-of-type(even) { background-color: var(--dp-sand-warm); }
 .dp-section__inner { width: 100%; max-width: 60rem; margin: 0 auto; }
 .dp-section--wide .dp-section__inner { max-width: 80rem; }
 
