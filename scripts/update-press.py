@@ -36,6 +36,9 @@ PAGES = [
 
 BLOCK_RE = re.compile(r"(<!-- ch:press ([\w-]+) -->)(.*?)(<!-- /ch:press -->)", re.S)
 SCREEN_RE = re.compile(r"(<!-- ch:press-screen ([\w-]+) -->)(.*?)(<!-- /ch:press-screen -->)", re.S)
+FEED_RE = re.compile(r"(<!-- ch:press-feed -->)(.*?)(<!-- /ch:press-feed -->)", re.S)
+
+LOCATIONS = {"oxford": "Oxfordshire", "dorset": "Dorset"}
 
 
 def marker_indent(match):
@@ -184,6 +187,73 @@ def render(section, indent):
     return "\n%s%s\n%s" % (indent, body, indent)
 
 
+def month_year(iso):
+    months = ("January", "February", "March", "April", "May", "June", "July",
+              "August", "September", "October", "November", "December")
+    y, m, _ = iso.split("-")
+    return "%s %s" % (months[int(m) - 1], y)
+
+
+def feed_entries(sections):
+    """Everything both woodlands have, newest first, articles and film together."""
+    rows = []
+    for key, sec in sections.items():
+        for item in sec.get("items", []):
+            rows.append((item["date"], key, "article", item))
+        for v in sec.get("screen", []):
+            rows.append((v["date"], key, "video", v))
+    # secondary sort on publication keeps same-day entries in a stable order
+    rows.sort(key=lambda r: (r[0], r[3].get("publication") or r[3].get("source")), reverse=True)
+    return rows
+
+
+def feed_card(kind, item, location):
+    """One entry in the combined feed, tagged so the filter can hide it."""
+    stamp = ' data-location="%s" data-kind="%s"' % (location, kind)
+    date = item.get("date", "")
+    label = "Added" if item.get("dateKind") == "uploaded" else ""
+    when = ('<span class="ch-feed__date">%s%s</span>'
+            % (label + " " if label else "", month_year(date))) if date else ""
+
+    lines = ['<li class="ch-feed__item"%s>' % stamp]
+    if kind == "article":
+        lines.extend("  " + l for l in card(item))
+    else:
+        lines.extend("  " + l for l in video_card(item))
+    # the date rides under whichever card was drawn, so both read the same
+    if when:
+        lines.append('  <p class="ch-feed__meta">%s <span class="ch-feed__where">%s</span></p>'
+                     % (when, LOCATIONS.get(location, location)))
+    lines.append("</li>")
+    return lines
+
+
+def render_feed(sections, indent):
+    rows = feed_entries(sections)
+    if not rows:
+        return None
+    counts = {"all": len(rows)}
+    for _, key, _, _ in rows:
+        counts[key] = counts.get(key, 0) + 1
+
+    lines = ['<div class="ch-feed">']
+    lines.append('  <div class="ch-feed__filter" role="group" aria-label="Filter press coverage by woodland">')
+    for value, text in (("all", "All"), ("oxford", "Oxfordshire"), ("dorset", "Dorset")):
+        pressed = "true" if value == "all" else "false"
+        lines.append('    <button class="ch-feed__btn" type="button" data-filter="%s" aria-pressed="%s">'
+                     "%s <span class=\"ch-feed__count\">%d</span></button>"
+                     % (value, pressed, text, counts.get(value, 0)))
+    lines.append("  </div>")
+    lines.append('  <p class="ch-feed__status" role="status" aria-live="polite">Showing all %d</p>' % counts["all"])
+    lines.append('  <ul class="ch-feed__grid">')
+    for _, key, kind, item in rows:
+        lines.extend("    " + l for l in feed_card(kind, item, key))
+    lines.append("  </ul>")
+    lines.append("</div>")
+    body = ("\n" + indent).join(lines)
+    return "\n%s%s\n%s" % (indent, body, indent)
+
+
 def main():
     check = "--check" in sys.argv
     data = json.loads(DATA.read_text(encoding="utf-8"))
@@ -218,13 +288,23 @@ def main():
             seen.append((name, len(sections[name]["screen"]), "screen"))
             return match.group(1) + body + match.group(4)
 
+        def replace_feed(match):
+            body = render_feed(sections, marker_indent(match))
+            if body is None:
+                return match.group(0)
+            seen.append(("combined", len(feed_entries(sections)), "feed"))
+            return match.group(1) + body + match.group(3)
+
         updated = BLOCK_RE.sub(replace, text)
         updated = SCREEN_RE.sub(replace_screen, updated)
+        updated = FEED_RE.sub(replace_feed, updated)
         if not seen:
             sys.exit("%s: no ch:press markers found" % page.name)
 
         for name, count, kind in seen:
-            if kind == "screen":
+            if kind == "feed":
+                state = "%d entries, newest first" % count
+            elif kind == "screen":
                 state = "%d videos" % count
             elif not count:
                 state = "skipped (no items yet)"

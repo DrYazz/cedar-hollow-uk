@@ -34,7 +34,13 @@
     "",
     "Shot URLs carry a ?v= stamp because Railway sends no cache-control header:",
     "a recaptured clipping keeps its filename, so without the stamp a returning",
-    "visitor would keep the old one. Bump it when you recapture."
+    "visitor would keep the old one. Bump it when you recapture.",
+    "",
+    "Every entry carries a 'date' and a 'dateKind'. For articles that is the",
+    "publication date from the page's own metadata. For videos it is the YouTube",
+    "upload date, which is NOT the broadcast date: two of the programmes aired",
+    "years before the channel posted the clip in August 2026. The cards label",
+    "them differently for that reason, and the combined feed sorts on this field."
   ],
   "checked": "2026-09-21",
   "sections": {
@@ -51,7 +57,10 @@
           "shot": {
             "src": "images/press-shots/times-narnia-412.webp?v=20260922",
             "srcset": "images/press-shots/times-narnia-206.webp?v=20260922 206w, images/press-shots/times-narnia-412.webp?v=20260922 412w"
-          }
+          },
+          "date": "2025-04-12",
+          "dateKind": "published",
+          "location": "oxford"
         },
         {
           "publication": "The Times",
@@ -62,7 +71,10 @@
           "shot": {
             "src": "images/press-shots/times-airbnbs-412.webp?v=20260922",
             "srcset": "images/press-shots/times-airbnbs-206.webp?v=20260922 206w, images/press-shots/times-airbnbs-412.webp?v=20260922 412w"
-          }
+          },
+          "date": "2025-06-24",
+          "dateKind": "published",
+          "location": "oxford"
         },
         {
           "publication": "BBC News",
@@ -73,7 +85,10 @@
           "shot": {
             "src": "images/press-shots/bbc-412.webp?v=20260922",
             "srcset": "images/press-shots/bbc-206.webp?v=20260922 206w, images/press-shots/bbc-412.webp?v=20260922 412w"
-          }
+          },
+          "date": "2024-10-26",
+          "dateKind": "published",
+          "location": "oxford"
         },
         {
           "publication": "Evening Standard",
@@ -84,7 +99,10 @@
           "shot": {
             "src": "images/press-shots/standard-oxford-412.webp?v=20260922",
             "srcset": "images/press-shots/standard-oxford-206.webp?v=20260922 206w, images/press-shots/standard-oxford-412.webp?v=20260922 412w"
-          }
+          },
+          "date": "2018-08-15",
+          "dateKind": "published",
+          "location": "oxford"
         },
         {
           "publication": "Time Out",
@@ -95,7 +113,10 @@
           "shot": {
             "src": "images/press-shots/timeout-412.webp?v=20260922",
             "srcset": "images/press-shots/timeout-206.webp?v=20260922 206w, images/press-shots/timeout-412.webp?v=20260922 412w"
-          }
+          },
+          "date": "2026-05-10",
+          "dateKind": "published",
+          "location": "oxford"
         },
         {
           "publication": "The Sun",
@@ -106,7 +127,10 @@
           "shot": {
             "src": "images/press-shots/thesun-412.webp?v=20260922",
             "srcset": "images/press-shots/thesun-206.webp?v=20260922 206w, images/press-shots/thesun-412.webp?v=20260922 412w"
-          }
+          },
+          "date": "2024-11-18",
+          "dateKind": "published",
+          "location": "oxford"
         },
         {
           "publication": "The Tab",
@@ -117,7 +141,10 @@
           "shot": {
             "src": "images/press-shots/thetab-412.webp?v=20260922",
             "srcset": "images/press-shots/thetab-206.webp?v=20260922 206w, images/press-shots/thetab-412.webp?v=20260922 412w"
-          }
+          },
+          "date": "2023-11-09",
+          "dateKind": "published",
+          "location": "oxford"
         },
         {
           "publication": "OK! Magazine",
@@ -128,7 +155,10 @@
           "shot": {
             "src": "images/press-shots/okmag-412.webp?v=20260922",
             "srcset": "images/press-shots/okmag-206.webp?v=20260922 206w, images/press-shots/okmag-412.webp?v=20260922 412w"
-          }
+          },
+          "date": "2020-12-14",
+          "dateKind": "published",
+          "location": "oxford"
         },
         {
           "publication": "Oxfordshire Live",
@@ -139,7 +169,10 @@
           "shot": {
             "src": "images/press-shots/oxfordshirelive-412.webp?v=20260922",
             "srcset": "images/press-shots/oxfordshirelive-206.webp?v=20260922 206w, images/press-shots/oxfordshirelive-412.webp?v=20260922 412w"
-          }
+          },
+          "date": "2023-02-08",
+          "dateKind": "published",
+          "location": "oxford"
         },
         {
           "publication": "Secret London",
@@ -149,7 +182,10 @@
           "shot": {
             "src": "images/press-shots/secretldn-412.webp?v=20260922",
             "srcset": "images/press-shots/secretldn-206.webp?v=20260922 206w, images/press-shots/secretldn-412.webp?v=20260922 412w"
-          }
+          },
+          "date": "2024-02-07",
+          "dateKind": "published",
+          "location": "oxford"
         },
         {
           "publication": "Manchester Evening News",
@@ -159,7 +195,10 @@
           "shot": {
             "src": "images/press-shots/men-412.webp?v=20260922",
             "srcset": "images/press-shots/men-206.webp?v=20260922 206w, images/press-shots/men-412.webp?v=20260922 412w"
-          }
+          },
+          "date": "2024-11-18",
+          "dateKind": "published",
+          "location": "oxford"
         },
         {
           "publication": "Good News Network",
@@ -169,7 +208,10 @@
           "shot": {
             "src": "images/press-shots/gnn-412.webp?v=20260922",
             "srcset": "images/press-shots/gnn-206.webp?v=20260922 206w, images/press-shots/gnn-412.webp?v=20260922 412w"
-          }
+          },
+          "date": "2024-11-24",
+          "dateKind": "published",
+          "location": "oxford"
         },
         {
           "publication": "Euro Weekly News",
@@ -179,7 +221,10 @@
           "shot": {
             "src": "images/press-shots/euroweekly-412.webp?v=20260922",
             "srcset": "images/press-shots/euroweekly-206.webp?v=20260922 206w, images/press-shots/euroweekly-412.webp?v=20260922 412w"
-          }
+          },
+          "date": "2024-11-27",
+          "dateKind": "published",
+          "location": "oxford"
         }
       ],
       "screen": [
@@ -192,7 +237,10 @@
           "thumb": {
             "src": "images/press-video/fPdU-01UL1Q-640.webp",
             "srcset": "images/press-video/fPdU-01UL1Q-320.webp 320w, images/press-video/fPdU-01UL1Q-640.webp 640w"
-          }
+          },
+          "date": "2023-12-30",
+          "dateKind": "uploaded",
+          "location": "oxford"
         },
         {
           "id": "gQYoL97OArg",
@@ -203,7 +251,10 @@
           "thumb": {
             "src": "images/press-video/gQYoL97OArg-640.webp",
             "srcset": "images/press-video/gQYoL97OArg-320.webp 320w, images/press-video/gQYoL97OArg-640.webp 640w"
-          }
+          },
+          "date": "2024-10-26",
+          "dateKind": "uploaded",
+          "location": "oxford"
         },
         {
           "id": "SkR9W_XbE1c",
@@ -214,7 +265,10 @@
           "thumb": {
             "src": "images/press-video/SkR9W_XbE1c-640.webp",
             "srcset": "images/press-video/SkR9W_XbE1c-320.webp 320w, images/press-video/SkR9W_XbE1c-640.webp 640w"
-          }
+          },
+          "date": "2023-02-22",
+          "dateKind": "uploaded",
+          "location": "oxford"
         },
         {
           "id": "nM3sZNHlARs",
@@ -225,7 +279,10 @@
           "thumb": {
             "src": "images/press-video/nM3sZNHlARs-640.webp",
             "srcset": "images/press-video/nM3sZNHlARs-320.webp 320w, images/press-video/nM3sZNHlARs-640.webp 640w"
-          }
+          },
+          "date": "2021-05-13",
+          "dateKind": "uploaded",
+          "location": "oxford"
         }
       ]
     },
@@ -254,7 +311,10 @@
           "shot": {
             "src": "images/press-shots/telegraph-412.webp?v=20260922",
             "srcset": "images/press-shots/telegraph-206.webp?v=20260922 206w, images/press-shots/telegraph-412.webp?v=20260922 412w"
-          }
+          },
+          "date": "2016-11-15",
+          "dateKind": "published",
+          "location": "dorset"
         },
         {
           "publication": "The Independent",
@@ -265,7 +325,10 @@
           "shot": {
             "src": "images/press-shots/independent-412.webp?v=20260922",
             "srcset": "images/press-shots/independent-206.webp?v=20260922 206w, images/press-shots/independent-412.webp?v=20260922 412w"
-          }
+          },
+          "date": "2023-01-06",
+          "dateKind": "published",
+          "location": "dorset"
         },
         {
           "publication": "GQ",
@@ -276,7 +339,10 @@
           "shot": {
             "src": "images/press-shots/gq-412.webp?v=20260922",
             "srcset": "images/press-shots/gq-206.webp?v=20260922 206w, images/press-shots/gq-412.webp?v=20260922 412w"
-          }
+          },
+          "date": "2017-08-13",
+          "dateKind": "published",
+          "location": "dorset"
         },
         {
           "publication": "Evening Standard",
@@ -287,7 +353,10 @@
           "shot": {
             "src": "images/press-shots/standard-dorset-412.webp?v=20260922",
             "srcset": "images/press-shots/standard-dorset-206.webp?v=20260922 206w, images/press-shots/standard-dorset-412.webp?v=20260922 412w"
-          }
+          },
+          "date": "2017-11-22",
+          "dateKind": "published",
+          "location": "dorset"
         },
         {
           "publication": "Country Living",
@@ -298,7 +367,10 @@
           "shot": {
             "src": "images/press-shots/countryliving-412.webp?v=20260922",
             "srcset": "images/press-shots/countryliving-206.webp?v=20260922 206w, images/press-shots/countryliving-412.webp?v=20260922 412w"
-          }
+          },
+          "date": "2019-03-10",
+          "dateKind": "published",
+          "location": "dorset"
         },
         {
           "publication": "Daily Mail",
@@ -308,7 +380,10 @@
           "shot": {
             "src": "images/press-shots/dailymail-412.webp?v=20260922",
             "srcset": "images/press-shots/dailymail-206.webp?v=20260922 206w, images/press-shots/dailymail-412.webp?v=20260922 412w"
-          }
+          },
+          "date": "2017-01-17",
+          "dateKind": "published",
+          "location": "dorset"
         },
         {
           "publication": "Metro",
@@ -319,7 +394,10 @@
           "shot": {
             "src": "images/press-shots/metro-412.webp?v=20260922",
             "srcset": "images/press-shots/metro-206.webp?v=20260922 206w, images/press-shots/metro-412.webp?v=20260922 412w"
-          }
+          },
+          "date": "2017-03-21",
+          "dateKind": "published",
+          "location": "dorset"
         },
         {
           "publication": "designboom",
@@ -329,7 +407,10 @@
           "shot": {
             "src": "images/press-shots/designboom-412.webp?v=20260922",
             "srcset": "images/press-shots/designboom-206.webp?v=20260922 206w, images/press-shots/designboom-412.webp?v=20260922 412w"
-          }
+          },
+          "date": "2016-10-16",
+          "dateKind": "published",
+          "location": "dorset"
         }
       ],
       "screen": [
@@ -342,7 +423,10 @@
           "thumb": {
             "src": "images/press-video/C71PZaFHOwQ-640.webp",
             "srcset": "images/press-video/C71PZaFHOwQ-320.webp 320w, images/press-video/C71PZaFHOwQ-640.webp 640w"
-          }
+          },
+          "date": "2018-06-04",
+          "dateKind": "uploaded",
+          "location": "dorset"
         },
         {
           "id": "lZqNpbfB5MU",
@@ -353,7 +437,10 @@
           "thumb": {
             "src": "images/press-video/lZqNpbfB5MU-640.webp",
             "srcset": "images/press-video/lZqNpbfB5MU-320.webp 320w, images/press-video/lZqNpbfB5MU-640.webp 640w"
-          }
+          },
+          "date": "2026-08-24",
+          "dateKind": "uploaded",
+          "location": "dorset"
         },
         {
           "id": "al53RiDKCVk",
@@ -364,7 +451,10 @@
           "thumb": {
             "src": "images/press-video/al53RiDKCVk-640.webp",
             "srcset": "images/press-video/al53RiDKCVk-320.webp 320w, images/press-video/al53RiDKCVk-640.webp 640w"
-          }
+          },
+          "date": "2026-08-24",
+          "dateKind": "uploaded",
+          "location": "dorset"
         }
       ]
     }

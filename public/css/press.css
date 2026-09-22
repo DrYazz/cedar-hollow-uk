@@ -363,3 +363,155 @@
 .ch-section--accent .ch-vid__note {
   color: var(--brand, #efeed5);
 }
+
+/* ===========================================================================
+   The combined feed: both woodlands, articles and film together, newest first.
+
+   Split sections made a reader hold two orders in their head at once -- which
+   woodland, and which kind of coverage -- before they could see what had come
+   out recently. One list in date order answers that, and the filter narrows it
+   without reordering anything.
+   =========================================================================== */
+
+.ch-feed {
+  margin-top: 2rem;
+  text-align: left;
+}
+
+.ch-feed__filter {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: .625rem;
+  margin-bottom: .875rem;
+}
+
+.ch-feed__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .4375rem;
+  padding: .5625rem 1.125rem;
+  border: 1px solid rgba(59, 65, 38, .35);
+  border-radius: 50em;
+  background: none;
+  color: inherit;
+  font-family: inherit;
+  font-size: .9375rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color .2s ease, color .2s ease, border-color .2s ease;
+}
+
+.ch-feed__btn:hover {
+  border-color: currentColor;
+}
+
+.ch-feed__btn:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+/* aria-pressed is the state, so the styling hangs off it rather than a class
+   that could drift out of step with what a screen reader is told. */
+.ch-feed__btn[aria-pressed="true"] {
+  background-color: var(--accent, #3b4126);
+  border-color: var(--accent, #3b4126);
+  color: #f1ecdb;
+}
+
+.ch-feed__count {
+  font-size: .75rem;
+  opacity: .65;
+}
+
+.ch-feed__btn[aria-pressed="true"] .ch-feed__count {
+  opacity: .8;
+}
+
+.ch-feed__status {
+  margin: 0 0 1.75rem;
+  font-size: .8125rem;
+  text-align: center;
+  opacity: .7;
+}
+
+.ch-feed__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+  gap: 2rem 1.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ch-feed__item {
+  display: flex;
+  flex-direction: column;
+  gap: .625rem;
+  margin: 0;
+}
+
+.ch-feed__item[hidden] {
+  display: none;
+}
+
+/* Both kinds of card sit in the same portrait box so a mixed row lines up.
+   The video still fills it rather than sitting letterboxed in the middle:
+   contain left most of a tall card empty, which read as a broken image next to
+   a clipping that fills its frame. These stills are centre-composed, so a
+   centre crop keeps the subject. The player that replaces the still on click
+   keeps its own 16:9, since a cropped video would be worse than a short one. */
+.ch-feed__item .ch-press__clip,
+.ch-feed__item .ch-vid__play {
+  aspect-ratio: 412 / 740;
+}
+
+.ch-feed__item .ch-vid__play img {
+  object-fit: cover;
+  object-position: center;
+}
+
+.ch-feed__item .ch-vid {
+  gap: .625rem;
+  height: 100%;
+}
+
+/* Without this the link is pushed to the bottom of a stretched card, leaving
+   a hole between the title and it. */
+.ch-feed__item .ch-vid__link {
+  margin-top: .125rem;
+}
+
+.ch-feed__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: .375rem .5rem;
+  margin: -.125rem 0 0;
+  font-size: .75rem;
+  line-height: 1.4;
+  opacity: .7;
+}
+
+.ch-feed__where::before {
+  content: "\00b7";
+  margin-right: .4375rem;
+}
+
+@media screen and (max-width: 767px) {
+  .ch-feed__grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem 1rem;
+  }
+
+  .ch-feed__btn {
+    padding: .5rem .875rem;
+    font-size: .875rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ch-feed__btn {
+    transition: none;
+  }
+}
