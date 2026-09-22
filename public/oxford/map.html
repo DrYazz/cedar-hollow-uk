@@ -30,8 +30,8 @@
 <span class="ch-nav__wordmark">Oxford</span></a><div class="ch-nav__right"><button class="ch-nav__toggle" type="button" aria-expanded="false" aria-controls="ch-nav-menu"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span><span class="ch-nav__sr sr-only">Menu</span></button></div></nav><div class="ch-nav__menu is-dropdown" id="ch-nav-menu" hidden><div class="ch-navgroup"><p class="ch-navgroup__title">Stay</p><a href="../search-results.html?destination=Oxford">Rentals</a><a href="facilities.html">Facilities</a><a href="map.html" aria-current="page">Map</a><a href="accessibility.html">Accessibility</a></div><div class="ch-navgroup"><p class="ch-navgroup__title">Experiences</p><a href="experiences.html">Experiences</a><a href="wellness.html">Wellness</a><a href="dining.html">Dining</a><a href="events.html">Events</a><a href="todo.html">Things to Do</a><a href="illusions.html">Illusion Trail</a><a href="beemuseum.html">Bee Museum</a></div><div class="ch-navgroup"><p class="ch-navgroup__title">About</p><a href="story.html">Our Story</a><a href="../oxford-sustainability.html">Sustainability</a><a href="philanthropy.html">Philanthropy</a><a href="../oxford-reviews.html">Reviews</a><a href="../oxford-press.html">Press</a></div><div class="ch-navgroup"><p class="ch-navgroup__title">Work with us</p><a href="working.html">Working With Us</a><a href="influencers.html">Content Creators</a><a href="schoolgroups.html">School Groups</a></div><div class="ch-navgroup"><p class="ch-navgroup__title">Information</p><a href="faq.html">FAQ</a><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms &amp; Conditions</a></div></div></div></section><main id="main"><section class="ch-fsmap">
 <style>
         /* ---------------------------------------------------------------
-           The map page is the map. The nav is the only chrome; the map
-           takes every remaining pixel of the viewport.
+           The map page is the site plan, full screen. The nav is the only
+           chrome; the drawing takes every remaining pixel.
 
            Laid out with flex rather than a height calc so the map does not
            need to know how tall the nav is -- the nav's height changes with
@@ -51,125 +51,134 @@
            pushing the page taller. */
         .ch-mappage>main{position:relative;flex:1 1 auto;min-height:0;}
 
-        .ch-fsmap{position:absolute;inset:0;overflow:hidden;background-color:#e7e5c7;}
+        /* The drawing is landscape and the viewport often is not -- a phone
+           held upright leaves a deep band above and below the fitted image.
+           The band is this cream rather than white so it reads as the page,
+           not as a letterbox. */
+        .ch-fsmap{position:absolute;inset:0;overflow:hidden;background-color:#f7f5e1;}
         .ch-fsmap__canvas{position:absolute;inset:0;z-index:2;}
+        .ch-fsmap .leaflet-container{background:#f7f5e1;font-family:inherit;outline:none;}
+        /* The drawing is line art: smoothing it when zoomed in keeps the ink
+           from going blocky, which nearest-neighbour would do. */
+        .ch-fsmap .leaflet-image-layer{image-rendering:auto;}
 
-        /* Underneath the canvas, so it shows through if Leaflet never loads
-           -- no JS, a blocked CDN, an old browser. A vector basemap draws to
-           a transparent canvas, so this has to be hidden once the real map is
-           running or it reads through the tiles. */
-        .ch-fsmap__fallback{position:absolute;inset:0;z-index:1;display:flex;
-          flex-direction:column;align-items:center;justify-content:center;
-          gap:.85rem;padding:2rem;text-align:center;color:var(--accent);}
-        .ch-fsmap__fallback p{margin:0;max-width:26rem;}
-
-        .ch-fsmap .leaflet-container{background:transparent;font-family:inherit;}
-        /* Same correction as the home page: Protomaps' light theme is greener
-           and more saturated than the palette this site is drawn in. */
-        .ch-fsmap .leaflet-tile-pane{filter:saturate(.45) brightness(1.06);}
-        .ch-fsmap .ch-map__marker{background:none;border:none;}
-        .ch-fsmap .leaflet-tooltip.ch-map__label{background:#3b4126;color:#efeed5;border:none;
-          border-radius:20px;padding:4px 14px;font-size:.9375rem;font-weight:500;
-          box-shadow:0 2px 8px rgba(59,65,38,.28);}
-        .ch-fsmap .leaflet-tooltip-top.ch-map__label:before{border-top-color:#3b4126;}
-        .ch-fsmap .leaflet-popup-content-wrapper{background:#f7f5e1;color:#3b4126;
-          border-radius:12px;box-shadow:0 4px 16px rgba(59,65,38,.3);}
-        .ch-fsmap .leaflet-popup-tip{background:#f7f5e1;}
-        .ch-fsmap .leaflet-popup-content{margin:14px 18px;font-size:.9375rem;line-height:1.5;}
-        .ch-fsmap .leaflet-popup-content a{color:#3b4126;font-weight:600;text-decoration:underline;}
-        .ch-fsmap .leaflet-popup-content a + a{margin-left:.9em;}
-        .ch-fsmap .leaflet-control-attribution{background:rgba(247,245,225,.6);
-          color:rgba(59,65,38,.55);font-size:9px;padding:1px 6px;border-radius:6px 0 0 0;}
-        .ch-fsmap .leaflet-control-attribution a{color:rgba(59,65,38,.55);text-decoration:none;}
         .ch-fsmap .leaflet-control-zoom a{color:#3b4126;background:#f7f5e1;border-color:#3b41262e;}
         .ch-fsmap .leaflet-control-zoom a:hover{background:#efeed5;}
+        .ch-fsmap .leaflet-control-attribution{background:rgba(247,245,225,.72);
+          color:rgba(59,65,38,.6);font-size:10px;padding:2px 8px;border-radius:6px 0 0 0;}
+
+        /* Sits under the canvas, so it shows if Leaflet never loads -- no JS,
+           a blocked CDN, an old browser. Then the plan is still a picture you
+           can look at, which is most of the value. */
+        .ch-fsmap__fallback{position:absolute;inset:0;z-index:1;display:flex;
+          flex-direction:column;align-items:center;justify-content:center;gap:1rem;
+          padding:1.5rem;text-align:center;color:var(--accent);}
+        .ch-fsmap__fallback img{max-width:100%;max-height:78%;height:auto;object-fit:contain;}
+        .ch-fsmap__fallback p{margin:0;font-size:.9375rem;}
 </style>
 <div class="ch-fsmap__fallback">
-<p><strong>Cedar Hollow Oxford</strong><br>The Oaks, Old Road, Oxford OX3 8GH</p>
-<p>W3W: ///steep.wisdom.pines</p>
-<p><a href="https://goo.gl/maps/gWgQ5F2KTsmMsh9C6" target="_blank" rel="noopener">Open in Google Maps</a></p>
+<img src="images/site-plan-2026-1200.webp" width="1200" height="800"
+     alt="Illustrated plan of Cedar Hollow Oxford, showing Cedar Hollow, Faun&#39;s Hideaway, Beaver&#39;s Den, the Bee Museum, the indoor pool, the Shire, the hot tub and sauna, the stone table, the trampoline, the beehives and the Illusion Trail.">
+<p>Cedar Hollow Oxford, The Oaks, Old Road, Oxford OX3 8GH</p>
 </div>
-<div class="ch-fsmap__canvas" id="ch-map-canvas" role="region" aria-label="Interactive map of Cedar Hollow Oxford"></div>
+<div class="ch-fsmap__canvas" id="ch-map-canvas" role="region" aria-label="Interactive plan of Cedar Hollow Oxford: drag to move, and use the plus and minus buttons to zoom"></div>
 <script>
         (function () {
-          /* The same self-hosted basemap the home page uses: OpenStreetMap data
-             built into Protomaps archives we serve ourselves, so the map needs
-             no API key, has no quota, and does not depend on a third party
-             staying up. See index.html for why CARTO was dropped.
+          /* A pan-and-zoom view of the illustrated site plan.
 
-             Paths are one level up: this page lives in /oxford/.
+             Leaflet in CRS.Simple, which drops the globe and treats the image
+             as a flat plane measured in its own pixels, so the drawing is laid
+             on it as a single overlay. Using Leaflet rather than hand-rolling a
+             pan-zoom is deliberate: wheel, drag, pinch, double-tap, keyboard
+             and momentum are all behaviour someone expects of a map and all
+             fiddly to get right -- Safari alone reports a trackpad pinch
+             differently from every other browser. The library is already used
+             on index.html and dorset.html, so it is not a new dependency for
+             the site.
 
-             `directions` is the property's own Google Maps place listing rather
-             than a lat/lng URL, so it opens the named place. */
-          var LOC = {
-            name: "Cedar Hollow Oxford",
-            lat: 51.753457, lng: -1.186921,
-            directions: "https://goo.gl/maps/gWgQ5F2KTsmMsh9C6"
-          };
+             No Protomaps here, unlike the geographic maps: there are no tiles,
+             just the one picture. */
+          var SRC = "images/site-plan-2026.webp?v=20260922a";
+          var W = 2048, H = 1366;   /* the drawing's own pixel size */
+          /* zoom 0 is one image pixel per screen pixel. Past that the drawing
+             is being enlarged beyond what was supplied, so this caps it just
+             above native -- enough to lean in and read a label, not enough to
+             turn the ink to mush. Raised on a very large window, where merely
+             filling the screen already asks for more than native. */
+          var MAX_ZOOM = 0.6;
 
           function init() {
             var map = L.map("ch-map-canvas", {
-              /* Both of these are deliberately OFF on the home page, where the
-                 map is one band in a scrolling page and must never swallow a
-                 scroll or a swipe. Here the map IS the page: there is nothing
-                 to scroll past, so the wheel should zoom and one finger should
-                 pan, which is what anyone expects of a full-screen map. */
-              scrollWheelZoom: true,
-              dragging: true,
-              minZoom: 8, maxZoom: 18,
-              /* The archive covers southern England only; hold the view inside
-                 it so nobody can pan off the edge of the data. */
-              maxBounds: [[49.9, -7.0], [52.7, 1.6]],
-              maxBoundsViscosity: 1
+              crs: L.CRS.Simple,
+              /* Fractional zoom, so fitting the drawing to the window lands
+                 exactly rather than snapping to the nearest whole level and
+                 cropping or letterboxing more than it needs to. */
+              zoomSnap: 0,
+              zoomDelta: 0.4,
+              wheelPxPerZoomLevel: 90,
+              maxZoom: MAX_ZOOM,
+              minZoom: -6,          /* replaced below by the contain zoom */
+              attributionControl: true
             });
+
+            /* In CRS.Simple, y runs up from the origin, so the image's corners
+               are [0,0] and [height,width]. */
+            var bounds = L.latLngBounds([[0, 0], [H, W]]);
+            L.imageOverlay(SRC, bounds, {
+              alt: "Illustrated plan of Cedar Hollow Oxford",
+              attribution: "Illustration by Jim Hunt"
+            }).addTo(map);
             map.attributionControl.setPrefix("");
 
-            var ATTRIB = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://protomaps.com">Protomaps</a>';
-            /* Overview archive: southern England to z10, served from R2 because
-               it is over Cloudflare's 25MiB per-asset limit. It sits underneath
-               at every zoom so there is always a map, even outside the detail box. */
-            protomapsL.leafletLayer({
-              url: "https://tiles.cedarhollow.uk/southern-england.pmtiles",
-              flavor: "light", lang: "en", maxDataZoom: 10, attribution: ATTRIB
-            }).addTo(map);
-            /* Detail archive: z11-15 over a 10km box around the property, which
-               is the only place anyone needs to be close. Bounded, so Leaflet
-               asks for no tiles outside it and the overview shows through. */
-            protomapsL.leafletLayer({
-              url: "../map/detail.pmtiles",
-              flavor: "light", lang: "en",
-              minZoom: 11, maxDataZoom: 15,
-              bounds: L.latLngBounds([[51.7085, -1.2597], [51.7985, -1.1141]]),
-              attribution: ""   /* the overview already carries the credit */
-            }).addTo(map);
+            /* In CRS.Simple the drawing is W by H at zoom 0, and each zoom
+               level doubles it, so the zoom that makes it exactly fill the
+               window on one axis is log2(window / drawing) for that axis.
+               The larger of the two fills the window (and crops the other
+               axis); the smaller fits the whole drawing inside it. */
+            function zooms() {
+              var s = map.getSize();
+              var zx = Math.log(s.x / W) / Math.LN2;
+              var zy = Math.log(s.y / H) / Math.LN2;
+              return { cover: Math.max(zx, zy), contain: Math.min(zx, zy) };
+            }
 
-            var pinSvg =
-              '<svg xmlns="http://www.w3.org/2000/svg" width="38" height="50" viewBox="0 0 38 50">' +
-              '<path d="M19 0C8.5 0 0 8.4 0 18.8 0 32.9 19 50 19 50s19-17.1 19-31.2C38 8.4 29.5 0 19 0Z" fill="#3b4126"/>' +
-              '<circle cx="19" cy="18.5" r="7" fill="#efeed5"/></svg>';
-            var icon = L.divIcon({ className: "ch-map__marker", html: pinSvg,
-              iconSize: [38, 50], iconAnchor: [19, 50], popupAnchor: [0, -46], tooltipAnchor: [0, -52] });
+            /* Open filling the window rather than fitting the whole drawing
+               inside it. The drawing is landscape and a phone is not: fitting
+               it whole on a 390px screen left it 260px tall in a field of
+               cream, with every label too small to read. Filling the screen
+               and letting someone pan is how an illustrated map is normally
+               read on a phone, and it costs desktop almost nothing, where the
+               two zooms are nearly the same number.
 
-            L.marker([LOC.lat, LOC.lng], { icon: icon, alt: LOC.name })
-              .addTo(map)
-              .bindTooltip("Cedar Hollow Oxford", { permanent: true, direction: "top", className: "ch-map__label" })
-              .bindPopup("<strong>" + LOC.name + "</strong><br>The Oaks, Old Road, Oxford OX3 8GH<br>" +
-                'W3W: ///steep.wisdom.pines<br>' +
-                '<a href="' + LOC.directions + '" target="_blank" rel="noopener">Directions</a>');
+               Zooming out is floored at 'contain', so the whole plan is always
+               one gesture away -- but shrinking it smaller than that only adds
+               background, so that is where it stops. */
+            function fit(recentre) {
+              var z = zooms();
+              map.setMinZoom(-6);              /* free the floor before refitting */
+              map.setMaxZoom(Math.max(MAX_ZOOM, z.cover));
+              if (recentre || map.getZoom() === undefined) {
+                map.setView(bounds.getCenter(), z.cover, { animate: false });
+              }
+              map.setMinZoom(z.contain);
+            }
+            map.setView(bounds.getCenter(), zooms().cover, { animate: false });
+            fit(false);
 
-            /* z15 is the deepest the detail archive carries, so the opening view
-               is as close as the data is sharp. */
-            map.setView([LOC.lat, LOC.lng], 15);
+            /* Keep the drawing in the window: without this you can drag it
+               off-screen and be left looking at an empty cream field with no
+               obvious way back. */
+            map.setMaxBounds(bounds.pad(0.08));
 
-            /* Retire the fallback: the vector basemap is transparent, so left
-               visible it reads through the tiles. */
+            /* Retire the fallback picture once the real one is up, or it shows
+               through beneath the overlay while panning. */
             var fb = document.querySelector(".ch-fsmap__fallback");
             if (fb) fb.style.display = "none";
 
             var t;
             window.addEventListener("resize", function () {
               clearTimeout(t);
-              t = setTimeout(function () { map.invalidateSize(); }, 180);
+              t = setTimeout(function () { map.invalidateSize(); fit(true); }, 180);
             });
           }
 
@@ -184,17 +193,12 @@
             s.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
             s.integrity = "sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=";
             s.crossOrigin = "";
-            s.onload = function () {
-              var pm = document.createElement("script");
-              pm.src = "../js/protomaps-leaflet.js?v=20260901a";
-              pm.onload = init;
-              document.head.appendChild(pm);
-            };
+            s.onload = init;
+            /* If Leaflet cannot be fetched the fallback picture is already on
+               the page and simply stays. */
             document.head.appendChild(s);
           }
 
-          /* No IntersectionObserver here, unlike the home page's band: the map
-             is the entire page, so it is always in view and always wanted. */
           if (document.readyState === "loading") {
             document.addEventListener("DOMContentLoaded", boot);
           } else {
