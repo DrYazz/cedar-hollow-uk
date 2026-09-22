@@ -12,6 +12,34 @@
    every page head.
    --------------------------------------------------------------------------- */
 
+/* ---------------------------------------------------------------------------
+   Retuned against the Figma source, 22 Sep 2026.
+
+   These pages had drifted into a second typographic system: the same fonts,
+   but a smaller scale, a narrower measure and a looser leading than anything
+   in the design. The hero was never the problem -- .dp-head__title and
+   .dp-head__standfirst are byte-for-byte the .ret-* values that came out of
+   Figma with dorset-retreats.html. The body was.
+
+   What the design actually specifies, from the content section at 55:684 and
+   the retreats page it exports:
+
+     section padding    80px vertical, sides clamp to 4.44vw   (was a 6vw clamp
+                        topping at 5.5rem, so the rhythm moved with the window)
+     section heading    80px / 1.1 / -.035em                   (was max 52px / 0.9)
+     body copy          20px / 1.75 / 62ch                     (was 17px / 1.7 / 42rem)
+     lede               the hero's standfirst type             (was a bespoke clamp)
+     card title         the 2rem step, tracking -.035em        (was 1.5rem / -.02em)
+     corner radius      16px, the only radius in the design    (was 1.648rem, which
+                        appears nowhere in Figma or the design system)
+
+   The namespace is deliberate and stays. dorset-retreats.html -- the actual
+   Figma export -- carries its own .ret-* component classes and reaches for the
+   shared utilities only in the footer, so a bespoke namespace is the house
+   pattern. What makes a page look like the design is the values, not the class
+   names, which is why this is a retune rather than a rewrite.
+   --------------------------------------------------------------------------- */
+
 :root {
   --dp-cream: #f1e6d7;        /* page ground, from .ret-page */
   --dp-ink: #100b01;          /* near-black, from .section-footer */
@@ -97,21 +125,22 @@
 .dp-body { background-color: var(--dp-cream); color: var(--dp-muted); }
 
 .dp-section {
-  padding: clamp(3rem, 6vw, 5.5rem) clamp(1.25rem, 5vw, 4rem);
+  padding: 5rem clamp(1.25rem, 4.44vw, 4rem);
 }
 .dp-section + .dp-section { padding-top: 0; }
 .dp-section__inner { width: 100%; max-width: 60rem; margin: 0 auto; }
 .dp-section--wide .dp-section__inner { max-width: 80rem; }
 
+/* Centred: Figma 55:939 sets the section heading text-center, and
+   .ret-item__content in the retreats export centres its whole block. */
 .dp-h2 {
   margin: 0 0 1.5rem;
   font-family: var(--font-family--heading, Crimsonpro), serif;
   font-weight: 300;
-  font-size: clamp(2rem, 4vw, 3.25rem);
-  line-height: .9;
+  font-size: clamp(2.5rem, 4.44vw, 5rem);
+  line-height: 1.1;
   letter-spacing: -.035em;
-  color: var(--dp-accent);
-}
+  color: var(--dp-accent); text-align: center;}
 
 .dp-h3 {
   margin: 0 0 .75rem;
@@ -125,15 +154,14 @@
 
 .dp-lede {
   margin: 0 0 2rem;
-  max-width: 42rem;
-  font-size: clamp(1.125rem, 1.6vw, 1.375rem);
-  line-height: 1.55;
-  color: var(--dp-accent);
-}
+  max-width: 32.375rem;
+  font-size: clamp(1rem, 1.39vw, 1.25rem);
+  line-height: 1.6;
+  color: var(--dp-accent); margin-left: auto; margin-right: auto; text-align: center;}
 
 /* --- Prose --------------------------------------------------------------- */
 
-.dp-prose { max-width: 42rem; font-size: 1.0625rem; line-height: 1.7; }
+.dp-prose { max-width: 62ch; font-size: 1.25rem; line-height: 1.75; margin-left: auto; margin-right: auto;}
 .dp-prose p { margin: 0 0 1.15rem; }
 .dp-prose p:last-child { margin-bottom: 0; }
 .dp-prose strong { color: var(--dp-accent); font-weight: 600; }
@@ -169,7 +197,7 @@
 .dp-card__title {
   margin: 0 0 .5rem;
   font-family: var(--font-family--heading, Crimsonpro), serif;
-  font-weight: 400; font-size: 1.5rem; line-height: 1.15; letter-spacing: -.02em;
+  font-weight: 400; font-size: 2rem; line-height: 1.1; letter-spacing: -.035em;
   color: var(--dp-accent);
 }
 .dp-card__meta {
@@ -207,7 +235,7 @@
 .dp-steps > li {
   position: relative; counter-increment: dp-step;
   padding: 0 0 1.5rem 3.25rem;
-  font-size: 1.0625rem; line-height: 1.65;
+  font-size: 1.125rem; line-height: 1.6;
 }
 .dp-steps > li:before {
   content: counter(dp-step);
@@ -280,7 +308,7 @@
 }
 .dp-faq__item[open] > summary:after { transform: rotate(45deg); }
 .dp-faq__item > summary:focus-visible { outline: 2px solid var(--dp-accent); outline-offset: 3px; }
-.dp-faq__body { padding: 0 0 1.25rem; max-width: 42rem; font-size: 1.0625rem; line-height: 1.7; }
+.dp-faq__body { padding: 0 0 1.25rem; max-width: 62ch; font-size: 1.125rem; line-height: 1.6; margin-left: auto; margin-right: auto;}
 .dp-faq__body p { margin: 0 0 .9rem; }
 .dp-faq__body p:last-child { margin-bottom: 0; }
 .dp-faq__body ul { margin: 0 0 .9rem; padding-left: 1.25rem; }
@@ -291,7 +319,7 @@
 .dp-figure { margin: 0 0 2rem; }
 .dp-figure img {
   display: block; width: 100%; height: auto;
-  border-radius: 1.648rem; /* matches .ret-media */
+  border-radius: var(--radius--16, 1rem); /* matches .ret-media */
 }
 .dp-figure figcaption { padding-top: .75rem; font-size: .9375rem; color: #8a8874; }
 
@@ -302,7 +330,7 @@
 }
 .dp-gallery img {
   display: block; width: 100%; height: 100%; aspect-ratio: 3/2;
-  object-fit: cover; border-radius: 1.648rem;
+  object-fit: cover; border-radius: var(--radius--16, 1rem);
 }
 
 /* --- Definition rows, for at-a-glance facts ------------------------------ */
@@ -314,7 +342,7 @@
 }
 .dp-facts dd {
   margin: 0; padding: .8rem 0; border-top: 1px solid var(--dp-rule);
-  font-size: 1.0625rem; line-height: 1.5; color: var(--dp-accent);
+  font-size: 1.125rem; line-height: 1.6; color: var(--dp-accent);
 }
 
 /* --- Buttons ------------------------------------------------------------- */
@@ -341,14 +369,14 @@
   color: var(--dp-brand);
   text-align: center;
 }
-.dp-cta__inner { max-width: 38rem; margin: 0 auto; }
+.dp-cta__inner { max-width: 38rem; margin: 0 auto; text-align: center; margin-left: auto; margin-right: auto;}
 .dp-cta h2 {
   margin: 0 0 1rem;
   font-family: var(--font-family--heading, Crimsonpro), serif;
-  font-weight: 300; font-size: clamp(2rem, 4.5vw, 3.5rem);
-  line-height: .9; letter-spacing: -.035em;
+  font-weight: 300; font-size: clamp(2.25rem, 4vw, 4rem);
+  line-height: 1.1; letter-spacing: -.035em;
 }
-.dp-cta p { margin: 0 0 2rem; font-size: 1.0625rem; line-height: 1.6; opacity: .9; }
+.dp-cta p { margin: 0 0 2rem; font-size: 1.125rem; line-height: 1.6; opacity: .9; }
 .dp-cta .button.is-outline {
   background-color: #0000; border: 2px solid var(--dp-brand); color: var(--dp-brand);
   transition: background-color .2s ease, color .2s ease;
