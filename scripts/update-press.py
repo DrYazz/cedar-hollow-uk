@@ -36,7 +36,7 @@ PAGES = [
 
 BLOCK_RE = re.compile(r"(<!-- ch:press ([\w-]+) -->)(.*?)(<!-- /ch:press -->)", re.S)
 SCREEN_RE = re.compile(r"(<!-- ch:press-screen ([\w-]+) -->)(.*?)(<!-- /ch:press-screen -->)", re.S)
-FEED_RE = re.compile(r"(<!-- ch:press-feed -->)(.*?)(<!-- /ch:press-feed -->)", re.S)
+FEED_RE = re.compile(r"(<!-- ch:press-feed ?([\w-]*) -->)(.*?)(<!-- /ch:press-feed -->)", re.S)
 
 LOCATIONS = {"oxford": "Oxfordshire", "dorset": "Dorset"}
 
@@ -194,21 +194,27 @@ def month_year(iso):
     return "%s %s" % (months[int(m) - 1], y)
 
 
-def feed_entries(sections):
-    """Everything both woodlands have, newest first, articles and film together."""
+def feed_entries(sections, scope=None):
+    """Everything, newest first, articles and film together.
+
+    `scope` limits it to one woodland, which is what the location pages want:
+    there the woodland is a given and only the kind of coverage is worth
+    filtering on.
+    """
     rows = []
     for key, sec in sections.items():
+        if scope and key != scope:
+            continue
         for item in sec.get("items", []):
             rows.append((item["date"], key, "article", item))
         for v in sec.get("screen", []):
             rows.append((v["date"], key, "video", v))
-    # secondary sort on publication keeps same-day entries in a stable order
     rows.sort(key=lambda r: (r[0], r[3].get("publication") or r[3].get("source")), reverse=True)
     return rows
 
 
 def feed_card(kind, item, location):
-    """One entry in the combined feed, tagged so the filter can hide it."""
+    """One entry in the feed, tagged so the filters can hide it."""
     stamp = ' data-location="%s" data-kind="%s"' % (location, kind)
     date = item.get("date", "")
     label = "Added" if item.get("dateKind") == "uploaded" else ""
@@ -216,11 +222,7 @@ def feed_card(kind, item, location):
             % (label + " " if label else "", month_year(date))) if date else ""
 
     lines = ['<li class="ch-feed__item"%s>' % stamp]
-    if kind == "article":
-        lines.extend("  " + l for l in card(item))
-    else:
-        lines.extend("  " + l for l in video_card(item))
-    # the date rides under whichever card was drawn, so both read the same
+    lines.extend("  " + l for l in (card(item) if kind == "article" else video_card(item)))
     if when:
         lines.append('  <p class="ch-feed__meta">%s <span class="ch-feed__where">%s</span></p>'
                      % (when, LOCATIONS.get(location, location)))
@@ -228,27 +230,46 @@ def feed_card(kind, item, location):
     return lines
 
 
-def render_feed(sections, indent):
-    rows = feed_entries(sections)
+def filter_group(name, label, options, counts):
+    lines = ['<div class="ch-feed__filter" role="group" aria-label="%s">' % label]
+    for value, text in options:
+        pressed = "true" if value == options[0][0] else "false"
+        lines.append('  <button class="ch-feed__btn" type="button" data-group="%s" '
+                     'data-filter="%s" aria-pressed="%s">%s '
+                     '<span class="ch-feed__count">%d</span></button>'
+                     % (name, value, pressed, text, counts.get(value, 0)))
+    lines.append("</div>")
+    return lines
+
+
+def render_feed(sections, indent, scope=None):
+    rows = feed_entries(sections, scope)
     if not rows:
         return None
-    counts = {"all": len(rows)}
-    for _, key, _, _ in rows:
-        counts[key] = counts.get(key, 0) + 1
 
-    lines = ['<div class="ch-feed">']
-    lines.append('  <div class="ch-feed__filter" role="group" aria-label="Filter press coverage by woodland">')
-    for value, text in (("all", "All"), ("oxford", "Oxfordshire"), ("dorset", "Dorset")):
-        pressed = "true" if value == "all" else "false"
-        lines.append('    <button class="ch-feed__btn" type="button" data-filter="%s" aria-pressed="%s">'
-                     "%s <span class=\"ch-feed__count\">%d</span></button>"
-                     % (value, pressed, text, counts.get(value, 0)))
+    where = {"all": len(rows)}
+    kinds = {"any": len(rows)}
+    for _, key, kind, _ in rows:
+        where[key] = where.get(key, 0) + 1
+        kinds[kind] = kinds.get(kind, 0) + 1
+
+    lines = ['<div class="ch-feed">', '  <div class="ch-feed__filters">']
+    # Only the combined page needs the woodland row; on a location page that
+    # question is already answered by which page you are on.
+    if not scope:
+        lines.extend("    " + l for l in filter_group(
+            "location", "Filter by woodland",
+            [("all", "All"), ("oxford", "Oxfordshire"), ("dorset", "Dorset")], where))
+    lines.extend("    " + l for l in filter_group(
+        "kind", "Filter by kind of coverage",
+        [("any", "Everything"), ("article", "In words"), ("video", "On screen")], kinds))
     lines.append("  </div>")
-    lines.append('  <p class="ch-feed__status" role="status" aria-live="polite">Showing all %d</p>' % counts["all"])
+    lines.append('  <p class="ch-feed__status" role="status" aria-live="polite">Showing all %d</p>' % len(rows))
     lines.append('  <ul class="ch-feed__grid">')
     for _, key, kind, item in rows:
         lines.extend("    " + l for l in feed_card(kind, item, key))
     lines.append("  </ul>")
+    lines.append('  <p class="ch-feed__empty" hidden>Nothing matches both filters.</p>')
     lines.append("</div>")
     body = ("\n" + indent).join(lines)
     return "\n%s%s\n%s" % (indent, body, indent)
@@ -289,11 +310,14 @@ def main():
             return match.group(1) + body + match.group(4)
 
         def replace_feed(match):
-            body = render_feed(sections, marker_indent(match))
+            scope = match.group(2) or None
+            if scope and scope not in sections:
+                sys.exit("%s: unknown feed scope '%s'" % (page.name, scope))
+            body = render_feed(sections, marker_indent(match), scope)
             if body is None:
                 return match.group(0)
-            seen.append(("combined", len(feed_entries(sections)), "feed"))
-            return match.group(1) + body + match.group(3)
+            seen.append((scope or "combined", len(feed_entries(sections, scope)), "feed"))
+            return match.group(1) + body + match.group(4)
 
         updated = BLOCK_RE.sub(replace, text)
         updated = SCREEN_RE.sub(replace_screen, updated)

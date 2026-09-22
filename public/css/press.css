@@ -247,8 +247,7 @@
 
 /* The still, the frame that replaces it and the button all share one box, so
    nothing shifts when the player loads. */
-.ch-vid__play,
-.ch-vid__frame {
+.ch-vid__play {
   display: block;
   width: 100%;
   aspect-ratio: 16 / 9;
@@ -514,4 +513,126 @@
   .ch-feed__btn {
     transition: none;
   }
+}
+
+
+/* ===========================================================================
+   The video lightbox.
+
+   Playing in place was unwatchable: the stills sit in a grid column about
+   240px wide, so the player came out around 240x135. This gives it the window
+   instead, capped so it never outgrows a 16:9 frame on a tall screen.
+   =========================================================================== */
+
+.ch-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 1300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(1rem, 4vw, 3rem);
+  background-color: rgba(16, 19, 7, .88);
+  opacity: 0;
+  transition: opacity .25s ease;
+}
+
+.ch-lightbox.is-open {
+  opacity: 1;
+}
+
+.ch-lightbox[hidden] {
+  display: none;
+}
+
+.ch-lightbox__inner {
+  display: flex;
+  flex-direction: column;
+  gap: .875rem;
+  width: 100%;
+  /* whichever runs out first: the window's width, or the height once the
+     caption has taken its share */
+  max-width: min(72rem, calc((100dvh - 9rem) * 16 / 9));
+}
+
+.ch-lightbox__stage {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: var(--radius--16, 1rem);
+  background-color: #000;
+  box-shadow: 0 1.5rem 3.5rem rgba(0, 0, 0, .5);
+}
+
+.ch-lightbox__frame {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.ch-lightbox__caption {
+  margin: 0;
+  color: #f1ecdb;
+  font-size: .9375rem;
+  line-height: 1.4;
+  text-align: center;
+  opacity: .85;
+}
+
+.ch-lightbox__close {
+  position: absolute;
+  top: clamp(.75rem, 2.5vw, 1.5rem);
+  right: clamp(.75rem, 2.5vw, 1.5rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: .625rem;
+  border: 0;
+  border-radius: 100%;
+  background-color: rgba(241, 236, 219, .12);
+  color: #f1ecdb;
+  cursor: pointer;
+  transition: background-color .2s ease;
+}
+
+.ch-lightbox__close:hover {
+  background-color: rgba(241, 236, 219, .24);
+}
+
+.ch-lightbox__close:focus-visible {
+  outline: 2px solid #f1ecdb;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ch-lightbox,
+  .ch-lightbox__close {
+    transition: none;
+  }
+}
+
+/* Two filter rows on the combined page, one on a location page. */
+.ch-feed__filters {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  margin-bottom: .875rem;
+}
+
+.ch-feed__filters .ch-feed__filter {
+  margin-bottom: 0;
+}
+
+.ch-feed__empty {
+  margin: 2rem 0 0;
+  font-size: .9375rem;
+  text-align: center;
+  opacity: .75;
+}
+
+.ch-feed__empty[hidden] {
+  display: none;
 }
