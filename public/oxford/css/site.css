@@ -480,31 +480,109 @@ a.ch-frame:hover img{transform:scale(1.035)}
 .ch-share a{font-size:1.125rem;text-decoration:underline;text-underline-offset:.2em}
 @media (max-width:767px){.ch-product{grid-template-columns:1fr}}
 
-/* ---- Footer ---- */
-.section-footer{background-color:var(--brand-tertiary);color:var(--color-text);position:relative;overflow:hidden}
-.footer_inner{position:relative;z-index:1}
-.footer_contents{display:grid;grid-template-columns:minmax(14rem,1.2fr) repeat(3,minmax(9rem,1fr));gap:2.5rem 3rem;align-items:start}
-.footer_heading{font-family:var(--font-family--heading);font-size:1.35rem;font-weight:500;letter-spacing:-.02em;color:var(--accent);margin-bottom:.75rem}
-.footer-link-list{display:flex;flex-direction:column;gap:.55rem;list-style:none;margin:0;padding:0}
-.footer_link{color:var(--color-text);font-weight:400;line-height:1.5;text-decoration:none;display:inline-block;position:relative}
-.footer_link:hover{text-decoration:underline;text-underline-offset:.2em}
-.footer_link.is-large{font-size:1.05rem;font-weight:500}
-.social-list{display:flex;gap:.5rem;align-items:center;list-style:none;margin:1rem 0 0;padding:0;flex-wrap:wrap}
-.social-link-item{width:2.25rem;height:2.25rem;color:var(--color-text);border-radius:50%;display:flex;align-items:center;justify-content:center;padding:.25rem}
-.social-link-item:hover{background:var(--brand)}
-.social-link_icon{width:1.25rem}
-.footer_legal{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:1rem;padding-top:1.5rem;border-top:1px solid var(--border--accent-20);margin-top:2.5rem}
-.legal-text{font-weight:400;line-height:1.6;font-size:.9rem}
-.footer-link-list.is-legal{flex-direction:row;flex-wrap:wrap;gap:1.25rem}
-.footer_disclaimer{font-size:.85rem;font-weight:400;line-height:1.6;max-width:70ch;margin:1.25rem 0 0}
-.footer_regs{display:flex;flex-wrap:wrap;gap:.35rem 1.5rem;font-size:.8rem;font-weight:400;margin-top:.75rem;opacity:.85}
-.footer_regs a{text-decoration:underline;text-underline-offset:.15em}
-.footer_awards{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:1.25rem 2.25rem;padding:0 0 2.5rem;list-style:none;margin:0}
-.footer_awards img{height:4.75rem;width:auto;max-width:8rem;object-fit:contain}
-.footer_logo_wrap{color:var(--brand-4);position:absolute;bottom:-9%;left:50%;transform:translate(-50%);pointer-events:none;opacity:.8}
-.footer_logo_svg{width:14.75rem;height:auto}
-@media (max-width:991px){.footer_contents{grid-template-columns:1fr 1fr}}
-@media (max-width:600px){.footer_contents{grid-template-columns:1fr}.footer_logo_wrap{display:none}}
+/* ---- Footer ----
+   Ported from the Oxford homepage, which is Webflow-styled. These are that
+   footer's own rules, at its own breakpoints, so the sub-site renders the
+   same footer rather than an approximation of it. The block that used to be
+   here styled the old four-column markup and went with it. */
+/* Webflow's layout helpers that this markup uses and site.css lacked. These
+   come first because .w-inline-block and .social-link-item both set display at
+   the same specificity, so source order decides: webflow.css loads before the
+   site stylesheet, which is what makes the social anchors flex rather than
+   inline-block. Put last, they made each social row 6.5px taller. */
+.padding-bottom{padding-top:0;padding-left:0;padding-right:0}
+.w-inline-block{max-width:100%;display:inline-block}
+/* site.css sizes .padding-section-small responsively (40px at 768, 51px at
+   1024); Webflow uses a flat 4rem, which is why the ported footer came out
+   72px shorter than the homepage's at mid widths. Scoped to the footer so the
+   rest of the sub-site keeps its own scale. The phone override below, being
+   later at the same 0-2-0, still wins. */
+.section-footer .padding-section-small{padding-top:4rem;padding-bottom:4rem}
+.section-footer .padding-bottom.padding-section-small{padding-top:0}
+.section-footer{background-color:var(--brand-tertiary);color:var(--accent);position:relative;overflow:hidden}
+.section-footer .footer_link,
+.section-footer .social-link-item{color:var(--accent)}
+.footer_contents{justify-content:space-between;align-items:flex-start;display:flex}
+.footer_link{color:var(--color-text);font-weight:400;line-height:1.6;text-decoration:underline;display:inline-block;position:relative}
+.footer_link.is-large{font-size:1.125rem;font-weight:500;text-decoration:none}
+.footer-link-list{column-gap:.75rem;row-gap:.75rem;flex-flow:column;justify-content:center;align-items:flex-start;margin-bottom:0;padding-left:0;list-style-type:none;display:flex}
+.footer-link-list.is-legal{column-gap:1.5rem;row-gap:1.5rem;flex-flow:row}
+.footer-link-list.is-contact{column-gap:0;row-gap:0}
+.legal-text{font-weight:400;line-height:1.6}
+.footer_legal{justify-content:space-between;align-items:center;display:flex}
+.footer_content-right{column-gap:4rem;row-gap:4rem;width:35%;display:flex}
+.footer_content-right:not(.is-bottom){width:100%;max-width:25rem;column-gap:2rem}
+.footer_link-col{flex:1 1 0;min-width:0}
+.footer_link-col .footer-link-list{row-gap:0}
+.footer_link-col .footer-link-list li{padding-top:.5rem;padding-bottom:.5rem}
+.social-list{column-gap:.75rem;row-gap:.75rem;justify-content:flex-start;align-items:center;margin-bottom:0;padding-left:0;list-style-type:none;display:flex}
+.social-link-item{width:2.25rem;height:2.25rem;color:var(--color-text);background-color:#0000;border-radius:100%;justify-content:center;align-items:center;padding:.25rem;display:flex}
+.social-link-item:hover{background-color:var(--brand)}
+.social-link_icon,.social-link_icon.is-large{width:1.5rem;max-width:1.5rem}
+/* Webflow zeroes the other three sides through a long compound selector
+   (.margin-bottom.margin-large, .margin-bottom.margin-xxsmall and so on);
+   site.css has no such companion rule, so .margin-large{margin:2.625rem} kept
+   its left margin and indented the contact block by 42px. Scoped to the
+   footer, and at 0-2-0 it beats the single-class shorthand. */
+.section-footer .margin-bottom{margin-top:0;margin-left:0;margin-right:0}
+.section-footer .footer_contents .margin-bottom.margin-xxsmall{margin-bottom:.25rem}
+.section-footer .footer_contents .margin-bottom.margin-large{margin-bottom:2rem}
+.footer_logo_wrap{color:var(--brand-4);position:absolute;bottom:-136px;left:50%;transform:translate(-50%);pointer-events:none}
+.footer_logo_svg{max-width:14.75rem;height:auto}
+/* The homepage draws the hover underline itself, from its inline <style> */
+@media screen and (min-width:992px){
+  .footer_link::after,.footer_link.is-large::after{content:"";width:0;height:1px;
+    background:var(--accent);position:absolute;right:0;bottom:-1px;transition:all .4s ease-in-out}
+  .footer_link.is-large:hover::after{left:0;width:100%}
+}
+@media screen and (max-width:991px){
+  .footer_link.is-large{font-size:1rem;text-decoration:underline}
+  .footer-link-list.is-legal{column-gap:1rem;row-gap:1rem}
+  .footer_legal{flex-flow:wrap}
+  .footer_content-right{column-gap:2rem;row-gap:2rem}
+  .footer_content-right.is-bottom{justify-content:flex-end;align-items:center}
+  .footer_logo_svg{max-width:8rem}
+}
+@media screen and (max-width:767px){
+  .footer_legal{column-gap:1.5rem;row-gap:1.5rem;justify-content:center}
+  .footer_content-right{flex-flow:wrap}
+  .footer_content-right.is-bottom{order:-9999;justify-content:center;align-items:center;width:100%}
+  .footer_logo_wrap{justify-content:center;align-items:center;display:flex;position:relative}
+}
+@media screen and (max-width:479px){
+  .footer_contents{column-gap:2rem;row-gap:2rem;flex-flow:column}
+  .footer-link-list.is-legal{flex-flow:column;justify-content:center;align-items:flex-start}
+  .footer_legal{justify-content:flex-start;align-items:center}
+  .footer_content-right{column-gap:.75rem;row-gap:.75rem;flex-flow:column;width:100%}
+  .footer_content-right.is-bottom{justify-content:center;align-items:flex-start}
+  .social-list{column-gap:.25rem;row-gap:.25rem}
+  .legal-text{font-size:.9375rem}
+  .footer_logo_wrap{position:relative}
+}
+/* Webflow's own custom block, which sits AFTER the 479 rules in its stylesheet
+   and so wins on a phone even though both queries match. Keeping that order is
+   what makes the legal links wrap in a row rather than stack, and turns the owl
+   into the rotated corner mark instead of a 297px watermark in the flow. */
+@media screen and (max-width:767px){
+  .section-footer .padding-global{padding-left:1.5rem;padding-right:1.5rem}
+  .section-footer .padding-section-small{padding-top:1.5rem;padding-bottom:1.5rem}
+  /* Webflow's .padding-bottom.padding-section-small{padding-top:0} is 0-2-0 and
+     sits earlier in its sheet, so this phone rule outranks it and the top
+     padding comes back at 24px. Ours is scoped at 0-3-0 and would have kept
+     winning, leaving the footer 24px shorter than the homepage's. */
+  .section-footer .padding-bottom.padding-section-small{padding-top:1.5rem}
+  .footer_link.is-large{font-size:1.125rem;text-decoration:none}
+  .footer_contents{row-gap:2rem;flex-flow:column}
+  .footer_content-right:not(.is-bottom){flex-flow:row;width:100%}
+  .section-footer .social-list{column-gap:.75rem}
+  .footer_legal{row-gap:.5rem;flex-flow:column;justify-content:center;align-items:center}
+  .footer_content-right.is-bottom{order:0;justify-content:center;width:100%}
+  .footer-link-list.is-legal{column-gap:.5rem;flex-flow:row;flex-wrap:wrap;justify-content:center}
+  .footer-link-list.is-legal .footer_link{font-size:.9375rem}
+  .footer_logo_wrap{position:absolute;inset:5% 0 auto auto;display:block;
+    transform:translateX(38%) rotate(-60deg)}
+  .footer_logo_svg{max-width:8.5rem}
+}
 
 /* ---- Book overlay (nav "Book a stay") ---- */
 .ch-book__overlay[hidden]{display:none}
