@@ -49,11 +49,11 @@
       "intro": "The Narnia-inspired treehouse, the cave hideaway and the woodland around them.",
       "items": [
         {
-          "publication": "The Times",
+          "publication": "The Sunday Times",
           "headline": "My visit to the Oxfordshire woodland that inspired Narnia",
           "url": "https://www.thetimes.com/travel/inspiration/family-travel/my-visit-to-the-oxfordshire-woodland-that-inspired-narnia-7fwtlsffc",
           "quote": "I find myself in a 12-acre wood - and inside the world that Lewis created.",
-          "logo": "images/logo-the-times.svg",
+          "logo": "images/logo-the-sunday-times.png",
           "shot": {
             "src": "images/press-shots/times-narnia-412.webp?v=20260923",
             "srcset": "images/press-shots/times-narnia-206.webp?v=20260923 206w, images/press-shots/times-narnia-412.webp?v=20260923 412w"
