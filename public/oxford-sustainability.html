@@ -105,7 +105,12 @@
    dropdown is styled, and the flat single-column rules above would otherwise
    run the five groups together on one line. Written out here rather than
    scraped from that stylesheet, so it is self-contained and readable. */
-.ch-nav__menu.is-dropdown{
+/* :not([hidden]) matters. The page's own stylesheet hides the menu with
+   .ch-nav__menu[hidden]{display:none}, which has the same specificity as
+   .ch-nav__menu.is-dropdown -- so a bare display here wins on order alone and
+   the panel never closes, however correctly the toggle sets hidden. The
+   sub-site stylesheet guards it the same way. */
+.ch-nav__menu.is-dropdown:not([hidden]){
   position:absolute;top:100%;right:32px;z-index:20;
   display:grid;grid-template-columns:repeat(2,minmax(9rem,12rem));
   gap:1.35rem 2.25rem;align-items:start;
