@@ -25,6 +25,13 @@
 @media screen and (min-width:992px){
   .footer_regs{max-width:calc(50% - 8rem);column-gap:1rem}
 }
+/* Five links now, not three. The row sizes to its content instead of the 35%
+   that fitted the legal trio, and each label stays whole rather than breaking
+   into "Privacy / Policy". */
+.section-footer .footer_legal .footer_content-right.is-bottom{width:auto;max-width:none}
+.section-footer .footer-link-list.is-legal{flex-wrap:wrap;justify-content:flex-end}
+.section-footer .footer-link-list.is-legal .footer_link{white-space:nowrap}
+
 @media screen and (max-width:767px){
   .footer_disclaimer{margin-top:1rem}
   .footer_regs{gap:.35rem 1.25rem;margin-bottom:1.5rem}

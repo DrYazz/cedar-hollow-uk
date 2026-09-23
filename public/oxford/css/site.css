@@ -611,6 +611,13 @@ a.ch-frame:hover img{transform:scale(1.035)}
   .footer_regs{gap:.35rem 1.25rem;margin-bottom:1.5rem}
 }
 
+/* Five links now, not three. The row sizes to its content instead of the 35%
+   that fitted the legal trio, and each label stays whole rather than breaking
+   into "Privacy / Policy". */
+.section-footer .footer_legal .footer_content-right.is-bottom{width:auto;max-width:none}
+.section-footer .footer-link-list.is-legal{flex-wrap:wrap;justify-content:flex-end}
+.section-footer .footer-link-list.is-legal .footer_link{white-space:nowrap}
+
 /* ---- "Book your Stay", in the nav panel ----
    Copied from cedar-hollow-uk.webflow.css, which the Oxford pages at the site
    root load and these do not. Same #ch-nav-menu scope as the original. */
