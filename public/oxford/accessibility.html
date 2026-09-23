@@ -98,11 +98,27 @@
     letter-spacing:.12em;text-transform:uppercase;color:var(--accent);}
   .ch-acc-group__title svg{opacity:.7;}
 
+  /* The shared .button-group has no top margin of its own -- each context
+     supplies one (.ch-feature__body 1.25rem, .ch-page-hero 1.75rem, the CTA
+     on story.html 2rem). This band supplied none, so the buttons sat flush
+     against the paragraph above: measured, the lead's bottom edge and the
+     group's top edge were the same pixel. */
+  .ch-section--accent .button-group{margin-top:2rem;}
+  /* Every heading on this page sits directly on its lead paragraph -- the
+     measured gap between the two boxes was zero, with only the line-height
+     keeping them apart. */
+  main .ch-section-lead{margin-top:1rem;}
+
   @media screen and (max-width:991px){
     .ch-acc-cards{grid-template-columns:1fr;max-width:34rem;margin-left:auto;margin-right:auto;}
     .ch-acc-groups{grid-template-columns:1fr;}
   }
   @media screen and (max-width:600px){
+    /* 112px + 16px gap + 217px came to 345 in a 351px box: one line, with six
+       pixels to spare, which is not a layout so much as a coincidence. Stacked
+       and full width they read as two targets instead of one squeezed row. */
+    .ch-section--accent .button-group{flex-direction:column;align-items:stretch;gap:.75rem;}
+    .ch-section--accent .button-group .button{justify-content:center;}
     /* The two-column row collapses: on a narrow screen a 9rem label column
        leaves the value four or five words wide and every row wraps to four
        lines. Stacked, the label reads as a small heading over its fact. */
