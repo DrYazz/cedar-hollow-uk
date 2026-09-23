@@ -242,7 +242,7 @@ a.awards-logo_svg>svg,a.awards-logo_svg>img{display:block;width:100%;height:auto
 .ch-section--accent .ch-cards ul li::before{background:var(--brand)}
 
 /* ---- Eateries / where to eat ---- */
-.ch-eateries{display:grid;grid-template-columns:repeat(2,1fr);gap:2.25rem 1.5rem;margin:0;padding:0;list-style:none;justify-items:center;text-align:center}
+.ch-eateries{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2.25rem 1.5rem;margin:0;padding:0;list-style:none;justify-items:center;text-align:center}
 .ch-eateries li{max-width:14rem;width:100%}
 .ch-eateries .ch-frame{display:block;aspect-ratio:3/2;width:100%;border-radius:var(--radius--16)}
 .ch-eateries h3{font-family:var(--font-family--heading);font-size:1.15rem;font-weight:500;letter-spacing:-.02em;line-height:1.25;margin:.85rem 0 .1rem}
@@ -251,7 +251,7 @@ a.awards-logo_svg>svg,a.awards-logo_svg>img{display:block;width:100%;height:auto
 .ch-eateries p{margin:0;font-size:1rem;line-height:1.55;color:var(--color-text);font-weight:400}
 .ch-eateries p+p{margin-top:.25rem}
 .ch-eateries__note{font-size:1rem;font-weight:600;letter-spacing:.01em;color:var(--accent)}
-@media (min-width:48rem){.ch-eateries{grid-template-columns:repeat(4,1fr)}}
+@media (min-width:48rem){.ch-eateries{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media (max-width:30rem){.ch-eateries{gap:1.75rem 1rem}.ch-eateries li{max-width:11rem}}
 
 /* ---- Photo rows / frames ---- */
@@ -718,3 +718,34 @@ a.ch-cutting:hover .ch-cutting__caption{text-decoration:underline;text-underline
    menu is open, so release the clip for exactly that long. The background is
    inset:0 inside the hero and cannot itself overflow. */
 body.ch-nav-open .ch-page-hero{overflow:visible}
+
+/* A restaurant's phone number is the point of its card, and on a phone it was a
+   20px line of text -- too small a target to hit with a thumb. Give it the same
+   chip the accessibility page uses, at the 44px target, with the handset glyph
+   so it still reads as a phone number once "Tel:" is gone from the markup. */
+.ch-eateries a[href^="tel:"]{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;min-height:2.75rem;margin-top:.35rem;padding:.4rem .95rem;border:1px solid var(--border--accent-20);border-radius:50em;background:var(--brand-secondary);color:var(--accent);font-weight:500;text-decoration:none;white-space:nowrap;transition:background-color .2s ease}
+.ch-eateries a[href^="tel:"]::before{content:"";width:.85rem;height:.85rem;flex:none;background-color:currentColor;-webkit-mask:var(--ch-tel) center/contain no-repeat;mask:var(--ch-tel) center/contain no-repeat}
+.ch-eateries a[href^="tel:"]:hover{background:var(--brand-tertiary)}
+.ch-eateries a[href^="tel:"]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* The name repeats the picture's own link above it, so it has a large sibling
+   target already; on a touch screen it gets a full 44px of its own as well,
+   without spacing the cards apart under a mouse. */
+.ch-eateries h3 a{display:inline-block;padding:.25rem 0}
+@media (max-width:47.9375rem),(pointer:coarse){
+  .ch-eateries h3 a{display:inline-flex;align-items:center;min-height:2.75rem;padding:.2rem 0}
+}
+/* The handset glyph above. Defined here so the chip works on any page that uses
+   it; accessibility.html carries its own copy of this token for its own rows. */
+:root{--ch-tel:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 3h3l2 5-2.5 1.5a12 12 0 0 0 6 6L15 13l5 2v3a2 2 0 0 1-2.2 2A16.5 16.5 0 0 1 3 5.2 2 2 0 0 1 5 3Z'/%3E%3C/svg%3E")}
+/* These standalone links -- the 3D tours, the delivery apps -- were a 24px line
+   of text, which is a poor target for a thumb. On a touch screen grow the hit
+   box to 44px without changing how the link looks; the row gap already keeps
+   wrapped links from colliding. */
+@media (max-width:47.9375rem),(pointer:coarse){
+  .ch-links a{display:inline-flex;align-items:center;min-height:2.75rem}
+}
+/* On the narrowest screens the chip is the widest thing in a card, so ease its
+   padding rather than let it set the width of the whole two-column grid. */
+@media (max-width:22.5rem){
+  .ch-eateries a[href^="tel:"]{padding:.4rem .6rem;max-width:100%}
+}
