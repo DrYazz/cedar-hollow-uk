@@ -97,19 +97,61 @@
               .ch-nav__menu a{font-size:1.75rem;padding:.6rem 0;text-shadow:none;}
               body.ch-nav-open{overflow:hidden;}
             }
-          </style>
+          </style><style>
+/* The Oxford navigation dropdown.
+
+   These three pages sit at the site root but belong to the Oxford sub-site, so
+   they carry Oxford's nav. They do not load oxford/css/site.css, where the
+   dropdown is styled, and the flat single-column rules above would otherwise
+   run the five groups together on one line. Written out here rather than
+   scraped from that stylesheet, so it is self-contained and readable. */
+.ch-nav__menu.is-dropdown{
+  position:absolute;top:100%;right:32px;z-index:20;
+  display:grid;grid-template-columns:repeat(2,minmax(9rem,12rem));
+  gap:1.35rem 2.25rem;align-items:start;
+  min-width:0;max-width:calc(100vw - 48px);
+  padding:1.25rem 1.5rem 1.5rem;
+  text-align:left;
+  background:rgba(43,48,31,.97);
+  border:1px solid rgba(241,236,219,.16);
+  border-radius:14px;
+  box-shadow:0 18px 40px rgba(0,0,0,.28);
+}
+.ch-nav__menu.is-dropdown .ch-navgroup{display:flex;flex-direction:column;min-width:0;}
+.ch-nav__menu.is-dropdown .ch-navgroup__title{
+  margin:0 0 .45rem;padding-bottom:.35rem;
+  border-bottom:1px solid rgba(241,236,219,.2);
+  font-family:var(--font-family--body,inherit);
+  font-size:.6875rem;font-weight:500;letter-spacing:.09em;
+  text-transform:uppercase;color:rgba(241,236,219,.62);
+}
+.ch-nav__menu.is-dropdown a{
+  display:block;padding:.3rem 0;
+  font-size:.9375rem;font-weight:400;line-height:1.35;
+  color:#f1ecdb;text-decoration:none;text-align:left;white-space:normal;
+}
+.ch-nav__menu.is-dropdown a:hover,
+.ch-nav__menu.is-dropdown a:focus-visible{color:#fff;text-decoration:underline;text-underline-offset:.18em;}
+.ch-nav__menu.is-dropdown a:focus-visible{outline:2px solid #f1ecdb;outline-offset:3px;border-radius:2px;}
+.ch-nav__menu.is-dropdown a[aria-current="page"]{color:#fff;font-weight:500;}
+.ch-nav__menu.is-dropdown a[aria-current="page"]::before{
+  content:"";display:inline-block;width:.3rem;height:.3rem;margin-right:.45rem;
+  vertical-align:.15em;border-radius:50%;background:currentColor;
+}
+/* On a phone the panel takes the width it needs and stacks into one column. */
+@media screen and (max-width:47.9375rem){
+  .ch-nav__menu.is-dropdown{
+    left:16px;right:16px;grid-template-columns:1fr;gap:1.1rem;
+    max-width:none;max-height:calc(100vh - 6rem);overflow-y:auto;
+  }
+  .ch-nav__menu.is-dropdown a{padding:.45rem 0;font-size:1.0625rem;}
+}
+</style>
           <nav class="ch-nav__bar" aria-label="Primary">
             <a href="oxford.html" class="ch-nav__logo"><img src="images/cedar-hollow-owl.svg" loading="eager" alt="Cedar Hollow Oxford" class="ch-nav__owl"><span class="ch-nav__wordmark">Oxford</span></a>
             <button class="ch-nav__toggle" type="button" aria-expanded="false" aria-controls="ch-nav-menu"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span><span class="ch-nav__sr">Menu</span></button>
           </nav>
-          <div class="ch-nav__menu" id="ch-nav-menu" hidden>
-            <a href="search-results.html" class="ch-nav__book-cta">Book your Stay</a>
-            <a href="about.html">Our Story</a>
-            <a href="team.html">The Artists</a>
-            <a href="sustainability.html" aria-current="page">Sustainability</a>
-            <a href="experiences.html">Experiences</a>
-            <a href="mailto:hello@cedarhollow.uk">Contact</a>
-          </div>
+          <div class="ch-nav__menu is-dropdown" id="ch-nav-menu" hidden><div class="ch-navgroup"><p class="ch-navgroup__title">Stay</p><a href="search-results.html?destination=Oxford">Rentals</a><a href="oxford/facilities.html">Facilities</a><a href="oxford/map.html">Map</a><a href="oxford/accessibility.html">Accessibility</a></div><div class="ch-navgroup"><p class="ch-navgroup__title">Experiences</p><a href="oxford/experiences.html">Experiences</a><a href="oxford/wellness.html">Wellness</a><a href="oxford/dining.html">Dining</a><a href="oxford/celebrations.html">Celebrations</a><a href="oxford/todo.html">Things to Do</a><a href="oxford/illusions.html">Illusion Trail</a><a href="oxford/beemuseum.html">Bee Museum</a></div><div class="ch-navgroup"><p class="ch-navgroup__title">About</p><a href="oxford/story.html">Our Story</a><a href="oxford-sustainability.html" aria-current="page">Sustainability</a><a href="oxford/philanthropy.html">Philanthropy</a><a href="oxford-reviews.html">Reviews</a><a href="oxford-press.html">Press</a></div><div class="ch-navgroup"><p class="ch-navgroup__title">Work with us</p><a href="oxford/working.html">Working With Us</a><a href="oxford/influencers.html">Content Creators</a><a href="oxford/schoolgroups.html">School Groups</a></div><div class="ch-navgroup"><p class="ch-navgroup__title">Information</p><a href="oxford/faq.html">FAQ</a><a href="oxford/privacy.html">Privacy Policy</a><a href="oxford/terms.html">Terms &amp; Conditions</a></div></div>
           <script>
             (function(){
               var btn=document.querySelector(".ch-nav__toggle"),menu=document.getElementById("ch-nav-menu");
@@ -160,7 +202,7 @@
       </div>
     </section>
 
-    <section class="ch-section--accent">
+    <div class="section-full-bleed-img"><div class="full-bleed-img-wrap"><img src="images/gallery/sus-oak-portrait-1060.webp" srcset="images/gallery/sus-oak-portrait-530.webp 530w, images/gallery/sus-oak-portrait-1060.webp 1060w" sizes="100vw" loading="lazy" decoding="async" alt="A cabin raised among mature trees in the Oxfordshire woodland" class="full-bleed-img"></div></div><section class="ch-section--accent">
       <div class="padding-section-medium">
         <div class="padding-global">
           <div class="container-large">
@@ -171,7 +213,7 @@
                     <h2 class="heading-style-h1">How we care <span class="text-style-italic">for the land</span></h2>
                   </div>
                 </div>
-                <ul class="ch-cards"><li><h3 class="heading-style-h4">Woodland stewardship</h3><p>Native trees planted each year. Log piles, deadwood and wildflower zones left as microhabitat. External lighting on timers and kept low, so bats and owls still have their dark.</p></li><li><h3 class="heading-style-h4">Bees and the orchard</h3><p>Six active hives, and membership of the British Beekeepers Association. The mixed orchard of fruit and nut trees feeds the bees and the birds; guests go home with a jar of the honey.</p></li><li><h3 class="heading-style-h4">Reclaimed and reused</h3><p>Salvaged stone, antique furniture and reclaimed wood throughout, including beams rescued from the church where C. S. Lewis is buried. Reuse is the default, not the flourish.</p></li><li><h3 class="heading-style-h4">Energy and light</h3><p>Air source heat pumps, which draw around three times less energy than a conventional system, with low-energy lighting, efficient log burners and insulation to match.</p></li><li><h3 class="heading-style-h4">Water and waste</h3><p>Refillable cleaning and toiletry products, reusable cloths, composting for food and garden waste, and a move to well water to take pressure off the mains.</p></li><li><h3 class="heading-style-h4">Arriving gently</h3><p>An hour of free EV charging, bicycles to rent, and walking and cycle routes from the door, so a car-free day here is genuinely possible.</p></li></ul>
+                <ul class="ch-cards"><li><h3 class="heading-style-h4">Woodland stewardship</h3><p>Native trees planted each year. Log piles, deadwood and wildflower zones left as microhabitat. External lighting on timers and kept low, so bats and owls still have their dark.</p></li><li><h3 class="heading-style-h4">Bees and the orchard</h3><p>Six active hives, and membership of the British Beekeepers Association. The mixed orchard of fruit and nut trees feeds the bees and the birds, and draws butterflies, fungi and deer with them; guests go home with a jar of the honey and a box of the honey-filled bonbons.</p></li><li><h3 class="heading-style-h4">Reclaimed and reused</h3><p>Salvaged stone, antique furniture and reclaimed wood throughout, including beams rescued from the church where C. S. Lewis is buried. Reuse is the default, not the flourish.</p></li><li><h3 class="heading-style-h4">Energy and light</h3><p>Air source heat pumps, which draw around three times less energy than a conventional system, with low-energy lighting, efficient log burners and insulation to match.</p></li><li><h3 class="heading-style-h4">Water and waste</h3><p>Refillable cleaning and toiletry products, reusable cloths, recycling bins and clear guidance in every building, composting for food and garden waste, and a move to well water to take pressure off the mains.</p></li><li><h3 class="heading-style-h4">Arriving gently</h3><p>An hour of free EV charging, bicycles to rent, and walking and cycle routes from the door. Our travel guide is built around the days out you can reach without the car.</p></li></ul>
               </div>
             </div>
           </div>
@@ -194,7 +236,7 @@
                   </div>
                 </div>
                 <div class="margin-bottom margin-large">
-                  <div class="ch-prose text-size-large"><p>The Oxfordshire woodland holds a <strong>Green Tourism Gold award</strong>, the highest grade given by the independent body that assesses tourism businesses on energy, waste and their impact on the places around them.</p><p>We also measure and offset our carbon footprint each year through Carbon Footprint Ltd, and our planning work is done with Mark Doodes Planning, so that what gets built sits inside the landscape rather than on top of it.</p></div>
+                  <div class="ch-prose text-size-large"><p>The Oxfordshire woodland holds a <strong>Green Tourism Gold award</strong>, the highest grade given by the independent body that assesses tourism businesses on energy, waste and their impact on the places around them.</p><p>We also measure and offset our carbon footprint each year through <a href="https://www.carbonfootprint.com/" target="_blank" rel="noopener">Carbon Footprint Ltd</a>, and our planning work is done with <a href="https://www.markdoodesplanning.co.uk/" target="_blank" rel="noopener">Mark Doodes Planning</a>, so that what gets built sits inside the landscape rather than on top of it.</p><p>The working is published rather than summarised. Our climate impact plan sets out what we are changing and by when; the offset report shows the footprint we measured and what we bought against it.</p></div><div class="button-group align-center" style="margin-top:1.75rem"><a href="https://theoaksclimateimpact.qrlab.com/" target="_blank" rel="noopener" class="button w-inline-block"><span>Climate impact plan (PDF)</span><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewbox="0 0 17 12" fill="none" class="button_icon"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.2443 5.03644L9.48927 1.21321L10.6935 0L16.5 5.91195L10.6783 11.55L9.50444 10.3067L13.17 6.75673H0V5.03644H13.2443Z" fill="currentColor"></path></svg></a><a href="https://green.qrlab.com" target="_blank" rel="noopener" class="button w-inline-block"><span>Carbon offset report (PDF)</span><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewbox="0 0 17 12" fill="none" class="button_icon"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.2443 5.03644L9.48927 1.21321L10.6935 0L16.5 5.91195L10.6783 11.55L9.50444 10.3067L13.17 6.75673H0V5.03644H13.2443Z" fill="currentColor"></path></svg></a></div>
                 </div>
               </div>
             </div>
@@ -238,7 +280,7 @@
                 <div class="margin-bottom margin-large">
                   <div class="ch-prose text-size-large"><p>Most of what keeps the wood intact is simple, and our guests do most of it already.</p></div>
                 </div>
-                <ul class="ch-list text-size-large" style="margin-top:2.5rem;"><li>Keep to the paths, especially in spring when the ground flora is coming through.</li><li>Use the wood provided rather than gathering fallen timber; deadwood is habitat.</li><li>Take everything home with you, including anything that blew off the deck.</li><li>Buy local where you can. The villages and farm shops around us are part of the appeal.</li></ul>
+                <ul class="ch-list text-size-large" style="margin-top:2.5rem;"><li>Keep to the paths, especially in spring when the ground flora is coming through.</li><li>Use the wood provided rather than gathering fallen timber; deadwood is habitat.</li><li>Take everything home with you, including anything that blew off the deck.</li><li>Buy local where you can. The villages and farm shops around us are part of the appeal.</li></ul><div class="ch-prose text-size-large" style="margin-top:1.75rem"><p>All of it is written down in our sustainability code, which we ask every guest to read.</p></div><div class="button-group align-center" style="margin-top:1.5rem"><a href="https://rrr.qrlab.com" target="_blank" rel="noopener" class="button w-inline-block"><span>Read our sustainability code (PDF)</span><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewbox="0 0 17 12" fill="none" class="button_icon"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.2443 5.03644L9.48927 1.21321L10.6935 0L16.5 5.91195L10.6783 11.55L9.50444 10.3067L13.17 6.75673H0V5.03644H13.2443Z" fill="currentColor"></path></svg></a></div>
                 <div class="margin-bottom margin-large">
                   <div class="ch-prose text-size-large"><p><a href="dorset-sustainability.html">Cedar Hollow Dorset keeps its own account</a>, or read <a href="sustainability.html">how we approach both woodlands</a>.</p></div>
                 </div>
@@ -248,7 +290,7 @@
         </div>
       </div>
     </section>
-  <section class="section-footer">
+  <div class="section-full-bleed-img"><div class="full-bleed-img-wrap"><img src="images/gallery/oak-birdwatching-914.webp" srcset="images/gallery/oak-birdwatching-530.webp 530w, images/gallery/oak-birdwatching-914.webp 914w" sizes="100vw" loading="lazy" decoding="async" alt="A group out birdwatching in the woodland with binoculars" class="full-bleed-img"></div></div><section class="section-footer">
       <div class="padding-section-small">
         <div class="padding-global">
           <div class="container-large">

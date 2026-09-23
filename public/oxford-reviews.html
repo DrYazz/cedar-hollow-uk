@@ -107,19 +107,61 @@
               .ch-nav__menu a{font-size:1.75rem;padding:.6rem 0;text-shadow:none;}
               body.ch-nav-open{overflow:hidden;}
             }
-          </style>
+          </style><style>
+/* The Oxford navigation dropdown.
+
+   These three pages sit at the site root but belong to the Oxford sub-site, so
+   they carry Oxford's nav. They do not load oxford/css/site.css, where the
+   dropdown is styled, and the flat single-column rules above would otherwise
+   run the five groups together on one line. Written out here rather than
+   scraped from that stylesheet, so it is self-contained and readable. */
+.ch-nav__menu.is-dropdown{
+  position:absolute;top:100%;right:32px;z-index:20;
+  display:grid;grid-template-columns:repeat(2,minmax(9rem,12rem));
+  gap:1.35rem 2.25rem;align-items:start;
+  min-width:0;max-width:calc(100vw - 48px);
+  padding:1.25rem 1.5rem 1.5rem;
+  text-align:left;
+  background:rgba(43,48,31,.97);
+  border:1px solid rgba(241,236,219,.16);
+  border-radius:14px;
+  box-shadow:0 18px 40px rgba(0,0,0,.28);
+}
+.ch-nav__menu.is-dropdown .ch-navgroup{display:flex;flex-direction:column;min-width:0;}
+.ch-nav__menu.is-dropdown .ch-navgroup__title{
+  margin:0 0 .45rem;padding-bottom:.35rem;
+  border-bottom:1px solid rgba(241,236,219,.2);
+  font-family:var(--font-family--body,inherit);
+  font-size:.6875rem;font-weight:500;letter-spacing:.09em;
+  text-transform:uppercase;color:rgba(241,236,219,.62);
+}
+.ch-nav__menu.is-dropdown a{
+  display:block;padding:.3rem 0;
+  font-size:.9375rem;font-weight:400;line-height:1.35;
+  color:#f1ecdb;text-decoration:none;text-align:left;white-space:normal;
+}
+.ch-nav__menu.is-dropdown a:hover,
+.ch-nav__menu.is-dropdown a:focus-visible{color:#fff;text-decoration:underline;text-underline-offset:.18em;}
+.ch-nav__menu.is-dropdown a:focus-visible{outline:2px solid #f1ecdb;outline-offset:3px;border-radius:2px;}
+.ch-nav__menu.is-dropdown a[aria-current="page"]{color:#fff;font-weight:500;}
+.ch-nav__menu.is-dropdown a[aria-current="page"]::before{
+  content:"";display:inline-block;width:.3rem;height:.3rem;margin-right:.45rem;
+  vertical-align:.15em;border-radius:50%;background:currentColor;
+}
+/* On a phone the panel takes the width it needs and stacks into one column. */
+@media screen and (max-width:47.9375rem){
+  .ch-nav__menu.is-dropdown{
+    left:16px;right:16px;grid-template-columns:1fr;gap:1.1rem;
+    max-width:none;max-height:calc(100vh - 6rem);overflow-y:auto;
+  }
+  .ch-nav__menu.is-dropdown a{padding:.45rem 0;font-size:1.0625rem;}
+}
+</style>
           <nav class="ch-nav__bar" aria-label="Primary">
             <a href="oxford.html" class="ch-nav__logo"><img src="images/cedar-hollow-owl.svg" loading="eager" alt="Cedar Hollow Oxford" class="ch-nav__owl"><span class="ch-nav__wordmark">Oxford</span></a>
             <button class="ch-nav__toggle" type="button" aria-expanded="false" aria-controls="ch-nav-menu"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span><span class="ch-nav__sr">Menu</span></button>
           </nav>
-          <div class="ch-nav__menu" id="ch-nav-menu" hidden>
-            <a href="search-results.html" class="ch-nav__book-cta">Book your Stay</a>
-            <a href="about.html">Our Story</a>
-            <a href="team.html">The Artists</a>
-            <a href="sustainability.html">Sustainability</a>
-            <a href="experiences.html">Experiences</a>
-            <a href="mailto:hello@cedarhollow.uk">Contact</a>
-          </div>
+          <div class="ch-nav__menu is-dropdown" id="ch-nav-menu" hidden><div class="ch-navgroup"><p class="ch-navgroup__title">Stay</p><a href="search-results.html?destination=Oxford">Rentals</a><a href="oxford/facilities.html">Facilities</a><a href="oxford/map.html">Map</a><a href="oxford/accessibility.html">Accessibility</a></div><div class="ch-navgroup"><p class="ch-navgroup__title">Experiences</p><a href="oxford/experiences.html">Experiences</a><a href="oxford/wellness.html">Wellness</a><a href="oxford/dining.html">Dining</a><a href="oxford/celebrations.html">Celebrations</a><a href="oxford/todo.html">Things to Do</a><a href="oxford/illusions.html">Illusion Trail</a><a href="oxford/beemuseum.html">Bee Museum</a></div><div class="ch-navgroup"><p class="ch-navgroup__title">About</p><a href="oxford/story.html">Our Story</a><a href="oxford-sustainability.html">Sustainability</a><a href="oxford/philanthropy.html">Philanthropy</a><a href="oxford-reviews.html" aria-current="page">Reviews</a><a href="oxford-press.html">Press</a></div><div class="ch-navgroup"><p class="ch-navgroup__title">Work with us</p><a href="oxford/working.html">Working With Us</a><a href="oxford/influencers.html">Content Creators</a><a href="oxford/schoolgroups.html">School Groups</a></div><div class="ch-navgroup"><p class="ch-navgroup__title">Information</p><a href="oxford/faq.html">FAQ</a><a href="oxford/privacy.html">Privacy Policy</a><a href="oxford/terms.html">Terms &amp; Conditions</a></div></div>
           <script>
             (function(){
               var btn=document.querySelector(".ch-nav__toggle"),menu=document.getElementById("ch-nav-menu");
