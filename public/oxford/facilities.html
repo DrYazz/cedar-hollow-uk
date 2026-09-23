@@ -32,6 +32,24 @@
      script reveals them, which means a reader without JavaScript gets a
      strip they can still swipe rather than two controls that do nothing.
      --------------------------------------------------------------------- */
+  /* ---------------------------------------------------------------------
+     Two facilities to a row, as theoaks.uk lays them out: each one a column
+     with its gallery above its words, rather than this site's usual
+     full-width row of picture beside text.
+
+     Ten facilities read better paired -- the entries are short, and a full
+     width row per facility left a lot of empty measure beside three lines of
+     copy. Scoped to this page: .ch-feature and .ch-features are shared with
+     the rest of the Oxford sub-site, where the alternating wide row is right.
+     --------------------------------------------------------------------- */
+  @media screen and (min-width:768px){
+    .ch-features{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:clamp(2.5rem,5vw,4.5rem) clamp(2rem,4vw,3.5rem);align-items:start;}
+    /* each facility becomes a single column, so the gallery sits over the
+       text; the shared sheet's alternating order has nothing left to flip. */
+    .ch-features .ch-feature{grid-template-columns:1fr;gap:1.5rem;align-items:start;}
+  }
+
   .ch-slides{position:relative;}
   .ch-slides__track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;
     scrollbar-width:none;-ms-overflow-style:none;}
