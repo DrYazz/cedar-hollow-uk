@@ -121,7 +121,14 @@
    the panel never closes, however correctly the toggle sets hidden. The
    sub-site stylesheet guards it the same way. */
 .ch-nav__menu.is-dropdown:not([hidden]){
-  position:absolute;top:100%;right:32px;z-index:20;
+  /* bottom:auto matters. The page's own mobile rule makes the flat menu a
+     full-screen overlay with position:fixed and inset:0, which sets bottom:0.
+     This rule puts position back to absolute and sets top:100% but said nothing
+     about bottom, so bottom:0 survived -- and an absolutely positioned box with
+     both top and bottom fixed takes its height from the containing block, which
+     is the 75px nav bar. 75 - 75 - 0 = zero, so the panel opened to nothing but
+     its own padding. */
+  position:absolute;top:100%;right:32px;bottom:auto;z-index:20;
   display:grid;grid-template-columns:repeat(2,minmax(9rem,12rem));
   gap:1.35rem 2.25rem;align-items:start;
   min-width:0;max-width:calc(100vw - 48px);
@@ -155,8 +162,10 @@
 }
 /* On a phone the panel takes the width it needs and stacks into one column. */
 @media screen and (max-width:47.9375rem){
-  .ch-nav__menu.is-dropdown{
-    left:16px;right:16px;grid-template-columns:1fr;gap:1.1rem;
+  /* matched to the specificity of the rule above, or its single column loses to
+     the two-column default and the panel stays two-up on a phone */
+  .ch-nav__menu.is-dropdown:not([hidden]){
+    left:16px;right:16px;bottom:auto;grid-template-columns:1fr;gap:1.1rem;
     max-width:none;max-height:calc(100vh - 6rem);overflow-y:auto;
   }
   .ch-nav__menu.is-dropdown a{padding:.45rem 0;font-size:1.0625rem;}
