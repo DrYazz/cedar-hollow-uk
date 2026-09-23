@@ -611,6 +611,19 @@ a.ch-frame:hover img{transform:scale(1.035)}
   .footer_regs{gap:.35rem 1.25rem;margin-bottom:1.5rem}
 }
 
+/* ---- "Book your Stay", in the nav panel ----
+   Copied from cedar-hollow-uk.webflow.css, which the Oxford pages at the site
+   root load and these do not. Same #ch-nav-menu scope as the original. */
+#ch-nav-menu .ch-nav__book-cta{display:inline-flex;align-items:center;grid-column:1/-1;
+  justify-self:end;margin-bottom:.75rem;padding:.7rem 1.4rem;border-radius:50em;
+  background-color:#f1ecdb;color:var(--accent,#3b4126);font-size:1.0625rem;font-weight:500;
+  line-height:1.2;text-shadow:none;white-space:nowrap;transition:opacity .18s ease}
+#ch-nav-menu .ch-nav__book-cta:hover,
+#ch-nav-menu .ch-nav__book-cta:focus-visible{opacity:.88;text-decoration:none}
+@media screen and (max-width:767px){
+  #ch-nav-menu .ch-nav__book-cta{padding:.8rem 1.6rem;font-size:1.25rem}
+}
+
 /* ---- Book overlay (nav "Book a stay") ---- */
 .ch-book__overlay[hidden]{display:none}
 .ch-book__overlay{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:1.5rem;background-color:rgba(16,19,7,.55)}
