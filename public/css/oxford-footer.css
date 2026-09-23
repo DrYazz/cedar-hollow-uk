@@ -86,3 +86,13 @@
 #ch-nav-menu .ch-nav__book-cta:hover .button_icon{transform:translateX(.25rem)}
 /* This anchor has no class, so without a colour the user-agent's link blue won. */
 .section-footer .footer_regs a{color:inherit}
+
+/* On a phone .footer_legal is a column: copyright, then the two rows of links.
+   Its .5rem row-gap put the copyright closer to the links than the links were
+   to each other, so nothing read as separate. And the flex-end above, which is
+   right on a desktop where the row sits opposite the copyright, left them
+   hugging the right edge under a centred copyright line. */
+@media screen and (max-width:767px){
+  .section-footer .footer_legal{row-gap:1.5rem}
+  .section-footer .footer-link-list.is-legal{justify-content:center}
+}
