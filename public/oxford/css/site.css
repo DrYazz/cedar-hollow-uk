@@ -923,3 +923,11 @@ body.ch-nav-open .ch-page-hero{overflow:visible}
   .section-footer .footer_content-right:not(.is-bottom){
     grid-template-columns:repeat(auto-fit,minmax(8rem,1fr));gap:1.5rem 1.25rem}
 }
+
+/* The nav's Book your Stay button carries the same arrow as the hero buttons.
+   .button_icon already gives it width and the hover slide; an inline-flex pill
+   needs its own gap, which .button gets from elsewhere. */
+#ch-nav-menu .ch-nav__book-cta{gap:.5rem}
+#ch-nav-menu .ch-nav__book-cta:hover .button_icon{transform:translateX(.25rem)}
+/* This anchor has no class, so without a colour the user-agent's link blue won. */
+.section-footer .footer_regs a{color:inherit}
