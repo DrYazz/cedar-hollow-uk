@@ -34,11 +34,28 @@ PAGES = [
     ROOT / "public" / "dorset-press.html",
 ]
 
-BLOCK_RE = re.compile(r"(<!-- ch:press ([\w-]+) -->)(.*?)(<!-- /ch:press -->)", re.S)
-SCREEN_RE = re.compile(r"(<!-- ch:press-screen ([\w-]+) -->)(.*?)(<!-- /ch:press-screen -->)", re.S)
+BLOCK_RE = re.compile(r"(<!-- ch:press ?([\w-]*) -->)(.*?)(<!-- /ch:press -->)", re.S)
+SCREEN_RE = re.compile(r"(<!-- ch:press-screen ?([\w-]*) -->)(.*?)(<!-- /ch:press-screen -->)", re.S)
 FEED_RE = re.compile(r"(<!-- ch:press-feed ?([\w-]*) -->)(.*?)(<!-- /ch:press-feed -->)", re.S)
 
 LOCATIONS = {"oxford": "Oxfordshire", "dorset": "Dorset"}
+
+
+def both(sections, key):
+    """Every entry from every woodland, for the combined page.
+
+    "counts" is what the woodland filter shows on its buttons: articles and
+    films together, since one choice narrows both sections at once.
+    """
+    out = []
+    counts = {"all": 0}
+    for sec in sections.values():
+        out.extend(sec.get(key) or [])
+        for entry in (sec.get("items") or []) + (sec.get("screen") or []):
+            where = entry.get("location")
+            counts["all"] += 1
+            counts[where] = counts.get(where, 0) + 1
+    return {key: out, "counts": counts}
 
 
 def marker_indent(match):
@@ -56,7 +73,7 @@ def asset(path):
     return html.escape(path, quote=True)
 
 
-def card(item):
+def card(item, show_location=False):
     """One article: who ran it, what they called it, and a line from the piece."""
     pub = html.escape(item["publication"])
     url = html.escape(item["url"], quote=True)
@@ -96,6 +113,15 @@ def card(item):
     else:
         parts.append('    <p class="ch-press__pub">%s</p>' % pub)
 
+    # The year the piece ran, under the masthead: a reader should be able to
+    # tell a 2018 cutting from a 2026 one without opening it.
+    where = LOCATIONS.get(item.get("location"), "")
+    parts.append(
+        '    <p class="ch-press__year">%s%s</p>'
+        % (html.escape(item["date"][:4]),
+           " &middot; " + where if (show_location and where) else "")
+    )
+
     if not shot:
         parts.append(
             '    <h3 class="ch-press__headline">'
@@ -118,6 +144,10 @@ def card(item):
 def video_card(v):
     """A video as a still with a play button, not an iframe.
 
+    Two shapes: most are a button that swaps in the player, and the ones
+    whose owner has blocked off-site playback ("embed": false) are a link
+    straight to YouTube.
+
     Pressing play is what inserts the player -- see js/press-video.js. Until
     then nothing is requested from YouTube at all: the thumbnail is ours, and
     the embed uses youtube-nocookie.com when it does load. cookies.html tells
@@ -127,10 +157,66 @@ def video_card(v):
     """
     title = html.escape(v["title"])
     source = html.escape(v["source"])
+    url = html.escape(v["url"], quote=True)
+
+    # "embed": false means the owner has disallowed off-site playback, so an
+    # iframe here renders YouTube's "This video is unavailable" panel instead
+    # of the film. Those entries keep the still and the play badge but are a
+    # link straight to YouTube: a tile that goes somewhere beats one that
+    # fails. Confirmed in a browser, not from the API, which reports
+    # playableInEmbed true for both of them.
+    if v.get("embed") is False:
+        opener = [
+            '  <a class="ch-vid__play is-offsite" href="%s" target="_blank" rel="noopener"' % url,
+            '     aria-label="Watch &ldquo;%s&rdquo; (%s) on YouTube, which is the only place it can be played">' % (title, source),
+        ]
+        closer = "  </a>"
+    else:
+        opener = [
+            '  <button class="ch-vid__play" type="button" data-video="%s"' % html.escape(v["id"], quote=True),
+            '          aria-label="Play &ldquo;%s&rdquo; (%s) in the YouTube player">' % (title, source),
+        ]
+        closer = "  </button>"
+
+    # The masthead carries the source where we have its logo, and the text
+    # name where we do not. "detail" is for what the name alone does not say,
+    # such as which episode. Running time is deliberately not shown.
+    marks = v.get("logo") or []
+    if marks:
+        # One tile can carry more than one mark, such as the broadcaster
+        # beside the programme. Each is announced separately.
+        spans = []
+        for mark in marks:
+            src = asset(mark["src"])
+            spans.append(
+                '<span class="ch-vid__logo" role="img" aria-label="%s" '
+                "style=\"--ch-logo-ar:%s;-webkit-mask-image:url('%s');mask-image:url('%s')\"></span>"
+                % (html.escape(mark["label"]), mark["ar"], src, src)
+            )
+        source_line = ('    <span class="ch-vid__logos">%s</span>'
+                       % "".join(spans))
+    else:
+        source_line = '    <span class="ch-vid__source">%s</span>' % source
+    if v.get("detail"):
+        # what the name alone does not say, such as which episode
+        source_line += ('<span class="ch-vid__detail">%s</span>'
+                        % html.escape(v["detail"]))
+    year = video_year(v)
+    if year:
+        source_line += '<span class="ch-vid__year">%s</span>' % html.escape(year)
+    source_line += "</p>"
+
+    # The tile takes the film's own shape. ratio comes from the video's
+    # largest stream, not from the thumbnail: YouTube pads a Short's
+    # thumbnail out to 16:9 with a blurred copy of itself, so the still
+    # lies about the shape and the stream does not.
+    ratio = v.get("ratio") or "16/9"
+    rw, rh = (int(x) for x in ratio.split("/"))
+    portrait = " is-portrait" if rh > rw else ""
+
     return [
-        '<article class="ch-vid">',
-        '  <button class="ch-vid__play" type="button" data-video="%s"' % html.escape(v["id"], quote=True),
-        '          aria-label="Play &ldquo;%s&rdquo; (%s) \u2014 opens the YouTube player">' % (title, source),
+        '<article class="ch-vid%s" style="--ch-vid-ar:%s">' % (portrait, ratio),
+        *opener,
         '    <img src="%s" srcset="%s" sizes="(max-width: 767px) 92vw, 22rem"'
         % (asset(v["thumb"]["src"]), html.escape(v["thumb"]["srcset"], quote=True)),
         '         loading="lazy" decoding="async" alt="">',
@@ -138,10 +224,9 @@ def video_card(v):
         '<svg viewBox="0 0 68 48" width="100%" height="100%">'
         '<path class="ch-vid__icon-bg" d="M66.5 7.7c-.8-2.9-2.5-5.4-5.4-6.2C55.8 0 34 0 34 0S12.2 0 6.9 1.4C4 2.2 2.3 4.8 1.5 7.7 0 13 0 24 0 24s0 11 1.5 16.3c.8 2.9 2.5 5.4 5.4 6.2C12.2 48 34 48 34 48s21.8 0 27.1-1.5c2.9-.8 4.6-3.3 5.4-6.2C68 35 68 24 68 24s0-11-1.5-16.3z"></path>'
         '<path d="M45 24 27 14v20" fill="#fff"></path></svg></span>',
-        "  </button>",
+        closer,
         '  <p class="ch-vid__meta"><span class="ch-vid__title">%s</span>' % title,
-        '    <span class="ch-vid__source">%s%s</span></p>'
-        % (source, "" if v.get("duration", "\u2014") == "\u2014" else " &middot; " + html.escape(v["duration"])),
+        source_line,
         '  <a class="ch-vid__link" href="%s" target="_blank" rel="noopener">Watch on YouTube</a>'
         % html.escape(v["url"], quote=True),
         "</article>",
@@ -152,36 +237,84 @@ def render_screen(section, indent):
     videos = section.get("screen") or []
     if not videos:
         return None
-    lines = ['<div class="ch-vid-wrap">', '  <ul class="ch-vid-grid">']
-    for v in videos:
-        lines.append("    <li>")
-        lines.extend("      " + line for line in video_card(v))
-        lines.append("    </li>")
-    lines.append("  </ul>")
-    lines.append(
-        '  <p class="ch-vid__note">Nothing is requested from YouTube until you '
-        "press play.</p>"
-    )
+    # Newest first by broadcast year, to read the same way as the clippings.
+    videos = sorted(videos, key=video_year, reverse=True)
+    # Split by shape. A landscape tile beside a portrait one leaves the
+    # shorter of the two stranded at the top of a tall row, so each shape
+    # gets its own grid and its own column count.
+    def is_portrait(v):
+        rw, rh = (int(x) for x in (v.get("ratio") or "16/9").split("/"))
+        return rh > rw
+
+    groups = [
+        ("is-landscapes", [v for v in videos if not is_portrait(v)]),
+        ("is-portraits", [v for v in videos if is_portrait(v)]),
+    ]
+    lines = ['<div class="ch-vid-wrap">']
+    for cls, group in groups:
+        if not group:
+            continue
+        lines.append('  <ul class="ch-vid-grid %s">' % cls)
+        for v in group:
+            lines.append('    <li data-location="%s">' % html.escape(v.get("location","")))
+            lines.extend("      " + line for line in video_card(v))
+            lines.append("    </li>")
+        lines.append("  </ul>")
     lines.append("</div>")
     body = ("\n" + indent).join(lines)
     return "\n%s%s\n%s" % (indent, body, indent)
 
 
-def render(section, indent):
+def video_year(v):
+    """The year the programme went out, not the day we uploaded the clip.
+
+    Every entry's "date" is dateKind "uploaded", which for the older
+    programmes is long after broadcast: the Amazing Spaces film aired in
+    2016 and went on the channel in 2026. Where the two differ, "aired"
+    carries the broadcast year and wins.
+    """
+    return (v.get("aired") or v.get("date", ""))[:4]
+
+
+def woodland_filter(counts):
+    """The All / Oxfordshire / Dorset control for the combined page.
+
+    It sits above the clippings but narrows the screen section too, so the
+    counts are of everything a choice reveals, articles and films together.
+    Rendered server-side and complete: with JavaScript off the buttons do
+    nothing and every entry stays on the page, which is the sensible
+    fallback for a filter.
+    """
+    out = ['  <div class="ch-press__filter" role="group" aria-label="Filter by woodland">']
+    for key, label in (("all", "All"), ("oxford", "Oxfordshire"), ("dorset", "Dorset")):
+        out.append(
+            '    <button class="ch-feed__btn" type="button" data-group="location" '
+            'data-filter="%s" aria-pressed="%s">%s '
+            '<span class="ch-feed__count">%d</span></button>'
+            % (key, "true" if key == "all" else "false", label, counts.get(key, 0))
+        )
+    out.append('  </div>')
+    return out
+
+
+def render(section, indent, show_location=False):
     items = section.get("items") or []
+    # Newest first. The data file keeps them in the order they were added;
+    # the page decides how they read.
+    items = sorted(items, key=lambda it: it["date"], reverse=True)
     if not items:
         return None
 
-    lines = ['<div class="ch-press">', '  <ul class="ch-press__grid">']
+    lines = ['<div class="ch-press">']
+    if show_location:
+        lines.extend(woodland_filter(section.get("counts") or {}))
+    lines.append('  <ul class="ch-press__grid">')
     for item in items:
-        lines.append("    <li>")
-        lines.extend("      " + line for line in card(item))
+        # data-location is what js/press-filter.js narrows on
+        lines.append('    <li data-location="%s">' % html.escape(item.get("location","")))
+        lines.extend("      " + line for line in card(item, show_location))
         lines.append("    </li>")
     lines.append("  </ul>")
-    lines.append(
-        '  <p class="ch-press__foot">Each extract is quoted from the article it '
-        "names and links to, so it can be read in full at the source.</p>"
-    )
     lines.append("</div>")
     body = ("\n" + indent).join(lines)
     return "\n%s%s\n%s" % (indent, body, indent)
@@ -290,23 +423,34 @@ def main():
 
         def replace(match):
             name = match.group(2)
-            if name not in sections:
-                sys.exit("%s: unknown press section '%s'" % (page.name, name))
-            body = render(sections[name], marker_indent(match))
+            # no name means the combined page: both woodlands in one grid,
+            # so each card names its woodland beside the year
+            if name:
+                if name not in sections:
+                    sys.exit("%s: unknown press section '%s'" % (page.name, name))
+                section, both_woodlands = sections[name], False
+            else:
+                section, both_woodlands = both(sections, "items"), True
+            body = render(section, marker_indent(match), both_woodlands)
+            label = name or "combined"
             if body is None:
-                seen.append((name, 0, "tiles"))
+                seen.append((label, 0, "tiles"))
                 return match.group(0)
-            seen.append((name, len(sections[name]["items"]), "tiles"))
+            seen.append((label, len(section["items"]), "tiles"))
             return match.group(1) + body + match.group(4)
 
         def replace_screen(match):
             name = match.group(2)
-            if name not in sections:
-                sys.exit("%s: unknown press section '%s'" % (page.name, name))
-            body = render_screen(sections[name], marker_indent(match))
+            if name:
+                if name not in sections:
+                    sys.exit("%s: unknown press section '%s'" % (page.name, name))
+                section = sections[name]
+            else:
+                section = both(sections, "screen")
+            body = render_screen(section, marker_indent(match))
             if body is None:
                 return match.group(0)
-            seen.append((name, len(sections[name]["screen"]), "screen"))
+            seen.append((name or "combined", len(section["screen"]), "screen"))
             return match.group(1) + body + match.group(4)
 
         def replace_feed(match):
@@ -333,7 +477,11 @@ def main():
             elif not count:
                 state = "skipped (no items yet)"
             else:
-                quoted = sum(1 for i in sections[name].get("items", []) if i.get("quote"))
+                pool = (
+                    both(sections, "items")["items"] if name == "combined"
+                    else sections[name].get("items", [])
+                )
+                quoted = sum(1 for i in pool if i.get("quote"))
                 state = "%d tiles, %d quoted" % (count, quoted)
             print("  %-18s %-8s %s" % (page.name, name, state))
             total += count

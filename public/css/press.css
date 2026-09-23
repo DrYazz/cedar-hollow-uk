@@ -19,6 +19,23 @@
   text-align: left;
 }
 
+/* The woodland filter on the combined page. It reuses .ch-feed__btn so the
+   buttons match what the old feed had. Hiding is by the hidden attribute,
+   set by js/press-filter.js; these rules make sure a hidden grid item is
+   really out of the layout rather than an empty cell. */
+.ch-press__filter {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: .625rem;
+  margin: 0 0 2.5rem;
+}
+
+.ch-press__grid > li[hidden],
+.ch-vid-grid > li[hidden] {
+  display: none !important;
+}
+
 .ch-press__grid {
   /* Four across on a wide screen, and never fewer than two, so the tiles stay
      portrait clippings rather than growing into banners. */
@@ -141,6 +158,15 @@
 /* The quote carries the weight on this page, so it is set as running text
    rather than shrunk into a caption. The rule marks it as quoted material
    without the cost of a full pull-quote treatment on every card. */
+/* The year under the masthead: quiet, so it dates the cutting without
+   competing with the quote beneath it. */
+.ch-press__year {
+  margin: .35rem 0 0;
+  font-size: .875rem;
+  letter-spacing: .04em;
+  opacity: .6;
+}
+
 .ch-press__quote {
   margin: 0;
   padding-left: .75rem;
@@ -176,13 +202,6 @@
   line-height: 1.5;
   font-style: italic;
   opacity: .65;
-}
-
-.ch-press__foot {
-  margin: 1.5rem 0 0;
-  font-size: 1rem;
-  line-height: 1.5;
-  opacity: .7;
 }
 
 @media screen and (max-width: 767px) {
@@ -230,12 +249,72 @@
 }
 
 .ch-vid-grid {
+  /* Two across, not as many as fit. The lightbox was written because a still
+     in a 240px feed column made an unwatchable player; the point of this
+     section is to give each video half the container instead, which at 80rem
+     is about 600px wide -- enough to watch in place. */
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
-  gap: 2rem 1.5rem;
+  grid-template-columns: 1fr;
+  gap: 2.5rem 2rem;
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+@media screen and (min-width: 48rem) {
+  /* Landscapes take as many columns as fit, so three sit on one line and
+     two spread to fill it. Portraits are capped below, so their columns
+     are fixed and centred rather than stretched. */
+  /* Two across, not three: keeps the players watchable and puts the two
+     broadcast pieces together on the first row. */
+  .ch-vid-grid.is-landscapes {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .ch-vid-grid.is-portraits {
+    grid-template-columns: repeat(auto-fit, 16rem);
+    justify-content: center;
+  }
+}
+
+/* Two grids in one section: close the gap so they read as one run of
+   tiles rather than two blocks. */
+.ch-vid-grid + .ch-vid-grid {
+  margin-top: 2.5rem;
+}
+
+/* The player that replaces the still on click. It keeps the still's box, so
+   nothing on the page moves when it loads. A 4:3 film pillarboxes itself
+   inside this 16:9 frame rather than being cropped to fill it. */
+.ch-vid__frame {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 0;
+  border-radius: var(--radius--16, 1rem);
+  background-color: #000;
+}
+
+/* A 9:16 Short at the full column width would be over 800px tall and tower
+   over the landscape tiles beside it. Capped and centred, it stands about
+   as tall as a 16:9 tile is wide, which keeps the row readable. The meta
+   underneath stays centred on the media rather than the column. */
+/* Only a portrait film needs its own shape. Every YouTube still is 16:9,
+   so a landscape tile stays 16:9 and shows its still uncropped; a 1.365
+   film in a 1.365 box would have the sides of its 16:9 still trimmed off.
+   A Short is different: its still is the 9:16 frame padded out with a
+   blurred copy, so cropping back to 9:16 recovers the real picture. */
+.ch-vid.is-portrait .ch-vid__play,
+.ch-vid.is-portrait .ch-vid__frame {
+  aspect-ratio: var(--ch-vid-ar, 9 / 16);
+}
+
+.ch-vid.is-portrait .ch-vid__play,
+.ch-vid.is-portrait .ch-vid__frame,
+.ch-vid.is-portrait .ch-vid__meta,
+.ch-vid.is-portrait .ch-vid__link {
+  max-width: 16rem;
+  margin-inline: auto;
 }
 
 .ch-vid {
@@ -262,6 +341,13 @@
   overflow: hidden;
   cursor: pointer;
   transition: transform .3s cubic-bezier(.2, .7, .3, 1), box-shadow .3s ease;
+}
+
+/* The blocked-embed variant is an <a>, and an anchor is inline by default,
+   so without this it would collapse and ignore the aspect-ratio above. */
+a.ch-vid__play {
+  display: block;
+  text-decoration: none;
 }
 
 .ch-vid__play img {
@@ -318,6 +404,55 @@
   letter-spacing: -.02em;
 }
 
+/* The masthead, drawn as a mask exactly as the article cards draw theirs,
+   so a broadcaster sits in our ink rather than bringing its own brand
+   colour into the row. SVG where we have one, a trimmed alpha PNG where
+   the supplied logo was raster. */
+/* A tile can carry two marks: the broadcaster beside the programme. */
+.ch-vid__logos {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  margin-top: .25rem;
+}
+
+.ch-vid.is-portrait .ch-vid__logos {
+  justify-content: center;
+}
+
+/* Taller than an article masthead: these marks include two-line lock-ups
+   such as Married at First Sight, unreadable at the 1.125rem the cards
+   use, and no quote competes with them here. The span carries no content,
+   so its width has to come from the mark's own ratio or it collapses. */
+.ch-vid__logo {
+  display: block;
+  flex: 0 0 auto;
+  height: 1.75rem;
+  width: auto;
+  aspect-ratio: var(--ch-logo-ar, 4 / 1);
+  max-width: 9rem;
+  background-color: currentColor;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-position: center;
+  mask-position: center;
+}
+
+/* The year the programme went out. Quieter than the episode line above it,
+   so the tile reads title, channel, episode, year. */
+.ch-vid__year {
+  font-size: .875rem;
+  letter-spacing: .04em;
+  opacity: .6;
+}
+
+.ch-vid__detail {
+  font-size: 1rem;
+  opacity: .7;
+}
+
 .ch-vid__source {
   font-size: 1rem;
   opacity: .7;
@@ -336,13 +471,6 @@
   text-decoration-thickness: 2px;
 }
 
-.ch-vid__note {
-  margin: 1.25rem 0 0;
-  font-size: 1rem;
-  line-height: 1.5;
-  opacity: .7;
-}
-
 @media (prefers-reduced-motion: reduce) {
   .ch-vid__play {
     transition: none;
@@ -358,8 +486,7 @@
    measured at 1.57:1, which is unreadable. Nothing in the cascade claimed
    these, so they claim themselves. The combined page keeps its cream ground
    and is unaffected. */
-.ch-section--accent .ch-vid,
-.ch-section--accent .ch-vid__note {
+.ch-section--accent .ch-vid {
   color: var(--brand, #efeed5);
 }
 
@@ -462,6 +589,7 @@
    keeps its own 16:9, since a cropped video would be worse than a short one. */
 .ch-feed__item .ch-press__clip,
 .ch-feed__item .ch-vid__play {
+  /* wins over --ch-vid-ar: in the mixed feed every tile is this shape */
   aspect-ratio: 412 / 740;
 }
 

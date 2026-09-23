@@ -2,13 +2,14 @@
  * Click-to-load YouTube players on the press pages.
  *
  * The page ships a still and a play button. Nothing is requested from YouTube
- * until someone presses it, at which point the player opens in a lightbox over
- * the page.
+ * until someone presses it, at which point the player appears.
  *
- * It opens over the page rather than in place because in place is unwatchable:
- * the stills sit in a grid column about 240px wide, so an inline player was
- * roughly 240x135 -- technically playing, practically useless. The lightbox
- * gives it the width of the window instead.
+ * Where it appears depends on how much room the still has. In the mixed feed
+ * the tiles are portrait and about 240px wide, so an in-place player would be
+ * roughly 240x135 -- technically playing, practically useless; those open in a
+ * lightbox at the width of the window. The screen sections (.ch-vid-grid) give
+ * each video about half the container, so there the still is simply replaced
+ * by the player, which is the less disruptive of the two.
  *
  * Why not just embed the iframe: a YouTube embed starts talking to Google on
  * page load and sets cookies before a reader has asked for anything, and
@@ -57,6 +58,33 @@
     return el;
   }
 
+  function player(id, label) {
+    var frame = document.createElement("iframe");
+    /* autoplay, because the click WAS the request to play. */
+    frame.src = ORIGIN + encodeURIComponent(id) +
+      "?autoplay=1&rel=0&modestbranding=1&playsinline=1";
+    frame.title = label || "YouTube video player";
+    frame.setAttribute("allow",
+      "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture");
+    frame.setAttribute("allowfullscreen", "");
+    frame.setAttribute("referrerpolicy", "strict-origin-when-cross-origin");
+    return frame;
+  }
+
+  /* Inline playback, where the still is already big enough to watch in.
+     .ch-vid-grid gives each video about half the container; the lightbox is
+     kept for videos listed in the mixed feed, whose tiles are portrait and
+     roughly 240px wide -- the case that made an in-place player useless. The
+     still is replaced rather than covered, so the box does not move. */
+  function playInline(button) {
+    var id = button.getAttribute("data-video");
+    if (!id || !/^[\w-]{11}$/.test(id)) return;
+    var frame = player(id, button.getAttribute("aria-label"));
+    frame.className = "ch-vid__frame";
+    button.parentNode.replaceChild(frame, button);
+    frame.focus();
+  }
+
   function open(button) {
     var id = button.getAttribute("data-video");
     if (!id || !/^[\w-]{11}$/.test(id)) return;
@@ -64,16 +92,8 @@
     opener = button;
     box = box || build();
 
-    var frame = document.createElement("iframe");
+    var frame = player(id, button.getAttribute("aria-label"));
     frame.className = "ch-lightbox__frame";
-    /* autoplay, because the click WAS the request to play. */
-    frame.src = ORIGIN + encodeURIComponent(id) +
-      "?autoplay=1&rel=0&modestbranding=1&playsinline=1";
-    frame.title = button.getAttribute("aria-label") || "YouTube video player";
-    frame.setAttribute("allow",
-      "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture");
-    frame.setAttribute("allowfullscreen", "");
-    frame.setAttribute("referrerpolicy", "strict-origin-when-cross-origin");
 
     var card = button.closest(".ch-vid");
     var title = card && card.querySelector(".ch-vid__title");
@@ -133,9 +153,12 @@
 
   document.addEventListener("click", function (e) {
     var button = e.target.closest && e.target.closest(".ch-vid__play");
-    if (button) {
+    /* .is-offsite is an <a>, not a button: the owner has blocked off-site
+       playback, so let the browser follow it to YouTube. */
+    if (button && !button.classList.contains("is-offsite")) {
       e.preventDefault();
-      open(button);
+      if (button.closest(".ch-vid-grid")) playInline(button);
+      else open(button);
     }
   });
 })();
