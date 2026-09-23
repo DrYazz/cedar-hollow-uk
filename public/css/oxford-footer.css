@@ -1,0 +1,24 @@
+/* Cedar Hollow Oxford: the two formal blocks in the footer.
+   ------------------------------------------------------------------------
+   The same rules the sub-site carries in oxford/css/site.css, for the four
+   Oxford pages that sit at the site root and load Webflow's stylesheets
+   instead. Kept in its own file rather than added to
+   cedar-hollow-uk.webflow.css, which 42 pages load -- bumping that one's
+   cache key would mean editing the two Dorset pages built in Figma. */
+
+.footer_disclaimer{font-size:.85rem;font-weight:400;line-height:1.6;max-width:70ch;margin:1.25rem 0 0}
+.footer_regs{display:flex;flex-wrap:wrap;gap:.35rem 1.5rem;font-size:.8rem;font-weight:400;
+  margin:.75rem 0 2rem;opacity:.85}
+.footer_regs a{text-decoration:underline;text-underline-offset:.15em}
+
+/* The owl watermark is the footer's last child and paints over the content.
+   It never showed before, because the legal row leaves the middle clear, but
+   the registration line runs the full width and the owl's head sat across
+   "Registered Charity ... BBKA Membership". */
+.section-footer .padding-section-small{position:relative;z-index:1}
+.section-footer .footer_logo_wrap{z-index:0}
+
+@media screen and (max-width:767px){
+  .footer_disclaimer{margin-top:1rem}
+  .footer_regs{gap:.35rem 1.25rem;margin-bottom:1.5rem}
+}
