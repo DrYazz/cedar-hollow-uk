@@ -1,119 +1,68 @@
 /*
- * The press filters: woodland (All / Oxfordshire / Dorset) and kind of
- * coverage (Everything / In words / On screen).
+ * The woodland filter on the combined press page: All / Oxfordshire / Dorset.
  *
- * The combined page carries both rows; the two location pages carry only the
- * kind row, since the woodland is already settled by which page you are on.
+ * One control, two sections. It sits above the clippings but narrows the
+ * screen section as well, because a reader asking for Dorset wants the Dorset
+ * films too. Anything carrying data-location is in scope, so the markup decides
+ * what is filterable and this file does not need to know about grids.
  *
- * The feed is rendered in full and in date order by scripts/update-press.py;
- * this only hides what does not match. That way the page is complete before
- * any script runs -- every entry is in the HTML for a crawler and for anyone
- * with JavaScript off, who simply sees the whole list, which is the sensible
- * fallback for a filter.
+ * The two single-woodland pages render no control, so this exits immediately
+ * there -- the woodland is already settled by which page you are on.
  *
- * Both choices are kept in the URL (?w=oxford&k=video) so a filtered view can
- * be linked and survives a refresh, using replaceState so it does not pile up
- * history entries as someone flicks between them.
+ * The choice is kept in the URL (?w=dorset) so a filtered view can be linked
+ * and survives a refresh, using replaceState so flicking between them does not
+ * pile up history entries.
+ *
+ * Progressive enhancement: the page is rendered whole and in order by
+ * scripts/update-press.py. With JavaScript off the buttons do nothing and every
+ * entry stays visible, which is the sensible fallback for a filter.
  */
 (function () {
   "use strict";
 
-  var feed = document.querySelector(".ch-feed");
-  if (!feed) return;
+  var control = document.querySelector(".ch-press__filter");
+  if (!control) return;
 
-  var items = feed.querySelectorAll(".ch-feed__item");
-  var status = feed.querySelector(".ch-feed__status");
-  var empty = feed.querySelector(".ch-feed__empty");
-  if (!items.length) return;
+  var buttons = control.querySelectorAll(".ch-feed__btn[data-group=\"location\"]");
+  var items = document.querySelectorAll("[data-location]");
+  if (!buttons.length || !items.length) return;
 
-  /* group name -> { param, attribute, everything, labels } */
-  var GROUPS = {
-    location: {
-      param: "w",
-      attr: "data-location",
-      any: "all",
-      labels: { oxford: "Oxfordshire", dorset: "Dorset" }
-    },
-    kind: {
-      param: "k",
-      attr: "data-kind",
-      any: "any",
-      labels: { article: "in words", video: "on screen" }
+  var ANY = "all";
+  var PARAM = "w";
+  var state = ANY;
+
+  function apply() {
+    for (var i = 0; i < items.length; i++) {
+      var match = state === ANY || items[i].getAttribute("data-location") === state;
+      items[i].hidden = !match;
     }
-  };
-
-  var state = {};
-  Object.keys(GROUPS).forEach(function (g) {
-    if (feed.querySelector('.ch-feed__btn[data-group="' + g + '"]')) state[g] = GROUPS[g].any;
-  });
-  if (!Object.keys(state).length) return;
-
-  function describe(shown) {
-    var bits = [];
-    Object.keys(state).forEach(function (g) {
-      var cfg = GROUPS[g];
-      if (state[g] !== cfg.any) bits.push(cfg.labels[state[g]]);
-    });
-    if (!bits.length) return "Showing all " + shown;
-    return "Showing " + shown + " " + bits.join(", ");
-  }
-
-  function apply(push) {
-    var shown = 0;
-    Array.prototype.forEach.call(items, function (li) {
-      var match = Object.keys(state).every(function (g) {
-        var cfg = GROUPS[g];
-        return state[g] === cfg.any || li.getAttribute(cfg.attr) === state[g];
-      });
-      li.hidden = !match;
-      if (match) shown++;
-    });
-
-    Array.prototype.forEach.call(feed.querySelectorAll(".ch-feed__btn"), function (b) {
-      var g = b.getAttribute("data-group");
-      b.setAttribute("aria-pressed",
-        state[g] === b.getAttribute("data-filter") ? "true" : "false");
-    });
-
-    if (status) status.textContent = describe(shown);
-    /* Two filters can genuinely exclude everything -- Dorset has no video on
-       some views -- so say so rather than showing a blank grid. */
-    if (empty) empty.hidden = shown !== 0;
-
-    if (push && window.history && window.history.replaceState) {
-      try {
-        var url = new URL(window.location.href);
-        Object.keys(state).forEach(function (g) {
-          var cfg = GROUPS[g];
-          if (state[g] === cfg.any) url.searchParams.delete(cfg.param);
-          else url.searchParams.set(cfg.param, state[g]);
-        });
-        window.history.replaceState({}, "", url);
-      } catch (e) {}
+    for (var b = 0; b < buttons.length; b++) {
+      var on = buttons[b].getAttribute("data-filter") === state;
+      buttons[b].setAttribute("aria-pressed", on ? "true" : "false");
     }
   }
 
-  feed.addEventListener("click", function (e) {
-    var b = e.target.closest && e.target.closest(".ch-feed__btn");
-    if (!b) return;
-    var g = b.getAttribute("data-group");
-    if (!(g in state)) return;
-    state[g] = b.getAttribute("data-filter");
-    apply(true);
+  function remember() {
+    var url = new URL(window.location.href);
+    if (state === ANY) url.searchParams.delete(PARAM);
+    else url.searchParams.set(PARAM, state);
+    window.history.replaceState({}, "", url);
+  }
+
+  control.addEventListener("click", function (e) {
+    var btn = e.target.closest && e.target.closest(".ch-feed__btn");
+    if (!btn) return;
+    state = btn.getAttribute("data-filter") || ANY;
+    apply();
+    remember();
   });
 
-  /* Honour the URL on arrival, so a shared link opens on the right view. */
-  var changed = false;
-  try {
-    var params = new URL(window.location.href).searchParams;
-    Object.keys(state).forEach(function (g) {
-      var cfg = GROUPS[g];
-      var v = params.get(cfg.param);
-      if (v && (v === cfg.any || cfg.labels[v])) {
-        state[g] = v;
-        changed = changed || v !== cfg.any;
-      }
-    });
-  } catch (e) {}
-  if (changed) apply(false);
+  /* honour ?w= on arrival, ignoring a value no button offers */
+  var wanted = new URL(window.location.href).searchParams.get(PARAM);
+  if (wanted) {
+    for (var k = 0; k < buttons.length; k++) {
+      if (buttons[k].getAttribute("data-filter") === wanted) { state = wanted; break; }
+    }
+  }
+  apply();
 })();
