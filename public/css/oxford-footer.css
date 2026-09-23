@@ -42,3 +42,10 @@
   .footer_disclaimer{margin-top:1rem}
   .footer_regs{gap:.35rem 1.25rem;margin-bottom:1.5rem}
 }
+
+/* Below 768px the panel is display:block, where justify-self does nothing and
+   an inline-flex button sits at the left. A flex box sized to its content can
+   be pushed right with an auto margin. */
+@media screen and (max-width:767px){
+  #ch-nav-menu .ch-nav__book-cta{display:flex;width:fit-content;margin-left:auto}
+}

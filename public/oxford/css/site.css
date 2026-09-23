@@ -887,3 +887,10 @@ body.ch-nav-open .ch-page-hero{overflow:visible}
 @media (max-width:47.9375rem),(pointer:coarse){
   .ch-contact-block a{display:inline-flex;align-items:center;min-height:2.75rem;padding:.25rem 0}
 }
+
+/* Below 768px the panel is display:block, where justify-self does nothing and
+   an inline-flex button sits at the left. A flex box sized to its content can
+   be pushed right with an auto margin. */
+@media screen and (max-width:767px){
+  #ch-nav-menu .ch-nav__book-cta{display:flex;width:fit-content;margin-left:auto}
+}
