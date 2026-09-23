@@ -18,6 +18,13 @@
 .section-footer .padding-section-small{position:relative;z-index:1}
 .section-footer .footer_logo_wrap{z-index:0}
 
+/* The owl is centred and 236px wide, so its left edge sits at 50% - 118px.
+   Capping the registration line short of that wraps it to three lines beside
+   the watermark instead of across it. Only from 992px: below that the owl is
+   in the flow, or rotated into the corner, and never meets this text. */
+@media screen and (min-width:992px){
+  .footer_regs{max-width:calc(50% - 8rem);column-gap:1rem}
+}
 @media screen and (max-width:767px){
   .footer_disclaimer{margin-top:1rem}
   .footer_regs{gap:.35rem 1.25rem;margin-bottom:1.5rem}
