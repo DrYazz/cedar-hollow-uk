@@ -166,6 +166,26 @@
   letter-spacing: -.035em;
   color: var(--dp-accent); text-align: center;}
 
+/* Figma's band is a Heading frame then an Items frame (55:687 then 55:690),
+   48px apart. This is 3rem rather than 1.5rem because .dp-section__inner is a
+   block box, so this margin and .dp-h2's 1.5rem bottom margin collapse to the
+   larger of the two instead of summing -- 1.5rem here measured 24px, half the
+   intended gap.
+
+   The gap between items is 2.5rem rather than Figma's 24px: there, an item is
+   a card whose heading sits under a 4:3 photograph, so the picture supplies
+   the separation. These items are prose, and their headings need the air
+   above them or the band reads as one continuous column again -- which was
+   the whole complaint. */
+.dp-items {
+  display: flex;
+  flex-direction: column;
+  grid-row-gap: 2.5rem;
+  row-gap: 2.5rem;
+  margin-top: 3rem;
+}
+.dp-item > :last-child { margin-bottom: 0; }
+
 .dp-h3 {
   margin: 0 0 .75rem;
   font-family: var(--font-family--heading, Crimsonpro), serif;
