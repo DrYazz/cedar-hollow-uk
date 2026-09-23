@@ -749,3 +749,10 @@ body.ch-nav-open .ch-page-hero{overflow:visible}
 @media (max-width:22.5rem){
   .ch-eateries a[href^="tel:"]{padding:.4rem .6rem;max-width:100%}
 }
+
+/* The contact block's email and phone were a 20px line of text, and on five
+   pages the number was not even a link. Both are now 44px targets on a touch
+   screen, left as plain underlined text under a mouse. */
+@media (max-width:47.9375rem),(pointer:coarse){
+  .ch-contact-block a{display:inline-flex;align-items:center;min-height:2.75rem;padding:.25rem 0}
+}
