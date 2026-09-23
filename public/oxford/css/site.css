@@ -894,3 +894,32 @@ body.ch-nav-open .ch-page-hero{overflow:visible}
 @media screen and (max-width:767px){
   #ch-nav-menu .ch-nav__book-cta{display:flex;width:fit-content;margin-left:auto}
 }
+
+/* ---- Footer: the nav's links, beside the owl ----
+   Fifteen links where there were five. The watermark is centred and 236px
+   wide, so its right edge is at 50% + 118px of the container; capping this
+   block at calc(50% - 8rem) keeps the text off it at every width. auto-fit
+   gives three columns from about 1200px and two below, with no breakpoint
+   needed to say so. */
+/* 7.5rem gave three columns of 121px at 1200, one pixel under what
+   "On Our Doorstep" needs; 8rem drops to two roomy columns there instead of
+   breaking the label. */
+.section-footer .footer_content-right:not(.is-bottom){
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(8rem,1fr));
+  gap:1.75rem 1.5rem;width:100%;max-width:calc(50% - 8rem);align-items:start}
+.section-footer .footer_link-col{min-width:0}
+.section-footer .footer_col-title{margin:0 0 .6rem;font-family:var(--font-family--body);
+  font-size:.7rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  opacity:.65}
+/* 1.125rem is what made "On Our Doorstep" too wide for a column */
+.section-footer .footer_link-col .footer_link.is-large{font-size:1rem;font-weight:400}
+.section-footer .footer_link-col .footer-link-list{row-gap:0}
+.section-footer .footer_link-col .footer-link-list li{padding:.3rem 0}
+@media screen and (max-width:991px){
+  /* the owl shrinks to 8rem here, and the block has the row to itself */
+  .section-footer .footer_content-right:not(.is-bottom){max-width:none}
+}
+@media screen and (max-width:767px){
+  .section-footer .footer_content-right:not(.is-bottom){
+    grid-template-columns:repeat(auto-fit,minmax(8rem,1fr));gap:1.5rem 1.25rem}
+}
