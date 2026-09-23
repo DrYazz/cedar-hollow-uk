@@ -614,6 +614,12 @@ a.ch-frame:hover img{transform:scale(1.035)}
 /* Five links now, not three. The row sizes to its content instead of the 35%
    that fitted the legal trio, and each label stays whole rather than breaking
    into "Privacy / Policy". */
+/* The five small-print links sit as two rows: the two guest pages, then the
+   three legal documents. An empty item taking a whole flex line puts the break
+   in the same place at every width, instead of relying on a max-width that
+   happens to wrap there. */
+.section-footer .footer-link-list.is-legal{row-gap:.4rem}
+.section-footer .footer_legal-break{flex-basis:100%;width:100%;height:0;margin:0;padding:0}
 .section-footer .footer_legal .footer_content-right.is-bottom{width:auto;max-width:none}
 .section-footer .footer-link-list.is-legal{flex-wrap:wrap;justify-content:flex-end}
 .section-footer .footer-link-list.is-legal .footer_link{white-space:nowrap}
