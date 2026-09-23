@@ -571,6 +571,20 @@ width:100%;
           .press-row{grid-column-gap:1.75rem;column-gap:1.75rem;grid-row-gap:1.25rem;row-gap:1.25rem;}
         }
 
+        /* Phones: let the top row take two lines rather than shrink.
+           The shared sheet sets .awards-top-logos to nowrap, written when this
+           row held four badges -- shrinking them to fit was then the lesser
+           evil. With the VisitEngland Excellence badge added it holds five, and
+           at 390px they came out 77px tall while the four below wrapped freely
+           and stood at 112px: the more important row was the smaller one.
+           Wrapping here puts them on two lines at the full 112px, so both rows
+           match. Scoped to this page on purpose -- the same rule applied in the
+           shared sheet pushes Dorset's tidy row of three onto two lines and
+           doubles the height of the home page's carousel slides. */
+        @media screen and (max-width:767px){
+          .section-awards .awards-top-logos{flex-wrap:wrap;}
+        }
+
         /* The Oaks' remaining four sit on their own line under the design's row.
            .awards-top-logos is nowrap, so on a phone four badges in one line
            would shrink past legibility; this line wraps instead. */
