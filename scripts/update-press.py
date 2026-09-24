@@ -379,6 +379,11 @@ def award_card(a):
             parts.append('    <p class="ch-awards__note">%s</p>' % html.escape(a[key]))
     parts.append('    <p class="ch-awards__recipient">%s</p>'
                  % html.escape(a["recipient"]))
+    # The architecture awards were given to a building, so they name who
+    # designed it, the way the awarding body does.
+    if a.get("architect"):
+        parts.append('    <p class="ch-awards__architect">Architect: %s</p>'
+                     % html.escape(a["architect"]))
     # One award covering three treehouses is rated separately for each, so
     # the entry carries a link per accommodation rather than one for all.
     if a.get("links"):
