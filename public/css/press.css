@@ -19,20 +19,36 @@
   text-align: left;
 }
 
-/* The woodland filter on the combined page. It reuses .ch-feed__btn so the
-   buttons match what the old feed had. Hiding is by the hidden attribute,
-   set by js/press-filter.js; these rules make sure a hidden grid item is
-   really out of the layout rather than an empty cell. */
+/* The two filters on the combined page: which woodland, and which kind of
+   coverage. They reuse .ch-feed__btn so the buttons match what the old feed
+   had. The bar sits in its own band above both sections, because the kind
+   filter hides a section whole and a control cannot hide itself.
+
+   Hiding is by the hidden attribute, set by js/press-filter.js. A section is
+   display:block from the page framework and a grid item is a grid cell, so
+   both need saying explicitly or a hidden one leaves a gap behind.
+
+   The band gets its space from padding rather than margin, because it has no
+   padding of its own and a margin would collapse out through it, showing a
+   strip of the page behind. */
+.ch-press__filters {
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+  padding: 3.5rem 0 0;
+}
+
 .ch-press__filter {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: .625rem;
-  margin: 0 0 2.5rem;
+  margin: 0;
 }
 
 .ch-press__grid > li[hidden],
-.ch-vid-grid > li[hidden] {
+.ch-vid-grid > li[hidden],
+section[data-kind][hidden] {
   display: none !important;
 }
 

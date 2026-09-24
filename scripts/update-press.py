@@ -34,9 +34,13 @@ PAGES = [
     ROOT / "public" / "dorset-press.html",
 ]
 
-BLOCK_RE = re.compile(r"(<!-- ch:press ?([\w-]*) -->)(.*?)(<!-- /ch:press -->)", re.S)
+# The name is a whole word after a space, so a sibling marker such as
+# ch:press-filter is not read as this block with the name "-filter" and
+# then closed against the articles grid's end marker further down.
+BLOCK_RE = re.compile(r"(<!-- ch:press(?: ([\w-]+))? -->)(.*?)(<!-- /ch:press -->)", re.S)
 SCREEN_RE = re.compile(r"(<!-- ch:press-screen ?([\w-]*) -->)(.*?)(<!-- /ch:press-screen -->)", re.S)
 FEED_RE = re.compile(r"(<!-- ch:press-feed ?([\w-]*) -->)(.*?)(<!-- /ch:press-feed -->)", re.S)
+FILTER_RE = re.compile(r"(<!-- ch:press-filter -->)(.*?)(<!-- /ch:press-filter -->)", re.S)
 
 LOCATIONS = {"oxford": "Oxfordshire", "dorset": "Dorset"}
 
@@ -276,25 +280,46 @@ def video_year(v):
     return (v.get("aired") or v.get("date", ""))[:4]
 
 
-def woodland_filter(counts):
-    """The All / Oxfordshire / Dorset control for the combined page.
+def kind_counts(sections):
+    """What the Press and TV buttons count: articles against films."""
+    press = sum(len(sec.get("items") or []) for sec in sections.values())
+    screen = sum(len(sec.get("screen") or []) for sec in sections.values())
+    return {"all": press + screen, "press": press, "screen": screen}
 
-    It sits above the clippings but narrows the screen section too, so the
-    counts are of everything a choice reveals, articles and films together.
-    Rendered server-side and complete: with JavaScript off the buttons do
-    nothing and every entry stays on the page, which is the sensible
-    fallback for a filter.
-    """
-    out = ['  <div class="ch-press__filter" role="group" aria-label="Filter by woodland">']
-    for key, label in (("all", "All"), ("oxford", "Oxfordshire"), ("dorset", "Dorset")):
-        out.append(
-            '    <button class="ch-feed__btn" type="button" data-group="location" '
+
+def filter_btn(group, value, label, count, on):
+    return ('    <button class="ch-feed__btn" type="button" data-group="%s" '
             'data-filter="%s" aria-pressed="%s">%s '
             '<span class="ch-feed__count">%d</span></button>'
-            % (key, "true" if key == "all" else "false", label, counts.get(key, 0))
-        )
-    out.append('  </div>')
-    return out
+            % (group, value, "true" if on else "false", label, count))
+
+
+def filters(sections, indent):
+    """The two controls on the combined page: which woodland, and which kind.
+
+    They sit above both sections rather than inside either. The woodland
+    control narrows the grids, so its counts are articles and films together;
+    the kind control hides a whole section, which is why neither can live
+    inside one. Rendered server-side and complete: with JavaScript off the
+    buttons do nothing and every entry stays on the page, which is the
+    sensible fallback for a filter.
+    """
+    where = both(sections, "items")["counts"]
+    kinds = kind_counts(sections)
+    lines = ['<div class="ch-press__filters">']
+    for group, label, options, counts in (
+        ("location", "Filter by woodland",
+         (("all", "All"), ("oxford", "Oxfordshire"), ("dorset", "Dorset")), where),
+        ("kind", "Filter by kind of coverage",
+         (("all", "All"), ("press", "Press"), ("screen", "TV")), kinds),
+    ):
+        lines.append('  <div class="ch-press__filter" role="group" aria-label="%s">' % label)
+        for key, text in options:
+            lines.append(filter_btn(group, key, text, counts.get(key, 0), key == "all"))
+        lines.append("  </div>")
+    lines.append("</div>")
+    body = ("\n" + indent).join(lines)
+    return "\n%s%s\n%s" % (indent, body, indent)
 
 
 def render(section, indent, show_location=False):
@@ -306,8 +331,6 @@ def render(section, indent, show_location=False):
         return None
 
     lines = ['<div class="ch-press">']
-    if show_location:
-        lines.extend(woodland_filter(section.get("counts") or {}))
     lines.append('  <ul class="ch-press__grid">')
     for item in items:
         # data-location is what js/press-filter.js narrows on
@@ -463,14 +486,21 @@ def main():
             seen.append((scope or "combined", len(feed_entries(sections, scope)), "feed"))
             return match.group(1) + body + match.group(4)
 
-        updated = BLOCK_RE.sub(replace, text)
+        def replace_filter(match):
+            seen.append(("combined", 0, "filter"))
+            return match.group(1) + filters(sections, marker_indent(match)) + match.group(3)
+
+        updated = FILTER_RE.sub(replace_filter, text)
+        updated = BLOCK_RE.sub(replace, updated)
         updated = SCREEN_RE.sub(replace_screen, updated)
         updated = FEED_RE.sub(replace_feed, updated)
         if not seen:
             sys.exit("%s: no ch:press markers found" % page.name)
 
         for name, count, kind in seen:
-            if kind == "feed":
+            if kind == "filter":
+                state = "woodland and kind filters"
+            elif kind == "feed":
                 state = "%d entries, newest first" % count
             elif kind == "screen":
                 state = "%d videos" % count
