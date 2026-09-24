@@ -1,23 +1,23 @@
 /*
  * The controls above the press coverage: which woodland, and which kind.
  *
- * Woodland (All / Oxfordshire / Dorset) narrows both grids, because a reader
- * asking for Dorset wants the Dorset films too. Anything carrying
- * data-location is in scope, so the markup decides what is filterable and
- * this file does not need to know about grids.
+ * Woodland (Both woodlands / Oxfordshire / Dorset) narrows every grid,
+ * because a reader asking for Dorset wants the Dorset films and the Dorset
+ * awards too. Anything carrying data-location is in scope, so the markup
+ * decides what is filterable and this file does not need to know about grids.
  *
- * Kind (All / Press / TV) hides a whole section, heading and all, so the
- * sections carry data-kind and the bar sits above both of them -- a control
- * cannot hide itself.
+ * Kind (Everything / In the press / On screen / Awards & Accreditations)
+ * hides a whole section, heading and all, so the sections carry data-kind and
+ * the bar sits above all of them -- a control cannot hide itself.
  *
  * A woodland page renders the kind control on its own: which woodland is
  * already settled by which page you are on. So neither control is assumed --
  * whichever buttons the page renders are the ones this file drives.
  *
- * Where both are present they combine: Dorset and TV shows the Dorset films
- * only. The counts on the buttons are recounted after every choice so each
- * one says how many entries that button would actually reveal, given the
- * other control.
+ * Where both are present they combine: Dorset and On screen shows the Dorset
+ * films only. The counts on the buttons are recounted after every choice so
+ * each one says how many entries that button would actually reveal, given
+ * the other control.
  *
  * The choice is kept in the URL (?w=dorset&k=screen) so a filtered view can
  * be linked and survives a refresh, using replaceState so flicking between
@@ -35,7 +35,12 @@
   if (!bar) return;
 
   var ANY = "all";
-  var items = document.querySelectorAll("[data-location]");
+  /* Everything the woodland choice hides: the entries themselves, and the
+     award group headings, which carry data-location so a heading is never
+     left standing over nothing. Only the entries are counted, so a heading
+     going with them does not inflate a button. */
+  var hideable = document.querySelectorAll("[data-location]");
+  var items = document.querySelectorAll("li[data-location]");
   var sections = document.querySelectorAll("[data-kind]");
   if (!items.length || !sections.length) return;
 
@@ -78,8 +83,8 @@
   }
 
   function apply() {
-    for (var i = 0; i < items.length; i++) {
-      items[i].hidden = !matches(items[i], "location", stateOf("location"));
+    for (var i = 0; i < hideable.length; i++) {
+      hideable[i].hidden = !matches(hideable[i], "location", stateOf("location"));
     }
     for (var s = 0; s < sections.length; s++) {
       sections[s].hidden = !matches(sections[s], "kind", stateOf("kind"));
