@@ -351,38 +351,46 @@ def filters(sections, indent, scope=None):
 
 
 def award_card(a):
-    """One recognition: who gave it, what for, and where it can be checked."""
-    parts = ['<article class="ch-awards__card">']
-    # The label leads on every card, badge or no badge, so the top line is
-    # level across a row -- four of these have no mark we hold.
-    parts.append('  <p class="ch-awards__kind">%s</p>' % html.escape(a["kind"]))
+    """One recognition: the mark on top, what it was for underneath.
+
+    Shaped like the clippings above it -- picture, then words, and no frame
+    around either -- so the page reads as one list in three parts rather
+    than three designs. The band for the mark is there whether or not we
+    hold one, so the words start on the same line across a row.
+    """
+    parts = ['<article class="ch-awards__item">']
     if a.get("logo"):
         # The badge says the same thing as the words under it, so it is
         # decorative: an empty alt keeps it from being read out twice.
-        parts.append('  <img class="ch-awards__badge" src="%s" alt="" '
-                     'loading="lazy" decoding="async">' % asset(a["logo"]))
-    parts.append('  <h4 class="ch-awards__org">%s</h4>' % html.escape(a["org"]))
-    parts.append('  <p class="ch-awards__name">%s</p>' % html.escape(a["award"]))
+        parts.append('  <p class="ch-awards__badge"><img src="%s" alt="" '
+                     'loading="lazy" decoding="async"></p>' % asset(a["logo"]))
+    else:
+        parts.append('  <p class="ch-awards__badge"></p>')
+    parts.append('  <div class="ch-awards__body">')
+    parts.append('    <p class="ch-awards__kind">%s</p>' % html.escape(a["kind"]))
+    parts.append('    <h4 class="ch-awards__org">%s</h4>' % html.escape(a["org"]))
+    parts.append('    <p class="ch-awards__name">%s</p>' % html.escape(a["award"]))
     line = " &middot; ".join(html.escape(bit) for bit in
                              (a.get("distinction"), a.get("year")) if bit)
     if line:
-        parts.append('  <p class="ch-awards__distinction">%s</p>' % line)
+        parts.append('    <p class="ch-awards__distinction">%s</p>' % line)
     for key in ("description", "category"):
         if a.get(key):
-            parts.append('  <p class="ch-awards__note">%s</p>' % html.escape(a[key]))
-    parts.append('  <p class="ch-awards__recipient">%s</p>'
+            parts.append('    <p class="ch-awards__note">%s</p>' % html.escape(a[key]))
+    parts.append('    <p class="ch-awards__recipient">%s</p>'
                  % html.escape(a["recipient"]))
     # One award covering three treehouses is rated separately for each, so
-    # the card carries a link per accommodation rather than one for all.
+    # the entry carries a link per accommodation rather than one for all.
     if a.get("links"):
         anchors = ['<a href="%s" target="_blank" rel="noopener">%s</a>'
                    % (html.escape(link["url"], quote=True), html.escape(link["label"]))
                    for link in a["links"]]
-        parts.append('  <p class="ch-awards__source">Sources: %s</p>'
+        parts.append('    <p class="ch-awards__source">Sources: %s</p>'
                      % ", ".join(anchors))
     elif a.get("url"):
-        parts.append('  <p class="ch-awards__source"><a href="%s" target="_blank" '
+        parts.append('    <p class="ch-awards__source"><a href="%s" target="_blank" '
                      'rel="noopener">Source</a></p>' % html.escape(a["url"], quote=True))
+    parts.append('  </div>')
     parts.append('</article>')
     return parts
 

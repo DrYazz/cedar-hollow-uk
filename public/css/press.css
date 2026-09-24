@@ -300,26 +300,40 @@ section[data-kind][hidden] {
   list-style: none;
 }
 
-.ch-awards__card {
+.ch-awards__item {
   display: flex;
   flex-direction: column;
-  gap: .375rem;
+  gap: .875rem;
   height: 100%;
   margin: 0;
-  padding: 1.5rem 1.25rem;
-  border-radius: var(--radius--16, 1rem);
-  background-color: #fff;
-  box-shadow: 0 .5rem 1.5rem rgba(16, 19, 7, .16);
+  /* No frame, for the same reason the clippings have none: these marks
+     already carry their own edges, and a box around a box reads as one. */
+  background: none;
+  border: 0;
   color: var(--accent, #3b4126);
 }
 
+/* A band of fixed height for the mark, so the words start on the same line
+   across a row. Two of the RIBA awards have no mark we hold -- their band
+   is empty rather than borrowing a badge that names the wrong year. */
 .ch-awards__badge {
+  display: flex;
+  align-items: flex-end;
+  min-height: 6rem;
+  margin: 0;
+}
+
+.ch-awards__badge img {
   width: auto;
-  max-width: 7rem;
-  height: 5rem;
-  margin: .5rem 0;
-  object-fit: contain;
-  object-position: left center;
+  max-width: 100%;
+  max-height: 6rem;
+}
+
+.ch-awards__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: .375rem;
 }
 
 .ch-awards__kind {
@@ -333,7 +347,7 @@ section[data-kind][hidden] {
 }
 
 .ch-awards__org {
-  margin: .25rem 0 0;
+  margin: .125rem 0 0;
   font-size: 1.125rem;
   line-height: 1.25;
 }

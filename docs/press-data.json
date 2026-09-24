@@ -361,7 +361,7 @@
           "description": "Recognition of Service Excellence",
           "recipient": "Faun\u2019s Hideaway at Cedar Hollow Oxford",
           "kind": "Service excellence award",
-          "logo": "images/award-visitengland-rose.png",
+          "logo": "images/press-awards/visitengland-rose.webp",
           "url": "https://www.ratedtrips.com/travel-ideas/visitengland-rose-award-winners-2026",
           "location": "oxford"
         },
@@ -587,6 +587,7 @@
         {
           "org": "RIBA",
           "award": "South West Award",
+          "logo": "images/image-6.png",
           "distinction": "Winner",
           "year": "2023",
           "recipient": "Dazzle Treehouse, Mallinson\u2019s Woodland Retreat",
@@ -597,6 +598,7 @@
         {
           "org": "RIBA",
           "award": "South West Award",
+          "logo": "images/image-6.png",
           "distinction": "Winner",
           "year": "2023",
           "recipient": "Pinwheel Treehouse, Mallinson\u2019s Woodland Retreat",
@@ -611,7 +613,7 @@
           "description": "Recognition of Service Excellence",
           "recipient": "Dazzle Treehouse, Mallinson\u2019s Woodland Retreat",
           "kind": "Service excellence award",
-          "logo": "images/Visitengland.png",
+          "logo": "images/press-awards/visitengland-rose-2023.webp",
           "url": "https://www.ratedtrips.com/travel-ideas/visitengland-rose-award-winners-2023",
           "location": "dorset"
         },
