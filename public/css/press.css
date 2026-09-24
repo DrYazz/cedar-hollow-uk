@@ -19,20 +19,38 @@
   text-align: left;
 }
 
-/* The woodland filter on the combined page. It reuses .ch-feed__btn so the
-   buttons match what the old feed had. Hiding is by the hidden attribute,
-   set by js/press-filter.js; these rules make sure a hidden grid item is
-   really out of the layout rather than an empty cell. */
+/* The two filters on the combined page: which woodland, and which kind of
+   coverage. They reuse .ch-feed__btn so the buttons match what the old feed
+   had. The bar sits in its own band above both sections, because the kind
+   filter hides a section whole and a control cannot hide itself.
+
+   Hiding is by the hidden attribute, set by js/press-filter.js. A section is
+   display:block from the page framework and a grid item is a grid cell, so
+   both need saying explicitly or a hidden one leaves a gap behind.
+
+   The band gets its space from padding rather than margin, because it has no
+   padding of its own and a margin would collapse out through it, showing a
+   strip of the page behind. */
+.ch-press__filters {
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+  padding: 3.5rem 0 0;
+}
+
 .ch-press__filter {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: .625rem;
-  margin: 0 0 2.5rem;
+  margin: 0;
 }
 
 .ch-press__grid > li[hidden],
-.ch-vid-grid > li[hidden] {
+.ch-vid-grid > li[hidden],
+.ch-awards__grid > li[hidden],
+.ch-awards__group[hidden],
+section[data-kind][hidden] {
   display: none !important;
 }
 
@@ -235,6 +253,156 @@
   border-left-color: rgba(239, 238, 213, .4);
 }
 
+/* ===========================================================================
+   Awards and accreditations.
+
+   The badges are other organisations' official marks, so a card gives one a
+   white ground to sit on -- the same ground the clippings have -- and leaves
+   it otherwise alone: contained, never cropped, never recoloured. The four
+   RIBA awards have no mark we hold, so those cards lead with the words and
+   keep the same shape, rather than borrowing a badge that is not theirs.
+
+   Groups carry data-location, so the woodland filter takes a heading away
+   with its cards and never leaves one standing over nothing.
+   =========================================================================== */
+
+.ch-awards {
+  margin-top: 2.5rem;
+  text-align: left;
+}
+
+.ch-awards__group + .ch-awards__group {
+  margin-top: 3.5rem;
+}
+
+.ch-awards__title {
+  margin: 0 0 1.5rem;
+  font-size: 1.5rem;
+  line-height: 1.25;
+  text-align: center;
+}
+
+/* The name several of these were won under, kept beside the current one. */
+.ch-awards__formerly {
+  display: inline-block;
+  font-size: 1rem;
+  font-style: italic;
+  font-weight: 400;
+  opacity: .7;
+}
+
+.ch-awards__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: 1.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ch-awards__item {
+  display: flex;
+  flex-direction: column;
+  gap: .875rem;
+  height: 100%;
+  margin: 0;
+  /* No frame, for the same reason the clippings have none: these marks
+     already carry their own edges, and a box around a box reads as one. */
+  background: none;
+  border: 0;
+  color: var(--accent, #3b4126);
+}
+
+/* A band of fixed height for the mark, so the words start on the same line
+   across a row. Two of the RIBA awards have no mark we hold -- their band
+   is empty rather than borrowing a badge that names the wrong year. */
+.ch-awards__badge {
+  display: flex;
+  align-items: flex-end;
+  min-height: 10.5rem;
+  margin: 0;
+}
+
+/* Height sets the size for the upright marks -- the plaques, the ribbons,
+   the Green Tourism oval. The two wide ones, RIBA and the Beautiful South,
+   would read as much larger at the same height simply for being wide, so a
+   width cap brings them back to roughly the same weight on the page. */
+.ch-awards__badge img {
+  width: auto;
+  max-width: 13rem;
+  max-height: 10.5rem;
+}
+
+.ch-awards__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: .375rem;
+}
+
+.ch-awards__kind {
+  margin: 0;
+  font-size: .8125rem;
+  font-weight: 600;
+  letter-spacing: .06em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  opacity: .6;
+}
+
+.ch-awards__org {
+  margin: .125rem 0 0;
+  font-size: 1.125rem;
+  line-height: 1.25;
+}
+
+.ch-awards__name,
+.ch-awards__distinction,
+.ch-awards__note,
+.ch-awards__recipient,
+.ch-awards__architect,
+.ch-awards__source {
+  margin: 0;
+  font-size: .9375rem;
+  line-height: 1.45;
+}
+
+.ch-awards__distinction {
+  font-weight: 600;
+}
+
+.ch-awards__note {
+  opacity: .8;
+}
+
+/* What was recognised, which is not always the whole woodland. */
+.ch-awards__recipient {
+  font-style: italic;
+  opacity: .8;
+}
+
+/* Who designed it, on the architecture awards. */
+.ch-awards__architect {
+  opacity: .8;
+}
+
+/* Pushed to the foot so the source lines sit level across a row. */
+.ch-awards__source {
+  margin-top: auto;
+  padding-top: .75rem;
+  font-size: .875rem;
+}
+
+.ch-awards__source a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: .2em;
+}
+
+.ch-awards__source a:hover,
+.ch-awards__source a:focus-visible {
+  text-decoration-thickness: 2px;
+}
 /* ===========================================================================
    Television and film: a still with a play button, not an iframe.
 

@@ -340,6 +340,71 @@
           "embed": false,
           "ratio": "16/9"
         }
+      ],
+      "awards": [
+        {
+          "org": "VisitEngland",
+          "award": "Awards for Excellence",
+          "distinction": "Silver",
+          "year": "2026",
+          "category": "Self-Catering Accommodation of the Year",
+          "recipient": "Cedar Hollow @ The Oaks, Oxfordshire",
+          "kind": "National tourism award",
+          "logo": "images/award-visitengland-excellence-2026-badge.webp",
+          "url": "https://www.visitbritain.org/news-and-media/industry-news-and-press-releases/visitengland-awards-excellence-2026-winners",
+          "location": "oxford"
+        },
+        {
+          "org": "VisitEngland",
+          "award": "ROSE Award",
+          "year": "2026",
+          "description": "Recognition of Service Excellence",
+          "recipient": "Faun\u2019s Hideaway at Cedar Hollow Oxford",
+          "kind": "Service excellence award",
+          "logo": "images/award-visitengland-rose.png",
+          "url": "https://www.ratedtrips.com/travel-ideas/visitengland-rose-award-winners-2026",
+          "location": "oxford"
+        },
+        {
+          "org": "Beautiful South Tourism Awards",
+          "award": "Self-Catering Accommodation of the Year",
+          "distinction": "Silver",
+          "year": "2025",
+          "recipient": "Cedar Hollow @ The Oaks, Oxford",
+          "kind": "Regional tourism award",
+          "logo": "images/award-beautiful-south-silver.png",
+          "url": "https://www.beautifulsouthawards.co.uk/winners",
+          "location": "oxford"
+        },
+        {
+          "org": "VisitEngland",
+          "award": "Gold Award",
+          "distinction": "Gold",
+          "recipient": "Cedar Hollow Treehouse",
+          "kind": "Accommodation quality award",
+          "logo": "images/image-7.png",
+          "url": "https://www.ratedtrips.com/camping/england/oxfordshire/oxford/cedar-hollow-ox38gh",
+          "location": "oxford"
+        },
+        {
+          "org": "VisitEngland",
+          "award": "Five-Star Glamping",
+          "distinction": "Five stars",
+          "recipient": "Cedar Hollow Treehouse",
+          "kind": "Quality rating",
+          "logo": "images/award-visitengland-5star-glamping.png",
+          "url": "https://www.ratedtrips.com/camping/england/oxfordshire/oxford/cedar-hollow-ox38gh",
+          "location": "oxford"
+        },
+        {
+          "org": "Green Tourism",
+          "award": "Gold",
+          "recipient": "Cedar Hollow Oxford",
+          "kind": "Sustainability certification",
+          "logo": "images/award-green-tourism-gold.webp",
+          "url": "https://www.ratedtrips.com/camping/england/oxfordshire/oxford/cedar-hollow-ox38gh",
+          "location": "oxford"
+        }
       ]
     },
     "dorset": {
@@ -516,6 +581,113 @@
           "location": "dorset",
           "ratio": "120/67",
           "detail": "Series 2 Episode 2"
+        }
+      ],
+      "awards": [
+        {
+          "org": "RIBA",
+          "award": "South West Award",
+          "architect": "BEAM Architects",
+          "logo": "images/image-6.png",
+          "distinction": "Winner",
+          "year": "2023",
+          "recipient": "Dazzle Treehouse, Mallinson\u2019s Woodland Retreat",
+          "kind": "Architecture award",
+          "url": "https://www.riba.org/explore/awards/uk-awards/regional-awards/2023/south-west-award-winners/dazzle/",
+          "location": "dorset"
+        },
+        {
+          "org": "RIBA",
+          "award": "South West Award",
+          "architect": "BEAM Architects",
+          "logo": "images/image-6.png",
+          "distinction": "Winner",
+          "year": "2023",
+          "recipient": "Pinwheel Treehouse, Mallinson\u2019s Woodland Retreat",
+          "kind": "Architecture award",
+          "url": "https://www.riba.org/explore/awards/uk-awards/regional-awards/2023/south-west-award-winners/pinwheel/",
+          "location": "dorset"
+        },
+        {
+          "org": "VisitEngland",
+          "award": "ROSE Award",
+          "year": "2023",
+          "description": "Recognition of Service Excellence",
+          "recipient": "Dazzle Treehouse, Mallinson\u2019s Woodland Retreat",
+          "kind": "Service excellence award",
+          "logo": "images/Visitengland.png",
+          "url": "https://www.ratedtrips.com/travel-ideas/visitengland-rose-award-winners-2023",
+          "location": "dorset"
+        },
+        {
+          "org": "RIBA",
+          "award": "South West Award",
+          "architect": "Brownlie Ernst and Marks",
+          "logo": "images/award-riba-south-west-2017.png",
+          "distinction": "Winner",
+          "year": "2017",
+          "recipient": "Woodsman\u2019s Treehouse, Mallinson\u2019s Woodland Retreat",
+          "kind": "Architecture award",
+          "url": "https://www.ribaj.com/buildings/riba-south-west-wessex-awards-2017/",
+          "location": "dorset"
+        },
+        {
+          "org": "RIBA",
+          "award": "South West Small Project of the Year",
+          "logo": "images/award-riba-logo.webp",
+          "architect": "Brownlie Ernst and Marks",
+          "distinction": "Winner",
+          "year": "2017",
+          "recipient": "Woodsman\u2019s Treehouse, Mallinson\u2019s Woodland Retreat",
+          "kind": "Architecture award",
+          "url": "https://www.standard.co.uk/homesandproperty/interiors/the-woodmans-treehouse-retreat-in-dorset-has-a-builtin-slide-rooftop-sauna-hot-tub-and-openair-tree-shower-a114561.html",
+          "location": "dorset"
+        },
+        {
+          "org": "VisitEngland",
+          "award": "Gold Award",
+          "distinction": "Gold",
+          "recipient": "Woodsman\u2019s, Dazzle and Pinwheel Treehouses",
+          "kind": "Accommodation quality award",
+          "logo": "images/image-7.png",
+          "links": [
+            {
+              "label": "Woodsman\u2019s",
+              "url": "https://www.ratedtrips.com/camping/england/dorset/lyme-regis/the-woodsmans-treehouse-ta204nl"
+            },
+            {
+              "label": "Dazzle",
+              "url": "https://www.ratedtrips.com/camping/england/dorset/lyme-regis/dazzle-treehouse-ta204nl"
+            },
+            {
+              "label": "Pinwheel",
+              "url": "https://www.ratedtrips.com/camping/england/dorset/lyme-regis/pinwheel-treehouse-ta204nl"
+            }
+          ],
+          "location": "dorset"
+        },
+        {
+          "org": "VisitEngland",
+          "award": "Five-Star Glamping",
+          "distinction": "Five stars",
+          "recipient": "Woodsman\u2019s, Dazzle and Pinwheel Treehouses",
+          "kind": "Quality rating",
+          "logo": "images/award-visitengland-5star-glamping.png",
+          "links": [
+            {
+              "label": "Woodsman\u2019s",
+              "url": "https://www.ratedtrips.com/camping/england/dorset/lyme-regis/the-woodsmans-treehouse-ta204nl"
+            },
+            {
+              "label": "Dazzle",
+              "url": "https://www.ratedtrips.com/camping/england/dorset/lyme-regis/dazzle-treehouse-ta204nl"
+            },
+            {
+              "label": "Pinwheel",
+              "url": "https://www.ratedtrips.com/camping/england/dorset/lyme-regis/pinwheel-treehouse-ta204nl"
+            }
+          ],
+          "location": "dorset"
         }
       ]
     }
