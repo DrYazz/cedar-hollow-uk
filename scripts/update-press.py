@@ -326,22 +326,27 @@ def filters(sections, indent, scope=None):
     nothing and every entry stays on the page, which is the sensible
     fallback for a filter.
     """
-    kinds = ("kind", "Filter by kind of coverage",
-             (("all", "Everything"), ("press", "In the press"),
-              ("screen", "On screen"), ("awards", "Awards &amp; Accreditations")))
+    kinds = ("kind", "Type",
+             (("all", "All"), ("press", "Press"), ("screen", "TV"),
+              ("awards", "Awards")))
     if scope:
         groups = [(kinds, kind_counts({scope: sections[scope]}))]
     else:
         groups = [
-            (("location", "Filter by woodland",
-              (("all", "Both woodlands"), ("oxford", "Oxfordshire"),
-               ("dorset", "Dorset"))),
+            (("location", "Location",
+              (("all", "All"), ("oxford", "Oxford"), ("dorset", "Dorset"))),
              both(sections, "items")["counts"]),
             (kinds, kind_counts(sections)),
         ]
     lines = ['<div class="ch-press__filters">']
     for (group, label, options), counts in groups:
-        lines.append('  <div class="ch-press__filter" role="group" aria-label="%s">' % label)
+        # The group is named on the page rather than only to a screen
+        # reader, so the buttons can be a word each: four long ones wrapped
+        # into a wall on a phone.
+        lines.append('  <div class="ch-press__filter" role="group" '
+                     'aria-labelledby="ch-filter-%s">' % group)
+        lines.append('    <span class="ch-press__filter-label" '
+                     'id="ch-filter-%s">%s:</span>' % (group, label))
         for key, text in options:
             lines.append(filter_btn(group, key, text, counts.get(key, 0), key == "all"))
         lines.append("  </div>")
