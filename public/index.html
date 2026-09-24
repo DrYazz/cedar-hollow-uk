@@ -1251,14 +1251,10 @@ animation:marquee-scroll 70s linear infinite;
             booted = true;
             var css = document.createElement("link");
             css.rel = "stylesheet";
-            css.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
-            css.integrity = "sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=";
-            css.crossOrigin = "";
+            css.href = "js/vendor/leaflet-1.9.4/leaflet.css";
             document.head.appendChild(css);
             var s = document.createElement("script");
-            s.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
-            s.integrity = "sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=";
-            s.crossOrigin = "";
+            s.src = "js/vendor/leaflet-1.9.4/leaflet.js";
             /* Vendored rather than pulled from a CDN: the point of moving off
                CARTO was to stop the map depending on somebody else being up. */
             s.onload = function () {
