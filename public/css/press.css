@@ -819,11 +819,11 @@ a.ch-vid__play {
   }
 }
 
-/* On a phone the group name takes its own line and the pills come down a
-   size, so each control reads as a label and one row of buttons rather than
-   a block of wrapped text. Four type buttons and a label will not sit on one
-   line at this width at full size, and shrinking them far enough to manage
-   it would leave targets too small to tap. */
+/* On a phone the group name takes its own line and the counts come off the
+   buttons, which is what lets four of them sit on one row at full size. The
+   counts are the first thing to go rather than the label or the type size:
+   they are a nicety, where the label is what tells you which control you are
+   looking at, and the type size is what keeps the pills tappable. */
 @media screen and (max-width: 479px) {
   .ch-press__filter-label {
     flex-basis: 100%;
@@ -831,13 +831,17 @@ a.ch-vid__play {
     text-align: center;
   }
 
-  .ch-feed__btn {
-    padding: .5rem .75rem;
-    font-size: .9375rem;
+  .ch-press__filter {
+    gap: .5rem;
   }
 
-  .ch-feed__count {
-    font-size: .875rem;
+  .ch-feed__btn {
+    padding: .5rem .8125rem;
+    font-size: 1rem;
+  }
+
+  .ch-press__filter .ch-feed__count {
+    display: none;
   }
 }
 
