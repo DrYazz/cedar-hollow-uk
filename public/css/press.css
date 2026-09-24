@@ -254,6 +254,7 @@ section[data-kind][hidden] {
   }
 }
 
+
 /* The Dorset half sits on the moss band. Until the tiles lost their cream
    backing this did not matter -- the ink was moss on cream inside each card.
    With the clippings sitting straight on the band, moss ink lands on a moss
@@ -816,6 +817,53 @@ a.ch-vid__play {
   .ch-feed__btn {
     padding: .5rem .875rem;
     font-size: 1.125rem;
+  }
+}
+
+/* Two across on a phone, like the clippings above them, with a rule under
+   each entry. Side by side the text sets narrow and ragged, and without the
+   rule one entry's source line runs straight into the next one's label. */
+@media screen and (max-width: 767px) {
+  /* minmax(0, 1fr) rather than 1fr: a grid track will not go below its
+     content, and the widest mark is wider than half a phone, so 1fr lets
+     the second column push off the edge of the screen. */
+  .ch-awards__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem 1rem;
+  }
+
+  .ch-awards__item {
+    gap: .625rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid rgba(59, 65, 38, .2);
+  }
+
+  /* The marks come down with the column: at full size one would stand taller
+     than the words it belongs to. */
+  .ch-awards__badge {
+    min-height: 6.5rem;
+  }
+
+  .ch-awards__badge img {
+    max-width: 100%;
+    max-height: 6.5rem;
+  }
+
+  .ch-awards__org {
+    font-size: 1rem;
+  }
+
+  .ch-awards__name,
+  .ch-awards__distinction,
+  .ch-awards__note,
+  .ch-awards__recipient,
+  .ch-awards__architect,
+  .ch-awards__source {
+    font-size: .875rem;
+  }
+
+  .ch-awards__title {
+    font-size: 1.25rem;
   }
 }
 
