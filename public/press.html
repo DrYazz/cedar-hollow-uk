@@ -29,7 +29,7 @@
   <meta content="A timber cabin lit from within, among ferns in golden-hour woodland" property="og:image:alt">
   <meta content="summary_large_image" name="twitter:card">
   <link href="css/page.css?v=20260922a" rel="stylesheet" type="text/css">
-  <link href="css/press.css?v=20260924h" rel="stylesheet" type="text/css">
+  <link href="css/press.css?v=20260924k" rel="stylesheet" type="text/css">
   <style>
     /* page.css styles .ch-prose links but not .ch-list ones, so these were
        rendering as default browser blue; and .ch-list is not in the accent
@@ -155,16 +155,18 @@
             <div class="max-width-xlarge align-center">
               <!-- ch:press-filter -->
               <div class="ch-press__filters">
-                <div class="ch-press__filter" role="group" aria-label="Filter by woodland">
-                  <button class="ch-feed__btn" type="button" data-group="location" data-filter="all" aria-pressed="true">Both woodlands <span class="ch-feed__count">43</span></button>
-                  <button class="ch-feed__btn" type="button" data-group="location" data-filter="oxford" aria-pressed="false">Oxfordshire <span class="ch-feed__count">25</span></button>
+                <div class="ch-press__filter" role="group" aria-labelledby="ch-filter-location">
+                  <span class="ch-press__filter-label" id="ch-filter-location">Location:</span>
+                  <button class="ch-feed__btn" type="button" data-group="location" data-filter="all" aria-pressed="true">All <span class="ch-feed__count">43</span></button>
+                  <button class="ch-feed__btn" type="button" data-group="location" data-filter="oxford" aria-pressed="false">Oxford <span class="ch-feed__count">25</span></button>
                   <button class="ch-feed__btn" type="button" data-group="location" data-filter="dorset" aria-pressed="false">Dorset <span class="ch-feed__count">18</span></button>
                 </div>
-                <div class="ch-press__filter" role="group" aria-label="Filter by kind of coverage">
-                  <button class="ch-feed__btn" type="button" data-group="kind" data-filter="all" aria-pressed="true">Everything <span class="ch-feed__count">43</span></button>
-                  <button class="ch-feed__btn" type="button" data-group="kind" data-filter="press" aria-pressed="false">In the press <span class="ch-feed__count">22</span></button>
-                  <button class="ch-feed__btn" type="button" data-group="kind" data-filter="screen" aria-pressed="false">On screen <span class="ch-feed__count">8</span></button>
-                  <button class="ch-feed__btn" type="button" data-group="kind" data-filter="awards" aria-pressed="false">Awards &amp; Accreditations <span class="ch-feed__count">13</span></button>
+                <div class="ch-press__filter" role="group" aria-labelledby="ch-filter-kind">
+                  <span class="ch-press__filter-label" id="ch-filter-kind">Type:</span>
+                  <button class="ch-feed__btn" type="button" data-group="kind" data-filter="all" aria-pressed="true">All <span class="ch-feed__count">43</span></button>
+                  <button class="ch-feed__btn" type="button" data-group="kind" data-filter="press" aria-pressed="false">Press <span class="ch-feed__count">22</span></button>
+                  <button class="ch-feed__btn" type="button" data-group="kind" data-filter="screen" aria-pressed="false">TV <span class="ch-feed__count">8</span></button>
+                  <button class="ch-feed__btn" type="button" data-group="kind" data-filter="awards" aria-pressed="false">Awards <span class="ch-feed__count">13</span></button>
                 </div>
               </div>
               <!-- /ch:press-filter -->

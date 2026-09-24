@@ -41,9 +41,23 @@
 .ch-press__filter {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   justify-content: center;
   gap: .625rem;
   margin: 0;
+}
+
+/* Naming the group on the page keeps the buttons to a word each, which is
+   what makes the row fit a phone. It also gives the group its accessible
+   name, so what is read out and what is seen are the same words. */
+.ch-press__filter-label {
+  margin-right: .125rem;
+  font-size: .8125rem;
+  font-weight: 600;
+  letter-spacing: .06em;
+  line-height: 1;
+  text-transform: uppercase;
+  opacity: .6;
 }
 
 .ch-press__grid > li[hidden],
@@ -802,6 +816,32 @@ a.ch-vid__play {
   .ch-feed__btn {
     padding: .5rem .875rem;
     font-size: 1.125rem;
+  }
+}
+
+/* On a phone the group name takes its own line and the counts come off the
+   buttons, which is what lets four of them sit on one row at full size. The
+   counts are the first thing to go rather than the label or the type size:
+   they are a nicety, where the label is what tells you which control you are
+   looking at, and the type size is what keeps the pills tappable. */
+@media screen and (max-width: 479px) {
+  .ch-press__filter-label {
+    flex-basis: 100%;
+    margin: 0 0 .125rem;
+    text-align: center;
+  }
+
+  .ch-press__filter {
+    gap: .5rem;
+  }
+
+  .ch-feed__btn {
+    padding: .5rem .8125rem;
+    font-size: 1rem;
+  }
+
+  .ch-press__filter .ch-feed__count {
+    display: none;
   }
 }
 
