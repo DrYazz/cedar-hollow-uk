@@ -41,8 +41,19 @@ BLOCK_RE = re.compile(r"(<!-- ch:press(?: ([\w-]+))? -->)(.*?)(<!-- /ch:press --
 SCREEN_RE = re.compile(r"(<!-- ch:press-screen ?([\w-]*) -->)(.*?)(<!-- /ch:press-screen -->)", re.S)
 FEED_RE = re.compile(r"(<!-- ch:press-feed ?([\w-]*) -->)(.*?)(<!-- /ch:press-feed -->)", re.S)
 FILTER_RE = re.compile(r"(<!-- ch:press-filter(?: ([\w-]+))? -->)(.*?)(<!-- /ch:press-filter -->)", re.S)
+AWARDS_RE = re.compile(r"(<!-- ch:press-awards(?: ([\w-]+))? -->)(.*?)(<!-- /ch:press-awards -->)", re.S)
 
 LOCATIONS = {"oxford": "Oxfordshire", "dorset": "Dorset"}
+
+# Awards are grouped under the name they were won under. Several of the
+# Dorset ones predate the rebranding, and RIBA and VisitEngland gave them to
+# the retreat as it was then, so the old name is kept beside the new one
+# rather than quietly replaced.
+AWARD_GROUPS = {
+    "oxford": ("Cedar Hollow Oxford", "formerly Cedar Hollow @ The Oaks"),
+    "dorset": ("Cedar Hollow Dorset",
+               "formerly Mallinson%ss Woodland Retreat" % chr(0x2019)),
+}
 
 
 def both(sections, key):
@@ -55,7 +66,9 @@ def both(sections, key):
     counts = {"all": 0}
     for sec in sections.values():
         out.extend(sec.get(key) or [])
-        for entry in (sec.get("items") or []) + (sec.get("screen") or []):
+        entries = ((sec.get("items") or []) + (sec.get("screen") or [])
+                   + (sec.get("awards") or []))
+        for entry in entries:
             where = entry.get("location")
             counts["all"] += 1
             counts[where] = counts.get(where, 0) + 1
@@ -281,10 +294,13 @@ def video_year(v):
 
 
 def kind_counts(sections):
-    """What the Press and TV buttons count: articles against films."""
-    press = sum(len(sec.get("items") or []) for sec in sections.values())
-    screen = sum(len(sec.get("screen") or []) for sec in sections.values())
-    return {"all": press + screen, "press": press, "screen": screen}
+    """What the kind buttons count: articles, films and recognitions."""
+    counts = {}
+    for key, field in (("press", "items"), ("screen", "screen"),
+                       ("awards", "awards")):
+        counts[key] = sum(len(sec.get(field) or []) for sec in sections.values())
+    counts["all"] = sum(counts.values())
+    return counts
 
 
 def filter_btn(group, value, label, count, on):
@@ -311,13 +327,15 @@ def filters(sections, indent, scope=None):
     fallback for a filter.
     """
     kinds = ("kind", "Filter by kind of coverage",
-             (("all", "All"), ("press", "Press"), ("screen", "TV")))
+             (("all", "Everything"), ("press", "In the press"),
+              ("screen", "On screen"), ("awards", "Awards &amp; Accreditations")))
     if scope:
         groups = [(kinds, kind_counts({scope: sections[scope]}))]
     else:
         groups = [
             (("location", "Filter by woodland",
-              (("all", "All"), ("oxford", "Oxfordshire"), ("dorset", "Dorset"))),
+              (("all", "Both woodlands"), ("oxford", "Oxfordshire"),
+               ("dorset", "Dorset"))),
              both(sections, "items")["counts"]),
             (kinds, kind_counts(sections)),
         ]
@@ -331,6 +349,79 @@ def filters(sections, indent, scope=None):
     body = ("\n" + indent).join(lines)
     return "\n%s%s\n%s" % (indent, body, indent)
 
+
+def award_card(a):
+    """One recognition: who gave it, what for, and where it can be checked."""
+    parts = ['<article class="ch-awards__card">']
+    # The label leads on every card, badge or no badge, so the top line is
+    # level across a row -- four of these have no mark we hold.
+    parts.append('  <p class="ch-awards__kind">%s</p>' % html.escape(a["kind"]))
+    if a.get("logo"):
+        # The badge says the same thing as the words under it, so it is
+        # decorative: an empty alt keeps it from being read out twice.
+        parts.append('  <img class="ch-awards__badge" src="%s" alt="" '
+                     'loading="lazy" decoding="async">' % asset(a["logo"]))
+    parts.append('  <h4 class="ch-awards__org">%s</h4>' % html.escape(a["org"]))
+    parts.append('  <p class="ch-awards__name">%s</p>' % html.escape(a["award"]))
+    line = " &middot; ".join(html.escape(bit) for bit in
+                             (a.get("distinction"), a.get("year")) if bit)
+    if line:
+        parts.append('  <p class="ch-awards__distinction">%s</p>' % line)
+    for key in ("description", "category"):
+        if a.get(key):
+            parts.append('  <p class="ch-awards__note">%s</p>' % html.escape(a[key]))
+    parts.append('  <p class="ch-awards__recipient">%s</p>'
+                 % html.escape(a["recipient"]))
+    # One award covering three treehouses is rated separately for each, so
+    # the card carries a link per accommodation rather than one for all.
+    if a.get("links"):
+        anchors = ['<a href="%s" target="_blank" rel="noopener">%s</a>'
+                   % (html.escape(link["url"], quote=True), html.escape(link["label"]))
+                   for link in a["links"]]
+        parts.append('  <p class="ch-awards__source">Sources: %s</p>'
+                     % ", ".join(anchors))
+    elif a.get("url"):
+        parts.append('  <p class="ch-awards__source"><a href="%s" target="_blank" '
+                     'rel="noopener">Source</a></p>' % html.escape(a["url"], quote=True))
+    parts.append('</article>')
+    return parts
+
+
+def render_awards(sections, indent, scope=None):
+    """The recognition cards, grouped by woodland, newest first.
+
+    Undated entries -- the quality ratings and the sustainability
+    certification, which are held rather than won in a given year -- fall to
+    the end of their group rather than being given a year they do not have.
+
+    The group wrapper carries data-location alongside its cards, so the
+    woodland filter takes the heading away with them and never leaves one
+    standing over nothing.
+    """
+    names = [scope] if scope else [k for k in AWARD_GROUPS if k in sections]
+    lines = ['<div class="ch-awards">']
+    for name in names:
+        awards = sections[name].get("awards") or []
+        if not awards:
+            continue
+        title, formerly = AWARD_GROUPS[name]
+        lines.append('  <div class="ch-awards__group" data-location="%s">' % name)
+        lines.append('    <h3 class="ch-awards__title">%s '
+                     '<span class="ch-awards__formerly">&middot; %s</span></h3>'
+                     % (html.escape(title), html.escape(formerly)))
+        lines.append('    <ul class="ch-awards__grid">')
+        for a in sorted(awards, key=lambda x: x.get("year") or "", reverse=True):
+            lines.append('      <li data-location="%s">'
+                         % html.escape(a.get("location", name)))
+            lines.extend("        " + one for one in award_card(a))
+            lines.append('      </li>')
+        lines.append('    </ul>')
+        lines.append('  </div>')
+    if len(lines) == 1:
+        return None
+    lines.append('</div>')
+    body = ("\n" + indent).join(lines)
+    return "\n%s%s\n%s" % (indent, body, indent)
 
 def render(section, indent, show_location=False):
     items = section.get("items") or []
@@ -506,7 +597,21 @@ def main():
 
         updated = FILTER_RE.sub(replace_filter, text)
         updated = BLOCK_RE.sub(replace, updated)
+        def replace_awards(match):
+            scope = match.group(2)
+            if scope and scope not in sections:
+                sys.exit("%s: unknown awards scope '%s'" % (page.name, scope))
+            body = render_awards(sections, marker_indent(match), scope)
+            if body is None:
+                return match.group(0)
+            names = [scope] if scope else list(sections)
+            seen.append((scope or "combined",
+                         sum(len(sections[n].get("awards") or []) for n in names),
+                         "awards"))
+            return match.group(1) + body + match.group(4)
+
         updated = SCREEN_RE.sub(replace_screen, updated)
+        updated = AWARDS_RE.sub(replace_awards, updated)
         updated = FEED_RE.sub(replace_feed, updated)
         if not seen:
             sys.exit("%s: no ch:press markers found" % page.name)
@@ -519,6 +624,8 @@ def main():
                 state = "%d entries, newest first" % count
             elif kind == "screen":
                 state = "%d videos" % count
+            elif kind == "awards":
+                state = "%d awards" % count
             elif not count:
                 state = "skipped (no items yet)"
             else:

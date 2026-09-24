@@ -48,6 +48,8 @@
 
 .ch-press__grid > li[hidden],
 .ch-vid-grid > li[hidden],
+.ch-awards__grid > li[hidden],
+.ch-awards__group[hidden],
 section[data-kind][hidden] {
   display: none !important;
 }
@@ -251,6 +253,132 @@ section[data-kind][hidden] {
   border-left-color: rgba(239, 238, 213, .4);
 }
 
+/* ===========================================================================
+   Awards and accreditations.
+
+   The badges are other organisations' official marks, so a card gives one a
+   white ground to sit on -- the same ground the clippings have -- and leaves
+   it otherwise alone: contained, never cropped, never recoloured. The four
+   RIBA awards have no mark we hold, so those cards lead with the words and
+   keep the same shape, rather than borrowing a badge that is not theirs.
+
+   Groups carry data-location, so the woodland filter takes a heading away
+   with its cards and never leaves one standing over nothing.
+   =========================================================================== */
+
+.ch-awards {
+  margin-top: 2.5rem;
+  text-align: left;
+}
+
+.ch-awards__group + .ch-awards__group {
+  margin-top: 3.5rem;
+}
+
+.ch-awards__title {
+  margin: 0 0 1.5rem;
+  font-size: 1.5rem;
+  line-height: 1.25;
+  text-align: center;
+}
+
+/* The name several of these were won under, kept beside the current one. */
+.ch-awards__formerly {
+  display: inline-block;
+  font-size: 1rem;
+  font-style: italic;
+  font-weight: 400;
+  opacity: .7;
+}
+
+.ch-awards__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: 1.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ch-awards__card {
+  display: flex;
+  flex-direction: column;
+  gap: .375rem;
+  height: 100%;
+  margin: 0;
+  padding: 1.5rem 1.25rem;
+  border-radius: var(--radius--16, 1rem);
+  background-color: #fff;
+  box-shadow: 0 .5rem 1.5rem rgba(16, 19, 7, .16);
+  color: var(--accent, #3b4126);
+}
+
+.ch-awards__badge {
+  width: auto;
+  max-width: 7rem;
+  height: 5rem;
+  margin: .5rem 0;
+  object-fit: contain;
+  object-position: left center;
+}
+
+.ch-awards__kind {
+  margin: 0;
+  font-size: .8125rem;
+  font-weight: 600;
+  letter-spacing: .06em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  opacity: .6;
+}
+
+.ch-awards__org {
+  margin: .25rem 0 0;
+  font-size: 1.125rem;
+  line-height: 1.25;
+}
+
+.ch-awards__name,
+.ch-awards__distinction,
+.ch-awards__note,
+.ch-awards__recipient,
+.ch-awards__source {
+  margin: 0;
+  font-size: .9375rem;
+  line-height: 1.45;
+}
+
+.ch-awards__distinction {
+  font-weight: 600;
+}
+
+.ch-awards__note {
+  opacity: .8;
+}
+
+/* What was recognised, which is not always the whole woodland. */
+.ch-awards__recipient {
+  font-style: italic;
+  opacity: .8;
+}
+
+/* Pushed to the foot so the source lines sit level across a row. */
+.ch-awards__source {
+  margin-top: auto;
+  padding-top: .75rem;
+  font-size: .875rem;
+}
+
+.ch-awards__source a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: .2em;
+}
+
+.ch-awards__source a:hover,
+.ch-awards__source a:focus-visible {
+  text-decoration-thickness: 2px;
+}
 /* ===========================================================================
    Television and film: a still with a play button, not an iframe.
 
