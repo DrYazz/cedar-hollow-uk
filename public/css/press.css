@@ -842,14 +842,20 @@ a.ch-vid__play {
      than the words it belongs to. The width cap is what balances them against
      each other -- a wide mark and an upright one at the same height are not
      the same size on the page, and half a phone is too narrow for that
-     difference to pass. */
+     difference to pass. The height cap is the looser of the two, so the
+     upright marks keep a little more size than the wide ones.
+
+     Centred rather than ranged left: the marks are all different widths, and
+     lined up on their left edges the narrow ones looked adrift in the
+     column. */
   .ch-awards__badge {
-    min-height: 6.5rem;
+    justify-content: center;
+    min-height: 7.25rem;
   }
 
   .ch-awards__badge img {
     max-width: 7.5rem;
-    max-height: 6.5rem;
+    max-height: 7.25rem;
   }
 
   .ch-awards__org {
