@@ -1,0 +1,5 @@
+# Vendored third-party builds are stored and checked out exactly as their
+# publisher shipped them. Without this, core.autocrlf rewrites their line
+# endings on checkout and the file we serve is no longer the build we
+# vendored, byte for byte.
+public/js/vendor/*.js -text
