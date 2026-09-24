@@ -1,6 +1,5 @@
 /*
- * The two controls on the combined press page: which woodland, and which
- * kind of coverage.
+ * The controls above the press coverage: which woodland, and which kind.
  *
  * Woodland (All / Oxfordshire / Dorset) narrows both grids, because a reader
  * asking for Dorset wants the Dorset films too. Anything carrying
@@ -11,19 +10,20 @@
  * sections carry data-kind and the bar sits above both of them -- a control
  * cannot hide itself.
  *
- * The two combine: Dorset and TV shows the Dorset films only. The counts on
- * the buttons are recounted after every choice so each one says how many
- * entries that button would actually reveal, given the other control.
+ * A woodland page renders the kind control on its own: which woodland is
+ * already settled by which page you are on. So neither control is assumed --
+ * whichever buttons the page renders are the ones this file drives.
  *
- * The two single-woodland pages render no bar, so this exits immediately
- * there -- the woodland is already settled by which page you are on, and
- * each of those pages shows its press and its screen coverage whole.
+ * Where both are present they combine: Dorset and TV shows the Dorset films
+ * only. The counts on the buttons are recounted after every choice so each
+ * one says how many entries that button would actually reveal, given the
+ * other control.
  *
  * The choice is kept in the URL (?w=dorset&k=screen) so a filtered view can
  * be linked and survives a refresh, using replaceState so flicking between
  * them does not pile up history entries.
  *
- * Progressive enhancement: the page is rendered whole and in order by
+ * Progressive enhancement: the pages are rendered whole and in order by
  * scripts/update-press.py, with the server's own counts on the buttons. With
  * JavaScript off the buttons do nothing and every entry stays visible, which
  * is the sensible fallback for a filter.
@@ -39,14 +39,19 @@
   var sections = document.querySelectorAll("[data-kind]");
   if (!items.length || !sections.length) return;
 
-  var groups = {
-    location: { param: "w", state: ANY, buttons: null },
-    kind: { param: "k", state: ANY, buttons: null }
-  };
-  for (var name in groups) {
-    groups[name].buttons = bar.querySelectorAll(
-      '.ch-feed__btn[data-group="' + name + '"]');
-    if (!groups[name].buttons.length) return;
+  /* Only the controls this page actually renders. */
+  var PARAMS = { location: "w", kind: "k" };
+  var groups = {};
+  for (var name in PARAMS) {
+    var buttons = bar.querySelectorAll('.ch-feed__btn[data-group="' + name + '"]');
+    if (buttons.length) {
+      groups[name] = { param: PARAMS[name], state: ANY, buttons: buttons };
+    }
+  }
+  if (!groups.location && !groups.kind) return;
+
+  function stateOf(group) {
+    return groups[group] ? groups[group].state : ANY;
   }
 
   /* An entry's kind is the section it sits in. */
@@ -67,17 +72,17 @@
     var n = 0;
     for (var i = 0; i < items.length; i++) {
       if (matches(items[i], group, value) &&
-          matches(items[i], other, groups[other].state)) n++;
+          matches(items[i], other, stateOf(other))) n++;
     }
     return n;
   }
 
   function apply() {
     for (var i = 0; i < items.length; i++) {
-      items[i].hidden = !matches(items[i], "location", groups.location.state);
+      items[i].hidden = !matches(items[i], "location", stateOf("location"));
     }
     for (var s = 0; s < sections.length; s++) {
-      sections[s].hidden = !matches(sections[s], "kind", groups.kind.state);
+      sections[s].hidden = !matches(sections[s], "kind", stateOf("kind"));
     }
     for (var name in groups) {
       var buttons = groups[name].buttons;
@@ -115,9 +120,9 @@
   for (var name in groups) {
     var asked = wanted.get(groups[name].param);
     if (!asked) continue;
-    var buttons = groups[name].buttons;
-    for (var k = 0; k < buttons.length; k++) {
-      if (buttons[k].getAttribute("data-filter") === asked) {
+    var offered = groups[name].buttons;
+    for (var k = 0; k < offered.length; k++) {
+      if (offered[k].getAttribute("data-filter") === asked) {
         groups[name].state = asked;
         break;
       }

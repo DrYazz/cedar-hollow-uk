@@ -148,7 +148,29 @@
   </section>
 
 
+    <!--  The kind control sits here, above both sections, because it
+          hides a section whole and cannot hide itself. Which woodland
+          is settled by which page you are on, so that half is left out.  -->
     <section class="bg-light">
+      <div class="padding-global">
+        <div class="container-large">
+          <div class="text-align-center">
+            <div class="max-width-xlarge align-center">
+              <!-- ch:press-filter dorset -->
+              <div class="ch-press__filters">
+                <div class="ch-press__filter" role="group" aria-label="Filter by kind of coverage">
+                  <button class="ch-feed__btn" type="button" data-group="kind" data-filter="all" aria-pressed="true">All <span class="ch-feed__count">11</span></button>
+                  <button class="ch-feed__btn" type="button" data-group="kind" data-filter="press" aria-pressed="false">Press <span class="ch-feed__count">8</span></button>
+                  <button class="ch-feed__btn" type="button" data-group="kind" data-filter="screen" aria-pressed="false">TV <span class="ch-feed__count">3</span></button>
+                </div>
+              </div>
+              <!-- /ch:press-filter -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="bg-light" data-kind="press">
       <div class="padding-section-medium">
         <div class="padding-global">
           <div class="container-large">
@@ -249,7 +271,7 @@
         </div>
       </div>
     </section>
-    <section class="bg-light">
+    <section class="bg-light" data-kind="screen">
       <div class="padding-section-medium">
         <div class="padding-global">
           <div class="container-large">
@@ -426,6 +448,7 @@
         </svg></div>
     </section>
   <script src="js/press-video.js?v=20260922b" type="text/javascript"></script>
+  <script src="js/press-filter.js?v=20260924" type="text/javascript"></script>
   <script src="js/analytics.js" type="text/javascript"></script>
 </body>
 </html>

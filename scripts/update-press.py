@@ -40,7 +40,7 @@ PAGES = [
 BLOCK_RE = re.compile(r"(<!-- ch:press(?: ([\w-]+))? -->)(.*?)(<!-- /ch:press -->)", re.S)
 SCREEN_RE = re.compile(r"(<!-- ch:press-screen ?([\w-]*) -->)(.*?)(<!-- /ch:press-screen -->)", re.S)
 FEED_RE = re.compile(r"(<!-- ch:press-feed ?([\w-]*) -->)(.*?)(<!-- /ch:press-feed -->)", re.S)
-FILTER_RE = re.compile(r"(<!-- ch:press-filter -->)(.*?)(<!-- /ch:press-filter -->)", re.S)
+FILTER_RE = re.compile(r"(<!-- ch:press-filter(?: ([\w-]+))? -->)(.*?)(<!-- /ch:press-filter -->)", re.S)
 
 LOCATIONS = {"oxford": "Oxfordshire", "dorset": "Dorset"}
 
@@ -294,25 +294,35 @@ def filter_btn(group, value, label, count, on):
             % (group, value, "true" if on else "false", label, count))
 
 
-def filters(sections, indent):
-    """The two controls on the combined page: which woodland, and which kind.
+def filters(sections, indent, scope=None):
+    """The controls above the coverage: which woodland, and which kind.
 
     They sit above both sections rather than inside either. The woodland
     control narrows the grids, so its counts are articles and films together;
     the kind control hides a whole section, which is why neither can live
-    inside one. Rendered server-side and complete: with JavaScript off the
-    buttons do nothing and every entry stays on the page, which is the
-    sensible fallback for a filter.
+    inside one.
+
+    A named marker scopes the bar to one woodland, and the woodland control
+    is then left out: that page has already settled which woodland, so only
+    the kind control has anything left to ask.
+
+    Rendered server-side and complete: with JavaScript off the buttons do
+    nothing and every entry stays on the page, which is the sensible
+    fallback for a filter.
     """
-    where = both(sections, "items")["counts"]
-    kinds = kind_counts(sections)
+    kinds = ("kind", "Filter by kind of coverage",
+             (("all", "All"), ("press", "Press"), ("screen", "TV")))
+    if scope:
+        groups = [(kinds, kind_counts({scope: sections[scope]}))]
+    else:
+        groups = [
+            (("location", "Filter by woodland",
+              (("all", "All"), ("oxford", "Oxfordshire"), ("dorset", "Dorset"))),
+             both(sections, "items")["counts"]),
+            (kinds, kind_counts(sections)),
+        ]
     lines = ['<div class="ch-press__filters">']
-    for group, label, options, counts in (
-        ("location", "Filter by woodland",
-         (("all", "All"), ("oxford", "Oxfordshire"), ("dorset", "Dorset")), where),
-        ("kind", "Filter by kind of coverage",
-         (("all", "All"), ("press", "Press"), ("screen", "TV")), kinds),
-    ):
+    for (group, label, options), counts in groups:
         lines.append('  <div class="ch-press__filter" role="group" aria-label="%s">' % label)
         for key, text in options:
             lines.append(filter_btn(group, key, text, counts.get(key, 0), key == "all"))
@@ -487,8 +497,12 @@ def main():
             return match.group(1) + body + match.group(4)
 
         def replace_filter(match):
-            seen.append(("combined", 0, "filter"))
-            return match.group(1) + filters(sections, marker_indent(match)) + match.group(3)
+            scope = match.group(2)
+            if scope and scope not in sections:
+                sys.exit("%s: unknown filter scope '%s'" % (page.name, scope))
+            seen.append((scope or "combined", 0, "filter"))
+            body = filters(sections, marker_indent(match), scope)
+            return match.group(1) + body + match.group(4)
 
         updated = FILTER_RE.sub(replace_filter, text)
         updated = BLOCK_RE.sub(replace, updated)
@@ -499,7 +513,8 @@ def main():
 
         for name, count, kind in seen:
             if kind == "filter":
-                state = "woodland and kind filters"
+                state = ("woodland and kind filters" if name == "combined"
+                         else "kind filter")
             elif kind == "feed":
                 state = "%d entries, newest first" % count
             elif kind == "screen":
