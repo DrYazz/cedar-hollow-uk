@@ -587,6 +587,7 @@
         {
           "org": "RIBA",
           "award": "South West Award",
+          "architect": "BEAM Architects",
           "logo": "images/image-6.png",
           "distinction": "Winner",
           "year": "2023",
@@ -598,6 +599,7 @@
         {
           "org": "RIBA",
           "award": "South West Award",
+          "architect": "BEAM Architects",
           "logo": "images/image-6.png",
           "distinction": "Winner",
           "year": "2023",
@@ -620,6 +622,7 @@
         {
           "org": "RIBA",
           "award": "South West Award",
+          "architect": "Brownlie Ernst and Marks",
           "logo": "images/award-riba-south-west-2017.png",
           "distinction": "Winner",
           "year": "2017",
@@ -631,6 +634,8 @@
         {
           "org": "RIBA",
           "award": "South West Small Project of the Year",
+          "logo": "images/award-riba-logo.webp",
+          "architect": "Brownlie Ernst and Marks",
           "distinction": "Winner",
           "year": "2017",
           "recipient": "Woodsman\u2019s Treehouse, Mallinson\u2019s Woodland Retreat",

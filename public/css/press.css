@@ -360,6 +360,7 @@ section[data-kind][hidden] {
 .ch-awards__distinction,
 .ch-awards__note,
 .ch-awards__recipient,
+.ch-awards__architect,
 .ch-awards__source {
   margin: 0;
   font-size: .9375rem;
@@ -377,6 +378,11 @@ section[data-kind][hidden] {
 /* What was recognised, which is not always the whole woodland. */
 .ch-awards__recipient {
   font-style: italic;
+  opacity: .8;
+}
+
+/* Who designed it, on the architecture awards. */
+.ch-awards__architect {
   opacity: .8;
 }
 
