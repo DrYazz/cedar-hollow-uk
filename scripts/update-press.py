@@ -58,7 +58,7 @@ AWARD_GROUPS = {
 # The bodies we belong to rather than awards we were given, so they are
 # neither woodland's and carry no location: the woodland filter leaves them
 # standing whichever one a reader picks.
-MEMBERSHIP_GROUP = ("Memberships", "held across the group")
+MEMBERSHIP_GROUP = "Memberships"
 
 
 def both(sections, key):
@@ -465,11 +465,10 @@ def render_awards(data, indent, scope=None):
         lines.append('  </div>')
     # Last, under both woodlands, because they are held by neither.
     if members:
-        title, note = MEMBERSHIP_GROUP
+        # No note beside this one: what a membership is needs no saying.
         lines.append('  <div class="ch-awards__group">')
-        lines.append('    <h3 class="ch-awards__title">%s '
-                     '<span class="ch-awards__formerly">&middot; %s</span></h3>'
-                     % (html.escape(title), html.escape(note)))
+        lines.append('    <h3 class="ch-awards__title">%s</h3>'
+                     % html.escape(MEMBERSHIP_GROUP))
         lines.append('    <ul class="ch-awards__grid">')
         for m in members:
             lines.append('      <li id="award-%s">' % html.escape(m["slug"]))
