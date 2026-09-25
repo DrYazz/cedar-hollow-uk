@@ -231,6 +231,7 @@
           "quote": "complete with a magic wardrobe door that 'transports' visitors straight into the countryside.",
           "slug": "men",
           "logo": "images/press/men.png",
+          "logoScale": 1.3,
           "shot": {
             "src": "images/press-shots/men-412.webp?v=20260923",
             "srcset": "images/press-shots/men-206.webp?v=20260923 206w, images/press-shots/men-412.webp?v=20260923 412w"
@@ -246,6 +247,7 @@
           "quote": "a magic mirror people can talk to, built by an AI engineer and magic circle member",
           "slug": "gnn",
           "logo": "images/press/gnn.png",
+          "logoScale": 1.35,
           "shot": {
             "src": "images/press-shots/gnn-412.webp?v=20260923",
             "srcset": "images/press-shots/gnn-206.webp?v=20260923 206w, images/press-shots/gnn-412.webp?v=20260923 412w"
