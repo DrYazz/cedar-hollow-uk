@@ -184,6 +184,7 @@
           "url": "https://www.ok.co.uk/lifestyle/amber-davies-boyfriend-holiday-nick-23167635",
           "quote": "In a clip uploaded to her Instagram story, the musical theatre actress gave a full tour of the Cedar Hollow retreat nestled in the Oxfordshire woodland.",
           "logo": "images/logo-ok-news.png",
+          "logoScale": 1.6,
           "slug": "okmag",
           "shot": {
             "src": "images/press-shots/okmag-412.webp?v=20260922",
@@ -260,6 +261,7 @@
           "quote": "this whimsical holiday rental is a must-visit destination for fairy tale fans.",
           "slug": "euroweekly",
           "logo": "images/press/euroweekly.png",
+          "logoScale": 1.4,
           "shot": {
             "src": "images/press-shots/euroweekly-412.webp?v=20260923",
             "srcset": "images/press-shots/euroweekly-206.webp?v=20260923 206w, images/press-shots/euroweekly-412.webp?v=20260923 412w"
@@ -499,6 +501,7 @@
           "url": "https://www.independent.co.uk/travel/uk/england/dorset/woodsmans-treehouse-dorset-hotel-review-b2257213.html",
           "quote": "the design takes pains not to interfere with the environment, but rather is perfectly positioned to admire it up close.",
           "logo": "images/press/independent.svg",
+          "logoScale": 1.35,
           "slug": "independent",
           "shot": {
             "src": "images/press-shots/independent-412.webp?v=20260922",
@@ -634,6 +637,7 @@
           "url": "https://www.theguardian.com/travel/2011/jul/29/glamping-britain-campsites-alastair-sawday",
           "slug": "guardian",
           "logo": "images/press/guardian.svg",
+          "logoScale": 1.5,
           "note": "Celebration of Craft from the very beginning",
           "shot": {
             "src": "images/press-shots/guardian-412.webp?v=20260925",

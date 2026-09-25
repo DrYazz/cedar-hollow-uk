@@ -127,10 +127,14 @@ def card(item, show_location=False):
         # rather than a src. role/aria-label carry the masthead, so the
         # publication is still announced once to a screen reader.
         src = asset(logo)
+        # Optical size: a stacked lockup or a square roundel needs a bigger
+        # box than a long wordmark to read at the same weight beside it.
+        scale = item.get("logoScale")
+        scale_style = "--logo-scale:%s;" % scale if scale else ""
         parts.append(
             '    <span class="ch-press__logo" role="img" aria-label="%s" '
-            "style=\"-webkit-mask-image:url('%s');mask-image:url('%s')\"></span>"
-            % (pub, src, src)
+            "style=\"%s-webkit-mask-image:url('%s');mask-image:url('%s')\"></span>"
+            % (pub, scale_style, src, src)
         )
     else:
         parts.append('    <p class="ch-press__pub">%s</p>' % pub)

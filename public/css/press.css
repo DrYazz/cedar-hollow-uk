@@ -156,8 +156,11 @@ section[data-kind][hidden] {
 .ch-press__logo {
   display: block;
   width: 100%;
-  max-width: 8rem;
-  height: 1.125rem;
+  /* One box for every mark, scaled per masthead where the mark needs it: a
+     stacked lockup or a square roundel reads smaller than a long wordmark at
+     the same height, the way the homepage track sizes its marks one by one. */
+  max-width: calc(8rem * var(--logo-scale, 1));
+  height: calc(1.125rem * var(--logo-scale, 1));
   background-color: currentColor;
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
@@ -259,8 +262,8 @@ section[data-kind][hidden] {
   }
 
   .ch-press__logo {
-    max-width: 6rem;
-    height: 1rem;
+    max-width: calc(6rem * var(--logo-scale, 1));
+    height: calc(1rem * var(--logo-scale, 1));
   }
 }
 
