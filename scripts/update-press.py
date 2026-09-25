@@ -273,7 +273,11 @@ def render_screen(section, indent):
             continue
         lines.append('  <ul class="ch-vid-grid %s">' % cls)
         for v in group:
-            lines.append('    <li data-location="%s">' % html.escape(v.get("location","")))
+            # The id is what the homepage links to: a reader who taps a
+            # programme lands on that programme rather than on a filtered
+            # page they then have to unfilter.
+            lines.append('    <li id="screen-%s" data-location="%s">'
+                         % (html.escape(v["slug"]), html.escape(v.get("location", ""))))
             lines.extend("      " + line for line in video_card(v))
             lines.append("    </li>")
         lines.append("  </ul>")
@@ -453,7 +457,9 @@ def render(section, indent, show_location=False):
     lines.append('  <ul class="ch-press__grid">')
     for item in items:
         # data-location is what js/press-filter.js narrows on
-        lines.append('    <li data-location="%s">' % html.escape(item.get("location","")))
+        # Named so the homepage mastheads can link to the piece itself.
+        lines.append('    <li id="press-%s" data-location="%s">'
+                     % (html.escape(item["slug"]), html.escape(item.get("location", ""))))
         lines.extend("      " + line for line in card(item, show_location))
         lines.append("    </li>")
     lines.append("  </ul>")

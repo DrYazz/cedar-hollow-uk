@@ -60,6 +60,14 @@
   opacity: .6;
 }
 
+/* Linked to by name from the homepage: a masthead or a programme logo goes
+   straight to its own entry rather than to a filtered page. The margin keeps
+   the entry off the very top of the window when it is landed on. */
+.ch-press__grid > li[id],
+.ch-vid-grid > li[id] {
+  scroll-margin-top: 2rem;
+}
+
 .ch-press__grid > li[hidden],
 .ch-vid-grid > li[hidden],
 .ch-awards__grid > li[hidden],
