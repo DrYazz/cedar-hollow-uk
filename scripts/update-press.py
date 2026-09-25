@@ -55,6 +55,11 @@ AWARD_GROUPS = {
                "formerly Mallinson%ss Woodland Retreat" % chr(0x2019)),
 }
 
+# The bodies we belong to rather than awards we were given, so they are
+# neither woodland's and carry no location: the woodland filter leaves them
+# standing whichever one a reader picks.
+MEMBERSHIP_GROUP = ("Memberships", "held across the group")
+
 
 def both(sections, key):
     """Every entry from every woodland, for the combined page.
@@ -297,12 +302,18 @@ def video_year(v):
     return (v.get("aired") or v.get("date", ""))[:4]
 
 
-def kind_counts(sections):
-    """What the kind buttons count: articles, films and recognitions."""
+def kind_counts(sections, memberships=()):
+    """What the kind buttons count: articles, films and recognitions.
+
+    Memberships count as recognitions, and they count wherever they are
+    shown -- they belong to no woodland, so no choice of woodland hides
+    them.
+    """
     counts = {}
     for key, field in (("press", "items"), ("screen", "screen"),
                        ("awards", "awards")):
         counts[key] = sum(len(sec.get(field) or []) for sec in sections.values())
+    counts["awards"] += len(memberships)
     counts["all"] = sum(counts.values())
     return counts
 
@@ -314,7 +325,7 @@ def filter_btn(group, value, label, count, on):
             % (group, value, "true" if on else "false", label, count))
 
 
-def filters(sections, indent, scope=None):
+def filters(data, indent, scope=None):
     """The controls above the coverage: which woodland, and which kind.
 
     They sit above both sections rather than inside either. The woodland
@@ -330,17 +341,23 @@ def filters(sections, indent, scope=None):
     nothing and every entry stays on the page, which is the sensible
     fallback for a filter.
     """
+    sections = data["sections"]
+    members = data.get("memberships") or []
     kinds = ("kind", "Type",
              (("all", "All"), ("press", "Press"), ("screen", "TV"),
               ("awards", "Awards")))
     if scope:
-        groups = [(kinds, kind_counts({scope: sections[scope]}))]
+        groups = [(kinds, kind_counts({scope: sections[scope]}, members))]
     else:
+        where = both(sections, "items")["counts"]
+        # A membership shows under every woodland, so it is in every count.
+        for key in where:
+            where[key] += len(members)
         groups = [
             (("location", "Location",
               (("all", "All"), ("oxford", "Oxford"), ("dorset", "Dorset"))),
-             both(sections, "items")["counts"]),
-            (kinds, kind_counts(sections)),
+             where),
+            (kinds, kind_counts(sections, members)),
         ]
     lines = ['<div class="ch-press__filters">']
     for (group, label, options), counts in groups:
@@ -409,7 +426,7 @@ def award_card(a):
     return parts
 
 
-def render_awards(sections, indent, scope=None):
+def render_awards(data, indent, scope=None):
     """The recognition cards, grouped by woodland, newest first.
 
     Undated entries -- the quality ratings and the sustainability
@@ -420,6 +437,8 @@ def render_awards(sections, indent, scope=None):
     woodland filter takes the heading away with them and never leaves one
     standing over nothing.
     """
+    sections = data["sections"]
+    members = data.get("memberships") or []
     names = [scope] if scope else [k for k in AWARD_GROUPS if k in sections]
     lines = ['<div class="ch-awards">']
     for name in names:
@@ -433,9 +452,24 @@ def render_awards(sections, indent, scope=None):
                      % (html.escape(title), html.escape(formerly)))
         lines.append('    <ul class="ch-awards__grid">')
         for a in sorted(awards, key=lambda x: x.get("year") or "", reverse=True):
-            lines.append('      <li data-location="%s">'
-                         % html.escape(a.get("location", name)))
+            lines.append('      <li id="award-%s" data-location="%s">'
+                         % (html.escape(a["slug"]),
+                            html.escape(a.get("location", name))))
             lines.extend("        " + one for one in award_card(a))
+            lines.append('      </li>')
+        lines.append('    </ul>')
+        lines.append('  </div>')
+    # Last, under both woodlands, because they are held by neither.
+    if members:
+        title, note = MEMBERSHIP_GROUP
+        lines.append('  <div class="ch-awards__group">')
+        lines.append('    <h3 class="ch-awards__title">%s '
+                     '<span class="ch-awards__formerly">&middot; %s</span></h3>'
+                     % (html.escape(title), html.escape(note)))
+        lines.append('    <ul class="ch-awards__grid">')
+        for m in members:
+            lines.append('      <li id="award-%s">' % html.escape(m["slug"]))
+            lines.extend("        " + one for one in award_card(m))
             lines.append('      </li>')
         lines.append('    </ul>')
         lines.append('  </div>')
@@ -616,7 +650,7 @@ def main():
             if scope and scope not in sections:
                 sys.exit("%s: unknown filter scope '%s'" % (page.name, scope))
             seen.append((scope or "combined", 0, "filter"))
-            body = filters(sections, marker_indent(match), scope)
+            body = filters(data, marker_indent(match), scope)
             return match.group(1) + body + match.group(4)
 
         updated = FILTER_RE.sub(replace_filter, text)
@@ -625,12 +659,13 @@ def main():
             scope = match.group(2)
             if scope and scope not in sections:
                 sys.exit("%s: unknown awards scope '%s'" % (page.name, scope))
-            body = render_awards(sections, marker_indent(match), scope)
+            body = render_awards(data, marker_indent(match), scope)
             if body is None:
                 return match.group(0)
             names = [scope] if scope else list(sections)
             seen.append((scope or "combined",
-                         sum(len(sections[n].get("awards") or []) for n in names),
+                         sum(len(sections[n].get("awards") or []) for n in names)
+                         + len(data.get("memberships") or []),
                          "awards"))
             return match.group(1) + body + match.group(4)
 

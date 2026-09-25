@@ -64,7 +64,8 @@
    straight to its own entry rather than to a filtered page. The margin keeps
    the entry off the very top of the window when it is landed on. */
 .ch-press__grid > li[id],
-.ch-vid-grid > li[id] {
+.ch-vid-grid > li[id],
+.ch-awards__grid > li[id] {
   scroll-margin-top: 2rem;
 }
 

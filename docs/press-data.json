@@ -43,6 +43,36 @@
     "them differently for that reason, and the combined feed sorts on this field."
   ],
   "checked": "2026-09-21",
+  "memberships": [
+    {
+      "slug": "aim",
+      "org": "Association of Independent Museums",
+      "award": "Member",
+      "description": "Membership no. 8369",
+      "recipient": "The Bee Museum at Cedar Hollow Oxford",
+      "kind": "Membership",
+      "logo": "images/award-aim.png"
+    },
+    {
+      "slug": "bbka",
+      "org": "British Beekeepers Association",
+      "award": "Member",
+      "description": "Six active hives on the estate",
+      "recipient": "Cedar Hollow Oxford",
+      "kind": "Membership",
+      "logo": "images/award-bbka.png"
+    },
+    {
+      "slug": "magic-circle",
+      "org": "The Magic Circle",
+      "award": "Member",
+      "description": "The estate\u2019s illusions are built by a member",
+      "recipient": "Cedar Hollow Oxford",
+      "kind": "Membership",
+      "logo": "images/award-magic-circle.png",
+      "url": "https://www.goodnewsnetwork.org/narnia-themed-treehouse-built-next-to-c-s-lewis-home-features-magic-wardrobe-now-its-a-rental/"
+    }
+  ],
   "sections": {
     "oxford": {
       "heading": "Oxfordshire <span class=\"text-style-italic\">in print</span>",
@@ -363,6 +393,7 @@
       "awards": [
         {
           "org": "VisitEngland",
+          "slug": "ve-excellence-2026",
           "award": "Awards for Excellence",
           "distinction": "Silver",
           "year": "2026",
@@ -375,6 +406,7 @@
         },
         {
           "org": "VisitEngland",
+          "slug": "ve-rose-2026",
           "award": "ROSE Award",
           "year": "2026",
           "description": "Recognition of Service Excellence",
@@ -386,6 +418,7 @@
         },
         {
           "org": "Beautiful South Tourism Awards",
+          "slug": "beautiful-south-2025",
           "award": "Self-Catering Accommodation of the Year",
           "distinction": "Silver",
           "year": "2025",
@@ -397,6 +430,7 @@
         },
         {
           "org": "VisitEngland",
+          "slug": "ve-gold-oxford",
           "award": "Gold Award",
           "distinction": "Gold",
           "recipient": "Cedar Hollow Treehouse",
@@ -407,6 +441,7 @@
         },
         {
           "org": "VisitEngland",
+          "slug": "ve-5star-oxford",
           "award": "Five-Star Glamping",
           "distinction": "Five stars",
           "recipient": "Cedar Hollow Treehouse",
@@ -417,6 +452,7 @@
         },
         {
           "org": "Green Tourism",
+          "slug": "green-tourism-oxford",
           "award": "Gold",
           "recipient": "Cedar Hollow Oxford",
           "kind": "Sustainability certification",
@@ -616,6 +652,7 @@
       "awards": [
         {
           "org": "RIBA",
+          "slug": "riba-dazzle-2023",
           "award": "South West Award",
           "architect": "BEAM Architects",
           "logo": "images/image-6.png",
@@ -628,6 +665,7 @@
         },
         {
           "org": "RIBA",
+          "slug": "riba-pinwheel-2023",
           "award": "South West Award",
           "architect": "BEAM Architects",
           "logo": "images/image-6.png",
@@ -640,6 +678,7 @@
         },
         {
           "org": "VisitEngland",
+          "slug": "ve-rose-2023",
           "award": "ROSE Award",
           "year": "2023",
           "description": "Recognition of Service Excellence",
@@ -651,6 +690,7 @@
         },
         {
           "org": "RIBA",
+          "slug": "riba-woodsmans-2017",
           "award": "South West Award",
           "architect": "Brownlie Ernst and Marks",
           "logo": "images/award-riba-south-west-2017.png",
@@ -663,6 +703,7 @@
         },
         {
           "org": "RIBA",
+          "slug": "riba-small-project-2017",
           "award": "South West Small Project of the Year",
           "logo": "images/award-riba-logo.webp",
           "architect": "Brownlie Ernst and Marks",
@@ -675,6 +716,7 @@
         },
         {
           "org": "VisitEngland",
+          "slug": "ve-gold-dorset",
           "award": "Gold Award",
           "distinction": "Gold",
           "recipient": "Woodsman\u2019s, Dazzle and Pinwheel Treehouses",
@@ -698,6 +740,7 @@
         },
         {
           "org": "VisitEngland",
+          "slug": "ve-5star-dorset",
           "award": "Five-Star Glamping",
           "distinction": "Five stars",
           "recipient": "Woodsman\u2019s, Dazzle and Pinwheel Treehouses",
