@@ -156,7 +156,11 @@ def card(item, show_location=False):
             '    <blockquote class="ch-press__quote"><p>&ldquo;%s&rdquo;</p></blockquote>'
             % html.escape(quote)
         )
-    elif item.get("note"):
+    # A line in our own voice, under the publication's. Not inside quote
+    # marks and not attributed, because it is ours: some of this coverage is
+    # old enough to describe a place that has since changed, and saying so
+    # beats letting a reader take a 2011 sentence for a current one.
+    if item.get("note"):
         parts.append('    <p class="ch-press__note">%s</p>' % html.escape(item["note"]))
     parts.append("  </div>")
     parts.append("</article>")

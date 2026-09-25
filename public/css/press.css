@@ -235,14 +235,19 @@ section[data-kind][hidden] {
   text-decoration-thickness: 2px;
 }
 
-/* Said plainly on the card, so a reader is not left wondering why some have a
-   quote and some do not. */
+/* Our own line on a card, under the publication's. Lighter and unquoted, so
+   it is plainly not part of what the paper said -- it is there to place a
+   piece whose age would otherwise mislead. */
 .ch-press__note {
   margin: 0;
   font-size: 1rem;
   line-height: 1.5;
   font-style: italic;
   opacity: .65;
+}
+
+.ch-press__quote + .ch-press__note {
+  margin-top: .75rem;
 }
 
 @media screen and (max-width: 767px) {
