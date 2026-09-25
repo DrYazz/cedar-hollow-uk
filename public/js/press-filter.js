@@ -40,7 +40,10 @@
      left standing over nothing. Only the entries are counted, so a heading
      going with them does not inflate a button. */
   var hideable = document.querySelectorAll("[data-location]");
-  var items = document.querySelectorAll("li[data-location]");
+  /* Every entry, counted. The memberships carry no data-location -- they
+     are held by neither woodland -- so they are never hidden by that
+     choice and belong in whichever count it shows. */
+  var items = document.querySelectorAll(".ch-press__grid > li, .ch-vid-grid > li, .ch-awards__grid > li");
   var sections = document.querySelectorAll("[data-kind]");
   if (!items.length || !sections.length) return;
 
@@ -67,6 +70,8 @@
 
   function matches(el, group, value) {
     var actual = group === "kind" ? kindOf(el) : el.getAttribute("data-location");
+    /* An entry belonging to no woodland belongs to all of them. */
+    if (group === "location" && actual === null) return true;
     return value === ANY || actual === value;
   }
 

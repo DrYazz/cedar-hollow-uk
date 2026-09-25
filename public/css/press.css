@@ -60,6 +60,15 @@
   opacity: .6;
 }
 
+/* Linked to by name from the homepage: a masthead or a programme logo goes
+   straight to its own entry rather than to a filtered page. The margin keeps
+   the entry off the very top of the window when it is landed on. */
+.ch-press__grid > li[id],
+.ch-vid-grid > li[id],
+.ch-awards__grid > li[id] {
+  scroll-margin-top: 2rem;
+}
+
 .ch-press__grid > li[hidden],
 .ch-vid-grid > li[hidden],
 .ch-awards__grid > li[hidden],
@@ -147,8 +156,11 @@ section[data-kind][hidden] {
 .ch-press__logo {
   display: block;
   width: 100%;
-  max-width: 8rem;
-  height: 1.125rem;
+  /* One box for every mark, scaled per masthead where the mark needs it: a
+     stacked lockup or a square roundel reads smaller than a long wordmark at
+     the same height, the way the homepage track sizes its marks one by one. */
+  max-width: calc(8rem * var(--logo-scale, 1));
+  height: calc(1.125rem * var(--logo-scale, 1));
   background-color: currentColor;
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
@@ -199,14 +211,20 @@ section[data-kind][hidden] {
   opacity: .6;
 }
 
-.ch-press__quote {
+/* A quote from the piece, and a line of our own, set identically: same rule
+   down the left, same size, same place on the card. They sit in the same
+   slot and should not look like two different kinds of thing. The only
+   difference is the quote marks, which our own line does not get. */
+.ch-press__quote,
+.ch-press__note {
   margin: 0;
   padding-left: .75rem;
   border-left: 2px solid currentColor;
   opacity: .999; /* keeps the rule below from bleeding the border into the text */
 }
 
-.ch-press__quote p {
+.ch-press__quote p,
+.ch-press__note {
   margin: 0;
   font-size: 1rem;
   line-height: 1.5;
@@ -226,14 +244,9 @@ section[data-kind][hidden] {
   text-decoration-thickness: 2px;
 }
 
-/* Said plainly on the card, so a reader is not left wondering why some have a
-   quote and some do not. */
-.ch-press__note {
-  margin: 0;
-  font-size: 1rem;
-  line-height: 1.5;
-  font-style: italic;
-  opacity: .65;
+
+.ch-press__quote + .ch-press__note {
+  margin-top: .75rem;
 }
 
 @media screen and (max-width: 767px) {
@@ -249,8 +262,8 @@ section[data-kind][hidden] {
   }
 
   .ch-press__logo {
-    max-width: 6rem;
-    height: 1rem;
+    max-width: calc(6rem * var(--logo-scale, 1));
+    height: calc(1rem * var(--logo-scale, 1));
   }
 }
 
@@ -348,6 +361,13 @@ section[data-kind][hidden] {
   max-height: 10.5rem;
 }
 
+/* A roundel fills its box where a wordmark leaves air around itself, so at
+   the same height it reads as the biggest thing in the row. These come down
+   to sit with the rest. */
+.ch-awards__badge img.is-small {
+  max-height: 8rem;
+}
+
 .ch-awards__body {
   display: flex;
   flex: 1;
@@ -408,12 +428,15 @@ section[data-kind][hidden] {
   font-size: .875rem;
 }
 
+.ch-awards__note a,
 .ch-awards__source a {
   color: inherit;
   text-decoration: underline;
   text-underline-offset: .2em;
 }
 
+.ch-awards__note a:hover,
+.ch-awards__note a:focus-visible,
 .ch-awards__source a:hover,
 .ch-awards__source a:focus-visible {
   text-decoration-thickness: 2px;
@@ -856,6 +879,10 @@ a.ch-vid__play {
   .ch-awards__badge img {
     max-width: 7.5rem;
     max-height: 7.25rem;
+  }
+
+  .ch-awards__badge img.is-small {
+    max-height: 5.5rem;
   }
 
   .ch-awards__org {

@@ -43,6 +43,31 @@
     "them differently for that reason, and the combined feed sorts on this field."
   ],
   "checked": "2026-09-21",
+  "memberships": [
+    {
+      "slug": "aim",
+      "proof": "https://aim-museums.co.uk/our-members/",
+      "org": "Association of Independent Museums",
+      "description": "Membership no. 8369",
+      "logo": "images/award-aim.png"
+    },
+    {
+      "slug": "bbka",
+      "proof": "oxford/beemuseum.html",
+      "logoSize": "small",
+      "org": "British Beekeepers Association",
+      "description": "Membership no. 599.0.12274",
+      "logo": "images/award-bbka.png"
+    },
+    {
+      "slug": "magic-circle",
+      "proof": "https://wizardsofox.uk",
+      "logoSize": "small",
+      "org": "The Magic Circle",
+      "description": "MMC 2853",
+      "logo": "images/award-magic-circle.png"
+    }
+  ],
   "sections": {
     "oxford": {
       "heading": "Oxfordshire <span class=\"text-style-italic\">in print</span>",
@@ -54,6 +79,7 @@
           "url": "https://www.thetimes.com/travel/inspiration/family-travel/my-visit-to-the-oxfordshire-woodland-that-inspired-narnia-7fwtlsffc",
           "quote": "I find myself in a 12-acre wood - and inside the world that Lewis created.",
           "logo": "images/logo-the-sunday-times.png",
+          "slug": "times-narnia",
           "shot": {
             "src": "images/press-shots/times-narnia-412.webp?v=20260923",
             "srcset": "images/press-shots/times-narnia-206.webp?v=20260923 206w, images/press-shots/times-narnia-412.webp?v=20260923 412w"
@@ -68,6 +94,7 @@
           "url": "https://www.thetimes.com/travel/destinations/uk-travel/england/oxford/best-airbnbs-in-oxford-0t0mnf2vx",
           "quote": "With its cave-like vibe, it feels a bit like staying in a movie set",
           "logo": "images/logo-the-times.svg",
+          "slug": "times-airbnbs",
           "shot": {
             "src": "images/press-shots/times-airbnbs-412.webp?v=20260923",
             "srcset": "images/press-shots/times-airbnbs-206.webp?v=20260923 206w, images/press-shots/times-airbnbs-412.webp?v=20260923 412w"
@@ -82,6 +109,7 @@
           "url": "https://www.bbc.co.uk/news/articles/cp8l8pge349o",
           "quote": "able to transport you into a mythical world.",
           "logo": "images/press/bbc.svg",
+          "slug": "bbc",
           "shot": {
             "src": "images/press-shots/bbc-412.webp?v=20260922",
             "srcset": "images/press-shots/bbc-206.webp?v=20260922 206w, images/press-shots/bbc-412.webp?v=20260922 412w"
@@ -96,6 +124,7 @@
           "url": "https://www.standard.co.uk/lifestyle/travel/cool-stay-of-the-week-treehouse-oxfordshire-woodlands-a3911831.html",
           "quote": "Traverse the swinging rope bridge and climb amongst the treetops",
           "logo": "images/logo-evening-standard.svg",
+          "slug": "standard-oxford",
           "shot": {
             "src": "images/press-shots/standard-oxford-412.webp?v=20260922",
             "srcset": "images/press-shots/standard-oxford-206.webp?v=20260922 206w, images/press-shots/standard-oxford-412.webp?v=20260922 412w"
@@ -110,6 +139,7 @@
           "url": "https://www.timeout.com/uk/things-to-do/amazing-uk-treehouses-you-can-actually-stay-in",
           "quote": "the treehouse will awaken your inner child",
           "logo": "images/press/timeout.svg",
+          "slug": "timeout",
           "shot": {
             "src": "images/press-shots/timeout-412.webp?v=20260923",
             "srcset": "images/press-shots/timeout-206.webp?v=20260923 206w, images/press-shots/timeout-412.webp?v=20260923 412w"
@@ -124,6 +154,7 @@
           "url": "https://www.thesun.co.uk/travel/31781255/britains-best-treehouse-fantasy-world-magic-wardrobe/",
           "quote": "Cedar Hollow is a true work of art, blending seamlessly with the surrounding forest.",
           "logo": "images/press/thesun.svg",
+          "slug": "thesun",
           "shot": {
             "src": "images/press-shots/thesun-412.webp?v=20260923",
             "srcset": "images/press-shots/thesun-206.webp?v=20260923 206w, images/press-shots/thesun-412.webp?v=20260923 412w"
@@ -138,6 +169,7 @@
           "url": "https://thetab.com/2023/11/09/inside-the-whimsical-narnia-inspired-treehouse-adrienne-and-matt-stayed-in-on-mafs-uk",
           "quote": "Who needs Narnia when a wardrobe can take you onto a zipline?!",
           "logo": "images/logo-the-tab.png",
+          "slug": "thetab",
           "shot": {
             "src": "images/press-shots/thetab-412.webp?v=20260923",
             "srcset": "images/press-shots/thetab-206.webp?v=20260923 206w, images/press-shots/thetab-412.webp?v=20260923 412w"
@@ -152,6 +184,8 @@
           "url": "https://www.ok.co.uk/lifestyle/amber-davies-boyfriend-holiday-nick-23167635",
           "quote": "In a clip uploaded to her Instagram story, the musical theatre actress gave a full tour of the Cedar Hollow retreat nestled in the Oxfordshire woodland.",
           "logo": "images/logo-ok-news.png",
+          "logoScale": 1.6,
+          "slug": "okmag",
           "shot": {
             "src": "images/press-shots/okmag-412.webp?v=20260922",
             "srcset": "images/press-shots/okmag-206.webp?v=20260922 206w, images/press-shots/okmag-412.webp?v=20260922 412w"
@@ -166,6 +200,7 @@
           "url": "https://www.oxfordshirelive.co.uk/whats-on/whats-on-news/narnia-inspired-treehouse-hidden-shotover-8121466",
           "quote": "a memorable stay, blending in with the nature surrounding it.",
           "logo": "images/logo-oxfordshire-live.png",
+          "slug": "oxfordshirelive",
           "shot": {
             "src": "images/press-shots/oxfordshirelive-412.webp?v=20260923",
             "srcset": "images/press-shots/oxfordshirelive-206.webp?v=20260923 206w, images/press-shots/oxfordshirelive-412.webp?v=20260923 412w"
@@ -179,6 +214,8 @@
           "headline": "This Narnia-themed treehouse near London is the perfect staycation",
           "url": "https://secretldn.com/treehouse-rental-cedar-hollow/",
           "quote": "The handcrafted woodwork is gorgeously blended with state-of-the-art design",
+          "slug": "secretldn",
+          "logo": "images/press/secretldn.png",
           "shot": {
             "src": "images/press-shots/secretldn-412.webp?v=20260923",
             "srcset": "images/press-shots/secretldn-206.webp?v=20260923 206w, images/press-shots/secretldn-412.webp?v=20260923 412w"
@@ -192,6 +229,9 @@
           "headline": "Inside Narnia-themed treehouse that features its own ‘magic’ wardrobe",
           "url": "https://www.manchestereveningnews.co.uk/news/property/inside-narnia-themed-treehouse-features-30398002",
           "quote": "complete with a magic wardrobe door that 'transports' visitors straight into the countryside.",
+          "slug": "men",
+          "logo": "images/press/men.png",
+          "logoScale": 1.3,
           "shot": {
             "src": "images/press-shots/men-412.webp?v=20260923",
             "srcset": "images/press-shots/men-206.webp?v=20260923 206w, images/press-shots/men-412.webp?v=20260923 412w"
@@ -205,6 +245,9 @@
           "headline": "Narnia themed treehouse built next to C.S. Lewis’ home features magic wardrobe",
           "url": "https://www.goodnewsnetwork.org/narnia-themed-treehouse-built-next-to-c-s-lewis-home-features-magic-wardrobe-now-its-a-rental/",
           "quote": "a magic mirror people can talk to, built by an AI engineer and magic circle member",
+          "slug": "gnn",
+          "logo": "images/press/gnn.png",
+          "logoScale": 1.35,
           "shot": {
             "src": "images/press-shots/gnn-412.webp?v=20260923",
             "srcset": "images/press-shots/gnn-206.webp?v=20260923 206w, images/press-shots/gnn-412.webp?v=20260923 412w"
@@ -218,6 +261,9 @@
           "headline": "A storybook-themed stay in the UK Narnia fans will love",
           "url": "https://euroweeklynews.com/2024/11/27/a-storybook-themed-stay-in-the-uk-narnia-fans-will-love-this/",
           "quote": "this whimsical holiday rental is a must-visit destination for fairy tale fans.",
+          "slug": "euroweekly",
+          "logo": "images/press/euroweekly.png",
+          "logoScale": 1.4,
           "shot": {
             "src": "images/press-shots/euroweekly-412.webp?v=20260923",
             "srcset": "images/press-shots/euroweekly-206.webp?v=20260923 206w, images/press-shots/euroweekly-412.webp?v=20260923 412w"
@@ -230,6 +276,8 @@
           "publication": "Oxford Mail",
           "headline": "VisitEngland names Oxford holiday retreat among best in UK",
           "url": "https://www.oxfordmail.co.uk/news/26169566.visitengland-names-oxford-holiday-retreat-among-best-uk/",
+          "slug": "oxfordmail",
+          "logo": "images/press/oxfordmail.png",
           "shot": {
             "src": "images/press-shots/oxfordmail-412.webp?v=20260923",
             "srcset": "images/press-shots/oxfordmail-206.webp?v=20260923 206w, images/press-shots/oxfordmail-412.webp?v=20260923 412w"
@@ -243,6 +291,7 @@
       "screen": [
         {
           "id": "fPdU-01UL1Q",
+          "slug": "mafs",
           "title": "Cedar Hollow on Married at First Sight UK",
           "source": "Channel 4",
           "url": "https://www.youtube.com/watch?v=fPdU-01UL1Q",
@@ -270,6 +319,7 @@
         },
         {
           "id": "gQYoL97OArg",
+          "slug": "bbc",
           "title": "The Engineer, the Magician and the Narnia Inspired Treehouse",
           "source": "BBC",
           "url": "https://www.youtube.com/watch?v=gQYoL97OArg",
@@ -291,6 +341,7 @@
         },
         {
           "id": "SkR9W_XbE1c",
+          "slug": "betasquad",
           "title": "Come Dine With Me - AJ Edition",
           "source": "Beta Squad",
           "url": "https://www.youtube.com/watch?v=SkR9W_XbE1c",
@@ -306,6 +357,7 @@
         },
         {
           "id": "wflUkc-n0NE",
+          "slug": "swns",
           "title": "Ultimate treehouse is Narnia themed with magic wardrobe door near CS Lewis home",
           "source": "SWNS",
           "url": "https://www.youtube.com/watch?v=wflUkc-n0NE",
@@ -327,6 +379,7 @@
         },
         {
           "id": "nM3sZNHlARs",
+          "slug": "parallel-universe",
           "title": "Parallel Universe",
           "source": "Cassa Jackson, music video",
           "url": "https://www.youtube.com/watch?v=nM3sZNHlARs",
@@ -344,18 +397,20 @@
       "awards": [
         {
           "org": "VisitEngland",
+          "slug": "ve-excellence-2026",
           "award": "Awards for Excellence",
           "distinction": "Silver",
           "year": "2026",
           "category": "Self-Catering Accommodation of the Year",
           "recipient": "Cedar Hollow @ The Oaks, Oxfordshire",
           "kind": "National tourism award",
-          "logo": "images/award-visitengland-excellence-2026-badge.webp",
+          "logo": "images/award-visitengland-excellence-2026-plaque.webp",
           "url": "https://www.visitbritain.org/news-and-media/industry-news-and-press-releases/visitengland-awards-excellence-2026-winners",
           "location": "oxford"
         },
         {
           "org": "VisitEngland",
+          "slug": "ve-rose-2026",
           "award": "ROSE Award",
           "year": "2026",
           "description": "Recognition of Service Excellence",
@@ -367,6 +422,7 @@
         },
         {
           "org": "Beautiful South Tourism Awards",
+          "slug": "beautiful-south-2025",
           "award": "Self-Catering Accommodation of the Year",
           "distinction": "Silver",
           "year": "2025",
@@ -378,6 +434,7 @@
         },
         {
           "org": "VisitEngland",
+          "slug": "ve-gold-oxford",
           "award": "Gold Award",
           "distinction": "Gold",
           "recipient": "Cedar Hollow Treehouse",
@@ -388,6 +445,7 @@
         },
         {
           "org": "VisitEngland",
+          "slug": "ve-5star-oxford",
           "award": "Five-Star Glamping",
           "distinction": "Five stars",
           "recipient": "Cedar Hollow Treehouse",
@@ -398,6 +456,7 @@
         },
         {
           "org": "Green Tourism",
+          "slug": "green-tourism-oxford",
           "award": "Gold",
           "recipient": "Cedar Hollow Oxford",
           "kind": "Sustainability certification",
@@ -429,6 +488,7 @@
           "url": "https://www.telegraph.co.uk/travel/destinations/europe/united-kingdom/england/dorset/articles/inside-woodsmans-treehouse-hotel-dorset/",
           "quote": "both fabulously comfortable and in tune with its leafy environment",
           "logo": "images/the-sunday-telegraph.png",
+          "slug": "telegraph",
           "shot": {
             "src": "images/press-shots/telegraph-412.webp?v=20260922",
             "srcset": "images/press-shots/telegraph-206.webp?v=20260922 206w, images/press-shots/telegraph-412.webp?v=20260922 412w"
@@ -443,6 +503,8 @@
           "url": "https://www.independent.co.uk/travel/uk/england/dorset/woodsmans-treehouse-dorset-hotel-review-b2257213.html",
           "quote": "the design takes pains not to interfere with the environment, but rather is perfectly positioned to admire it up close.",
           "logo": "images/press/independent.svg",
+          "logoScale": 1.35,
+          "slug": "independent",
           "shot": {
             "src": "images/press-shots/independent-412.webp?v=20260922",
             "srcset": "images/press-shots/independent-206.webp?v=20260922 206w, images/press-shots/independent-412.webp?v=20260922 412w"
@@ -457,6 +519,7 @@
           "url": "https://www.gq-magazine.co.uk/article/woodmans-treehouse-dorset-uk-review",
           "quote": "entirely in sync with its woodland surroundings",
           "logo": "images/press/gq.svg",
+          "slug": "gq",
           "shot": {
             "src": "images/press-shots/gq-412.webp?v=20260923",
             "srcset": "images/press-shots/gq-206.webp?v=20260923 206w, images/press-shots/gq-412.webp?v=20260923 412w"
@@ -471,6 +534,7 @@
           "url": "https://www.standard.co.uk/lifestyle/travel/the-woodmans-treehouse-dorset-cool-stays-luxury-freestanding-bath-a3698281.html",
           "quote": "If you've always imagined stepping into a fairytale, you could find your happily ever after at The Woodsman's Treehouse.",
           "logo": "images/logo-evening-standard.svg",
+          "slug": "standard-dorset",
           "shot": {
             "src": "images/press-shots/standard-dorset-412.webp?v=20260922",
             "srcset": "images/press-shots/standard-dorset-206.webp?v=20260922 206w, images/press-shots/standard-dorset-412.webp?v=20260922 412w"
@@ -485,6 +549,7 @@
           "url": "https://www.countryliving.com/uk/travel-ideas/staycation-uk/a26656349/treehouses-uk-visit/",
           "quote": "A suspended wooden walkway and an outdoor tree shower that makes you feel as though you\u2019re bathing in warm monsoon rain.",
           "logo": "images/press/countryliving.svg",
+          "slug": "countryliving",
           "shot": {
             "src": "images/press-shots/countryliving-412.webp?v=20260923",
             "srcset": "images/press-shots/countryliving-206.webp?v=20260923 206w, images/press-shots/countryliving-412.webp?v=20260923 412w"
@@ -498,6 +563,8 @@
           "headline": "Britain's most luxurious treehouse comes with a sauna",
           "url": "https://www.dailymail.co.uk/travel/travel_news/article-4127672/Britain-s-best-treehouses.html",
           "quote": "Britain\u2019s most luxurious treehouse",
+          "slug": "dailymail",
+          "logo": "images/press/dailymail.png",
           "shot": {
             "src": "images/press-shots/dailymail-412.webp?v=20260923",
             "srcset": "images/press-shots/dailymail-206.webp?v=20260923 206w, images/press-shots/dailymail-412.webp?v=20260923 412w"
@@ -512,6 +579,7 @@
           "url": "https://metro.co.uk/2017/03/21/treehouse-holiday-live-out-your-childhood-fantasies-in-luxury-with-a-stay-in-the-woodmans-treehouse-in-dorset-6495819/",
           "quote": "Live out your childhood fantasies in luxury",
           "logo": "images/press/metro.svg",
+          "slug": "metro",
           "shot": {
             "src": "images/press-shots/metro-412.webp?v=20260923",
             "srcset": "images/press-shots/metro-206.webp?v=20260923 206w, images/press-shots/metro-412.webp?v=20260923 412w"
@@ -525,6 +593,8 @@
           "headline": "woodman's treehouse: a sustainable sanctuary near the jurassic coast",
           "url": "https://www.designboom.com/architecture/woodmans-treehouse-west-dorset-guy-mallinson-brownlie-ernst-and-marks-10-16-2016/",
           "quote": "a secluded sustainable sanctuary near the jurassic coast",
+          "slug": "designboom",
+          "logo": "images/press/designboom.svg",
           "shot": {
             "src": "images/press-shots/designboom-412.webp?v=20260922",
             "srcset": "images/press-shots/designboom-206.webp?v=20260922 206w, images/press-shots/designboom-412.webp?v=20260922 412w"
@@ -532,11 +602,58 @@
           "date": "2016-10-16",
           "dateKind": "published",
           "location": "dorset"
+        },
+        {
+          "publication": "Tatler",
+          "headline": "5 romantic boltholes for couples",
+          "url": "https://www.tatler.com/gallery/most-romantic-cottages-and-breaks-for-lovers-uk",
+          "quote": "this is that childhood fantasy come to life \u2013 and then some.",
+          "slug": "tatler",
+          "logo": "images/press/tatler.svg",
+          "shot": {
+            "src": "images/press-shots/tatler-412.webp?v=20260925",
+            "srcset": "images/press-shots/tatler-206.webp?v=20260925 206w, images/press-shots/tatler-412.webp?v=20260925 412w"
+          },
+          "date": "2018-01-17",
+          "dateKind": "published",
+          "location": "dorset"
+        },
+        {
+          "publication": "Vogue",
+          "headline": "Cabin Fever: Seven Chic Cabins to Rent (or Merely Ogle) This Winter",
+          "url": "https://www.vogue.com/slideshow/cabin-fever-chic-cabins-to-rent-this-winter",
+          "slug": "vogue",
+          "logo": "images/press/vogue.svg",
+          "note": "We\u2019ve come a long way from the days of Tipis and Yurts",
+          "shot": {
+            "src": "images/press-shots/vogue-412.webp?v=20260925",
+            "srcset": "images/press-shots/vogue-206.webp?v=20260925 206w, images/press-shots/vogue-412.webp?v=20260925 412w"
+          },
+          "date": "2014-11-21",
+          "dateKind": "published",
+          "location": "dorset"
+        },
+        {
+          "publication": "The Guardian",
+          "headline": "Happy glampers: 10 comfy alternatives to a tent",
+          "url": "https://www.theguardian.com/travel/2011/jul/29/glamping-britain-campsites-alastair-sawday",
+          "slug": "guardian",
+          "logo": "images/press/guardian.svg",
+          "logoScale": 1.5,
+          "note": "Celebration of Craft from the very beginning",
+          "shot": {
+            "src": "images/press-shots/guardian-412.webp?v=20260925",
+            "srcset": "images/press-shots/guardian-206.webp?v=20260925 206w, images/press-shots/guardian-412.webp?v=20260925 412w"
+          },
+          "date": "2011-07-29",
+          "dateKind": "published",
+          "location": "dorset"
         }
       ],
       "screen": [
         {
           "id": "C71PZaFHOwQ",
+          "slug": "granddesigns",
           "title": "Grand Designs: House of the Year",
           "source": "Channel 4",
           "url": "https://www.youtube.com/watch?v=C71PZaFHOwQ",
@@ -553,6 +670,7 @@
         },
         {
           "id": "lZqNpbfB5MU",
+          "slug": "amazingspaces",
           "title": "George Clarke’s Amazing Spaces",
           "source": "Channel 4",
           "url": "https://www.youtube.com/watch?v=lZqNpbfB5MU",
@@ -569,6 +687,7 @@
         },
         {
           "id": "al53RiDKCVk",
+          "slug": "secrethotels",
           "title": "World’s Most Secret Hotels",
           "source": "Channel 4",
           "url": "https://www.youtube.com/watch?v=al53RiDKCVk",
@@ -586,6 +705,7 @@
       "awards": [
         {
           "org": "RIBA",
+          "slug": "riba-dazzle-2023",
           "award": "South West Award",
           "architect": "BEAM Architects",
           "logo": "images/image-6.png",
@@ -598,6 +718,7 @@
         },
         {
           "org": "RIBA",
+          "slug": "riba-pinwheel-2023",
           "award": "South West Award",
           "architect": "BEAM Architects",
           "logo": "images/image-6.png",
@@ -610,6 +731,7 @@
         },
         {
           "org": "VisitEngland",
+          "slug": "ve-rose-2023",
           "award": "ROSE Award",
           "year": "2023",
           "description": "Recognition of Service Excellence",
@@ -621,6 +743,7 @@
         },
         {
           "org": "RIBA",
+          "slug": "riba-woodsmans-2017",
           "award": "South West Award",
           "architect": "Brownlie Ernst and Marks",
           "logo": "images/award-riba-south-west-2017.png",
@@ -633,6 +756,7 @@
         },
         {
           "org": "RIBA",
+          "slug": "riba-small-project-2017",
           "award": "South West Small Project of the Year",
           "logo": "images/award-riba-logo.webp",
           "architect": "Brownlie Ernst and Marks",
@@ -645,6 +769,7 @@
         },
         {
           "org": "VisitEngland",
+          "slug": "ve-gold-dorset",
           "award": "Gold Award",
           "distinction": "Gold",
           "recipient": "Woodsman\u2019s, Dazzle and Pinwheel Treehouses",
@@ -668,6 +793,7 @@
         },
         {
           "org": "VisitEngland",
+          "slug": "ve-5star-dorset",
           "award": "Five-Star Glamping",
           "distinction": "Five stars",
           "recipient": "Woodsman\u2019s, Dazzle and Pinwheel Treehouses",

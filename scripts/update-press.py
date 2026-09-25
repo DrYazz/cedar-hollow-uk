@@ -55,6 +55,11 @@ AWARD_GROUPS = {
                "formerly Mallinson%ss Woodland Retreat" % chr(0x2019)),
 }
 
+# The bodies we belong to rather than awards we were given, so they are
+# neither woodland's and carry no location: the woodland filter leaves them
+# standing whichever one a reader picks.
+MEMBERSHIP_GROUP = "Memberships"
+
 
 def both(sections, key):
     """Every entry from every woodland, for the combined page.
@@ -122,10 +127,14 @@ def card(item, show_location=False):
         # rather than a src. role/aria-label carry the masthead, so the
         # publication is still announced once to a screen reader.
         src = asset(logo)
+        # Optical size: a stacked lockup or a square roundel needs a bigger
+        # box than a long wordmark to read at the same weight beside it.
+        scale = item.get("logoScale")
+        scale_style = "--logo-scale:%s;" % scale if scale else ""
         parts.append(
             '    <span class="ch-press__logo" role="img" aria-label="%s" '
-            "style=\"-webkit-mask-image:url('%s');mask-image:url('%s')\"></span>"
-            % (pub, src, src)
+            "style=\"%s-webkit-mask-image:url('%s');mask-image:url('%s')\"></span>"
+            % (pub, scale_style, src, src)
         )
     else:
         parts.append('    <p class="ch-press__pub">%s</p>' % pub)
@@ -151,7 +160,11 @@ def card(item, show_location=False):
             '    <blockquote class="ch-press__quote"><p>&ldquo;%s&rdquo;</p></blockquote>'
             % html.escape(quote)
         )
-    elif item.get("note"):
+    # A line in our own voice, under the publication's. Not inside quote
+    # marks and not attributed, because it is ours: some of this coverage is
+    # old enough to describe a place that has since changed, and saying so
+    # beats letting a reader take a 2011 sentence for a current one.
+    if item.get("note"):
         parts.append('    <p class="ch-press__note">%s</p>' % html.escape(item["note"]))
     parts.append("  </div>")
     parts.append("</article>")
@@ -273,7 +286,11 @@ def render_screen(section, indent):
             continue
         lines.append('  <ul class="ch-vid-grid %s">' % cls)
         for v in group:
-            lines.append('    <li data-location="%s">' % html.escape(v.get("location","")))
+            # The id is what the homepage links to: a reader who taps a
+            # programme lands on that programme rather than on a filtered
+            # page they then have to unfilter.
+            lines.append('    <li id="screen-%s" data-location="%s">'
+                         % (html.escape(v["slug"]), html.escape(v.get("location", ""))))
             lines.extend("      " + line for line in video_card(v))
             lines.append("    </li>")
         lines.append("  </ul>")
@@ -293,12 +310,18 @@ def video_year(v):
     return (v.get("aired") or v.get("date", ""))[:4]
 
 
-def kind_counts(sections):
-    """What the kind buttons count: articles, films and recognitions."""
+def kind_counts(sections, memberships=()):
+    """What the kind buttons count: articles, films and recognitions.
+
+    Memberships count as recognitions, and they count wherever they are
+    shown -- they belong to no woodland, so no choice of woodland hides
+    them.
+    """
     counts = {}
     for key, field in (("press", "items"), ("screen", "screen"),
                        ("awards", "awards")):
         counts[key] = sum(len(sec.get(field) or []) for sec in sections.values())
+    counts["awards"] += len(memberships)
     counts["all"] = sum(counts.values())
     return counts
 
@@ -310,7 +333,7 @@ def filter_btn(group, value, label, count, on):
             % (group, value, "true" if on else "false", label, count))
 
 
-def filters(sections, indent, scope=None):
+def filters(data, indent, scope=None):
     """The controls above the coverage: which woodland, and which kind.
 
     They sit above both sections rather than inside either. The woodland
@@ -326,17 +349,23 @@ def filters(sections, indent, scope=None):
     nothing and every entry stays on the page, which is the sensible
     fallback for a filter.
     """
+    sections = data["sections"]
+    members = data.get("memberships") or []
     kinds = ("kind", "Type",
              (("all", "All"), ("press", "Press"), ("screen", "TV"),
               ("awards", "Awards")))
     if scope:
-        groups = [(kinds, kind_counts({scope: sections[scope]}))]
+        groups = [(kinds, kind_counts({scope: sections[scope]}, members))]
     else:
+        where = both(sections, "items")["counts"]
+        # A membership shows under every woodland, so it is in every count.
+        for key in where:
+            where[key] += len(members)
         groups = [
             (("location", "Location",
               (("all", "All"), ("oxford", "Oxford"), ("dorset", "Dorset"))),
-             both(sections, "items")["counts"]),
-            (kinds, kind_counts(sections)),
+             where),
+            (kinds, kind_counts(sections, members)),
         ]
     lines = ['<div class="ch-press__filters">']
     for (group, label, options), counts in groups:
@@ -367,23 +396,37 @@ def award_card(a):
     if a.get("logo"):
         # The badge says the same thing as the words under it, so it is
         # decorative: an empty alt keeps it from being read out twice.
-        parts.append('  <p class="ch-awards__badge"><img src="%s" alt="" '
-                     'loading="lazy" decoding="async"></p>' % asset(a["logo"]))
+        # A roundel reads larger than a wordmark of the same height because
+        # it fills its box; "small" brings those down so a row sits even.
+        size = ' class="is-small"' if a.get("logoSize") == "small" else ""
+        parts.append('  <p class="ch-awards__badge"><img%s src="%s" alt="" '
+                     'loading="lazy" decoding="async"></p>'
+                     % (size, asset(a["logo"])))
     else:
         parts.append('  <p class="ch-awards__badge"></p>')
     parts.append('  <div class="ch-awards__body">')
-    parts.append('    <p class="ch-awards__kind">%s</p>' % html.escape(a["kind"]))
+    if a.get("kind"):
+        parts.append('    <p class="ch-awards__kind">%s</p>' % html.escape(a["kind"]))
     parts.append('    <h4 class="ch-awards__org">%s</h4>' % html.escape(a["org"]))
-    parts.append('    <p class="ch-awards__name">%s</p>' % html.escape(a["award"]))
+    if a.get("award"):
+        parts.append('    <p class="ch-awards__name">%s</p>' % html.escape(a["award"]))
     line = " &middot; ".join(html.escape(bit) for bit in
                              (a.get("distinction"), a.get("year")) if bit)
     if line:
         parts.append('    <p class="ch-awards__distinction">%s</p>' % line)
     for key in ("description", "category"):
-        if a.get(key):
-            parts.append('    <p class="ch-awards__note">%s</p>' % html.escape(a[key]))
-    parts.append('    <p class="ch-awards__recipient">%s</p>'
-                 % html.escape(a["recipient"]))
+        if not a.get(key):
+            continue
+        text = html.escape(a[key])
+        # A membership number is worth nothing if it cannot be checked, so
+        # where the body publishes a register the number is the way into it.
+        if key == "description" and a.get("proof"):
+            text = ('<a href="%s" target="_blank" rel="noopener">%s</a>'
+                    % (html.escape(a["proof"], quote=True), text))
+        parts.append('    <p class="ch-awards__note">%s</p>' % text)
+    if a.get("recipient"):
+        parts.append('    <p class="ch-awards__recipient">%s</p>'
+                     % html.escape(a["recipient"]))
     # The architecture awards were given to a building, so they name who
     # designed it, the way the awarding body does.
     if a.get("architect"):
@@ -405,7 +448,7 @@ def award_card(a):
     return parts
 
 
-def render_awards(sections, indent, scope=None):
+def render_awards(data, indent, scope=None):
     """The recognition cards, grouped by woodland, newest first.
 
     Undated entries -- the quality ratings and the sustainability
@@ -416,6 +459,8 @@ def render_awards(sections, indent, scope=None):
     woodland filter takes the heading away with them and never leaves one
     standing over nothing.
     """
+    sections = data["sections"]
+    members = data.get("memberships") or []
     names = [scope] if scope else [k for k in AWARD_GROUPS if k in sections]
     lines = ['<div class="ch-awards">']
     for name in names:
@@ -429,9 +474,23 @@ def render_awards(sections, indent, scope=None):
                      % (html.escape(title), html.escape(formerly)))
         lines.append('    <ul class="ch-awards__grid">')
         for a in sorted(awards, key=lambda x: x.get("year") or "", reverse=True):
-            lines.append('      <li data-location="%s">'
-                         % html.escape(a.get("location", name)))
+            lines.append('      <li id="award-%s" data-location="%s">'
+                         % (html.escape(a["slug"]),
+                            html.escape(a.get("location", name))))
             lines.extend("        " + one for one in award_card(a))
+            lines.append('      </li>')
+        lines.append('    </ul>')
+        lines.append('  </div>')
+    # Last, under both woodlands, because they are held by neither.
+    if members:
+        # No note beside this one: what a membership is needs no saying.
+        lines.append('  <div class="ch-awards__group">')
+        lines.append('    <h3 class="ch-awards__title">%s</h3>'
+                     % html.escape(MEMBERSHIP_GROUP))
+        lines.append('    <ul class="ch-awards__grid">')
+        for m in members:
+            lines.append('      <li id="award-%s">' % html.escape(m["slug"]))
+            lines.extend("        " + one for one in award_card(m))
             lines.append('      </li>')
         lines.append('    </ul>')
         lines.append('  </div>')
@@ -453,7 +512,9 @@ def render(section, indent, show_location=False):
     lines.append('  <ul class="ch-press__grid">')
     for item in items:
         # data-location is what js/press-filter.js narrows on
-        lines.append('    <li data-location="%s">' % html.escape(item.get("location","")))
+        # Named so the homepage mastheads can link to the piece itself.
+        lines.append('    <li id="press-%s" data-location="%s">'
+                     % (html.escape(item["slug"]), html.escape(item.get("location", ""))))
         lines.extend("      " + line for line in card(item, show_location))
         lines.append("    </li>")
     lines.append("  </ul>")
@@ -610,7 +671,7 @@ def main():
             if scope and scope not in sections:
                 sys.exit("%s: unknown filter scope '%s'" % (page.name, scope))
             seen.append((scope or "combined", 0, "filter"))
-            body = filters(sections, marker_indent(match), scope)
+            body = filters(data, marker_indent(match), scope)
             return match.group(1) + body + match.group(4)
 
         updated = FILTER_RE.sub(replace_filter, text)
@@ -619,12 +680,13 @@ def main():
             scope = match.group(2)
             if scope and scope not in sections:
                 sys.exit("%s: unknown awards scope '%s'" % (page.name, scope))
-            body = render_awards(sections, marker_indent(match), scope)
+            body = render_awards(data, marker_indent(match), scope)
             if body is None:
                 return match.group(0)
             names = [scope] if scope else list(sections)
             seen.append((scope or "combined",
-                         sum(len(sections[n].get("awards") or []) for n in names),
+                         sum(len(sections[n].get("awards") or []) for n in names)
+                         + len(data.get("memberships") or []),
                          "awards"))
             return match.group(1) + body + match.group(4)
 
