@@ -2597,7 +2597,10 @@ a.awards-logo_svg > img {
 }
 
 .awards-logo_svg.telegraph {
-  max-width: 23.5rem;
+  /* Was 23.5rem when the mark read "The Sunday Telegraph" and ran
+     9.5:1. Rebuilt without "Sunday" it is 6:1, so the width comes down to
+     leave it standing the same height in the row. */
+  max-width: 15rem;
 }
 
 .awards-logo_svg.countryliving {
@@ -3572,7 +3575,7 @@ a.awards-logo_svg > img {
   }
 
   .awards-logo_svg.telegraph {
-    max-width: 20.5rem;
+    max-width: 13rem;
   }
 
   .awards-logo_svg.countryliving {
