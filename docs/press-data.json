@@ -126,8 +126,8 @@
           "logo": "images/logo-evening-standard.svg",
           "slug": "standard-oxford",
           "shot": {
-            "src": "images/press-shots/standard-oxford-412.webp?v=20260922",
-            "srcset": "images/press-shots/standard-oxford-206.webp?v=20260922 206w, images/press-shots/standard-oxford-412.webp?v=20260922 412w"
+            "src": "images/press-shots/standard-oxford-412.webp?v=20260925",
+            "srcset": "images/press-shots/standard-oxford-206.webp?v=20260925 206w, images/press-shots/standard-oxford-412.webp?v=20260925 412w"
           },
           "date": "2018-08-15",
           "dateKind": "published",
@@ -536,8 +536,8 @@
           "logo": "images/logo-evening-standard.svg",
           "slug": "standard-dorset",
           "shot": {
-            "src": "images/press-shots/standard-dorset-412.webp?v=20260922",
-            "srcset": "images/press-shots/standard-dorset-206.webp?v=20260922 206w, images/press-shots/standard-dorset-412.webp?v=20260922 412w"
+            "src": "images/press-shots/standard-dorset-412.webp?v=20260925",
+            "srcset": "images/press-shots/standard-dorset-206.webp?v=20260925 206w, images/press-shots/standard-dorset-412.webp?v=20260925 412w"
           },
           "date": "2017-11-22",
           "dateKind": "published",
@@ -551,8 +551,8 @@
           "logo": "images/press/countryliving.svg",
           "slug": "countryliving",
           "shot": {
-            "src": "images/press-shots/countryliving-412.webp?v=20260923",
-            "srcset": "images/press-shots/countryliving-206.webp?v=20260923 206w, images/press-shots/countryliving-412.webp?v=20260923 412w"
+            "src": "images/press-shots/countryliving-412.webp?v=20260925",
+            "srcset": "images/press-shots/countryliving-206.webp?v=20260925 206w, images/press-shots/countryliving-412.webp?v=20260925 412w"
           },
           "date": "2019-03-10",
           "dateKind": "published",
