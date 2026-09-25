@@ -52,12 +52,14 @@
     },
     {
       "slug": "bbka",
+      "logoSize": "small",
       "org": "British Beekeepers Association",
       "description": "Membership no. 599.0.12274",
       "logo": "images/award-bbka.png"
     },
     {
       "slug": "magic-circle",
+      "logoSize": "small",
       "org": "The Magic Circle",
       "description": "MMC 2853",
       "logo": "images/award-magic-circle.png"

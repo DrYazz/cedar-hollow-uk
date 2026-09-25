@@ -392,8 +392,12 @@ def award_card(a):
     if a.get("logo"):
         # The badge says the same thing as the words under it, so it is
         # decorative: an empty alt keeps it from being read out twice.
-        parts.append('  <p class="ch-awards__badge"><img src="%s" alt="" '
-                     'loading="lazy" decoding="async"></p>' % asset(a["logo"]))
+        # A roundel reads larger than a wordmark of the same height because
+        # it fills its box; "small" brings those down so a row sits even.
+        size = ' class="is-small"' if a.get("logoSize") == "small" else ""
+        parts.append('  <p class="ch-awards__badge"><img%s src="%s" alt="" '
+                     'loading="lazy" decoding="async"></p>'
+                     % (size, asset(a["logo"])))
     else:
         parts.append('  <p class="ch-awards__badge"></p>')
     parts.append('  <div class="ch-awards__body">')

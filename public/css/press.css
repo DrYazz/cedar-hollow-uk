@@ -358,6 +358,13 @@ section[data-kind][hidden] {
   max-height: 10.5rem;
 }
 
+/* A roundel fills its box where a wordmark leaves air around itself, so at
+   the same height it reads as the biggest thing in the row. These come down
+   to sit with the rest. */
+.ch-awards__badge img.is-small {
+  max-height: 8rem;
+}
+
 .ch-awards__body {
   display: flex;
   flex: 1;
@@ -866,6 +873,10 @@ a.ch-vid__play {
   .ch-awards__badge img {
     max-width: 7.5rem;
     max-height: 7.25rem;
+  }
+
+  .ch-awards__badge img.is-small {
+    max-height: 5.5rem;
   }
 
   .ch-awards__org {
