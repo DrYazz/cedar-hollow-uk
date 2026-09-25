@@ -53,6 +53,7 @@
     },
     {
       "slug": "bbka",
+      "proof": "oxford/beemuseum.html",
       "logoSize": "small",
       "org": "British Beekeepers Association",
       "description": "Membership no. 599.0.12274",
@@ -60,6 +61,7 @@
     },
     {
       "slug": "magic-circle",
+      "proof": "https://wizardsofox.uk",
       "logoSize": "small",
       "org": "The Magic Circle",
       "description": "MMC 2853",
@@ -393,7 +395,7 @@
           "category": "Self-Catering Accommodation of the Year",
           "recipient": "Cedar Hollow @ The Oaks, Oxfordshire",
           "kind": "National tourism award",
-          "logo": "images/award-visitengland-excellence-2026-badge.webp",
+          "logo": "images/award-visitengland-excellence-2026-plaque.webp",
           "url": "https://www.visitbritain.org/news-and-media/industry-news-and-press-releases/visitengland-awards-excellence-2026-winners",
           "location": "oxford"
         },
