@@ -214,6 +214,7 @@
           "url": "https://secretldn.com/treehouse-rental-cedar-hollow/",
           "quote": "The handcrafted woodwork is gorgeously blended with state-of-the-art design",
           "slug": "secretldn",
+          "logo": "images/press/secretldn.png",
           "shot": {
             "src": "images/press-shots/secretldn-412.webp?v=20260923",
             "srcset": "images/press-shots/secretldn-206.webp?v=20260923 206w, images/press-shots/secretldn-412.webp?v=20260923 412w"
@@ -228,6 +229,7 @@
           "url": "https://www.manchestereveningnews.co.uk/news/property/inside-narnia-themed-treehouse-features-30398002",
           "quote": "complete with a magic wardrobe door that 'transports' visitors straight into the countryside.",
           "slug": "men",
+          "logo": "images/press/men.png",
           "shot": {
             "src": "images/press-shots/men-412.webp?v=20260923",
             "srcset": "images/press-shots/men-206.webp?v=20260923 206w, images/press-shots/men-412.webp?v=20260923 412w"
@@ -242,6 +244,7 @@
           "url": "https://www.goodnewsnetwork.org/narnia-themed-treehouse-built-next-to-c-s-lewis-home-features-magic-wardrobe-now-its-a-rental/",
           "quote": "a magic mirror people can talk to, built by an AI engineer and magic circle member",
           "slug": "gnn",
+          "logo": "images/press/gnn.png",
           "shot": {
             "src": "images/press-shots/gnn-412.webp?v=20260923",
             "srcset": "images/press-shots/gnn-206.webp?v=20260923 206w, images/press-shots/gnn-412.webp?v=20260923 412w"
@@ -256,6 +259,7 @@
           "url": "https://euroweeklynews.com/2024/11/27/a-storybook-themed-stay-in-the-uk-narnia-fans-will-love-this/",
           "quote": "this whimsical holiday rental is a must-visit destination for fairy tale fans.",
           "slug": "euroweekly",
+          "logo": "images/press/euroweekly.png",
           "shot": {
             "src": "images/press-shots/euroweekly-412.webp?v=20260923",
             "srcset": "images/press-shots/euroweekly-206.webp?v=20260923 206w, images/press-shots/euroweekly-412.webp?v=20260923 412w"
@@ -269,6 +273,7 @@
           "headline": "VisitEngland names Oxford holiday retreat among best in UK",
           "url": "https://www.oxfordmail.co.uk/news/26169566.visitengland-names-oxford-holiday-retreat-among-best-uk/",
           "slug": "oxfordmail",
+          "logo": "images/press/oxfordmail.png",
           "shot": {
             "src": "images/press-shots/oxfordmail-412.webp?v=20260923",
             "srcset": "images/press-shots/oxfordmail-206.webp?v=20260923 206w, images/press-shots/oxfordmail-412.webp?v=20260923 412w"
@@ -554,6 +559,7 @@
           "url": "https://www.dailymail.co.uk/travel/travel_news/article-4127672/Britain-s-best-treehouses.html",
           "quote": "Britain\u2019s most luxurious treehouse",
           "slug": "dailymail",
+          "logo": "images/press/dailymail.png",
           "shot": {
             "src": "images/press-shots/dailymail-412.webp?v=20260923",
             "srcset": "images/press-shots/dailymail-206.webp?v=20260923 206w, images/press-shots/dailymail-412.webp?v=20260923 412w"
@@ -583,6 +589,7 @@
           "url": "https://www.designboom.com/architecture/woodmans-treehouse-west-dorset-guy-mallinson-brownlie-ernst-and-marks-10-16-2016/",
           "quote": "a secluded sustainable sanctuary near the jurassic coast",
           "slug": "designboom",
+          "logo": "images/press/designboom.svg",
           "shot": {
             "src": "images/press-shots/designboom-412.webp?v=20260922",
             "srcset": "images/press-shots/designboom-206.webp?v=20260922 206w, images/press-shots/designboom-412.webp?v=20260922 412w"
@@ -597,6 +604,7 @@
           "url": "https://www.tatler.com/gallery/most-romantic-cottages-and-breaks-for-lovers-uk",
           "quote": "this is that childhood fantasy come to life \u2013 and then some.",
           "slug": "tatler",
+          "logo": "images/press/tatler.svg",
           "shot": {
             "src": "images/press-shots/tatler-412.webp?v=20260925",
             "srcset": "images/press-shots/tatler-206.webp?v=20260925 206w, images/press-shots/tatler-412.webp?v=20260925 412w"
@@ -610,6 +618,7 @@
           "headline": "Cabin Fever: Seven Chic Cabins to Rent (or Merely Ogle) This Winter",
           "url": "https://www.vogue.com/slideshow/cabin-fever-chic-cabins-to-rent-this-winter",
           "slug": "vogue",
+          "logo": "images/press/vogue.svg",
           "note": "We\u2019ve come a long way from the days of Tipis and Yurts",
           "shot": {
             "src": "images/press-shots/vogue-412.webp?v=20260925",
@@ -624,6 +633,7 @@
           "headline": "Happy glampers: 10 comfy alternatives to a tent",
           "url": "https://www.theguardian.com/travel/2011/jul/29/glamping-britain-campsites-alastair-sawday",
           "slug": "guardian",
+          "logo": "images/press/guardian.svg",
           "note": "Celebration of Craft from the very beginning",
           "shot": {
             "src": "images/press-shots/guardian-412.webp?v=20260925",
