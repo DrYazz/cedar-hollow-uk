@@ -46,6 +46,7 @@
   "memberships": [
     {
       "slug": "aim",
+      "proof": "https://aim-museums.co.uk/our-members/",
       "org": "Association of Independent Museums",
       "description": "Membership no. 8369",
       "logo": "images/award-aim.png"

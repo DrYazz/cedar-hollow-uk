@@ -411,8 +411,15 @@ def award_card(a):
     if line:
         parts.append('    <p class="ch-awards__distinction">%s</p>' % line)
     for key in ("description", "category"):
-        if a.get(key):
-            parts.append('    <p class="ch-awards__note">%s</p>' % html.escape(a[key]))
+        if not a.get(key):
+            continue
+        text = html.escape(a[key])
+        # A membership number is worth nothing if it cannot be checked, so
+        # where the body publishes a register the number is the way into it.
+        if key == "description" and a.get("proof"):
+            text = ('<a href="%s" target="_blank" rel="noopener">%s</a>'
+                    % (html.escape(a["proof"], quote=True), text))
+        parts.append('    <p class="ch-awards__note">%s</p>' % text)
     if a.get("recipient"):
         parts.append('    <p class="ch-awards__recipient">%s</p>'
                      % html.escape(a["recipient"]))

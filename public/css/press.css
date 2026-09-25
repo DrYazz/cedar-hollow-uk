@@ -425,12 +425,15 @@ section[data-kind][hidden] {
   font-size: .875rem;
 }
 
+.ch-awards__note a,
 .ch-awards__source a {
   color: inherit;
   text-decoration: underline;
   text-underline-offset: .2em;
 }
 
+.ch-awards__note a:hover,
+.ch-awards__note a:focus-visible,
 .ch-awards__source a:hover,
 .ch-awards__source a:focus-visible {
   text-decoration-thickness: 2px;
