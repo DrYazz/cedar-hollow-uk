@@ -47,32 +47,20 @@
     {
       "slug": "aim",
       "org": "Association of Independent Museums",
-      "award": "Member",
       "description": "Membership no. 8369",
-      "recipient": "The Bee Museum at Cedar Hollow Oxford",
-      "kind": "Membership",
       "logo": "images/award-aim.png"
     },
     {
       "slug": "bbka",
       "org": "British Beekeepers Association",
-      "award": "Member",
       "description": "Membership no. 599.0.12274",
-      "category": "Six active hives on the estate",
-      "recipient": "Cedar Hollow Oxford",
-      "kind": "Membership",
       "logo": "images/award-bbka.png"
     },
     {
       "slug": "magic-circle",
       "org": "The Magic Circle",
-      "award": "Member",
       "description": "MMC 2853",
-      "category": "The estate\u2019s illusions are theirs",
-      "recipient": "Wizards of Ox, resident magicians at Cedar Hollow Oxford",
-      "kind": "Membership",
-      "logo": "images/award-magic-circle.png",
-      "url": "https://www.goodnewsnetwork.org/narnia-themed-treehouse-built-next-to-c-s-lewis-home-features-magic-wardrobe-now-its-a-rental/"
+      "logo": "images/award-magic-circle.png"
     }
   ],
   "sections": {

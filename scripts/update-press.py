@@ -397,9 +397,11 @@ def award_card(a):
     else:
         parts.append('  <p class="ch-awards__badge"></p>')
     parts.append('  <div class="ch-awards__body">')
-    parts.append('    <p class="ch-awards__kind">%s</p>' % html.escape(a["kind"]))
+    if a.get("kind"):
+        parts.append('    <p class="ch-awards__kind">%s</p>' % html.escape(a["kind"]))
     parts.append('    <h4 class="ch-awards__org">%s</h4>' % html.escape(a["org"]))
-    parts.append('    <p class="ch-awards__name">%s</p>' % html.escape(a["award"]))
+    if a.get("award"):
+        parts.append('    <p class="ch-awards__name">%s</p>' % html.escape(a["award"]))
     line = " &middot; ".join(html.escape(bit) for bit in
                              (a.get("distinction"), a.get("year")) if bit)
     if line:
@@ -407,8 +409,9 @@ def award_card(a):
     for key in ("description", "category"):
         if a.get(key):
             parts.append('    <p class="ch-awards__note">%s</p>' % html.escape(a[key]))
-    parts.append('    <p class="ch-awards__recipient">%s</p>'
-                 % html.escape(a["recipient"]))
+    if a.get("recipient"):
+        parts.append('    <p class="ch-awards__recipient">%s</p>'
+                     % html.escape(a["recipient"]))
     # The architecture awards were given to a building, so they name who
     # designed it, the way the awarding body does.
     if a.get("architect"):
