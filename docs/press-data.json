@@ -634,6 +634,22 @@
           "location": "dorset"
         },
         {
+          "publication": "Condé Nast Traveller",
+          "headline": "The best of West Dorset",
+          "url": "https://www.cntraveller.com/gallery/guide-to-dorset-england",
+          "quote": "Glamping with sheepskins, shepherds' huts, sauna yurts, flushing loos and hot showers has made its mark in Dorset; the best example is Crafty Camping",
+          "slug": "cntraveller",
+          "logo": "images/press/cntraveller.svg",
+          "logoScale": 1.5,
+          "shot": {
+            "src": "images/press-shots/cntraveller-412.webp?v=20260926",
+            "srcset": "images/press-shots/cntraveller-206.webp?v=20260926 206w, images/press-shots/cntraveller-412.webp?v=20260926 412w"
+          },
+          "date": "2013-04-10",
+          "dateKind": "published",
+          "location": "dorset"
+        },
+        {
           "publication": "The Guardian",
           "headline": "Happy glampers: 10 comfy alternatives to a tent",
           "url": "https://www.theguardian.com/travel/2011/jul/29/glamping-britain-campsites-alastair-sawday",
