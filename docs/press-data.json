@@ -139,6 +139,7 @@
           "url": "https://www.timeout.com/uk/things-to-do/amazing-uk-treehouses-you-can-actually-stay-in",
           "quote": "the treehouse will awaken your inner child",
           "logo": "images/press/timeout.svg",
+          "logoScale": 1.6,
           "slug": "timeout",
           "shot": {
             "src": "images/press-shots/timeout-412.webp?v=20260923",
@@ -231,7 +232,7 @@
           "quote": "complete with a magic wardrobe door that 'transports' visitors straight into the countryside.",
           "slug": "men",
           "logo": "images/press/men.png",
-          "logoScale": 1.3,
+          "logoScale": 1.6,
           "shot": {
             "src": "images/press-shots/men-412.webp?v=20260923",
             "srcset": "images/press-shots/men-206.webp?v=20260923 206w, images/press-shots/men-412.webp?v=20260923 412w"
@@ -490,8 +491,8 @@
           "logo": "images/the-telegraph.png",
           "slug": "telegraph",
           "shot": {
-            "src": "images/press-shots/telegraph-412.webp?v=20260922",
-            "srcset": "images/press-shots/telegraph-206.webp?v=20260922 206w, images/press-shots/telegraph-412.webp?v=20260922 412w"
+            "src": "images/press-shots/telegraph-412.webp?v=20260926",
+            "srcset": "images/press-shots/telegraph-206.webp?v=20260926 206w, images/press-shots/telegraph-412.webp?v=20260926 412w"
           },
           "date": "2016-11-15",
           "dateKind": "published",
