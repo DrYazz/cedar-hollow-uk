@@ -29,7 +29,7 @@
   <meta content="A timber cabin lit from within, among ferns in golden-hour woodland" property="og:image:alt">
   <meta content="summary_large_image" name="twitter:card">
   <link href="css/page.css?v=20260922a" rel="stylesheet" type="text/css">
-  <link href="css/reviews-wall.css?v=20260927f" rel="stylesheet" type="text/css">
+  <link href="css/reviews-wall.css?v=20260927g" rel="stylesheet" type="text/css">
   <style>
     /* page.css styles .ch-prose links but not .ch-list ones, so these were
        rendering as default browser blue; and .ch-list is not in the accent
@@ -151,7 +151,7 @@
           and the album should still be reachable when they do not. With
           scripting off both sections are simply there, one after the other,
           which is what the page was before this control existed.  -->
-    <div class="ch-show" data-ch-show data-on="reviews">
+    <div class="ch-show" data-ch-show>
       <div class="ch-show__row" role="group" aria-labelledby="ch-show-label">
         <span class="ch-show__label" id="ch-show-label">Show:</span>
         <button class="ch-wall__btn" type="button" data-show="reviews" aria-pressed="true">Reviews</button>
@@ -206,9 +206,9 @@
                       was shared under, which is the credit.  -->
                 <ul class="ch-album">
                   <li class="ch-album__print">
-                    <a class="ch-album__link" href="https://en.wikipedia.org/wiki/Luke_Newton"
+                    <a class="ch-album__link" href="https://www.instagram.com/lukenewtonuk/"
                        target="_blank" rel="noopener"
-                       aria-label="Read about Luke Newton">
+                       aria-label="See Luke Newton on Instagram">
                       <img src="images/guests/guest-luke-newton-600.webp"
                            srcset="images/guests/guest-luke-newton-300.webp 300w, images/guests/guest-luke-newton-600.webp 600w"
                            sizes="(max-width: 767px) 40vw, 12rem"
@@ -220,9 +220,9 @@
                     </a>
                   </li>
                   <li class="ch-album__print">
-                    <a class="ch-album__link" href="https://en.wikipedia.org/wiki/Stephanie_Davis_(actress)"
+                    <a class="ch-album__link" href="https://www.instagram.com/stephaniedavis88/"
                        target="_blank" rel="noopener"
-                       aria-label="Read about Stephanie Davis">
+                       aria-label="See Stephanie Davis on Instagram">
                       <img src="images/guests/guest-stephanie-davis-600.webp"
                            srcset="images/guests/guest-stephanie-davis-300.webp 300w, images/guests/guest-stephanie-davis-600.webp 600w"
                            sizes="(max-width: 767px) 40vw, 12rem"
@@ -248,9 +248,9 @@
                     </a>
                   </li>
                   <li class="ch-album__print">
-                    <a class="ch-album__link" href="https://en.wikipedia.org/wiki/Sarah_Jayne_Dunn"
+                    <a class="ch-album__link" href="https://www.instagram.com/sarahjaynedunn/"
                        target="_blank" rel="noopener"
-                       aria-label="Read about Sarah-Jayne Dunn">
+                       aria-label="See Sarah-Jayne Dunn on Instagram">
                       <img src="images/guests/guest-sarah-jayne-dunn-600.webp"
                            srcset="images/guests/guest-sarah-jayne-dunn-300.webp 300w, images/guests/guest-sarah-jayne-dunn-600.webp 600w"
                            sizes="(max-width: 767px) 40vw, 12rem"
@@ -276,9 +276,9 @@
                     </a>
                   </li>
                   <li class="ch-album__print">
-                    <a class="ch-album__link" href="https://en.wikipedia.org/wiki/Aston_Merrygold"
+                    <a class="ch-album__link" href="https://www.instagram.com/p/DU9BMv9DDJG/"
                        target="_blank" rel="noopener"
-                       aria-label="Read about Aston Merrygold">
+                       aria-label="See Aston Merrygold's stay on Instagram">
                       <img src="images/guests/guest-aston-merrygold-600.webp"
                            srcset="images/guests/guest-aston-merrygold-300.webp 300w, images/guests/guest-aston-merrygold-600.webp 600w"
                            sizes="(max-width: 767px) 40vw, 12rem"
@@ -318,9 +318,9 @@
                     </a>
                   </li>
                   <li class="ch-album__print">
-                    <a class="ch-album__link" href="https://en.wikipedia.org/wiki/Suzannah_Lipscomb"
+                    <a class="ch-album__link" href="https://suzannahlipscomb.com/"
                        target="_blank" rel="noopener"
-                       aria-label="Read about Suzannah Lipscomb">
+                       aria-label="Visit Suzannah Lipscomb's website">
                       <img src="images/guests/guest-suzannah-lipscomb-600.webp"
                            srcset="images/guests/guest-suzannah-lipscomb-300.webp 300w, images/guests/guest-suzannah-lipscomb-600.webp 600w"
                            sizes="(max-width: 767px) 40vw, 12rem"
@@ -475,9 +475,6 @@
             buttons[b].setAttribute(
               "aria-pressed", buttons[b].getAttribute("data-show") === which ? "true" : "false");
           }
-          /* The strip wears the colour of the half that is showing. */
-          bar.setAttribute("data-on", which);
-
           var url = new URL(window.location.href);
           if (which === "reviews") url.searchParams.delete("show");
           else url.searchParams.set("show", which);

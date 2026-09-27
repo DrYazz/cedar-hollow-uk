@@ -640,50 +640,27 @@
    not. The buttons borrow .ch-wall__btn so the two look like one thing.
    ---------------------------------------------------------------------- */
 .ch-show {
-  /* The strip takes the colour of the panel it sits above, so the two read
-     as one band and the change of colour happens at the hero, where a
-     change of colour belongs, rather than against the bottom of the
-     buttons.
-
-     Padding above only: the panel below brings its own 80px, which is the
-     same again, so the buttons end up in the middle of the band rather
-     than at the top of it. */
-  background-color: var(--brand, #efeed5);
+  /* One colour, always. The strip is its own band between the hero above
+     and whichever panel is below, with the same measure either side of
+     the buttons so they sit in the middle of it. */
+  background-color: var(--offwhite, #f8f8e8);
   color: var(--accent, #3b4126);
-  padding: 5rem 1.25rem 0;
-  transition: background-color .25s ease, color .25s ease;
+  padding: 5rem 1.25rem;
 }
 
-.ch-show[data-on="guests"] {
-  background-color: var(--accent, #3b4126);
-  color: var(--brand, #efeed5);
-}
-
-/* On the dark half the pressed button has to invert, the same way the Show
-   more button does on that band, or it disappears into it. */
-.ch-show[data-on="guests"] .ch-wall__btn[aria-pressed="true"] {
-  background-color: var(--brand, #efeed5);
-  border-color: var(--brand, #efeed5);
-  color: var(--accent, #3b4126);
-}
-
-/* The panel below steps its own padding down with the width, and the space
-   above the buttons has to step with it or they stop being in the middle. */
+/* The rest of the page steps its section padding down with the width, and
+   the band steps with it so it stays in the same rhythm. */
 @media screen and (max-width: 991px) {
   .ch-show {
     padding-top: 4rem;
+    padding-bottom: 4rem;
   }
 }
 
 @media screen and (max-width: 767px) {
   .ch-show {
     padding-top: 3rem;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .ch-show {
-    transition: none;
+    padding-bottom: 3rem;
   }
 }
 
