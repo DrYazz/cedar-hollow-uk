@@ -497,3 +497,99 @@
     margin-right: 0;
   }
 }
+
+
+/* ---- The guest album ---------------------------------------------------
+   Ten guests who posted a picture of their own stay, laid out as prints
+   rather than tiles: a white border, a caption written underneath, and a
+   slight tilt taken from each print's place in the row so it is the same
+   on every load. Several of the photographs still carry the handle they
+   were posted under, which is the credit and is left alone.
+   ---------------------------------------------------------------------- */
+.ch-album__intro {
+  margin: 0 0 2.5rem;
+  opacity: .8;
+}
+
+.ch-album {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 1.75rem 1.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ch-album__print {
+  width: 12rem;
+  padding: .625rem .625rem 0;
+  background: #fdfdf6;
+  border-radius: 2px;
+  box-shadow: 0 .5rem 1.25rem rgba(16, 19, 7, .35);
+  transition: transform .3s cubic-bezier(.2, .7, .3, 1),
+              box-shadow .3s ease;
+}
+
+/* The tilt, by position rather than at random, so a print sits the same way
+   every time the page is opened. */
+.ch-album__print:nth-child(3n+1) { transform: rotate(-1.8deg); }
+.ch-album__print:nth-child(3n+2) { transform: rotate(1.2deg); }
+.ch-album__print:nth-child(3n+3) { transform: rotate(-.6deg); }
+
+.ch-album__print:hover,
+.ch-album__print:focus-within {
+  transform: rotate(0) translateY(-4px);
+  box-shadow: 0 .875rem 1.75rem rgba(16, 19, 7, .45);
+}
+
+.ch-album__print img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  background: #e8e8dc;
+}
+
+/* The caption is written on the print, so it takes the colour of ink on
+   paper rather than the colour of the band behind it. */
+.ch-album__caption {
+  display: block;
+  padding: .625rem .125rem .75rem;
+  color: #3b4126;
+  text-align: center;
+}
+
+.ch-album__name {
+  display: block;
+  font-size: .9375rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.ch-album__note {
+  display: block;
+  margin-top: .1875rem;
+  font-size: .75rem;
+  line-height: 1.25;
+  opacity: .65;
+}
+
+@media screen and (max-width: 767px) {
+  /* Two to a row on a phone, and the prints keep their tilt: it is what
+     makes them read as prints rather than thumbnails. */
+  .ch-album {
+    gap: 1.5rem 1rem;
+  }
+  .ch-album__print {
+    width: calc(50% - 1.5rem);
+    max-width: 11rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ch-album__print {
+    transition: none;
+  }
+}
