@@ -171,6 +171,15 @@
   box-shadow: 0 13.993px 22.388px 0 rgba(0, 0, 0, .03);
   padding: 32px 12px 12px;
 }
+/* Between the stacking breakpoint and 1200px the info column is at its
+   narrowest, and the calendar inside it has a width below which it stops
+   fitting a week across and scrolls sideways instead. Forty pixels off a
+   seven-hundred-pixel photograph is not a sacrifice; a calendar you have to
+   drag to see Sunday is. */
+@media (min-width: 992px) and (max-width: 1200px) {
+  .pp-info { flex-basis: 372px; }
+}
+
 @media (max-width: 991px) { .pp-info { background: none; border: 0; border-radius: 0; box-shadow: none; padding: 0 20px; } }
 
 .pp-name {
@@ -225,6 +234,44 @@
 .pp-book__actions {
   display: flex; flex-direction: column; align-items: center; gap: 12px; width: 100%;
 }
+/* The calendar is someone else's page in a frame, so it brings its own white
+   ground rather than inheriting the panel's cream. Rounding it and letting it
+   run the full width keeps it looking like part of the panel rather than a
+   window cut into it.
+
+   The height is set by hand because a cross-origin frame cannot report how
+   tall its content is. Measured off the rendered widget, the card is 326px at
+   every width the panel takes -- the day grid scrolls sideways rather than
+   reflowing -- and a row is 25px, so 370px clears a six-week month with room
+   to spare. */
+/* The calendar card inside the widget stops at about 330px and sits left, so
+   a frame any wider than that is white space with a calendar in the corner.
+   Capping the frame and centring it keeps the two the same shape. */
+.pp-book__cal {
+  display: block; width: 100%; max-width: 356px; height: 370px;
+  margin-left: auto; margin-right: auto;
+  border: 0; border-radius: 12px; background: #fff;
+}
+
+/* Between 992 and 1200 the panel is at its narrowest it ever gets, and the
+   calendar has a width below which it stops fitting a week across and starts
+   scrolling sideways instead. Every pixel of side padding comes straight off
+   that width, so in this band the panel gives all of it back to the frame and
+   the text keeps its own inset. */
+.pp-book--cal { padding-left: 14px; padding-right: 14px; }
+.pp-book--cal .pp-book__facts { padding: 0 10px; }
+
+@media (min-width: 992px) and (max-width: 1200px) {
+  .pp-book--cal { padding-left: 0; padding-right: 0; }
+  .pp-book--cal .pp-book__facts,
+  .pp-book--cal .pp-book__actions,
+  .pp-book--cal .pp-book__note { padding-left: 14px; padding-right: 14px; }
+}
+
+/* The way out of the frame sits in the note, so it takes the note's colour
+   rather than arriving as browser blue. */
+.pp-book__note a { color: inherit; text-underline-offset: 2px; }
+
 .pp-book__note { margin: 0; font-size: .8125rem; line-height: 1.5; color: var(--accent, #3b4126); opacity: .7; }
 @media (max-width: 991px) { .pp-book__facts { gap: 28px; } }
 
