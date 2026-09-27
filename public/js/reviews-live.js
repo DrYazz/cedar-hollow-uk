@@ -814,48 +814,15 @@
       });
   }
 
-  /* Dorset has no Repuso subscription. Its reviews come from our own
-     Worker, which asks Google and Tripadvisor directly -- see
-     worker/reviews.js. Only the reviews: the figures above stay as the
-     generator wrote them, because the platforms hand over the latest few
-     rather than the total.
-
-     Every failure is silent, as with Repuso: no endpoint, no keys, a
-     timeout or a changed payload all end with no Dorset cards, and the
-     wall shows Oxford's alone. */
-  var DORSET_REVIEWS = "/api/reviews/dorset";
-
-  function loadDorset() {
-    if (!walls("dorset").length) return;
-
-    var controller = window.AbortController ? new AbortController() : null;
-    var timer = window.setTimeout(function () {
-      if (controller) controller.abort();
-    }, TIMEOUT_MS);
-
-    var opts = { credentials: "omit" };
-    if (controller) opts.signal = controller.signal;
-
-    window.fetch(DORSET_REVIEWS, opts)
-      .then(function (r) {
-        if (!r.ok) throw new Error("status " + r.status);
-        return r.json();
-      })
-      .then(function (json) {
-        window.clearTimeout(timer);
-        var items = json && json.items;
-        if (items && items.length) renderWall("dorset", items);
-      })
-      .catch(function () {
-        window.clearTimeout(timer);
-      });
-  }
-
+  /* Both woodlands arrive the same way: a property with a live endpoint in
+     docs/reviews-data.json is fetched, the rest keep the figures the
+     generator published. Dorset has no endpoint until its own Repuso
+     widget is added there, at which point its reviews land in the same
+     wall as Oxford's with nothing here to change. */
   function start() {
     Object.keys(DATA.properties).forEach(function (key) {
       if (DATA.properties[key].live) load(key);
     });
-    loadDorset();
   }
 
   if (document.readyState === "loading") {
