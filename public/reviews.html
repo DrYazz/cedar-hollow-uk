@@ -29,7 +29,7 @@
   <meta content="A timber cabin lit from within, among ferns in golden-hour woodland" property="og:image:alt">
   <meta content="summary_large_image" name="twitter:card">
   <link href="css/page.css?v=20260922a" rel="stylesheet" type="text/css">
-  <link href="css/reviews-wall.css?v=20260927b" rel="stylesheet" type="text/css">
+  <link href="css/reviews-wall.css?v=20260927d" rel="stylesheet" type="text/css">
   <style>
     /* page.css styles .ch-prose links but not .ch-list ones, so these were
        rendering as default browser blue; and .ch-list is not in the accent
@@ -146,41 +146,26 @@
       </div></div>
     </div></div>
   </section>
+    <!--  One choice, over the two halves of the page. It sits outside both,
+          because the reviews arrive from a feed and may not arrive at all,
+          and the album should still be reachable when they do not. With
+          scripting off both sections are simply there, one after the other,
+          which is what the page was before this control existed.  -->
+    <div class="ch-show" data-ch-show>
+      <div class="ch-show__row" role="group" aria-labelledby="ch-show-label">
+        <span class="ch-show__label" id="ch-show-label">Show:</span>
+        <button class="ch-wall__btn" type="button" data-show="reviews" aria-pressed="true">Reviews</button>
+        <button class="ch-wall__btn" type="button" data-show="guests" aria-pressed="false">Famous Guests</button>
+      </div>
+    </div>
 
-    <section class="bg-light">
+    <section class="bg-light" data-show-panel="reviews">
       <div class="padding-section-medium">
         <div class="padding-global">
           <div class="container-large">
             <div class="text-align-center">
               <div class="max-width-xlarge align-center">
-                <!--  Two controls over one wall: which woodland, and which
-                      platform it was left on. They live inside the wall
-                      because the wall ships hidden and only appears once the
-                      feed lands -- a filter standing over nothing would be
-                      worse than no filter. js/reviews-live.js drives whichever
-                      rows it finds, so a page can carry one, both or neither.
-
-                      The wall itself is filled from the owner's own Repuso
-                      feed. It ships hidden on purpose: there is no sensible
-                      static stand-in for "the latest reviews", so if the feed
-                      cannot be reached the section is simply not there, rather
-                      than an empty frame.  -->
                 <div class="ch-wall" data-ch-wall="oxford" hidden>
-                  <div class="ch-wall__filters">
-                    <div class="ch-wall__filter" role="group" aria-labelledby="ch-wall-f-woodland">
-                      <span class="ch-wall__filter-label" id="ch-wall-f-woodland">Location:</span>
-                      <button class="ch-wall__btn" type="button" data-group="woodland" data-filter="all" aria-pressed="true">All <span class="ch-wall__count"></span></button>
-                      <button class="ch-wall__btn" type="button" data-group="woodland" data-filter="oxford" aria-pressed="false">Oxford <span class="ch-wall__count"></span></button>
-                      <button class="ch-wall__btn" type="button" data-group="woodland" data-filter="dorset" aria-pressed="false">Dorset <span class="ch-wall__count"></span></button>
-                    </div>
-                    <div class="ch-wall__filter" role="group" aria-labelledby="ch-wall-f-source">
-                      <span class="ch-wall__filter-label" id="ch-wall-f-source">Source:</span>
-                      <button class="ch-wall__btn" type="button" data-group="source" data-filter="all" aria-pressed="true">All <span class="ch-wall__count"></span></button>
-                      <button class="ch-wall__btn" type="button" data-group="source" data-filter="Tripadvisor" aria-pressed="false">Tripadvisor <span class="ch-wall__count"></span></button>
-                      <button class="ch-wall__btn" type="button" data-group="source" data-filter="Google" aria-pressed="false">Google <span class="ch-wall__count"></span></button>
-                      <button class="ch-wall__btn" type="button" data-group="source" data-filter="Airbnb" aria-pressed="false">Airbnb <span class="ch-wall__count"></span></button>
-                    </div>
-                  </div>
                   <ul class="ch-wall__grid"></ul>
                   <p class="ch-wall__empty" hidden></p>
                   <button class="ch-wall__more" type="button" hidden>Show more</button>
@@ -193,7 +178,7 @@
     </section>
 
 
-    <section class="ch-section--accent">
+    <section class="ch-section--accent" data-show-panel="guests" hidden>
       <div class="padding-section-medium">
         <div class="padding-global">
           <div class="container-large">
@@ -209,134 +194,186 @@
                       was shared under, which is the credit.  -->
                 <ul class="ch-album">
                   <li class="ch-album__print">
-                    <img src="images/guests/guest-luke-newton-600.webp"
-                         srcset="images/guests/guest-luke-newton-300.webp 300w, images/guests/guest-luke-newton-600.webp 600w"
-                         sizes="(max-width: 767px) 40vw, 12rem"
-                         loading="lazy" decoding="async" alt="Luke Newton at Cedar Hollow">
-                    <span class="ch-album__caption">
-                      <span class="ch-album__name">Luke Newton</span>
-                      <span class="ch-album__note">Colin in Bridgerton</span>
-                    </span>
+                    <a class="ch-album__link" href="https://en.wikipedia.org/wiki/Luke_Newton"
+                       target="_blank" rel="noopener"
+                       aria-label="Read about Luke Newton">
+                      <img src="images/guests/guest-luke-newton-600.webp"
+                           srcset="images/guests/guest-luke-newton-300.webp 300w, images/guests/guest-luke-newton-600.webp 600w"
+                           sizes="(max-width: 767px) 40vw, 12rem"
+                           loading="lazy" decoding="async" alt="Luke Newton at Cedar Hollow">
+                      <span class="ch-album__caption">
+                        <span class="ch-album__name">Luke Newton</span>
+                        <span class="ch-album__note">Colin in Bridgerton</span>
+                      </span>
+                    </a>
                   </li>
                   <li class="ch-album__print">
-                    <img src="images/guests/guest-stephanie-davis-600.webp"
-                         srcset="images/guests/guest-stephanie-davis-300.webp 300w, images/guests/guest-stephanie-davis-600.webp 600w"
-                         sizes="(max-width: 767px) 40vw, 12rem"
-                         loading="lazy" decoding="async" alt="Stephanie Davis at Cedar Hollow">
-                    <span class="ch-album__caption">
-                      <span class="ch-album__name">Stephanie Davis</span>
-                      <span class="ch-album__note">Sinead in Hollyoaks</span>
-                    </span>
+                    <a class="ch-album__link" href="https://en.wikipedia.org/wiki/Stephanie_Davis_(actress)"
+                       target="_blank" rel="noopener"
+                       aria-label="Read about Stephanie Davis">
+                      <img src="images/guests/guest-stephanie-davis-600.webp"
+                           srcset="images/guests/guest-stephanie-davis-300.webp 300w, images/guests/guest-stephanie-davis-600.webp 600w"
+                           sizes="(max-width: 767px) 40vw, 12rem"
+                           loading="lazy" decoding="async" alt="Stephanie Davis at Cedar Hollow">
+                      <span class="ch-album__caption">
+                        <span class="ch-album__name">Stephanie Davis</span>
+                        <span class="ch-album__note">Sinead in Hollyoaks</span>
+                      </span>
+                    </a>
                   </li>
                   <li class="ch-album__print">
-                    <img src="images/guests/guest-danny-cipriani-600.webp"
-                         srcset="images/guests/guest-danny-cipriani-300.webp 300w, images/guests/guest-danny-cipriani-600.webp 600w"
-                         sizes="(max-width: 767px) 40vw, 12rem"
-                         loading="lazy" decoding="async" alt="Danny Cipriani at Cedar Hollow">
-                    <span class="ch-album__caption">
-                      <span class="ch-album__name">Danny Cipriani</span>
-                      <span class="ch-album__note">Rugby union</span>
-                    </span>
+                    <a class="ch-album__link" href="https://en.wikipedia.org/wiki/Danny_Cipriani"
+                       target="_blank" rel="noopener"
+                       aria-label="Read about Danny Cipriani">
+                      <img src="images/guests/guest-danny-cipriani-600.webp"
+                           srcset="images/guests/guest-danny-cipriani-300.webp 300w, images/guests/guest-danny-cipriani-600.webp 600w"
+                           sizes="(max-width: 767px) 40vw, 12rem"
+                           loading="lazy" decoding="async" alt="Danny Cipriani at Cedar Hollow">
+                      <span class="ch-album__caption">
+                        <span class="ch-album__name">Danny Cipriani</span>
+                        <span class="ch-album__note">Rugby union</span>
+                      </span>
+                    </a>
                   </li>
                   <li class="ch-album__print">
-                    <img src="images/guests/guest-sarah-jayne-dunn-600.webp"
-                         srcset="images/guests/guest-sarah-jayne-dunn-300.webp 300w, images/guests/guest-sarah-jayne-dunn-600.webp 600w"
-                         sizes="(max-width: 767px) 40vw, 12rem"
-                         loading="lazy" decoding="async" alt="Sarah-Jayne Dunn at Cedar Hollow">
-                    <span class="ch-album__caption">
-                      <span class="ch-album__name">Sarah-Jayne Dunn</span>
-                      <span class="ch-album__note">Mandy in Hollyoaks</span>
-                    </span>
+                    <a class="ch-album__link" href="https://en.wikipedia.org/wiki/Sarah_Jayne_Dunn"
+                       target="_blank" rel="noopener"
+                       aria-label="Read about Sarah-Jayne Dunn">
+                      <img src="images/guests/guest-sarah-jayne-dunn-600.webp"
+                           srcset="images/guests/guest-sarah-jayne-dunn-300.webp 300w, images/guests/guest-sarah-jayne-dunn-600.webp 600w"
+                           sizes="(max-width: 767px) 40vw, 12rem"
+                           loading="lazy" decoding="async" alt="Sarah-Jayne Dunn at Cedar Hollow">
+                      <span class="ch-album__caption">
+                        <span class="ch-album__name">Sarah-Jayne Dunn</span>
+                        <span class="ch-album__note">Mandy in Hollyoaks</span>
+                      </span>
+                    </a>
                   </li>
                   <li class="ch-album__print">
-                    <img src="images/guests/guest-ali-bastian-600.webp"
-                         srcset="images/guests/guest-ali-bastian-300.webp 300w, images/guests/guest-ali-bastian-600.webp 600w"
-                         sizes="(max-width: 767px) 40vw, 12rem"
-                         loading="lazy" decoding="async" alt="Ali Bastian at Cedar Hollow">
-                    <span class="ch-album__caption">
-                      <span class="ch-album__name">Ali Bastian</span>
-                      <span class="ch-album__note">Hollyoaks, The Bill</span>
-                    </span>
+                    <a class="ch-album__link" href="https://en.wikipedia.org/wiki/Ali_Bastian"
+                       target="_blank" rel="noopener"
+                       aria-label="Read about Ali Bastian">
+                      <img src="images/guests/guest-ali-bastian-600.webp"
+                           srcset="images/guests/guest-ali-bastian-300.webp 300w, images/guests/guest-ali-bastian-600.webp 600w"
+                           sizes="(max-width: 767px) 40vw, 12rem"
+                           loading="lazy" decoding="async" alt="Ali Bastian at Cedar Hollow">
+                      <span class="ch-album__caption">
+                        <span class="ch-album__name">Ali Bastian</span>
+                        <span class="ch-album__note">Hollyoaks, The Bill</span>
+                      </span>
+                    </a>
                   </li>
                   <li class="ch-album__print">
-                    <img src="images/guests/guest-aston-merrygold-600.webp"
-                         srcset="images/guests/guest-aston-merrygold-300.webp 300w, images/guests/guest-aston-merrygold-600.webp 600w"
-                         sizes="(max-width: 767px) 40vw, 12rem"
-                         loading="lazy" decoding="async" alt="Aston Merrygold and family at Cedar Hollow">
-                    <span class="ch-album__caption">
-                      <span class="ch-album__name">Aston Merrygold</span>
-                      <span class="ch-album__note">JLS, with family</span>
-                    </span>
+                    <a class="ch-album__link" href="https://en.wikipedia.org/wiki/Aston_Merrygold"
+                       target="_blank" rel="noopener"
+                       aria-label="Read about Aston Merrygold">
+                      <img src="images/guests/guest-aston-merrygold-600.webp"
+                           srcset="images/guests/guest-aston-merrygold-300.webp 300w, images/guests/guest-aston-merrygold-600.webp 600w"
+                           sizes="(max-width: 767px) 40vw, 12rem"
+                           loading="lazy" decoding="async" alt="Aston Merrygold and family at Cedar Hollow">
+                      <span class="ch-album__caption">
+                        <span class="ch-album__name">Aston Merrygold</span>
+                        <span class="ch-album__note">JLS, with family</span>
+                      </span>
+                    </a>
                   </li>
                   <li class="ch-album__print">
-                    <img src="images/guests/guest-vicky-pattison-600.webp"
-                         srcset="images/guests/guest-vicky-pattison-300.webp 300w, images/guests/guest-vicky-pattison-600.webp 600w"
-                         sizes="(max-width: 767px) 40vw, 12rem"
-                         loading="lazy" decoding="async" alt="Vicky Pattison at Cedar Hollow">
-                    <span class="ch-album__caption">
-                      <span class="ch-album__name">Vicky Pattison</span>
-                      <span class="ch-album__note">Winner, I&#x27;m a Celebrity</span>
-                    </span>
+                    <a class="ch-album__link" href="https://en.wikipedia.org/wiki/Vicky_Pattison"
+                       target="_blank" rel="noopener"
+                       aria-label="Read about Vicky Pattison">
+                      <img src="images/guests/guest-vicky-pattison-600.webp"
+                           srcset="images/guests/guest-vicky-pattison-300.webp 300w, images/guests/guest-vicky-pattison-600.webp 600w"
+                           sizes="(max-width: 767px) 40vw, 12rem"
+                           loading="lazy" decoding="async" alt="Vicky Pattison at Cedar Hollow">
+                      <span class="ch-album__caption">
+                        <span class="ch-album__name">Vicky Pattison</span>
+                        <span class="ch-album__note">Winner, I&#x27;m a Celebrity</span>
+                      </span>
+                    </a>
                   </li>
                   <li class="ch-album__print">
-                    <img src="images/guests/guest-andrew-trimble-600.webp"
-                         srcset="images/guests/guest-andrew-trimble-300.webp 300w, images/guests/guest-andrew-trimble-600.webp 600w"
-                         sizes="(max-width: 767px) 40vw, 12rem"
-                         loading="lazy" decoding="async" alt="Andrew Trimble at Cedar Hollow">
-                    <span class="ch-album__caption">
-                      <span class="ch-album__name">Andrew Trimble</span>
-                      <span class="ch-album__note">Rugby union</span>
-                    </span>
+                    <a class="ch-album__link" href="https://en.wikipedia.org/wiki/Andrew_Trimble"
+                       target="_blank" rel="noopener"
+                       aria-label="Read about Andrew Trimble">
+                      <img src="images/guests/guest-andrew-trimble-600.webp"
+                           srcset="images/guests/guest-andrew-trimble-300.webp 300w, images/guests/guest-andrew-trimble-600.webp 600w"
+                           sizes="(max-width: 767px) 40vw, 12rem"
+                           loading="lazy" decoding="async" alt="Andrew Trimble at Cedar Hollow">
+                      <span class="ch-album__caption">
+                        <span class="ch-album__name">Andrew Trimble</span>
+                        <span class="ch-album__note">Rugby union</span>
+                      </span>
+                    </a>
                   </li>
                   <li class="ch-album__print">
-                    <img src="images/guests/guest-suzannah-lipscomb-600.webp"
-                         srcset="images/guests/guest-suzannah-lipscomb-300.webp 300w, images/guests/guest-suzannah-lipscomb-600.webp 600w"
-                         sizes="(max-width: 767px) 40vw, 12rem"
-                         loading="lazy" decoding="async" alt="Suzannah Lipscomb at Cedar Hollow">
-                    <span class="ch-album__caption">
-                      <span class="ch-album__name">Suzannah Lipscomb</span>
-                      <span class="ch-album__note">Historian and broadcaster</span>
-                    </span>
+                    <a class="ch-album__link" href="https://en.wikipedia.org/wiki/Suzannah_Lipscomb"
+                       target="_blank" rel="noopener"
+                       aria-label="Read about Suzannah Lipscomb">
+                      <img src="images/guests/guest-suzannah-lipscomb-600.webp"
+                           srcset="images/guests/guest-suzannah-lipscomb-300.webp 300w, images/guests/guest-suzannah-lipscomb-600.webp 600w"
+                           sizes="(max-width: 767px) 40vw, 12rem"
+                           loading="lazy" decoding="async" alt="Suzannah Lipscomb at Cedar Hollow">
+                      <span class="ch-album__caption">
+                        <span class="ch-album__name">Suzannah Lipscomb</span>
+                        <span class="ch-album__note">Historian and broadcaster</span>
+                      </span>
+                    </a>
                   </li>
                   <li class="ch-album__print">
-                    <img src="images/guests/guest-georgia-harrison-600.webp"
-                         srcset="images/guests/guest-georgia-harrison-300.webp 300w, images/guests/guest-georgia-harrison-600.webp 600w"
-                         sizes="(max-width: 767px) 40vw, 12rem"
-                         loading="lazy" decoding="async" alt="Georgia Harrison MBE at Cedar Hollow">
-                    <span class="ch-album__caption">
-                      <span class="ch-album__name">Georgia Harrison MBE</span>
-                      <span class="ch-album__note">Television</span>
-                    </span>
+                    <a class="ch-album__link" href="https://en.wikipedia.org/wiki/Georgia_Harrison"
+                       target="_blank" rel="noopener"
+                       aria-label="Read about Georgia Harrison MBE">
+                      <img src="images/guests/guest-georgia-harrison-600.webp"
+                           srcset="images/guests/guest-georgia-harrison-300.webp 300w, images/guests/guest-georgia-harrison-600.webp 600w"
+                           sizes="(max-width: 767px) 40vw, 12rem"
+                           loading="lazy" decoding="async" alt="Georgia Harrison MBE at Cedar Hollow">
+                      <span class="ch-album__caption">
+                        <span class="ch-album__name">Georgia Harrison MBE</span>
+                        <span class="ch-album__note">Television</span>
+                      </span>
+                    </a>
                   </li>
                   <li class="ch-album__print">
-                    <img src="images/guests/guest-jessica-revell-600.webp"
-                         srcset="images/guests/guest-jessica-revell-300.webp 300w, images/guests/guest-jessica-revell-600.webp 600w"
-                         sizes="(max-width: 767px) 40vw, 12rem"
-                         loading="lazy" decoding="async" alt="Jessica Revell at Cedar Hollow">
-                    <span class="ch-album__caption">
-                      <span class="ch-album__name">Jessica Revell</span>
-                      <span class="ch-album__note">Actress and singer</span>
-                    </span>
+                    <a class="ch-album__link" href="https://en.wikipedia.org/wiki/Jessica_Revell"
+                       target="_blank" rel="noopener"
+                       aria-label="Read about Jessica Revell">
+                      <img src="images/guests/guest-jessica-revell-600.webp"
+                           srcset="images/guests/guest-jessica-revell-300.webp 300w, images/guests/guest-jessica-revell-600.webp 600w"
+                           sizes="(max-width: 767px) 40vw, 12rem"
+                           loading="lazy" decoding="async" alt="Jessica Revell at Cedar Hollow">
+                      <span class="ch-album__caption">
+                        <span class="ch-album__name">Jessica Revell</span>
+                        <span class="ch-album__note">Actress and singer</span>
+                      </span>
+                    </a>
                   </li>
                   <li class="ch-album__print">
-                    <img src="images/guests/guest-bianca-gascoigne-600.webp"
-                         srcset="images/guests/guest-bianca-gascoigne-300.webp 300w, images/guests/guest-bianca-gascoigne-600.webp 600w"
-                         sizes="(max-width: 767px) 40vw, 12rem"
-                         loading="lazy" decoding="async" alt="Bianca Gascoigne at Cedar Hollow">
-                    <span class="ch-album__caption">
-                      <span class="ch-album__name">Bianca Gascoigne</span>
-                      <span class="ch-album__note">Television</span>
-                    </span>
+                    <a class="ch-album__link" href="https://en.wikipedia.org/wiki/Bianca_Gascoigne"
+                       target="_blank" rel="noopener"
+                       aria-label="Read about Bianca Gascoigne">
+                      <img src="images/guests/guest-bianca-gascoigne-600.webp"
+                           srcset="images/guests/guest-bianca-gascoigne-300.webp 300w, images/guests/guest-bianca-gascoigne-600.webp 600w"
+                           sizes="(max-width: 767px) 40vw, 12rem"
+                           loading="lazy" decoding="async" alt="Bianca Gascoigne at Cedar Hollow">
+                      <span class="ch-album__caption">
+                        <span class="ch-album__name">Bianca Gascoigne</span>
+                        <span class="ch-album__note">Television</span>
+                      </span>
+                    </a>
                   </li>
                   <li class="ch-album__print">
-                    <img src="images/guests/guest-kris-boyson-600.webp"
-                         srcset="images/guests/guest-kris-boyson-300.webp 300w, images/guests/guest-kris-boyson-600.webp 600w"
-                         sizes="(max-width: 767px) 40vw, 12rem"
-                         loading="lazy" decoding="async" alt="Kris Boyson at Cedar Hollow">
-                    <span class="ch-album__caption">
-                      <span class="ch-album__name">Kris Boyson</span>
-                      <span class="ch-album__note">Television</span>
-                    </span>
+                    <a class="ch-album__link" href="https://www.imdb.com/name/nm9989133/"
+                       target="_blank" rel="noopener"
+                       aria-label="Read about Kris Boyson">
+                      <img src="images/guests/guest-kris-boyson-600.webp"
+                           srcset="images/guests/guest-kris-boyson-300.webp 300w, images/guests/guest-kris-boyson-600.webp 600w"
+                           sizes="(max-width: 767px) 40vw, 12rem"
+                           loading="lazy" decoding="async" alt="Kris Boyson at Cedar Hollow">
+                      <span class="ch-album__caption">
+                        <span class="ch-album__name">Kris Boyson</span>
+                        <span class="ch-album__note">Television</span>
+                      </span>
+                    </a>
                   </li>
                   <li class="ch-album__print">
                     <img src="images/guests/guest-jade-davies-600.webp"
@@ -349,24 +386,32 @@
                     </span>
                   </li>
                   <li class="ch-album__print">
-                    <img src="images/guests/guest-quirijn-de-lang-600.webp"
-                         srcset="images/guests/guest-quirijn-de-lang-300.webp 300w, images/guests/guest-quirijn-de-lang-600.webp 600w"
-                         sizes="(max-width: 767px) 40vw, 12rem"
-                         loading="lazy" decoding="async" alt="Quirijn de Lang at Cedar Hollow">
-                    <span class="ch-album__caption">
-                      <span class="ch-album__name">Quirijn de Lang</span>
-                      <span class="ch-album__note">Operatic baritone</span>
-                    </span>
+                    <a class="ch-album__link" href="https://nl.wikipedia.org/wiki/Quirijn_de_Lang"
+                       target="_blank" rel="noopener"
+                       aria-label="Read about Quirijn de Lang">
+                      <img src="images/guests/guest-quirijn-de-lang-600.webp"
+                           srcset="images/guests/guest-quirijn-de-lang-300.webp 300w, images/guests/guest-quirijn-de-lang-600.webp 600w"
+                           sizes="(max-width: 767px) 40vw, 12rem"
+                           loading="lazy" decoding="async" alt="Quirijn de Lang at Cedar Hollow">
+                      <span class="ch-album__caption">
+                        <span class="ch-album__name">Quirijn de Lang</span>
+                        <span class="ch-album__note">Operatic baritone</span>
+                      </span>
+                    </a>
                   </li>
                   <li class="ch-album__print">
-                    <img src="images/guests/guest-amber-davies-600.webp"
-                         srcset="images/guests/guest-amber-davies-300.webp 300w, images/guests/guest-amber-davies-600.webp 600w"
-                         sizes="(max-width: 767px) 40vw, 12rem"
-                         loading="lazy" decoding="async" alt="Amber Davies at Cedar Hollow">
-                    <span class="ch-album__caption">
-                      <span class="ch-album__name">Amber Davies</span>
-                      <span class="ch-album__note">Winner, Love Island 2017</span>
-                    </span>
+                    <a class="ch-album__link" href="https://en.wikipedia.org/wiki/Amber_Davies"
+                       target="_blank" rel="noopener"
+                       aria-label="Read about Amber Davies">
+                      <img src="images/guests/guest-amber-davies-600.webp"
+                           srcset="images/guests/guest-amber-davies-300.webp 300w, images/guests/guest-amber-davies-600.webp 600w"
+                           sizes="(max-width: 767px) 40vw, 12rem"
+                           loading="lazy" decoding="async" alt="Amber Davies at Cedar Hollow">
+                      <span class="ch-album__caption">
+                        <span class="ch-album__name">Amber Davies</span>
+                        <span class="ch-album__note">Winner, Love Island 2017</span>
+                      </span>
+                    </a>
                   </li>
                 </ul>
               </div>
@@ -399,6 +444,40 @@
         </div>
       </div>
     </section>
+    <script>
+      (function () {
+        /* Which half of the page is showing. Kept in the URL so a view can
+           be linked, with replaceState so flicking between them does not
+           pile up history. Nothing here runs without scripting, and then
+           both halves are simply on the page, as they were before. */
+        var bar = document.querySelector("[data-ch-show]");
+        var panels = document.querySelectorAll("[data-show-panel]");
+        if (!bar || !panels.length) return;
+
+        function show(which) {
+          for (var i = 0; i < panels.length; i++) {
+            panels[i].hidden = panels[i].getAttribute("data-show-panel") !== which;
+          }
+          var buttons = bar.querySelectorAll("[data-show]");
+          for (var b = 0; b < buttons.length; b++) {
+            buttons[b].setAttribute(
+              "aria-pressed", buttons[b].getAttribute("data-show") === which ? "true" : "false");
+          }
+          var url = new URL(window.location.href);
+          if (which === "reviews") url.searchParams.delete("show");
+          else url.searchParams.set("show", which);
+          window.history.replaceState({}, "", url);
+        }
+
+        bar.addEventListener("click", function (e) {
+          var btn = e.target.closest && e.target.closest("[data-show]");
+          if (btn && bar.contains(btn)) show(btn.getAttribute("data-show"));
+        });
+
+        var asked = new URL(window.location.href).searchParams.get("show");
+        show(asked === "guests" ? "guests" : "reviews");
+      })();
+    </script>
 <section class="section-footer">
       <div class="padding-section-small">
         <div class="padding-global">
