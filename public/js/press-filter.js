@@ -89,15 +89,29 @@
 
   /* The page's opening line belongs to whichever woodland is showing: the
      combined page speaks for both, and narrowing to one should not leave a
-     sentence standing that is about the other. A woodland page carries its
-     own line and no data-lead-*, so this does nothing there. */
-  var lead = document.querySelector(".ch-page-hero__lead[data-lead-all]");
+     sentence standing that is about the other. All three lines are in the
+     markup, stacked in one grid cell (see press.css), so showing one is a
+     matter of which is visible -- nothing is measured and nothing reflows,
+     which is what keeps the filter buttons still. A woodland page carries a
+     single line and no stack, so this does nothing there. */
+  var leads = document.querySelectorAll(".ch-page-hero__lead[data-lead-stack] > [data-lead]");
 
   function retell() {
-    if (!lead) return;
-    var line = lead.getAttribute("data-lead-" + stateOf("location")) ||
-               lead.getAttribute("data-lead-all");
-    if (line && lead.textContent !== line) lead.textContent = line;
+    var want = stateOf("location");
+    var shown = null;
+    for (var i = 0; i < leads.length; i++) {
+      if (leads[i].getAttribute("data-lead") === want) shown = leads[i];
+    }
+    /* a woodland with no line of its own falls back to the one for both */
+    if (!shown) {
+      for (var j = 0; j < leads.length; j++) {
+        if (leads[j].getAttribute("data-lead") === ANY) shown = leads[j];
+      }
+    }
+    for (var k = 0; k < leads.length; k++) {
+      if (leads[k] === shown) leads[k].setAttribute("data-lead-on", "");
+      else leads[k].removeAttribute("data-lead-on");
+    }
   }
 
   function apply() {
