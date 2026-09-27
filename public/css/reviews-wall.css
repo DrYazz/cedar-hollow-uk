@@ -640,8 +640,36 @@
    not. The buttons borrow .ch-wall__btn so the two look like one thing.
    ---------------------------------------------------------------------- */
 .ch-show {
+  /* One colour, always. The strip is its own band between the hero above
+     and whichever panel is below, with the same measure either side of
+     the buttons so they sit in the middle of it. */
   background-color: var(--offwhite, #f8f8e8);
-  padding: 2.5rem 1.25rem 0;
+  color: var(--accent, #3b4126);
+  padding: 2.5rem 1.25rem;
+}
+
+/* Under the band the panel brought a second lot of section padding, so the
+   first review or print started most of a screen down. The band already
+   separates the control from what it controls; the panel only needs enough
+   to clear it. */
+[data-show-panel] > .padding-section-medium {
+  padding-top: 2rem;
+}
+
+/* The prints are tilted, so their corners reach higher than the row does
+   and they need a little more clearance than a card. */
+[data-show-panel="guests"] > .padding-section-medium {
+  padding-top: 2.75rem;
+}
+
+@media screen and (max-width: 767px) {
+  .ch-show {
+    padding: 1.75rem 1.25rem;
+  }
+
+  [data-show-panel] > .padding-section-medium {
+    padding-top: 1.5rem;
+  }
 }
 
 .ch-show__row {
@@ -649,7 +677,7 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: .625rem;
+  gap: .875rem;
   margin: 0;
 }
 
