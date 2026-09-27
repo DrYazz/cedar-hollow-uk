@@ -167,6 +167,7 @@
       highlight: "Rooftop sauna",
       minimumStay: "2 nights midweek, 3 at weekends",
       photos: [
+        { src: "images/gallery/woodsmans-treehouse-s11-1060.webp", srcset: "images/gallery/woodsmans-treehouse-s11-530.webp 530w, images/gallery/woodsmans-treehouse-s11-1060.webp 1060w" },
         { src: "images/gallery/woodsmans-treehouse-s01-1000.webp", srcset: "images/gallery/woodsmans-treehouse-s01-530.webp 530w, images/gallery/woodsmans-treehouse-s01-1000.webp 1000w" },
         { src: "images/gallery/woodsmans-treehouse-s02-1060.webp", srcset: "images/gallery/woodsmans-treehouse-s02-530.webp 530w, images/gallery/woodsmans-treehouse-s02-1060.webp 1060w" },
         { src: "images/gallery/woodsmans-treehouse-s03-1060.webp", srcset: "images/gallery/woodsmans-treehouse-s03-530.webp 530w, images/gallery/woodsmans-treehouse-s03-1060.webp 1060w" },
@@ -177,7 +178,6 @@
         { src: "images/gallery/woodsmans-treehouse-s08-1060.webp", srcset: "images/gallery/woodsmans-treehouse-s08-530.webp 530w, images/gallery/woodsmans-treehouse-s08-1060.webp 1060w" },
         { src: "images/gallery/woodsmans-treehouse-s09-1060.webp", srcset: "images/gallery/woodsmans-treehouse-s09-530.webp 530w, images/gallery/woodsmans-treehouse-s09-1060.webp 1060w" },
         { src: "images/gallery/woodsmans-treehouse-s10-714.webp", srcset: "images/gallery/woodsmans-treehouse-s10-530.webp 530w, images/gallery/woodsmans-treehouse-s10-714.webp 714w" },
-        { src: "images/gallery/woodsmans-treehouse-s11-1060.webp", srcset: "images/gallery/woodsmans-treehouse-s11-530.webp 530w, images/gallery/woodsmans-treehouse-s11-1060.webp 1060w" },
         { src: "images/gallery/woodsmans-treehouse-s12-1000.webp", srcset: "images/gallery/woodsmans-treehouse-s12-530.webp 530w, images/gallery/woodsmans-treehouse-s12-1000.webp 1000w" },
         { src: "images/gallery/woodsmans-treehouse-s13-696.webp", srcset: "images/gallery/woodsmans-treehouse-s13-530.webp 530w, images/gallery/woodsmans-treehouse-s13-696.webp 696w" },
         { src: "images/gallery/woodsmans-treehouse-s14-1060.webp", srcset: "images/gallery/woodsmans-treehouse-s14-530.webp 530w, images/gallery/woodsmans-treehouse-s14-1060.webp 1060w" },
