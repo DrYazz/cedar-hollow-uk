@@ -70,13 +70,25 @@
   }
 
   function meta(item) {
-    var beds = item.bedrooms + (item.bedrooms === 1 ? " bed" : " beds");
+    // A property that spells out what is in the room says it; the rest fall
+    // back to counting rooms, which is all the catalogue knows about them.
+    var beds = item.beds || item.bedrooms + (item.bedrooms === 1 ? " bed" : " beds");
+    // "En-suite" rather than "1", so the Beaver's Den reads as a different
+    // arrangement rather than as one bathroom short of the others.
     var baths = item.bathrooms === 0 ? "Shared bathroom"
-      : item.bathrooms + (item.bathrooms === 1 ? " bathroom" : " bathrooms");
+      : item.bathrooms === 1 ? "En-suite bathroom"
+      : item.bathrooms + " bathrooms";
+    // Which woodland it is sits on this line rather than in the booking panel
+    // below: it is a fact about the property like the other three, and down
+    // there it was costing a heading and a line of its own. The pin says
+    // what it is, so the name does not need repeating beside it.
+    var site = item.destination;
+
     return '<ul class="pp-meta">' +
       '<li><img src="images/icons/icon-guests.svg" alt="" aria-hidden="true">' + item.sleeps + " guests</li>" +
       '<li><img src="images/icons/icon-beds.svg" alt="" aria-hidden="true">' + beds + "</li>" +
       '<li><img src="images/icons/icon-baths.svg" alt="" aria-hidden="true">' + baths + "</li>" +
+      '<li><img src="images/icons/icon-location.svg" alt="" aria-hidden="true">' + esc(site) + "</li>" +
       "</ul>";
   }
 
@@ -88,45 +100,78 @@
       esc(item.name) + '"><img src="images/icons/arrow-next.svg" alt="" aria-hidden="true"></button>';
   }
 
-  // The design reserves a panel here for a Checked.in booking widget we do not
-  // have. Rather than leave the space empty, it carries which site the property
-  // is on and how to book it, both from the catalogue so nothing is
-  // hand-maintained, plus the minimum stay where the booking site publishes one.
-  // Mallinson's FAQ gives one policy for all three Dorset treehouses; the Oaks
-  // gives none, so Oxford shows the location alone rather than a guess.
+  // The design reserved this panel for a Checked.in booking widget, and the
+  // Oxford three now carry it: the address their button already pointed at is
+  // a self-contained responsive calendar that sets neither X-Frame-Options nor
+  // a frame-ancestors policy, so it runs here instead of sending anyone to
+  // another site to find out whether a date is free.
+  //
+  // Dorset has no calendar of its own yet and keeps its button out to
+  // Mallinson's. Adding a calendarUrl to those three is all it will take.
+  //
+  // The minimum stay shows where the booking site publishes one: Mallinson's
+  // FAQ gives one policy for all three Dorset treehouses; the Oaks gives none,
+  // so the Oxford three have no facts left to show here at all and the list
+  // does not render for them.
   function bookingPanel(item) {
-    var site = item.region === "Dorset" ? "Cedar Hollow Dorset" : "Cedar Hollow Oxford";
-    return '<div class="pp-book">' +
-      '<dl class="pp-book__facts">' +
-        "<div><dt>Location</dt><dd>" + esc(site) + "</dd></div>" +
-        // The Oaks publishes no minimum, so the Oxford three carry none and the
-        // row simply does not render for them.
-        (item.minimumStay
-          ? "<div><dt>Minimum stay</dt><dd>" + esc(item.minimumStay) + "</dd></div>"
-          : "") +
-      "</dl>" +
-      '<div class="pp-book__actions">' +
-        '<a class="button w-inline-block" href="' + esc(item.bookingUrl) +
-          '" target="_blank" rel="noopener"><span>Check availability</span>' + ARROW + "</a>" +
-        // The Oxford three each open the one krpano tour at their own scene,
-        // set by the ?ss= on the URL. An unknown scene name falls back to the
-        // aerial without complaining, so these are checked rather than guessed.
-        // The Dorset three have no tour at all and get no second button.
-        (item.tourUrl
-          ? '<a class="button is-secondary w-inline-block" href="' + esc(item.tourUrl) +
-            '" target="_blank" rel="noopener"><span>Take a 3D Tour</span></a>'
-          : "") +
-      "</div>" +
-      '<p class="pp-book__note">Booking opens on the ' +
-        (item.region === "Dorset" ? "Mallinson" : "Oaks") + " site</p>" +
+    var hasCal = !!item.calendarUrl;
+
+    // The frame is lazy, so six calendars do not all load at once on a page
+    // most people read part of, and its title names the property, because a
+    // screen reader announces a frame by its title and nothing else.
+    var calendar = hasCal
+      ? '<iframe class="pp-book__cal" src="' + esc(item.calendarUrl) +
+        '" title="Availability calendar for ' + esc(item.name) + '" loading="lazy"></iframe>'
+      : "";
+
+    // With the calendar in the panel there is nothing left for the button to
+    // do. Without one it is still the only way to see a date.
+    var book = hasCal
+      ? ""
+      : '<a class="button w-inline-block" href="' + esc(item.bookingUrl) +
+        '" target="_blank" rel="noopener"><span>Check availability</span>' + ARROW + "</a>";
+
+
+    // A calendar in the panel needs no explaining; a button out of it does.
+    var note = hasCal
+      ? ""
+      : '<p class="pp-book__note">Booking opens on the ' +
+        (item.region === "Dorset" ? "Mallinson" : "Oaks") + " site</p>";
+
+    var facts = item.minimumStay
+      ? '<dl class="pp-book__facts">' +
+        "<div><dt>Minimum stay</dt><dd>" + esc(item.minimumStay) + "</dd></div>" +
+        "</dl>"
+      : "";
+
+    return '<div class="pp-book' + (hasCal ? " pp-book--cal" : "") + '">' +
+      facts +
+      calendar +
+      (book ? '<div class="pp-book__actions">' + book + "</div>" : "") +
+      note +
       "</div>";
+  }
+
+  // The Oxford three each open the one krpano tour at their own scene, set by
+  // the ?ss= on the URL. An unknown scene name falls back to the aerial
+  // without complaining, so these are checked rather than guessed. The Dorset
+  // three have no tour at all and get nothing here.
+  //
+  // It sits on the photograph rather than under the booking panel. The panel
+  // sets how tall the row is and the picture stretches to match, so a button
+  // there made the Oxford pictures taller than the Dorset ones. On the
+  // photograph it costs no height at all.
+  function tourLink(item) {
+    if (!item.tourUrl) return "";
+    return '<a class="pp-tour" href="' + esc(item.tourUrl) +
+      '" target="_blank" rel="noopener">3D Tour</a>';
   }
 
   function property(item) {
     var n = splitName(item.name);
     return '<article class="pp-item" id="property-' + esc(item.id) + '">' +
       '<div class="pp-item__row">' +
-        '<div class="pp-item__media">' + frame(item, { gallery: true }) + arrows(item) + "</div>" +
+        '<div class="pp-item__media">' + frame(item, { gallery: true }) + arrows(item) + tourLink(item) + "</div>" +
         '<div class="pp-info">' +
           '<h2 class="pp-name"><em>' + esc(n.first) + '</em> <span class="pp-name__light">' + esc(n.rest) + "</span></h2>" +
           '<div class="pp-desc">' + meta(item) +

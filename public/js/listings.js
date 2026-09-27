@@ -22,6 +22,10 @@
       region: "Oxfordshire",
       sleeps: 6,
       bedrooms: 1,
+      // What is actually in the room. bedrooms counts rooms, which says
+      // nothing useful about a treehouse that sleeps six in one of them.
+      // Any property without this falls back to the room count.
+      beds: "1 King Bed; 4 Singles",
       bathrooms: 1,
       price: 350,
       featured: 1,
@@ -43,6 +47,7 @@
         "A 750 sq ft luxury treehouse set among the oaks, with underfloor heating, a full kitchen and a gas BBQ on the balcony.",
       longDescription:
         "Sleeps two adults and up to four children across an open-plan layout with en-suite facilities. Underfloor heating, a fully equipped kitchen and a top-of-the-line gas BBQ on the balcony.",
+      calendarUrl: "https://app.checked.in/widget/calendar2/theoaks",
       bookingUrl: "https://app.checked.in/widget/calendar2/theoaks",
       tourUrl: "https://magichourweb5.s3.eu-west-2.amazonaws.com/TheOaks/index.htm?ss=CedarHollowTreehouse_Entrance"
     },
@@ -96,6 +101,7 @@
         "A Narnia-inspired cave hideaway lit by warm lantern light, with underfloor heating, air conditioning and a full kitchen.",
       longDescription:
         "One bedroom with en-suite, underfloor heating and air conditioning throughout, and a full kitchen: an enchanting realm tucked into the woodland.",
+      calendarUrl: "https://app.checked.in/widget/calendar2/fauns-hideaway",
       bookingUrl: "https://app.checked.in/widget/calendar2/fauns-hideaway",
       tourUrl: "https://magichourweb5.s3.eu-west-2.amazonaws.com/TheOaks/index.htm?ss=FaunsHideaway_LivingArea"
     },
@@ -149,6 +155,7 @@
         "An uninsulated woodland glamping pod with a private BBQ, firepit, wood-fired hot tub and an escape room challenge.",
       longDescription:
         "A simpler, wilder stay. Uninsulated pod with shared bathroom facilities in the nearby pool room, plus a private BBQ, firepit and wood-fired hot tub.",
+      calendarUrl: "https://app.checked.in/widget/calendar2/beavers-den-1",
       bookingUrl: "https://app.checked.in/widget/calendar2/beavers-den-1",
       tourUrl: "https://magichourweb5.s3.eu-west-2.amazonaws.com/TheOaks/index.htm?ss=BeaversDen_Entrance"
     },
@@ -167,6 +174,7 @@
       highlight: "Rooftop sauna",
       minimumStay: "2 nights midweek, 3 at weekends",
       photos: [
+        { src: "images/gallery/woodsmans-treehouse-s11-1060.webp", srcset: "images/gallery/woodsmans-treehouse-s11-530.webp 530w, images/gallery/woodsmans-treehouse-s11-1060.webp 1060w" },
         { src: "images/gallery/woodsmans-treehouse-s01-1000.webp", srcset: "images/gallery/woodsmans-treehouse-s01-530.webp 530w, images/gallery/woodsmans-treehouse-s01-1000.webp 1000w" },
         { src: "images/gallery/woodsmans-treehouse-s02-1060.webp", srcset: "images/gallery/woodsmans-treehouse-s02-530.webp 530w, images/gallery/woodsmans-treehouse-s02-1060.webp 1060w" },
         { src: "images/gallery/woodsmans-treehouse-s03-1060.webp", srcset: "images/gallery/woodsmans-treehouse-s03-530.webp 530w, images/gallery/woodsmans-treehouse-s03-1060.webp 1060w" },
@@ -177,7 +185,6 @@
         { src: "images/gallery/woodsmans-treehouse-s08-1060.webp", srcset: "images/gallery/woodsmans-treehouse-s08-530.webp 530w, images/gallery/woodsmans-treehouse-s08-1060.webp 1060w" },
         { src: "images/gallery/woodsmans-treehouse-s09-1060.webp", srcset: "images/gallery/woodsmans-treehouse-s09-530.webp 530w, images/gallery/woodsmans-treehouse-s09-1060.webp 1060w" },
         { src: "images/gallery/woodsmans-treehouse-s10-714.webp", srcset: "images/gallery/woodsmans-treehouse-s10-530.webp 530w, images/gallery/woodsmans-treehouse-s10-714.webp 714w" },
-        { src: "images/gallery/woodsmans-treehouse-s11-1060.webp", srcset: "images/gallery/woodsmans-treehouse-s11-530.webp 530w, images/gallery/woodsmans-treehouse-s11-1060.webp 1060w" },
         { src: "images/gallery/woodsmans-treehouse-s12-1000.webp", srcset: "images/gallery/woodsmans-treehouse-s12-530.webp 530w, images/gallery/woodsmans-treehouse-s12-1000.webp 1000w" },
         { src: "images/gallery/woodsmans-treehouse-s13-696.webp", srcset: "images/gallery/woodsmans-treehouse-s13-530.webp 530w, images/gallery/woodsmans-treehouse-s13-696.webp 696w" },
         { src: "images/gallery/woodsmans-treehouse-s14-1060.webp", srcset: "images/gallery/woodsmans-treehouse-s14-530.webp 530w, images/gallery/woodsmans-treehouse-s14-1060.webp 1060w" },
@@ -433,7 +440,11 @@
       ) +
       feature(
         ICONS.bathrooms,
-        item.bathrooms + (item.bathrooms === 1 ? " bathroom" : " bathrooms")
+        item.bathrooms === 0
+          ? "Shared bathroom"
+          : item.bathrooms === 1
+            ? "En-suite bathroom"
+            : item.bathrooms + " bathrooms"
       );
 
     return (
