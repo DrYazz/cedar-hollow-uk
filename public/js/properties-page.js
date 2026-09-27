@@ -78,10 +78,16 @@
     var baths = item.bathrooms === 0 ? "Shared bathroom"
       : item.bathrooms === 1 ? "En-suite bathroom"
       : item.bathrooms + " bathrooms";
+    // Which woodland it is sits on this line rather than in the booking panel
+    // below: it is a fact about the property like the other three, and down
+    // there it was costing a heading and a line of its own.
+    var site = item.region === "Dorset" ? "Cedar Hollow Dorset" : "Cedar Hollow Oxford";
+
     return '<ul class="pp-meta">' +
       '<li><img src="images/icons/icon-guests.svg" alt="" aria-hidden="true">' + item.sleeps + " guests</li>" +
       '<li><img src="images/icons/icon-beds.svg" alt="" aria-hidden="true">' + beds + "</li>" +
       '<li><img src="images/icons/icon-baths.svg" alt="" aria-hidden="true">' + baths + "</li>" +
+      '<li><img src="images/icons/icon-location.svg" alt="" aria-hidden="true">' + esc(site) + "</li>" +
       "</ul>";
   }
 
@@ -104,9 +110,9 @@
   //
   // The minimum stay shows where the booking site publishes one: Mallinson's
   // FAQ gives one policy for all three Dorset treehouses; the Oaks gives none,
-  // so Oxford shows the location alone rather than a guess.
+  // so the Oxford three have no facts left to show here at all and the list
+  // does not render for them.
   function bookingPanel(item) {
-    var site = item.region === "Dorset" ? "Cedar Hollow Dorset" : "Cedar Hollow Oxford";
     var hasCal = !!item.calendarUrl;
 
     // The frame is lazy, so six calendars do not all load at once on a page
@@ -133,24 +139,23 @@
         '" target="_blank" rel="noopener"><span>Take a 3D Tour</span></a>'
       : "";
 
-    // A frame is a small window on someone else's page, so the way out of it
-    // stays available for anyone who would rather have the whole screen.
+    // A calendar in the panel needs no explaining; a button out of it does.
     var note = hasCal
-      ? 'Live availability. <a href="' + esc(item.bookingUrl) +
-        '" target="_blank" rel="noopener">Open the calendar on its own</a>'
-      : "Booking opens on the " +
-        (item.region === "Dorset" ? "Mallinson" : "Oaks") + " site";
+      ? ""
+      : '<p class="pp-book__note">Booking opens on the ' +
+        (item.region === "Dorset" ? "Mallinson" : "Oaks") + " site</p>";
+
+    var facts = item.minimumStay
+      ? '<dl class="pp-book__facts">' +
+        "<div><dt>Minimum stay</dt><dd>" + esc(item.minimumStay) + "</dd></div>" +
+        "</dl>"
+      : "";
 
     return '<div class="pp-book' + (hasCal ? " pp-book--cal" : "") + '">' +
-      '<dl class="pp-book__facts">' +
-        "<div><dt>Location</dt><dd>" + esc(site) + "</dd></div>" +
-        (item.minimumStay
-          ? "<div><dt>Minimum stay</dt><dd>" + esc(item.minimumStay) + "</dd></div>"
-          : "") +
-      "</dl>" +
+      facts +
       calendar +
       (book || tour ? '<div class="pp-book__actions">' + book + tour + "</div>" : "") +
-      '<p class="pp-book__note">' + note + "</p>" +
+      note +
       "</div>";
   }
 
