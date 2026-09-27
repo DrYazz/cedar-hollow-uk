@@ -278,6 +278,13 @@
 .pp-book__cal {
   display: block; width: 100%; max-width: 356px; height: 370px;
   margin-left: auto; margin-right: auto;
+  /* The card is 326px and a week is 25, so the frame carries 44px of reserve
+     for the months that need a sixth row. Taken off the bottom margin, that
+     reserve costs no layout: in a five-week month the panel closes up right
+     under the card, and in a six-week one the extra row paints into padding
+     that has nothing in it. Without this the panel held 28px above the
+     calendar and 72 below, which is what read as off-centre. */
+  margin-bottom: -44px;
   border: 0;
   /* The widget is another site's page, so its white ground cannot be styled
      from here. Multiplying the frame against the panel drops that white
