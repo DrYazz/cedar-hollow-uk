@@ -645,22 +645,30 @@
      the buttons so they sit in the middle of it. */
   background-color: var(--offwhite, #f8f8e8);
   color: var(--accent, #3b4126);
-  padding: 5rem 1.25rem;
+  padding: 2.5rem 1.25rem;
 }
 
-/* The rest of the page steps its section padding down with the width, and
-   the band steps with it so it stays in the same rhythm. */
-@media screen and (max-width: 991px) {
-  .ch-show {
-    padding-top: 4rem;
-    padding-bottom: 4rem;
-  }
+/* Under the band the panel brought a second lot of section padding, so the
+   first review or print started most of a screen down. The band already
+   separates the control from what it controls; the panel only needs enough
+   to clear it. */
+[data-show-panel] > .padding-section-medium {
+  padding-top: 2rem;
+}
+
+/* The prints are tilted, so their corners reach higher than the row does
+   and they need a little more clearance than a card. */
+[data-show-panel="guests"] > .padding-section-medium {
+  padding-top: 2.75rem;
 }
 
 @media screen and (max-width: 767px) {
   .ch-show {
-    padding-top: 3rem;
-    padding-bottom: 3rem;
+    padding: 1.75rem 1.25rem;
+  }
+
+  [data-show-panel] > .padding-section-medium {
+    padding-top: 1.5rem;
   }
 }
 
