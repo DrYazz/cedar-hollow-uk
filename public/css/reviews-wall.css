@@ -640,8 +640,13 @@
    not. The buttons borrow .ch-wall__btn so the two look like one thing.
    ---------------------------------------------------------------------- */
 .ch-show {
+  /* The strip carries the page's own colour; the panel under it carries the
+     section's -- cream for the reviews, green for the album. With no room
+     underneath, the buttons sat on the join between the two. The padding
+     matches above and below, so the control reads as its own strip rather
+     than the lid of whatever follows it. */
   background-color: var(--offwhite, #f8f8e8);
-  padding: 2.5rem 1.25rem 0;
+  padding: 3rem 1.25rem;
 }
 
 .ch-show__row {
@@ -649,7 +654,7 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: .625rem;
+  gap: .875rem;
   margin: 0;
 }
 
