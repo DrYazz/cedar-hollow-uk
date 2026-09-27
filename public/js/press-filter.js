@@ -87,6 +87,19 @@
     return n;
   }
 
+  /* The page's opening line belongs to whichever woodland is showing: the
+     combined page speaks for both, and narrowing to one should not leave a
+     sentence standing that is about the other. A woodland page carries its
+     own line and no data-lead-*, so this does nothing there. */
+  var lead = document.querySelector(".ch-page-hero__lead[data-lead-all]");
+
+  function retell() {
+    if (!lead) return;
+    var line = lead.getAttribute("data-lead-" + stateOf("location")) ||
+               lead.getAttribute("data-lead-all");
+    if (line && lead.textContent !== line) lead.textContent = line;
+  }
+
   function apply() {
     for (var i = 0; i < hideable.length; i++) {
       hideable[i].hidden = !matches(hideable[i], "location", stateOf("location"));
@@ -104,6 +117,7 @@
         if (count) count.textContent = tally(name, value);
       }
     }
+    retell();
   }
 
   function remember() {
