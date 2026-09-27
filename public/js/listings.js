@@ -22,6 +22,10 @@
       region: "Oxfordshire",
       sleeps: 6,
       bedrooms: 1,
+      // What is actually in the room. bedrooms counts rooms, which says
+      // nothing useful about a treehouse that sleeps six in one of them.
+      // Any property without this falls back to the room count.
+      beds: "1 King Bed; 4 Singles",
       bathrooms: 1,
       price: 350,
       featured: 1,

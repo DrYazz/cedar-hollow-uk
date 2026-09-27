@@ -70,7 +70,9 @@
   }
 
   function meta(item) {
-    var beds = item.bedrooms + (item.bedrooms === 1 ? " bed" : " beds");
+    // A property that spells out what is in the room says it; the rest fall
+    // back to counting rooms, which is all the catalogue knows about them.
+    var beds = item.beds || item.bedrooms + (item.bedrooms === 1 ? " bed" : " beds");
     // "En-suite" rather than "1", so the Beaver's Den reads as a different
     // arrangement rather than as one bathroom short of the others.
     var baths = item.bathrooms === 0 ? "Shared bathroom"
