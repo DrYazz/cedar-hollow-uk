@@ -631,3 +631,63 @@
 .ch-wall__out a[hidden] {
   display: none;
 }
+
+
+/* ---- One choice, over the two halves of the page -----------------------
+   Reviews or famous guests. It sits between the hero and both sections
+   rather than inside either, because the reviews arrive from a feed that
+   may not arrive at all and the album has to stay reachable when it does
+   not. The buttons borrow .ch-wall__btn so the two look like one thing.
+   ---------------------------------------------------------------------- */
+.ch-show {
+  background-color: var(--offwhite, #f8f8e8);
+  padding: 2.5rem 1.25rem 0;
+}
+
+.ch-show__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: .625rem;
+  margin: 0;
+}
+
+.ch-show__label {
+  margin-right: .125rem;
+  font-size: .8125rem;
+  font-weight: 600;
+  letter-spacing: .06em;
+  line-height: 1;
+  text-transform: uppercase;
+  opacity: .6;
+}
+
+[data-show-panel][hidden] {
+  display: none;
+}
+
+@media screen and (max-width: 479px) {
+  .ch-show__label {
+    flex-basis: 100%;
+    margin-right: 0;
+  }
+}
+
+
+/* ---- A print is a link ------------------------------------------------
+   Each guest goes to the page that says who they are. The anchor wraps the
+   picture and the caption both, so the whole print is the target rather
+   than the name alone, and it carries no underline: the print is the
+   affordance, and the lift on hover is already there.
+   ---------------------------------------------------------------------- */
+.ch-album__link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.ch-album__link:focus-visible {
+  outline: 2px solid var(--accent, #3b4126);
+  outline-offset: 3px;
+}
