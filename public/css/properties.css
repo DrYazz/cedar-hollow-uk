@@ -123,6 +123,7 @@
 @media (max-width: 991px) { #pp-list { gap: 120px; } }
 
 .pp-item { display: flex; flex-direction: column; gap: 20px; align-items: flex-start; }
+
 .pp-item__row { display: flex; gap: 24px; align-items: stretch; justify-content: center; width: 100%; }
 @media (max-width: 991px) { .pp-item__row { flex-direction: column; gap: 32px; } }
 
@@ -277,6 +278,13 @@
 .pp-book__cal {
   display: block; width: 100%; max-width: 356px; height: 370px;
   margin-left: auto; margin-right: auto;
+  /* The card is 326px and a week is 25, so the frame carries 44px of reserve
+     for the months that need a sixth row. Taken off the bottom margin, that
+     reserve costs no layout: in a five-week month the panel closes up right
+     under the card, and in a six-week one the extra row paints into padding
+     that has nothing in it. Without this the panel held 28px above the
+     calendar and 72 below, which is what read as off-centre. */
+  margin-bottom: -44px;
   border: 0;
   /* The widget is another site's page, so its white ground cannot be styled
      from here. Multiplying the frame against the panel drops that white
@@ -315,5 +323,39 @@
 @media (max-width: 991px) { .pp-notes { width: 100%; padding: 0 28px; } }
 .pp-notes p { margin: 0 0 1em; font-size: 16px; line-height: 1.35; color: var(--accent, #3b4126); }
 .pp-notes p:last-child { margin-bottom: 0; }
+
+/* On a wide screen the description moves up beside the booking panel rather
+   than sitting at the foot of the whole row. The panel is taller than the
+   picture -- a calendar needs the room -- and with the description left at the
+   bottom the space under the photograph read as something missing. Filled, the
+   panel's overhang reads as the layout it is.
+
+   The row hands its two children to this grid rather than laying them out
+   itself, which leaves the markup alone: stacked on a phone the order is still
+   picture, then the property, then the description. */
+@media (min-width: 992px) {
+  .pp-item {
+    /* The row used to carry width: 100% for this. With the row handing its
+       children to the grid, the grid itself has to ask for the width, or it
+       shrink-wraps in the column above and the 1fr track has nothing to
+       fill. */
+    width: 100%;
+    display: grid;
+    grid-template-columns: minmax(0, 762px) minmax(320px, 1fr);
+    grid-template-rows: auto 1fr;
+    column-gap: 24px; row-gap: 20px;
+    justify-content: center; align-items: start;
+  }
+  .pp-item__row { display: contents; }
+  .pp-item__media { grid-column: 1; grid-row: 1; }
+  .pp-info { grid-column: 2; grid-row: 1 / span 2; }
+  .pp-notes { grid-column: 1; grid-row: 2; width: 100%; align-self: start; }
+}
+
+/* The same 40px the calendar needed off the photograph, now that the columns
+   are set here rather than by flex-basis. */
+@media (min-width: 992px) and (max-width: 1200px) {
+  .pp-item { grid-template-columns: minmax(0, 762px) minmax(372px, 1fr); }
+}
 .pp-notes .pp-notes__fine { font-size: 14px; }
 @media (max-width: 991px) { .pp-notes p { font-size: 13px; } .pp-notes .pp-notes__fine { font-size: 11px; } }
