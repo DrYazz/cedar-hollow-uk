@@ -81,8 +81,8 @@
           "logo": "images/logo-the-sunday-times.png",
           "slug": "times-narnia",
           "shot": {
-            "src": "images/press-shots/times-narnia-412.webp?v=20260927",
-            "srcset": "images/press-shots/times-narnia-206.webp?v=20260927 206w, images/press-shots/times-narnia-412.webp?v=20260927 412w"
+            "src": "images/press-shots/times-narnia-412.webp?v=20260927a",
+            "srcset": "images/press-shots/times-narnia-206.webp?v=20260927a 206w, images/press-shots/times-narnia-412.webp?v=20260927a 412w"
           },
           "date": "2025-04-12",
           "dateKind": "published",
@@ -96,8 +96,8 @@
           "logo": "images/logo-the-times.svg",
           "slug": "times-airbnbs",
           "shot": {
-            "src": "images/press-shots/times-airbnbs-412.webp?v=20260927",
-            "srcset": "images/press-shots/times-airbnbs-206.webp?v=20260927 206w, images/press-shots/times-airbnbs-412.webp?v=20260927 412w"
+            "src": "images/press-shots/times-airbnbs-412.webp?v=20260927a",
+            "srcset": "images/press-shots/times-airbnbs-206.webp?v=20260927a 206w, images/press-shots/times-airbnbs-412.webp?v=20260927a 412w"
           },
           "date": "2025-06-24",
           "dateKind": "published",
@@ -111,8 +111,8 @@
           "logo": "images/press/bbc.svg",
           "slug": "bbc",
           "shot": {
-            "src": "images/press-shots/bbc-412.webp?v=20260922",
-            "srcset": "images/press-shots/bbc-206.webp?v=20260922 206w, images/press-shots/bbc-412.webp?v=20260922 412w"
+            "src": "images/press-shots/bbc-412.webp?v=20260927a",
+            "srcset": "images/press-shots/bbc-206.webp?v=20260927a 206w, images/press-shots/bbc-412.webp?v=20260927a 412w"
           },
           "date": "2024-10-26",
           "dateKind": "published",
@@ -157,8 +157,8 @@
           "logo": "images/press/thesun.svg",
           "slug": "thesun",
           "shot": {
-            "src": "images/press-shots/thesun-412.webp?v=20260923",
-            "srcset": "images/press-shots/thesun-206.webp?v=20260923 206w, images/press-shots/thesun-412.webp?v=20260923 412w"
+            "src": "images/press-shots/thesun-412.webp?v=20260927a",
+            "srcset": "images/press-shots/thesun-206.webp?v=20260927a 206w, images/press-shots/thesun-412.webp?v=20260927a 412w"
           },
           "date": "2024-11-18",
           "dateKind": "published",
@@ -172,8 +172,8 @@
           "logo": "images/logo-the-tab.png",
           "slug": "thetab",
           "shot": {
-            "src": "images/press-shots/thetab-412.webp?v=20260923",
-            "srcset": "images/press-shots/thetab-206.webp?v=20260923 206w, images/press-shots/thetab-412.webp?v=20260923 412w"
+            "src": "images/press-shots/thetab-412.webp?v=20260927a",
+            "srcset": "images/press-shots/thetab-206.webp?v=20260927a 206w, images/press-shots/thetab-412.webp?v=20260927a 412w"
           },
           "date": "2023-11-09",
           "dateKind": "published",
@@ -188,8 +188,8 @@
           "logoScale": 1.6,
           "slug": "okmag",
           "shot": {
-            "src": "images/press-shots/okmag-412.webp?v=20260922",
-            "srcset": "images/press-shots/okmag-206.webp?v=20260922 206w, images/press-shots/okmag-412.webp?v=20260922 412w"
+            "src": "images/press-shots/okmag-412.webp?v=20260927a",
+            "srcset": "images/press-shots/okmag-206.webp?v=20260927a 206w, images/press-shots/okmag-412.webp?v=20260927a 412w"
           },
           "date": "2020-12-14",
           "dateKind": "published",
@@ -203,8 +203,8 @@
           "logo": "images/logo-oxfordshire-live.png",
           "slug": "oxfordshirelive",
           "shot": {
-            "src": "images/press-shots/oxfordshirelive-412.webp?v=20260923",
-            "srcset": "images/press-shots/oxfordshirelive-206.webp?v=20260923 206w, images/press-shots/oxfordshirelive-412.webp?v=20260923 412w"
+            "src": "images/press-shots/oxfordshirelive-412.webp?v=20260927a",
+            "srcset": "images/press-shots/oxfordshirelive-206.webp?v=20260927a 206w, images/press-shots/oxfordshirelive-412.webp?v=20260927a 412w"
           },
           "date": "2023-02-08",
           "dateKind": "published",
@@ -250,8 +250,8 @@
           "logo": "images/press/gnn.png",
           "logoScale": 1.35,
           "shot": {
-            "src": "images/press-shots/gnn-412.webp?v=20260923",
-            "srcset": "images/press-shots/gnn-206.webp?v=20260923 206w, images/press-shots/gnn-412.webp?v=20260923 412w"
+            "src": "images/press-shots/gnn-412.webp?v=20260927a",
+            "srcset": "images/press-shots/gnn-206.webp?v=20260927a 206w, images/press-shots/gnn-412.webp?v=20260927a 412w"
           },
           "date": "2024-11-24",
           "dateKind": "published",
@@ -266,8 +266,8 @@
           "logo": "images/press/euroweekly.png",
           "logoScale": 1.4,
           "shot": {
-            "src": "images/press-shots/euroweekly-412.webp?v=20260923",
-            "srcset": "images/press-shots/euroweekly-206.webp?v=20260923 206w, images/press-shots/euroweekly-412.webp?v=20260923 412w"
+            "src": "images/press-shots/euroweekly-412.webp?v=20260927a",
+            "srcset": "images/press-shots/euroweekly-206.webp?v=20260927a 206w, images/press-shots/euroweekly-412.webp?v=20260927a 412w"
           },
           "date": "2024-11-27",
           "dateKind": "published",
@@ -491,8 +491,8 @@
           "logo": "images/the-telegraph.png",
           "slug": "telegraph",
           "shot": {
-            "src": "images/press-shots/telegraph-412.webp?v=20260926",
-            "srcset": "images/press-shots/telegraph-206.webp?v=20260926 206w, images/press-shots/telegraph-412.webp?v=20260926 412w"
+            "src": "images/press-shots/telegraph-412.webp?v=20260927a",
+            "srcset": "images/press-shots/telegraph-206.webp?v=20260927a 206w, images/press-shots/telegraph-412.webp?v=20260927a 412w"
           },
           "date": "2016-11-15",
           "dateKind": "published",
@@ -507,8 +507,8 @@
           "logoScale": 1.35,
           "slug": "independent",
           "shot": {
-            "src": "images/press-shots/independent-412.webp?v=20260922",
-            "srcset": "images/press-shots/independent-206.webp?v=20260922 206w, images/press-shots/independent-412.webp?v=20260922 412w"
+            "src": "images/press-shots/independent-412.webp?v=20260927a",
+            "srcset": "images/press-shots/independent-206.webp?v=20260927a 206w, images/press-shots/independent-412.webp?v=20260927a 412w"
           },
           "date": "2023-01-06",
           "dateKind": "published",
@@ -522,8 +522,8 @@
           "logo": "images/press/gq.svg",
           "slug": "gq",
           "shot": {
-            "src": "images/press-shots/gq-412.webp?v=20260923",
-            "srcset": "images/press-shots/gq-206.webp?v=20260923 206w, images/press-shots/gq-412.webp?v=20260923 412w"
+            "src": "images/press-shots/gq-412.webp?v=20260927a",
+            "srcset": "images/press-shots/gq-206.webp?v=20260927a 206w, images/press-shots/gq-412.webp?v=20260927a 412w"
           },
           "date": "2017-08-13",
           "dateKind": "published",
@@ -582,8 +582,8 @@
           "logo": "images/press/metro.svg",
           "slug": "metro",
           "shot": {
-            "src": "images/press-shots/metro-412.webp?v=20260923",
-            "srcset": "images/press-shots/metro-206.webp?v=20260923 206w, images/press-shots/metro-412.webp?v=20260923 412w"
+            "src": "images/press-shots/metro-412.webp?v=20260927a",
+            "srcset": "images/press-shots/metro-206.webp?v=20260927a 206w, images/press-shots/metro-412.webp?v=20260927a 412w"
           },
           "date": "2017-03-21",
           "dateKind": "published",
@@ -597,8 +597,8 @@
           "slug": "designboom",
           "logo": "images/press/designboom.svg",
           "shot": {
-            "src": "images/press-shots/designboom-412.webp?v=20260922",
-            "srcset": "images/press-shots/designboom-206.webp?v=20260922 206w, images/press-shots/designboom-412.webp?v=20260922 412w"
+            "src": "images/press-shots/designboom-412.webp?v=20260927a",
+            "srcset": "images/press-shots/designboom-206.webp?v=20260927a 206w, images/press-shots/designboom-412.webp?v=20260927a 412w"
           },
           "date": "2016-10-16",
           "dateKind": "published",
@@ -612,8 +612,8 @@
           "slug": "tatler",
           "logo": "images/press/tatler.svg",
           "shot": {
-            "src": "images/press-shots/tatler-412.webp?v=20260926",
-            "srcset": "images/press-shots/tatler-206.webp?v=20260926 206w, images/press-shots/tatler-412.webp?v=20260926 412w"
+            "src": "images/press-shots/tatler-412.webp?v=20260927a",
+            "srcset": "images/press-shots/tatler-206.webp?v=20260927a 206w, images/press-shots/tatler-412.webp?v=20260927a 412w"
           },
           "date": "2018-01-17",
           "dateKind": "published",
@@ -627,8 +627,8 @@
           "logo": "images/press/vogue.svg",
           "note": "We\u2019ve come a long way from the days of Tipis and Yurts",
           "shot": {
-            "src": "images/press-shots/vogue-412.webp?v=20260925",
-            "srcset": "images/press-shots/vogue-206.webp?v=20260925 206w, images/press-shots/vogue-412.webp?v=20260925 412w"
+            "src": "images/press-shots/vogue-412.webp?v=20260927a",
+            "srcset": "images/press-shots/vogue-206.webp?v=20260927a 206w, images/press-shots/vogue-412.webp?v=20260927a 412w"
           },
           "date": "2014-11-21",
           "dateKind": "published",
@@ -643,8 +643,8 @@
           "logo": "images/press/cntraveller.svg",
           "logoScale": 1.75,
           "shot": {
-            "src": "images/press-shots/cntraveller-412.webp?v=20260926a",
-            "srcset": "images/press-shots/cntraveller-206.webp?v=20260926a 206w, images/press-shots/cntraveller-412.webp?v=20260926a 412w"
+            "src": "images/press-shots/cntraveller-412.webp?v=20260927a",
+            "srcset": "images/press-shots/cntraveller-206.webp?v=20260927a 206w, images/press-shots/cntraveller-412.webp?v=20260927a 412w"
           },
           "date": "2013-04-10",
           "dateKind": "published",
@@ -659,8 +659,8 @@
           "logoScale": 1.5,
           "note": "Celebration of Craft from the very beginning",
           "shot": {
-            "src": "images/press-shots/guardian-412.webp?v=20260926a",
-            "srcset": "images/press-shots/guardian-206.webp?v=20260926a 206w, images/press-shots/guardian-412.webp?v=20260926a 412w"
+            "src": "images/press-shots/guardian-412.webp?v=20260927a",
+            "srcset": "images/press-shots/guardian-206.webp?v=20260927a 206w, images/press-shots/guardian-412.webp?v=20260927a 412w"
           },
           "date": "2011-07-29",
           "dateKind": "published",
