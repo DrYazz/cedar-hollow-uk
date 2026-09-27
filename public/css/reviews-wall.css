@@ -640,13 +640,51 @@
    not. The buttons borrow .ch-wall__btn so the two look like one thing.
    ---------------------------------------------------------------------- */
 .ch-show {
-  /* The strip carries the page's own colour; the panel under it carries the
-     section's -- cream for the reviews, green for the album. With no room
-     underneath, the buttons sat on the join between the two. The padding
-     matches above and below, so the control reads as its own strip rather
-     than the lid of whatever follows it. */
-  background-color: var(--offwhite, #f8f8e8);
-  padding: 3rem 1.25rem;
+  /* The strip takes the colour of the panel it sits above, so the two read
+     as one band and the change of colour happens at the hero, where a
+     change of colour belongs, rather than against the bottom of the
+     buttons.
+
+     Padding above only: the panel below brings its own 80px, which is the
+     same again, so the buttons end up in the middle of the band rather
+     than at the top of it. */
+  background-color: var(--brand, #efeed5);
+  color: var(--accent, #3b4126);
+  padding: 5rem 1.25rem 0;
+  transition: background-color .25s ease, color .25s ease;
+}
+
+.ch-show[data-on="guests"] {
+  background-color: var(--accent, #3b4126);
+  color: var(--brand, #efeed5);
+}
+
+/* On the dark half the pressed button has to invert, the same way the Show
+   more button does on that band, or it disappears into it. */
+.ch-show[data-on="guests"] .ch-wall__btn[aria-pressed="true"] {
+  background-color: var(--brand, #efeed5);
+  border-color: var(--brand, #efeed5);
+  color: var(--accent, #3b4126);
+}
+
+/* The panel below steps its own padding down with the width, and the space
+   above the buttons has to step with it or they stop being in the middle. */
+@media screen and (max-width: 991px) {
+  .ch-show {
+    padding-top: 4rem;
+  }
+}
+
+@media screen and (max-width: 767px) {
+  .ch-show {
+    padding-top: 3rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ch-show {
+    transition: none;
+  }
 }
 
 .ch-show__row {

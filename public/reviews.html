@@ -29,7 +29,7 @@
   <meta content="A timber cabin lit from within, among ferns in golden-hour woodland" property="og:image:alt">
   <meta content="summary_large_image" name="twitter:card">
   <link href="css/page.css?v=20260922a" rel="stylesheet" type="text/css">
-  <link href="css/reviews-wall.css?v=20260927e" rel="stylesheet" type="text/css">
+  <link href="css/reviews-wall.css?v=20260927f" rel="stylesheet" type="text/css">
   <style>
     /* page.css styles .ch-prose links but not .ch-list ones, so these were
        rendering as default browser blue; and .ch-list is not in the accent
@@ -151,7 +151,7 @@
           and the album should still be reachable when they do not. With
           scripting off both sections are simply there, one after the other,
           which is what the page was before this control existed.  -->
-    <div class="ch-show" data-ch-show>
+    <div class="ch-show" data-ch-show data-on="reviews">
       <div class="ch-show__row" role="group" aria-labelledby="ch-show-label">
         <span class="ch-show__label" id="ch-show-label">Show:</span>
         <button class="ch-wall__btn" type="button" data-show="reviews" aria-pressed="true">Reviews</button>
@@ -475,6 +475,9 @@
             buttons[b].setAttribute(
               "aria-pressed", buttons[b].getAttribute("data-show") === which ? "true" : "false");
           }
+          /* The strip wears the colour of the half that is showing. */
+          bar.setAttribute("data-on", which);
+
           var url = new URL(window.location.href);
           if (which === "reviews") url.searchParams.delete("show");
           else url.searchParams.set("show", which);
