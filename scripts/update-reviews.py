@@ -288,6 +288,10 @@ def live_config(data, figs):
                     "listing": s.get("listing", ""),
                     "url": s["url"],
                     "colour": s.get("colour", "#3b4126"),
+                    # The filter buttons say how many reviews each choice
+                    # stands for, which needs the figures broken down by
+                    # platform as well as by woodland.
+                    "count": s.get("count", 0),
                 }
                 for s in prop["sources"]
             ],

@@ -47,25 +47,29 @@
             "platform": "Google",
             "listing": "",
             "url": "https://www.google.com/travel/hotels/entity/CgsInOXTpI3TstrTARAB",
-            "colour": "#1DA362"
+            "colour": "#1DA362",
+            "count": 100
           },
           {
             "platform": "Tripadvisor",
             "listing": "",
             "url": "https://www.tripadvisor.co.uk/Hotel_Review-g186361-d32973964-Reviews-Cedar_Hollow_Oxford_The_Oaks-Oxford_Oxfordshire_England.html",
-            "colour": "#5AA041"
+            "colour": "#5AA041",
+            "count": 64
           },
           {
             "platform": "Airbnb",
             "listing": "Whimsical Treehouse in C. S. Lewis' footsteps",
             "url": "https://www.airbnb.co.uk/rooms/722435848290391530",
-            "colour": "#FF585A"
+            "colour": "#FF585A",
+            "count": 35
           },
           {
             "platform": "Airbnb",
             "listing": "Narnia Inspired Mr Tumnus Cave",
             "url": "https://www.airbnb.co.uk/rooms/1280483083604154655",
-            "colour": "#FF585A"
+            "colour": "#FF585A",
+            "count": 70
           }
         ],
         "photo": {
@@ -88,13 +92,15 @@
             "platform": "Google",
             "listing": "",
             "url": "https://share.google/l7CQQex4bleR7Txlq",
-            "colour": "#1DA362"
+            "colour": "#1DA362",
+            "count": 53
           },
           {
             "platform": "Tripadvisor",
             "listing": "",
             "url": "https://www.tripadvisor.co.uk/Hotel_Review-g4041688-d5063870-Reviews-Mallinson_s_Woodland_Retreat-Holditch_Dorset_England.html",
-            "colour": "#5AA041"
+            "colour": "#5AA041",
+            "count": 155
           }
         ],
         "photo": {
@@ -302,10 +308,29 @@
     return esc(seen.slice(0, -1).join(", ")) + " and " + esc(seen[seen.length - 1]);
   }
 
+  /* The live badge carries Oxford's own per-platform counts, which are
+     fresher than the published ones. Take them, and repaint any buttons
+     already on the page so they agree. */
+  function refreshTotals(key, platforms) {
+    if (!platforms || !platforms.length || !TOTALS[key]) return;
+    var by = {};
+    platforms.forEach(function (p) {
+      var name = platformName(p.label) || p.label;
+      if (name) by[name] = (by[name] || 0) + (Number(p.count) || 0);
+    });
+    if (!Object.keys(by).length) return;
+    TOTALS[key] = by;
+    var hosts = document.querySelectorAll("[data-ch-wall]");
+    for (var i = 0; i < hosts.length; i++) {
+      if (hosts[i]._chWall) hosts[i]._chWall.paint();
+    }
+  }
+
   function apply(key, fig, platforms, items) {
     var prop = DATA.properties[key];
     var badge = DATA.badge || "";
 
+    refreshTotals(key, platforms);
     renderWall(key, items);
 
     /* The combined figure: this property live, every other one as published.
@@ -383,6 +408,40 @@
   };
 
   var VISIBLE = 6;
+
+  /* How many reviews there are, by woodland and by platform, from the
+     figures the generator published. The wall holds the latest handful
+     from each platform; these are the totals those handfuls are drawn
+     from, and they are what the filter buttons count -- a reader reads a
+     number on a button as how many there are, not how many arrived.
+
+     Oxford's are replaced when the live badge lands (see apply), so the
+     buttons agree with the figures quoted elsewhere on the page. */
+  var TOTALS = (function () {
+    var out = {};
+    Object.keys(DATA.properties).forEach(function (key) {
+      var by = {};
+      (DATA.properties[key].sources || []).forEach(function (src) {
+        var name = platformName(src.platform) || src.platform;
+        by[name] = (by[name] || 0) + (Number(src.count) || 0);
+      });
+      out[key] = by;
+    });
+    return out;
+  })();
+
+  /* One cell of the cross-tab, or a row, a column, or the lot. */
+  function totalFor(woodland, source) {
+    var n = 0;
+    Object.keys(TOTALS).forEach(function (w) {
+      if (woodland !== "all" && w !== woodland) return;
+      Object.keys(TOTALS[w]).forEach(function (plat) {
+        if (source !== "all" && plat !== source) return;
+        n += TOTALS[w][plat];
+      });
+    });
+    return n;
+  }
 
   function platformName(type) {
     return PLATFORMS[String(type || "").toLowerCase()] || "";
@@ -513,16 +572,16 @@
       return true;
     }
 
-    /* What one button would show, given where the other row is set. */
+    /* What a button stands for: every review that answers to it, given
+       where the other row is set -- not the few of them in the wall. */
     function tally(name, value) {
-      var was = groups[name].state;
-      groups[name].state = value;
-      var n = 0;
-      for (var i = 0; i < grid.children.length; i++) {
-        if (matches(grid.children[i])) n++;
-      }
-      groups[name].state = was;
-      return n;
+      var woodland = name === "woodland" ? value : state("woodland");
+      var source = name === "source" ? value : state("source");
+      return totalFor(woodland, source);
+    }
+
+    function state(name) {
+      return groups[name] ? groups[name].state : "all";
     }
 
     function paint() {
