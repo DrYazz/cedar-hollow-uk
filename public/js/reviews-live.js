@@ -47,25 +47,29 @@
             "platform": "Google",
             "listing": "",
             "url": "https://www.google.com/travel/hotels/entity/CgsInOXTpI3TstrTARAB",
-            "colour": "#1DA362"
+            "colour": "#1DA362",
+            "count": 100
           },
           {
             "platform": "Tripadvisor",
             "listing": "",
             "url": "https://www.tripadvisor.co.uk/Hotel_Review-g186361-d32973964-Reviews-Cedar_Hollow_Oxford_The_Oaks-Oxford_Oxfordshire_England.html",
-            "colour": "#5AA041"
+            "colour": "#5AA041",
+            "count": 64
           },
           {
             "platform": "Airbnb",
             "listing": "Whimsical Treehouse in C. S. Lewis' footsteps",
             "url": "https://www.airbnb.co.uk/rooms/722435848290391530",
-            "colour": "#FF585A"
+            "colour": "#FF585A",
+            "count": 35
           },
           {
             "platform": "Airbnb",
             "listing": "Narnia Inspired Mr Tumnus Cave",
             "url": "https://www.airbnb.co.uk/rooms/1280483083604154655",
-            "colour": "#FF585A"
+            "colour": "#FF585A",
+            "count": 70
           }
         ],
         "photo": {
@@ -88,13 +92,15 @@
             "platform": "Google",
             "listing": "",
             "url": "https://share.google/l7CQQex4bleR7Txlq",
-            "colour": "#1DA362"
+            "colour": "#1DA362",
+            "count": 53
           },
           {
             "platform": "Tripadvisor",
             "listing": "",
             "url": "https://www.tripadvisor.co.uk/Hotel_Review-g4041688-d5063870-Reviews-Mallinson_s_Woodland_Retreat-Holditch_Dorset_England.html",
-            "colour": "#5AA041"
+            "colour": "#5AA041",
+            "count": 155
           }
         ],
         "photo": {
@@ -302,10 +308,29 @@
     return esc(seen.slice(0, -1).join(", ")) + " and " + esc(seen[seen.length - 1]);
   }
 
+  /* The live badge carries Oxford's own per-platform counts, which are
+     fresher than the published ones. Take them, and repaint any buttons
+     already on the page so they agree. */
+  function refreshTotals(key, platforms) {
+    if (!platforms || !platforms.length || !TOTALS[key]) return;
+    var by = {};
+    platforms.forEach(function (p) {
+      var name = platformName(p.label) || p.label;
+      if (name) by[name] = (by[name] || 0) + (Number(p.count) || 0);
+    });
+    if (!Object.keys(by).length) return;
+    TOTALS[key] = by;
+    var hosts = document.querySelectorAll("[data-ch-wall]");
+    for (var i = 0; i < hosts.length; i++) {
+      if (hosts[i]._chWall) hosts[i]._chWall.paint();
+    }
+  }
+
   function apply(key, fig, platforms, items) {
     var prop = DATA.properties[key];
     var badge = DATA.badge || "";
 
+    refreshTotals(key, platforms);
     renderWall(key, items);
 
     /* The combined figure: this property live, every other one as published.
@@ -384,6 +409,40 @@
 
   var VISIBLE = 6;
 
+  /* How many reviews there are, by woodland and by platform, from the
+     figures the generator published. The wall holds the latest handful
+     from each platform; these are the totals those handfuls are drawn
+     from, and they are what the filter buttons count -- a reader reads a
+     number on a button as how many there are, not how many arrived.
+
+     Oxford's are replaced when the live badge lands (see apply), so the
+     buttons agree with the figures quoted elsewhere on the page. */
+  var TOTALS = (function () {
+    var out = {};
+    Object.keys(DATA.properties).forEach(function (key) {
+      var by = {};
+      (DATA.properties[key].sources || []).forEach(function (src) {
+        var name = platformName(src.platform) || src.platform;
+        by[name] = (by[name] || 0) + (Number(src.count) || 0);
+      });
+      out[key] = by;
+    });
+    return out;
+  })();
+
+  /* One cell of the cross-tab, or a row, a column, or the lot. */
+  function totalFor(woodland, source) {
+    var n = 0;
+    Object.keys(TOTALS).forEach(function (w) {
+      if (woodland !== "all" && w !== woodland) return;
+      Object.keys(TOTALS[w]).forEach(function (plat) {
+        if (source !== "all" && plat !== source) return;
+        n += TOTALS[w][plat];
+      });
+    });
+    return n;
+  }
+
   function platformName(type) {
     return PLATFORMS[String(type || "").toLowerCase()] || "";
   }
@@ -441,6 +500,9 @@
        against the buttons by the same name. */
     li.setAttribute("data-woodland", woodland);
     li.setAttribute("data-source", platform);
+    /* kept so the two feeds can be interleaved by date after the second
+       of them arrives */
+    li.setAttribute("data-posted", String(item.posted_on || ""));
 
     var source = "";
     if (item.post_url && /^https:\/\//i.test(item.post_url)) {
@@ -476,117 +538,161 @@
     return groups;
   }
 
+  /* A wall says which woodlands it will take, so one wall can hold both
+     and a woodland page can hold only its own. */
+  function walls(key) {
+    var out = [];
+    var hosts = document.querySelectorAll("[data-ch-wall]");
+    for (var i = 0; i < hosts.length; i++) {
+      var takes = String(hosts[i].getAttribute("data-ch-wall") || "").split(/\s+/);
+      if (takes.indexOf(key) >= 0) out.push(hosts[i]);
+    }
+    return out;
+  }
+
+  /* Everything a wall needs to paint itself, built once however many feeds
+     land in it. Kept on the element so a second arrival finds it rather
+     than wiring a second set of listeners to the same buttons. */
+  function setup(host) {
+    if (host._chWall) return host._chWall;
+
+    var grid = host.querySelector(".ch-wall__grid");
+    var button = host.querySelector(".ch-wall__more");
+    var empty = host.querySelector(".ch-wall__empty");
+    var out = host.querySelector(".ch-wall__out");
+    var groups = controls(host);
+    var expanded = false;
+
+    function matches(el) {
+      for (var name in groups) {
+        var want = groups[name].state;
+        if (want === "all") continue;
+        if (el.getAttribute("data-" + name) !== want) return false;
+      }
+      return true;
+    }
+
+    /* What a button stands for: every review that answers to it, given
+       where the other row is set -- not the few of them in the wall. */
+    function tally(name, value) {
+      var woodland = name === "woodland" ? value : state("woodland");
+      var source = name === "source" ? value : state("source");
+      return totalFor(woodland, source);
+    }
+
+    function state(name) {
+      return groups[name] ? groups[name].state : "all";
+    }
+
+    function paint() {
+      var shown = 0;
+      for (var i = 0; i < grid.children.length; i++) {
+        var li = grid.children[i];
+        if (!matches(li)) { li.hidden = true; continue; }
+        shown++;
+        li.hidden = !expanded && shown > VISIBLE;
+      }
+
+      for (var name in groups) {
+        var row = groups[name].buttons;
+        for (var b = 0; b < row.length; b++) {
+          var value = row[b].getAttribute("data-filter");
+          row[b].setAttribute(
+            "aria-pressed", value === groups[name].state ? "true" : "false");
+          var count = row[b].querySelector(".ch-wall__count");
+          if (count) count.textContent = tally(name, value);
+        }
+      }
+
+      if (empty) {
+        empty.hidden = shown > 0;
+      }
+
+      var folded = !expanded && shown > VISIBLE;
+      if (button) {
+        /* No number on it: it would be a different one for every
+           combination of the two rows, and it tells a reader nothing. */
+        button.hidden = !folded;
+      }
+
+      /* Once there is nothing left to unfold, the way to more reviews is
+         the platforms themselves -- they hold hundreds and hand over ten.
+         Only the links matching the current choice are offered. */
+      if (out) {
+        var links = out.querySelectorAll("a[data-woodland]");
+        var offered = 0;
+        for (var k = 0; k < links.length; k++) {
+          var fits = matches(links[k]);
+          links[k].hidden = !fits;
+          if (fits) offered++;
+        }
+        out.hidden = folded || !offered;
+      }
+    }
+
+    if (button) {
+      button.textContent = "Show more";
+      button.addEventListener("click", function () {
+        expanded = true;
+        paint();
+        /* Send the keyboard to the first card that was not there before. */
+        var revealed = null, seen = 0;
+        for (var i = 0; i < grid.children.length; i++) {
+          if (grid.children[i].hidden) continue;
+          if (++seen === VISIBLE + 1) { revealed = grid.children[i]; break; }
+        }
+        if (revealed) {
+          revealed.setAttribute("tabindex", "-1");
+          revealed.focus();
+        }
+      });
+    }
+
+    host.addEventListener("click", function (e) {
+      var btn = e.target.closest && e.target.closest(".ch-wall__btn");
+      if (!btn || !host.contains(btn)) return;
+      var group = groups[btn.getAttribute("data-group")];
+      if (!group) return;
+      group.state = btn.getAttribute("data-filter") || "all";
+      /* A new choice starts folded again: the rest of the old set is not
+         the rest of this one. */
+      expanded = false;
+      paint();
+    });
+
+    host._chWall = { grid: grid, paint: paint };
+    return host._chWall;
+  }
+
   function renderWall(key, items) {
-    var hosts = document.querySelectorAll('[data-ch-wall="' + key + '"]');
+    var hosts = walls(key);
     if (!hosts.length) return;
     var usableItems = usable(items);
     if (!usableItems.length) return;
 
-    Array.prototype.forEach.call(hosts, function (host) {
-      var grid = host.querySelector(".ch-wall__grid");
-      var button = host.querySelector(".ch-wall__more");
-      var empty = host.querySelector(".ch-wall__empty");
-      if (!grid) return;
+    hosts.forEach(function (host) {
+      var wall = setup(host);
+      if (!wall.grid) return;
 
-      grid.innerHTML = "";
+      /* Replace this woodland's cards and leave any other woodland's alone,
+         so a second feed landing does not wipe the first. */
+      var mine = wall.grid.querySelectorAll('[data-woodland="' + key + '"]');
+      for (var i = 0; i < mine.length; i++) mine[i].remove();
+
       usableItems.forEach(function (item) {
-        grid.appendChild(card(item, key));
+        wall.grid.appendChild(card(item, key));
       });
 
-      var groups = controls(host);
-      var expanded = false;
-
-      function matches(li) {
-        for (var name in groups) {
-          var want = groups[name].state;
-          if (want === "all") continue;
-          if (li.getAttribute("data-" + name) !== want) return false;
-        }
-        return true;
-      }
-
-      /* What one button would show, given where the other row is set. */
-      function tally(name, value) {
-        var was = groups[name].state;
-        groups[name].state = value;
-        var n = 0;
-        for (var i = 0; i < grid.children.length; i++) {
-          if (matches(grid.children[i])) n++;
-        }
-        groups[name].state = was;
-        return n;
-      }
-
-      function paint() {
-        var shown = 0;
-        for (var i = 0; i < grid.children.length; i++) {
-          var li = grid.children[i];
-          if (!matches(li)) { li.hidden = true; continue; }
-          shown++;
-          li.hidden = !expanded && shown > VISIBLE;
-        }
-
-        for (var name in groups) {
-          var row = groups[name].buttons;
-          for (var b = 0; b < row.length; b++) {
-            var value = row[b].getAttribute("data-filter");
-            row[b].setAttribute(
-              "aria-pressed", value === groups[name].state ? "true" : "false");
-            var count = row[b].querySelector(".ch-wall__count");
-            if (count) count.textContent = tally(name, value);
-          }
-        }
-
-        /* A choice that matches nothing says so, rather than leaving a gap
-           where the cards were. */
-        if (empty) {
-          empty.hidden = shown > 0;
-          if (!shown) {
-            empty.textContent = groups.woodland && groups.woodland.state === "dorset"
-              ? "Cedar Hollow Dorset's reviews are kept on Google and Tripadvisor, " +
-                "and are not carried here yet."
-              : "No reviews to show for that choice.";
-          }
-        }
-
-        if (button) {
-          /* No number: it would be a different one for every combination of
-             the two rows, and it tells a reader nothing they wanted. */
-          button.hidden = expanded || shown <= VISIBLE;
-        }
-      }
-
-      if (button) {
-        button.textContent = "Show more";
-        button.addEventListener("click", function () {
-          expanded = true;
-          paint();
-          /* Send the keyboard to the first card that was not there before. */
-          var revealed = null, seen = 0;
-          for (var i = 0; i < grid.children.length; i++) {
-            if (grid.children[i].hidden) continue;
-            if (++seen === VISIBLE + 1) { revealed = grid.children[i]; break; }
-          }
-          if (revealed) {
-            revealed.setAttribute("tabindex", "-1");
-            revealed.focus();
-          }
-        });
-      }
-
-      host.addEventListener("click", function (e) {
-        var btn = e.target.closest && e.target.closest(".ch-wall__btn");
-        if (!btn || !host.contains(btn)) return;
-        var group = groups[btn.getAttribute("data-group")];
-        if (!group) return;
-        group.state = btn.getAttribute("data-filter") || "all";
-        /* A new choice starts folded again: the rest of the old set is not
-           the rest of this one. */
-        expanded = false;
-        paint();
+      /* Newest first across both feeds, so they interleave by date rather
+         than sitting in one block each. */
+      var all = Array.prototype.slice.call(wall.grid.children);
+      all.sort(function (a, b) {
+        return String(b.getAttribute("data-posted") || "")
+          .localeCompare(String(a.getAttribute("data-posted") || ""));
       });
+      all.forEach(function (li) { wall.grid.appendChild(li); });
 
-      paint();
+      wall.paint();
       host.hidden = false;
     });
   }
@@ -708,6 +814,11 @@
       });
   }
 
+  /* Both woodlands arrive the same way: a property with a live endpoint in
+     docs/reviews-data.json is fetched, the rest keep the figures the
+     generator published. Dorset has no endpoint until its own Repuso
+     widget is added there, at which point its reviews land in the same
+     wall as Oxford's with nothing here to change. */
   function start() {
     Object.keys(DATA.properties).forEach(function (key) {
       if (DATA.properties[key].live) load(key);

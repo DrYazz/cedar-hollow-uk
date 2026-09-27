@@ -140,6 +140,13 @@
   transition: opacity .18s ease;
 }
 
+/* The class sets a display, which beats the browser's own [hidden] rule --
+   they have the same weight and an author's wins. Without this the button
+   stays on the page after it has been pressed, doing nothing. */
+.ch-wall__more[hidden] {
+  display: none;
+}
+
 .ch-wall__more:hover,
 .ch-wall__more:focus-visible {
   opacity: .9;
@@ -592,4 +599,35 @@
   .ch-album__print {
     transition: none;
   }
+}
+
+
+/* ---- The way out ------------------------------------------------------
+   Each platform hands over its latest few reviews and holds hundreds, so
+   once the wall has nothing left to unfold it offers the platforms rather
+   than a button that would do nothing. Only the links matching the current
+   choice are shown, which is why each carries the same data-* the cards do.
+   ---------------------------------------------------------------------- */
+.ch-wall__out {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: .5rem .875rem;
+  margin: 2rem 0 0;
+  text-align: center;
+}
+
+.ch-wall__out[hidden] {
+  display: none;
+}
+
+.ch-wall__out a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: .18em;
+}
+
+.ch-wall__out a[hidden] {
+  display: none;
 }
