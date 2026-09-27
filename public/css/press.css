@@ -1065,3 +1065,26 @@ a.ch-vid__play {
     grid-template-columns: 1fr;
   }
 }
+
+/* The standfirst on the combined page carries a line for each woodland and
+   shows whichever is filtered for. They are different lengths, so swapping
+   the text would change how many lines the paragraph runs to, and the band
+   above the filters would change height with it -- the buttons jumping under
+   a thumb on a phone, where the lines wrap most.
+
+   So all three sit in one grid cell. The cell is as tall as the longest of
+   them whichever is showing, and the band never moves. The two that are not
+   showing keep their space (visibility, not display) and stay out of the
+   accessibility tree, so only the one on screen is read out. */
+.ch-page-hero__lead[data-lead-stack] {
+  display: grid;
+}
+
+.ch-page-hero__lead[data-lead-stack] > [data-lead] {
+  grid-area: 1 / 1;
+  visibility: hidden;
+}
+
+.ch-page-hero__lead[data-lead-stack] > [data-lead-on] {
+  visibility: visible;
+}
