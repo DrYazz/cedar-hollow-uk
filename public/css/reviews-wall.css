@@ -399,3 +399,101 @@
 .ch-review-sources a:not(.ch-plat__link):not(.ch-prop__link):focus-visible {
   text-decoration-thickness: 2px;
 }
+
+
+/* ---- The controls over the wall ---------------------------------------
+   Two rows: which woodland, and which platform the review was left on.
+   The press page has a bar that looks like this; its rules are in
+   press.css, which this page does not load, so the shape is repeated here
+   rather than dragging a page's worth of rules along for two rows of
+   buttons. Restyle one and the other should follow.
+   ---------------------------------------------------------------------- */
+.ch-wall__filters {
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+  margin-bottom: 2.5rem;
+  text-align: center;
+}
+
+.ch-wall__filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: .625rem;
+  margin: 0;
+}
+
+/* Naming the group on the page keeps each button to a word, which is what
+   makes the row fit a phone, and gives the group its accessible name so
+   what is read out and what is seen are the same words. */
+.ch-wall__filter-label {
+  margin-right: .125rem;
+  font-size: .8125rem;
+  font-weight: 600;
+  letter-spacing: .06em;
+  line-height: 1;
+  text-transform: uppercase;
+  opacity: .6;
+}
+
+.ch-wall__btn {
+  appearance: none;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  background: none;
+  color: inherit;
+  padding: .5rem 1rem;
+  font: inherit;
+  font-size: .9375rem;
+  line-height: 1;
+  cursor: pointer;
+  opacity: .55;
+  transition: opacity .2s ease, background-color .2s ease, color .2s ease;
+}
+
+.ch-wall__btn:hover {
+  opacity: .85;
+}
+
+.ch-wall__btn[aria-pressed="true"] {
+  background-color: var(--accent, #3b4126);
+  border-color: var(--accent, #3b4126);
+  color: var(--brand, #efeed5);
+  opacity: 1;
+}
+
+.ch-wall__btn:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+/* A count beside the word, so a button says how much it would reveal. */
+.ch-wall__btn .ch-wall__count {
+  margin-left: .375rem;
+  font-size: .8125rem;
+  opacity: .7;
+}
+
+/* A choice that matches nothing says so rather than leaving a gap. */
+.ch-wall__empty {
+  margin: 0;
+  padding: 2rem 0;
+  text-align: center;
+  opacity: .75;
+}
+
+.ch-wall__empty[hidden] {
+  display: none;
+}
+
+@media screen and (max-width: 479px) {
+  /* The label takes a line of its own so the buttons keep the rest of the
+     width to wrap into. Stacking the buttons as well would turn two rows
+     into seven. */
+  .ch-wall__filter-label {
+    flex-basis: 100%;
+    margin-right: 0;
+  }
+}

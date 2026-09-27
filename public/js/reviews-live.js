@@ -427,7 +427,7 @@
     });
   }
 
-  function card(item, hidden) {
+  function card(item, woodland) {
     var platform = platformName(item.type);
     var name = String(item.from_name || "").trim() || "A guest";
     var when = monthYear(item.posted_on);
@@ -436,7 +436,11 @@
 
     var li = document.createElement("li");
     li.className = "ch-wall__card";
-    if (hidden) li.hidden = true;
+    /* What the controls sort on. The woodland is the wall the card was
+       drawn for; the platform is the feed's own word for it, matched
+       against the buttons by the same name. */
+    li.setAttribute("data-woodland", woodland);
+    li.setAttribute("data-source", platform);
 
     var source = "";
     if (item.post_url && /^https:\/\//i.test(item.post_url)) {
@@ -459,6 +463,19 @@
     return li;
   }
 
+  /* Which buttons a wall carries decides what can be narrowed: a page may
+     render one row, both, or none, and this drives whatever it finds. */
+  function controls(host) {
+    var groups = {};
+    var buttons = host.querySelectorAll(".ch-wall__btn[data-group]");
+    for (var i = 0; i < buttons.length; i++) {
+      var name = buttons[i].getAttribute("data-group");
+      if (!groups[name]) groups[name] = { state: "all", buttons: [] };
+      groups[name].buttons.push(buttons[i]);
+    }
+    return groups;
+  }
+
   function renderWall(key, items) {
     var hosts = document.querySelectorAll('[data-ch-wall="' + key + '"]');
     if (!hosts.length) return;
@@ -468,35 +485,108 @@
     Array.prototype.forEach.call(hosts, function (host) {
       var grid = host.querySelector(".ch-wall__grid");
       var button = host.querySelector(".ch-wall__more");
+      var empty = host.querySelector(".ch-wall__empty");
       if (!grid) return;
 
       grid.innerHTML = "";
-      usableItems.forEach(function (item, i) {
-        grid.appendChild(card(item, i >= VISIBLE));
+      usableItems.forEach(function (item) {
+        grid.appendChild(card(item, key));
       });
 
-      if (button) {
-        var hiddenCount = Math.max(0, usableItems.length - VISIBLE);
-        if (!hiddenCount) {
-          button.hidden = true;
-        } else {
-          button.hidden = false;
-          button.textContent = "Show " + hiddenCount + " more";
-          button.addEventListener("click", function () {
-            Array.prototype.forEach.call(grid.children, function (li) {
-              li.hidden = false;
-            });
-            button.hidden = true;
-            /* Send the keyboard somewhere sensible now the button is gone. */
-            var revealed = grid.children[VISIBLE];
-            if (revealed) {
-              revealed.setAttribute("tabindex", "-1");
-              revealed.focus();
-            }
-          });
+      var groups = controls(host);
+      var expanded = false;
+
+      function matches(li) {
+        for (var name in groups) {
+          var want = groups[name].state;
+          if (want === "all") continue;
+          if (li.getAttribute("data-" + name) !== want) return false;
+        }
+        return true;
+      }
+
+      /* What one button would show, given where the other row is set. */
+      function tally(name, value) {
+        var was = groups[name].state;
+        groups[name].state = value;
+        var n = 0;
+        for (var i = 0; i < grid.children.length; i++) {
+          if (matches(grid.children[i])) n++;
+        }
+        groups[name].state = was;
+        return n;
+      }
+
+      function paint() {
+        var shown = 0;
+        for (var i = 0; i < grid.children.length; i++) {
+          var li = grid.children[i];
+          if (!matches(li)) { li.hidden = true; continue; }
+          shown++;
+          li.hidden = !expanded && shown > VISIBLE;
+        }
+
+        for (var name in groups) {
+          var row = groups[name].buttons;
+          for (var b = 0; b < row.length; b++) {
+            var value = row[b].getAttribute("data-filter");
+            row[b].setAttribute(
+              "aria-pressed", value === groups[name].state ? "true" : "false");
+            var count = row[b].querySelector(".ch-wall__count");
+            if (count) count.textContent = tally(name, value);
+          }
+        }
+
+        /* A choice that matches nothing says so, rather than leaving a gap
+           where the cards were. */
+        if (empty) {
+          empty.hidden = shown > 0;
+          if (!shown) {
+            empty.textContent = groups.woodland && groups.woodland.state === "dorset"
+              ? "Cedar Hollow Dorset's reviews are kept on Google and Tripadvisor, " +
+                "and are not carried here yet."
+              : "No reviews to show for that choice.";
+          }
+        }
+
+        if (button) {
+          /* No number: it would be a different one for every combination of
+             the two rows, and it tells a reader nothing they wanted. */
+          button.hidden = expanded || shown <= VISIBLE;
         }
       }
 
+      if (button) {
+        button.textContent = "Show more";
+        button.addEventListener("click", function () {
+          expanded = true;
+          paint();
+          /* Send the keyboard to the first card that was not there before. */
+          var revealed = null, seen = 0;
+          for (var i = 0; i < grid.children.length; i++) {
+            if (grid.children[i].hidden) continue;
+            if (++seen === VISIBLE + 1) { revealed = grid.children[i]; break; }
+          }
+          if (revealed) {
+            revealed.setAttribute("tabindex", "-1");
+            revealed.focus();
+          }
+        });
+      }
+
+      host.addEventListener("click", function (e) {
+        var btn = e.target.closest && e.target.closest(".ch-wall__btn");
+        if (!btn || !host.contains(btn)) return;
+        var group = groups[btn.getAttribute("data-group")];
+        if (!group) return;
+        group.state = btn.getAttribute("data-filter") || "all";
+        /* A new choice starts folded again: the rest of the old set is not
+           the rest of this one. */
+        expanded = false;
+        paint();
+      });
+
+      paint();
       host.hidden = false;
     });
   }
