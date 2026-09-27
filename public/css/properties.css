@@ -134,7 +134,17 @@
    giving .pp-info a real basis makes the two columns give way together. */
 .pp-item__media { position: relative; flex: 0 1 762px; max-width: 762px; min-width: 0; }
 @media (max-width: 991px) { .pp-item__media { flex: 1 1 auto; max-width: none; } }
-.pp-item__media .pp-frame { height: 100%; aspect-ratio: auto; min-height: 100%; }
+/* The picture keeps the 390:294 the design draws it at rather than stretching
+   to whatever the column beside it comes to. Stretching was fine while both
+   columns held much the same thing; with a calendar in the Oxford panels and
+   a button in the Dorset ones it made the Oxford pictures half as tall again
+   as the Dorset ones. Now every picture on the page is the same size and the
+   panel is simply as tall as it needs to be.
+
+   The column hugs the picture rather than the row, because the arrows and the
+   tour are positioned against it: left to stretch, they would sit in the empty
+   space below the photograph rather than on it. */
+.pp-item__media { align-self: flex-start; }
 @media (max-width: 991px) {
   /* The mobile frame runs full-bleed: no radius, no border. */
   .pp-item__media .pp-frame { aspect-ratio: 390 / 294; min-height: 0; border: 0; border-radius: 0; box-shadow: none; }
@@ -146,6 +156,23 @@
 }
 /* Tell the browser horizontal drags on a gallery belong to us and vertical
    ones belong to the page, so scrolling never fights the swipe handler. */
+/* The tour sits on the photograph, quietly: the picture is the thing being
+   looked at, and this is an aside from it. Bottom right keeps it clear of the
+   arrows, which are centred on the sides. */
+.pp-tour {
+  position: absolute; right: 18px; bottom: 18px; z-index: 2;
+  display: inline-flex; align-items: center;
+  padding: .4375rem .8125rem; border-radius: 999px;
+  background: rgba(246, 245, 235, .78);
+  border: 1px solid rgba(246, 245, 235, .5);
+  color: var(--accent, #3b4126); text-decoration: none;
+  font-size: .8125rem; font-weight: 500; line-height: 1; letter-spacing: .01em;
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  transition: background-color .2s ease;
+}
+.pp-tour:hover, .pp-tour:focus-visible { background: rgba(246, 245, 235, .95); }
+@media (max-width: 991px) { .pp-tour { right: 12px; bottom: 12px; } }
+
 .pp-frame[data-gallery="true"] { touch-action: pan-y; }
 .pp-frame[data-gallery="true"] img { -webkit-user-drag: none; user-select: none; }
 .pp-arrow img { width: 100%; height: 100%; display: block; }

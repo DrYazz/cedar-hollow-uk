@@ -80,8 +80,9 @@
       : item.bathrooms + " bathrooms";
     // Which woodland it is sits on this line rather than in the booking panel
     // below: it is a fact about the property like the other three, and down
-    // there it was costing a heading and a line of its own.
-    var site = item.region === "Dorset" ? "Cedar Hollow Dorset" : "Cedar Hollow Oxford";
+    // there it was costing a heading and a line of its own. The pin says
+    // what it is, so the name does not need repeating beside it.
+    var site = item.destination;
 
     return '<ul class="pp-meta">' +
       '<li><img src="images/icons/icon-guests.svg" alt="" aria-hidden="true">' + item.sleeps + " guests</li>" +
@@ -130,14 +131,6 @@
       : '<a class="button w-inline-block" href="' + esc(item.bookingUrl) +
         '" target="_blank" rel="noopener"><span>Check availability</span>' + ARROW + "</a>";
 
-    // The Oxford three each open the one krpano tour at their own scene, set
-    // by the ?ss= on the URL. An unknown scene name falls back to the aerial
-    // without complaining, so these are checked rather than guessed. The
-    // Dorset three have no tour at all and get no second button.
-    var tour = item.tourUrl
-      ? '<a class="button is-secondary w-inline-block" href="' + esc(item.tourUrl) +
-        '" target="_blank" rel="noopener"><span>Take a 3D Tour</span></a>'
-      : "";
 
     // A calendar in the panel needs no explaining; a button out of it does.
     var note = hasCal
@@ -154,16 +147,31 @@
     return '<div class="pp-book' + (hasCal ? " pp-book--cal" : "") + '">' +
       facts +
       calendar +
-      (book || tour ? '<div class="pp-book__actions">' + book + tour + "</div>" : "") +
+      (book ? '<div class="pp-book__actions">' + book + "</div>" : "") +
       note +
       "</div>";
+  }
+
+  // The Oxford three each open the one krpano tour at their own scene, set by
+  // the ?ss= on the URL. An unknown scene name falls back to the aerial
+  // without complaining, so these are checked rather than guessed. The Dorset
+  // three have no tour at all and get nothing here.
+  //
+  // It sits on the photograph rather than under the booking panel. The panel
+  // sets how tall the row is and the picture stretches to match, so a button
+  // there made the Oxford pictures taller than the Dorset ones. On the
+  // photograph it costs no height at all.
+  function tourLink(item) {
+    if (!item.tourUrl) return "";
+    return '<a class="pp-tour" href="' + esc(item.tourUrl) +
+      '" target="_blank" rel="noopener">3D Tour</a>';
   }
 
   function property(item) {
     var n = splitName(item.name);
     return '<article class="pp-item" id="property-' + esc(item.id) + '">' +
       '<div class="pp-item__row">' +
-        '<div class="pp-item__media">' + frame(item, { gallery: true }) + arrows(item) + "</div>" +
+        '<div class="pp-item__media">' + frame(item, { gallery: true }) + arrows(item) + tourLink(item) + "</div>" +
         '<div class="pp-info">' +
           '<h2 class="pp-name"><em>' + esc(n.first) + '</em> <span class="pp-name__light">' + esc(n.rest) + "</span></h2>" +
           '<div class="pp-desc">' + meta(item) +
