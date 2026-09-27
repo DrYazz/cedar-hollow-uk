@@ -4,6 +4,7 @@
  * One Worker serves the whole site:
  *   - every static file, via the ASSETS binding (see wrangler.toml)
  *   - POST /api/contact, the homepage contact form
+ *   - GET  /api/reviews/dorset, the Dorset guest reviews (see reviews.js)
  *
  * This replaces the Express + nodemailer service in form-handler/. The request
  * and response shapes are identical, so js/form-submit.js only needed its
@@ -17,12 +18,15 @@
  * a subdomain Resend verifies on its own.
  */
 
+import { handleDorsetReviews, reviewsConfigured } from "./reviews.js";
+
 const CONTACT_PATH = "/api/contact";
+const DORSET_REVIEWS_PATH = "/api/reviews/dorset";
 const RESEND_ENDPOINT = "https://api.resend.com/emails";
 const MAX_BODY_BYTES = 64 * 1024; // parity with the old express.json({ limit: "64kb" })
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
 
     if (url.pathname === CONTACT_PATH) {
@@ -32,9 +36,20 @@ export default {
       return handleContact(request, env);
     }
 
+    if (url.pathname === DORSET_REVIEWS_PATH) {
+      if (request.method !== "GET") {
+        return json({ ok: false, error: "Method not allowed" }, 405);
+      }
+      return handleDorsetReviews(request, env, ctx);
+    }
+
     // Kept from the old service so the migration can be smoke-tested the same way.
     if (url.pathname === "/health") {
-      return json({ ok: true, mailConfigured: mailReady(env) });
+      return json({
+        ok: true,
+        mailConfigured: mailReady(env),
+        dorsetReviewsConfigured: reviewsConfigured(env),
+      });
     }
 
     // Static assets normally never reach the Worker — Cloudflare serves them

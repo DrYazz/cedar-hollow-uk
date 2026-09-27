@@ -46,3 +46,40 @@ not_found_handling = "404-page"   # serves /404.html once one exists
 CONTACT_TO = "hello@thelabgroup.com"
 CONTACT_FROM = "website@send.cedarhollow.uk"
 CONTACT_FROM_NAME = "Cedar Hollow website"
+
+# --- Dorset guest reviews ----------------------------------------------------
+# Oxford's reviews come from the owner's Repuso feed, which the browser calls
+# itself. Dorset has no Repuso subscription, so worker/reviews.js asks Google
+# and Tripadvisor directly and serves the answer at /api/reviews/dorset.
+#
+# Both platforms hand over only their latest few -- Tripadvisor documents "up
+# to 5", Google returns a handful and gives no way to page past them -- so this
+# is about ten reviews, not the several hundred they hold. The page links out
+# to both for the rest. That limit is theirs, not ours.
+#
+# Until the two keys are set the route returns an empty list and the page shows
+# no Dorset reviews, exactly as it does today. Nothing breaks by leaving this.
+#
+# The keys are secrets, not vars:
+#
+#   npx wrangler secret put GOOGLE_PLACES_KEY
+#   npx wrangler secret put TRIPADVISOR_KEY
+#
+# GOOGLE_PLACES_KEY needs the Places API (New) enabled and a billing account.
+# Restrict it to this Worker's requests -- it is chargeable.
+#
+# TRIPADVISOR_KEY is free from the Tripadvisor Content API. Their keys are
+# locked to a referer, so add cedarhollow.uk to the key's allow-list; the
+# Worker sends that origin.
+#
+# DORSET_TRIPADVISOR_ID is the number in the listing URL, between -d and the
+# next hyphen:
+#   .../Hotel_Review-g4041688-d5063870-Reviews-Mallinson_s_Woodland_Retreat-...
+#
+# DORSET_GOOGLE_PLACE_ID is the place's own id, which begins ChIJ. The listing
+# in docs/reviews-data.json is a share.google short link and does not carry
+# one; Google's Place ID Finder will give it for "Mallinson's Woodland
+# Retreat, Holditch" in a few seconds.
+DORSET_TRIPADVISOR_ID = "5063870"
+DORSET_GOOGLE_PLACE_ID = ""
+
