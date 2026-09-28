@@ -266,9 +266,20 @@ width:100%;
   /* both the same size, a little under the logo's own */
   .ch-siteswitch__list .ch-nav__wordmark{font-size:clamp(1rem,1.85vw,1.7rem)}
 
+  /* On a phone the row becomes a short list, one under the other. 767px is the
+     width the rest of the site already treats as a phone -- where the nav menu
+     goes full screen and the footer stacks -- so the switcher changes with it
+     rather than at a width of its own. */
+  @media screen and (max-width:767px){
+    .ch-siteswitch__list{flex-direction:column;align-items:flex-start;gap:0}
+    /* 21px of text with a 10px gap is too small and too close for a thumb, so
+       each becomes a 44px row. The gap goes to zero because the padding now
+       provides the separation -- otherwise the two hit areas would overlap and
+       the mis-taps would be worse than the small targets. */
+    .ch-siteswitch__list a{min-height:44px;padding-right:.5rem}
+  }
   @media screen and (max-width:479px){
-    .ch-siteswitch__list{gap:clamp(.8rem,3.5vw,1.25rem)}
-    .ch-siteswitch__list .ch-nav__wordmark{font-size:.95rem}
+    .ch-siteswitch__list .ch-nav__wordmark{font-size:1rem}
     .ch-siteswitch__list .ch-nav__owl{width:1.05rem}
   }
 
