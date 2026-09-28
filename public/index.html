@@ -240,8 +240,9 @@ width:100%;
        gives the triangle an offset apex instead of a straight left side */
     /* the floor is 3.5rem, not less: at 768 a smaller one left the row only
        6px past the wordmark's start, which reads as a misalignment rather
-       than an offset. This keeps it 20px clear at every width from 768 up. */
-    margin:clamp(.4rem,.8vw,.7rem) 0 0 clamp(3.5rem,5.5vw,4.75rem);
+       than an offset. This keeps it clear of the wordmark's start without
+       pushing the row as far right as the first try did. */
+    margin:clamp(.4rem,.8vw,.7rem) 0 0 clamp(3rem,4.3vw,3.6rem);
     padding:0;list-style:none;
     display:flex;align-items:center;gap:clamp(1rem,2.2vw,2.25rem);
     white-space:nowrap;
