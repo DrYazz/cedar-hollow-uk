@@ -242,11 +242,11 @@ width:100%;
     /* indented so the row does not start flush with the logo's left edge:
        the pair sits under the wordmark rather than under the owl, which
        gives the triangle an offset apex instead of a straight left side */
-    /* the floor is 3.5rem, not less: at 768 a smaller one left the row only
-       6px past the wordmark's start, which reads as a misalignment rather
-       than an offset. This keeps it clear of the wordmark's start without
-       pushing the row as far right as the first try did. */
-    margin:clamp(.4rem,.8vw,.7rem) 0 0 clamp(2.6rem,3.8vw,3.4rem);
+    /* The owl of the first item lines up with the start of the logo's text.
+       That point is exactly one owl-width plus one logo-gap in, so it is
+       computed from the same two tokens the logo itself uses rather than
+       guessed at -- if either changes, the alignment follows. */
+    margin:clamp(.4rem,.8vw,.7rem) 0 0 calc(clamp(1.75rem,2.5vw,2.25rem) + clamp(.5rem,.83vw,.75rem));
     padding:0;list-style:none;
     display:flex;align-items:center;gap:clamp(1rem,2.2vw,2.25rem);
     white-space:nowrap;
