@@ -102,7 +102,7 @@
             @keyframes ch-nav-item{to{opacity:1;transform:none;}}
             .ch-nav__menu a:hover,.ch-nav__menu a:focus-visible{text-decoration:underline;}
             @media screen and (max-width:767px){
-              .ch-nav__menu{position:fixed;inset:0;z-index:15;min-width:0;justify-content:center;align-items:center;gap:.75rem;padding:2rem;background-color:var(--accent,#3b4126);text-align:center;}
+              .ch-nav__menu{position:fixed;inset:0;z-index:15;min-width:0;justify-content:safe center;align-items:center;gap:.75rem;padding:4.5rem 2rem 3rem;background-color:var(--accent,#3b4126);text-align:center;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;}
               .ch-nav__menu a{font-size:1.75rem;padding:.6rem 0;text-shadow:none;}
               body.ch-nav-open{overflow:hidden;}
             }
