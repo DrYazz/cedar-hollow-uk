@@ -302,6 +302,17 @@ width:100%;
     .ch-siteswitch__caret,.ch-siteswitch__list a{transition:none}
   }
 </style>
+<style>
+  /* This panel had no background: at desktop the links sat straight on
+     the hero. It now matches the other two sites -- same green as the
+     phone overlay, same card shape as the sub-site dropdowns. */
+  @media screen and (min-width:768px){
+    #ch-nav-menu{background-color:var(--accent,#3b4126);border:1px solid rgba(241,236,219,.18);
+      border-radius:1rem;box-shadow:0 18px 50px rgba(16,11,1,.35);
+      padding:1.5rem 1.75rem 1.75rem}
+  }
+  /* marker: ch-nav-menu-panel */
+</style>
 </head>
 <body>
   <div class="page-style w-embed">
