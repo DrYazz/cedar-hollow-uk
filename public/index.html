@@ -319,11 +319,15 @@ width:100%;
      any, because there were none to style. It now carries the two woodlands
      as well, so it takes the grouped shape both of their own menus use. */
   @media screen and (min-width:768px){
-    #ch-nav-menu{display:grid;
+    /* :not([hidden]) is load-bearing. #ch-nav-menu on its own is an id -- it
+       outranks the browser's own [hidden]{display:none}, so setting a display
+       here unhid the panel permanently and the close button had nothing to do.
+       Qualifying it leaves [hidden] in charge of hiding. */
+    #ch-nav-menu:not([hidden]){display:grid;
       grid-template-columns:repeat(auto-fit,minmax(9.5rem,1fr));
       column-gap:1.75rem;row-gap:1.5rem;align-items:start;
       width:max-content;max-width:min(44rem,calc(100vw - 4rem))}
-    #ch-nav-menu .ch-nav__book-cta{grid-column:1/-1;justify-self:end}
+    #ch-nav-menu:not([hidden]) .ch-nav__book-cta{grid-column:1/-1;justify-self:end}
   }
   #ch-nav-menu .ch-navgroup{display:flex;flex-direction:column;min-width:0}
   #ch-nav-menu .ch-navgroup__title{margin:0 0 .45rem;padding:0;border:0;
