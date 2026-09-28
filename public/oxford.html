@@ -217,72 +217,83 @@ width:100%;
   .awards-logo-link:focus-visible{outline:2px solid currentColor;outline-offset:3px;border-radius:4px}
 </style>
 <style>
-  /* ---- Site switcher (prototype, this page only) ----
-     The other two sites come out under the logo, over the hero, with no panel
-     behind them. Dorset leads at the wordmark's size; Cedar Hollow follows
-     smaller, because from here the other woodland is the likelier destination
-     and the group site is the fallback. */
+  /* ---- Site switcher (prototype: the three homepages) ----
+     The logo is the left point of a triangle. One site flies out level with it
+     and far right, the other lands nearer and lower, so the three never sit in
+     a line. Both are placed from the logo's own right edge, so the shape holds
+     whatever the wordmark says, and both are absolute, so the bar does not move
+     when they appear. */
   .ch-siteswitch{position:relative;display:inline-flex;align-items:center;
     gap:clamp(.35rem,.6vw,.6rem)}
   .ch-siteswitch__caret{display:inline-flex;align-items:center;justify-content:center;
     width:1.75rem;height:1.75rem;padding:0;border:0;border-radius:50%;
-    background:none;color:#f1ecdb;cursor:pointer;opacity:.75;
+    background:none;color:#f1ecdb;cursor:pointer;opacity:.7;
     transition:opacity .2s ease,transform .25s ease}
   .ch-siteswitch__caret:hover{opacity:1}
   .ch-siteswitch__caret:focus-visible{outline:2px solid #f1ecdb;outline-offset:2px}
-  /* The caret reads as a 28px mark but needs a finger-sized target, so the
-     hit area is grown with a pseudo-element rather than by making it bigger. */
   @media (hover:none){
+    /* a 28px mark with a finger-sized target behind it */
     .ch-siteswitch__caret{position:relative}
     .ch-siteswitch__caret::after{content:"";position:absolute;top:50%;left:50%;
       width:44px;height:44px;transform:translate(-50%,-50%)}
   }
 
-  .ch-siteswitch__list{position:absolute;top:100%;left:0;z-index:40;
-    margin:.35rem 0 0;padding:0;list-style:none;
-    display:flex;flex-direction:column;align-items:flex-start;
-    gap:clamp(.15rem,.4vw,.4rem);
-    /* no card, no blur: the hero shows through */
-    background:none;border:0;
-    visibility:hidden;opacity:0;transform:translateY(-.35rem);
-    transition:opacity .22s ease,transform .22s ease,visibility 0s linear .22s}
-  /* visibility:hidden also keeps these two out of the tab order while closed */
+  .ch-siteswitch__list{position:absolute;top:0;left:100%;z-index:40;
+    width:0;height:0;margin:0;padding:0;list-style:none;
+    visibility:hidden;transition:visibility 0s linear .24s}
   .ch-siteswitch:hover .ch-siteswitch__list,
   .ch-siteswitch:focus-within .ch-siteswitch__list,
-  .ch-siteswitch.is-open .ch-siteswitch__list{
-    visibility:visible;opacity:1;transform:none;transition-delay:0s}
+  .ch-siteswitch.is-open .ch-siteswitch__list{visibility:visible;transition-delay:0s}
+
+  .ch-siteswitch__list li{position:absolute;white-space:nowrap;
+    opacity:0;transform:translateX(-.5rem);
+    transition:opacity .24s ease,transform .24s cubic-bezier(.2,.7,.3,1)}
+  /* the two points of the triangle, both measured from the logo's right edge */
+  .ch-siteswitch__list li:nth-child(1){left:clamp(1.5rem,2.6vw,2.6rem);top:-.15rem}
+  .ch-siteswitch__list li:nth-child(2){left:clamp(.5rem,1vw,1rem);
+    top:clamp(1.9rem,3vw,2.6rem)}
+  .ch-siteswitch:hover .ch-siteswitch__list li,
+  .ch-siteswitch:focus-within .ch-siteswitch__list li,
+  .ch-siteswitch.is-open .ch-siteswitch__list li{opacity:1;transform:none}
+  .ch-siteswitch__list li:nth-child(2){transition-delay:.05s}
   .ch-siteswitch:hover .ch-siteswitch__caret,
   .ch-siteswitch.is-open .ch-siteswitch__caret{transform:rotate(180deg);opacity:1}
 
   .ch-siteswitch__list a{display:inline-flex;align-items:center;
-    gap:clamp(.5rem,.83vw,.75rem);text-decoration:none;color:#f1ecdb;
-    /* the hero carries these, so they are shadowed rather than boxed */
+    gap:clamp(.35rem,.6vw,.55rem);text-decoration:none;color:#f1ecdb;
+    /* no panel, so the hero is held off with a shadow rather than a box */
     text-shadow:0 1px 14px rgba(16,11,1,.55),0 1px 3px rgba(16,11,1,.4);
-    opacity:.92;transition:opacity .18s ease,transform .18s ease}
-  .ch-siteswitch__list a:hover,
-  .ch-siteswitch__list a:focus-visible{opacity:1;transform:translateX(.15rem)}
+    opacity:.94;transition:opacity .18s ease}
+  .ch-siteswitch__list a:hover,.ch-siteswitch__list a:focus-visible{opacity:1}
   .ch-siteswitch__list a:focus-visible{outline:2px solid #f1ecdb;outline-offset:4px;
     border-radius:4px}
-  .ch-siteswitch__list .ch-nav__owl{filter:drop-shadow(0 1px 8px rgba(16,11,1,.5))}
+  .ch-siteswitch__list .ch-nav__owl{filter:drop-shadow(0 1px 8px rgba(16,11,1,.5));
+    width:clamp(1.15rem,1.7vw,1.6rem)}
+  /* both the same size, a little under the logo's own */
+  .ch-siteswitch__list .ch-nav__wordmark{font-size:clamp(1rem,1.85vw,1.7rem)}
 
-  /* one larger than the other */
-  .ch-siteswitch__list .is-lead .ch-nav__wordmark{font-size:clamp(1.3rem,2.4vw,2.15rem)}
-  .ch-siteswitch__list .is-lead .ch-nav__owl{width:clamp(1.5rem,2.15vw,1.95rem)}
-  .ch-siteswitch__list li:not(.is-lead) .ch-nav__wordmark{font-size:clamp(.95rem,1.55vw,1.4rem);
-    opacity:.85}
-  .ch-siteswitch__list li:not(.is-lead) .ch-nav__owl{width:clamp(1.05rem,1.45vw,1.3rem)}
 
-  /* each line arrives a beat after the one above it */
-  .ch-siteswitch__list li{transform:translateY(-.3rem);opacity:0;
-    transition:opacity .2s ease,transform .2s ease}
-  .ch-siteswitch:hover .ch-siteswitch__list li,
-  .ch-siteswitch:focus-within .ch-siteswitch__list li,
-  .ch-siteswitch.is-open .ch-siteswitch__list li{opacity:1;transform:none}
-  .ch-siteswitch__list li:nth-child(2){transition-delay:.06s}
-
+  /* Below 640px there is no room to fly out level with the logo: on the main
+     homepage the widest wordmark pushed "Oxford" 5px into the burger. The
+     triangle drops under the bar instead -- logo top left, one below left, one
+     below right -- so it clears the burger's row entirely rather than squeezing
+     past it. */
+  @media screen and (max-width:639px){
+    .ch-siteswitch__list li:nth-child(1){left:.35rem;top:2.7rem}
+    .ch-siteswitch__list li:nth-child(2){left:2.6rem;top:5.1rem}
+  }
+  /* Under 480px even that runs off the right edge, because the flyout is
+     measured from the logo's right and "Cedar Hollow" leaves only 89px of it.
+     Anchoring the list to the logo's left instead gives the whole bar width
+     back, and the triangle simply sits under the logo rather than beside it. */
+  @media screen and (max-width:479px){
+    .ch-siteswitch__list{left:0}
+    .ch-siteswitch__list li:nth-child(1){left:.2rem;top:2.7rem}
+    .ch-siteswitch__list li:nth-child(2){left:1.9rem;top:5.1rem}
+  }
   @media (prefers-reduced-motion:reduce){
-    .ch-siteswitch__list,.ch-siteswitch__list li,.ch-siteswitch__caret,
-    .ch-siteswitch__list a{transition:none}
+    .ch-siteswitch__list,.ch-siteswitch__list li,
+    .ch-siteswitch__caret,.ch-siteswitch__list a{transition:none}
   }
 </style>
 </head>
@@ -326,14 +337,7 @@ width:100%;
             @font-face{font-family:"Hedvig Letters Serif";src:url("fonts/HedvigLettersSerif_18pt-Regular.ttf") format("truetype");font-weight:400;font-style:normal;font-display:swap;}
             @keyframes ch-nav-item{to{opacity:1;transform:none;}}</style>
           <nav class="ch-nav__bar" aria-label="Primary">
-            <div class="ch-siteswitch">
-              <a href="oxford.html" aria-current="page" class="ch-nav__logo"><img src="images/cedar-hollow-owl.svg" loading="eager" alt="Cedar Hollow Oxford" class="ch-nav__owl"><span class="ch-nav__wordmark">Oxford</span></a>
-              <button class="ch-siteswitch__caret" type="button" aria-expanded="false" aria-controls="ch-siteswitch-list"><span class="ch-nav__sr">Switch woodland</span><svg viewBox="0 0 12 8" width="12" height="8" fill="none" aria-hidden="true" focusable="false"><path d="M1 1.5 6 6.5l5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-              <ul class="ch-siteswitch__list" id="ch-siteswitch-list">
-                <li class="is-lead"><a href="dorset.html"><img src="images/cedar-hollow-owl.svg" alt="" aria-hidden="true" class="ch-nav__owl"><span class="ch-nav__wordmark">Dorset</span></a></li>
-                <li><a href="index.html"><img src="images/cedar-hollow-owl.svg" alt="" aria-hidden="true" class="ch-nav__owl"><span class="ch-nav__wordmark">Cedar Hollow</span></a></li>
-              </ul>
-            </div>
+            <div class="ch-siteswitch"><a href="oxford.html" aria-current="page" class="ch-nav__logo"><img src="images/cedar-hollow-owl.svg" loading="eager" alt="Cedar Hollow Oxford" class="ch-nav__owl"><span class="ch-nav__wordmark">Oxford</span></a><button class="ch-siteswitch__caret" type="button" aria-expanded="false" aria-controls="ch-siteswitch-list"><span class="ch-nav__sr">Switch site</span><svg viewBox="0 0 12 8" width="12" height="8" fill="none" aria-hidden="true" focusable="false"><path d="M1 1.5 6 6.5l5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><ul class="ch-siteswitch__list" id="ch-siteswitch-list"><li><a href="dorset.html"><img src="images/cedar-hollow-owl.svg" alt="" aria-hidden="true" class="ch-nav__owl"><span class="ch-nav__wordmark">Dorset</span></a></li><li><a href="index.html"><img src="images/cedar-hollow-owl.svg" alt="" aria-hidden="true" class="ch-nav__owl"><span class="ch-nav__wordmark">Cedar Hollow</span></a></li></ul></div>
             <button class="ch-nav__toggle" type="button" aria-expanded="false" aria-controls="ch-nav-menu"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span><span class="ch-nav__sr">Menu</span></button>
           </nav>
           <div class="ch-nav__menu" id="ch-nav-menu" hidden>
@@ -2047,8 +2051,8 @@ requestAnimationFrame(measureFPS)
   <script src="js/analytics.js" type="text/javascript"></script>
 <script src="/js/tlg-beacon.js" defer></script>
 <script>
-  /* The caret is what a phone and a keyboard use; pointer devices get :hover
-     from the stylesheet and never need this. */
+  /* Pointer devices get :hover from the stylesheet; this is for touch and
+     keyboards, and for closing. */
   (function () {
     var box = document.querySelector('.ch-siteswitch');
     if (!box) return;
@@ -2058,7 +2062,7 @@ requestAnimationFrame(measureFPS)
       caret.setAttribute('aria-expanded', String(open));
     }
     caret.addEventListener('click', function (e) {
-      e.preventDefault();
+      e.preventDefault(); e.stopPropagation();
       set(caret.getAttribute('aria-expanded') !== 'true');
     });
     document.addEventListener('click', function (e) {
