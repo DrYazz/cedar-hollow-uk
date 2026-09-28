@@ -313,6 +313,36 @@ width:100%;
   }
   /* marker: ch-nav-menu-panel */
 </style>
+<style>
+  /* ---- Cedar Hollow nav panel ----
+     This menu was a flat column of five anchors: no groups, and no styles for
+     any, because there were none to style. It now carries the two woodlands
+     as well, so it takes the grouped shape both of their own menus use. */
+  @media screen and (min-width:768px){
+    #ch-nav-menu{display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(9.5rem,1fr));
+      column-gap:1.75rem;row-gap:1.5rem;align-items:start;
+      width:max-content;max-width:min(44rem,calc(100vw - 4rem))}
+    #ch-nav-menu .ch-nav__book-cta{grid-column:1/-1;justify-self:end}
+  }
+  #ch-nav-menu .ch-navgroup{display:flex;flex-direction:column;min-width:0}
+  #ch-nav-menu .ch-navgroup__title{margin:0 0 .45rem;padding:0;border:0;
+    font-family:var(--font-family--body,inherit);font-size:.6875rem;font-weight:500;
+    letter-spacing:.14em;text-transform:uppercase;color:rgba(241,236,219,.52)}
+  #ch-nav-menu .ch-navgroup a{display:block;padding:.28rem 0;font-size:.9375rem;
+    line-height:1.35}
+  @media screen and (max-width:767px){
+    /* The overlay lays its children out in a row. With five bare anchors that
+       wrapped harmlessly; with three groups it put them in three columns on a
+       320px screen, so the direction has to be stated. */
+    #ch-nav-menu{flex-direction:column;align-items:flex-start}
+    #ch-nav-menu .ch-navgroup{width:100%}
+    #ch-nav-menu .ch-navgroup + .ch-navgroup{margin-top:1.4rem}
+    #ch-nav-menu .ch-navgroup__title{margin-bottom:.35rem;padding-bottom:.35rem;
+      border-bottom:1px solid rgba(241,236,219,.15)}
+    #ch-nav-menu .ch-navgroup a{font-size:1.0625rem;padding:.4rem 0}
+  }
+</style>
 </head>
 <body>
   <div class="page-style w-embed">
@@ -508,13 +538,31 @@ animation:marquee-scroll 70s linear infinite;
             <button class="ch-nav__toggle" type="button" aria-expanded="false" aria-controls="ch-nav-menu"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span><span class="ch-nav__sr">Menu</span></button>
           </nav>
           <div class="ch-nav__menu" id="ch-nav-menu" hidden>
-            <a href="search-results.html" class="ch-nav__book-cta">Book your Stay</a>
-            <a href="about.html">Our Story</a>
-            <a href="team.html">The Artists</a>
-            <a href="sustainability.html">Sustainability</a>
-            <a href="experiences.html">Experiences</a>
-            <a href="mailto:hello@cedarhollow.uk">Contact</a>
-          </div>
+<a href="search-results.html" class="ch-nav__book-cta">Book your Stay</a>
+<div class="ch-navgroup"><p class="ch-navgroup__title">Cedar Hollow</p>
+<a href="about.html">Our Story</a>
+<a href="team.html">The Artists</a>
+<a href="sustainability.html">Sustainability</a>
+<a href="experiences.html">Experiences</a>
+<a href="mailto:hello@cedarhollow.uk">Contact</a>
+</div>
+<div class="ch-navgroup"><p class="ch-navgroup__title">Oxfordshire</p>
+<a href="https://theoaks.uk">Cedar Hollow Oxford</a>
+<a href="https://theoaks.uk/facilities">Facilities</a>
+<a href="https://theoaks.uk/wellness">Wellness</a>
+<a href="https://theoaks.uk/dining">Dining</a>
+<a href="https://theoaks.uk/todo">Things to Do</a>
+<a href="https://theoaks.uk/reviews">Reviews</a>
+</div>
+<div class="ch-navgroup"><p class="ch-navgroup__title">Dorset</p>
+<a href="https://mallinson.co.uk">Cedar Hollow Dorset</a>
+<a href="https://mallinson.co.uk/the-woodsmans-treehouse/">The Woodsman&rsquo;s</a>
+<a href="https://mallinson.co.uk/dazzle-treehouse/">Dazzle</a>
+<a href="https://mallinson.co.uk/pinwheel-treehouse/">Pinwheel</a>
+<a href="https://mallinson.co.uk/accommodation-comparison/">Compare them</a>
+<a href="https://mallinson.co.uk/treehouse-prices/">Seasons &amp; Prices</a>
+</div>
+</div>
           <script>
             (function(){
               var btn=document.querySelector(".ch-nav__toggle"),menu=document.getElementById("ch-nav-menu");
