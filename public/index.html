@@ -264,8 +264,13 @@ width:100%;
     gap:clamp(.35rem,.6vw,.55rem);text-decoration:none;color:#f1ecdb;
     /* no panel, so the hero is held off with a shadow rather than a box */
     text-shadow:0 1px 14px rgba(16,11,1,.55),0 1px 3px rgba(16,11,1,.4);
-    opacity:.94;transition:opacity .18s ease}
-  .ch-siteswitch__list a:hover,.ch-siteswitch__list a:focus-visible{opacity:1}
+    opacity:.94;transition:opacity .18s ease,transform .18s cubic-bezier(.2,.7,.3,1)}
+  /* The nudge that was here before the layout was rebuilt, on both links this
+     time rather than whichever one happened to have it. 2.4px and a lift from
+     .94 to full: enough to feel like the link answers, not enough to shift the
+     row. */
+  .ch-siteswitch__list a:hover,.ch-siteswitch__list a:focus-visible{
+    opacity:1;transform:translateX(.15rem)}
   .ch-siteswitch__list a:focus-visible{outline:2px solid #f1ecdb;outline-offset:4px;
     border-radius:4px}
   .ch-siteswitch__list .ch-nav__owl{filter:drop-shadow(0 1px 8px rgba(16,11,1,.5));
