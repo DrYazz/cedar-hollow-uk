@@ -77,6 +77,36 @@ section[data-kind][hidden] {
   display: none !important;
 }
 
+/* The year over the cuttings from it. The point of a year on a record page
+   is the shape of the run, which a mark on each card does not give: this is
+   twenty-six cuttings over ten years, and the groups say so at a glance.
+
+   The rule runs out from the figure to the end of the row, which holds the
+   groups apart without a heavy heading over every one of them. */
+.ch-press__era + .ch-press__era {
+  margin-top: 3rem;
+}
+
+.ch-press__era-head {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 0 0 1.25rem;
+  font-family: var(--font-family--heading, Crimsonpro), serif;
+  font-weight: 400;
+  font-size: 1.5rem;
+  line-height: 1;
+  letter-spacing: .01em;
+  color: var(--accent, #3b4126);
+}
+
+.ch-press__era-head::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: rgba(59, 65, 38, .22);
+}
+
 .ch-press__grid {
   /* Four across on a wide screen, and never fewer than two, so the tiles stay
      portrait clippings rather than growing into banners. */
@@ -105,33 +135,12 @@ section[data-kind][hidden] {
 /* The article as it was published, standing in for the card. */
 .ch-press__clip {
   display: block;
-  position: relative;
   aspect-ratio: 412 / 740;
   overflow: hidden;
   border-radius: var(--radius--16, 1rem);
   background-color: #fff;
   box-shadow: 0 .5rem 1.5rem rgba(16, 19, 7, .16);
   transition: transform .35s cubic-bezier(.2, .7, .3, 1), box-shadow .35s ease;
-}
-
-/* The year, stamped on the corner of the cutting. On a card with no caption
-   it is the one thing the cutting does not say itself, and these grids read
-   newest first, so without it the chronology goes. A pill rather than bare
-   type: it sits over a screenshot of somebody else's page, and there is no
-   telling what is underneath it. */
-.ch-press__stamp {
-  position: absolute;
-  right: .5rem;
-  bottom: .5rem;
-  padding: .2rem .5rem;
-  border-radius: 999px;
-  background: rgba(16, 19, 7, .72);
-  color: #fff;
-  font-size: .75rem;
-  font-weight: 600;
-  letter-spacing: .06em;
-  line-height: 1.4;
-  pointer-events: none;
 }
 
 .ch-press__clip img {

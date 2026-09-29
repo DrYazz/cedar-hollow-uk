@@ -115,7 +115,7 @@ def asset(path):
     return html.escape(path, quote=True)
 
 
-def card(item, show_location=False, brief=False, year=False):
+def card(item, show_location=False, brief=False):
     """One article: who ran it, what they called it, and a line from the piece."""
     pub = html.escape(item["publication"])
     url = html.escape(item["url"], quote=True)
@@ -130,14 +130,6 @@ def card(item, show_location=False, brief=False, year=False):
         klass = "" if quote else " ch-press__card--bare"
     parts = ['<article class="ch-press__card%s">' % klass]
 
-    # On a card with no caption the year is the one thing the cutting does not
-    # say itself, and these grids read newest first, so it is stamped on the
-    # corner of the clipping. aria-hidden: the link's own label names the piece,
-    # and a date read out mid-sentence there would only interrupt it.
-    stamp = ""
-    if brief and year:
-        stamp = ('<span class="ch-press__stamp" aria-hidden="true">%s</span>'
-                 % html.escape(item["date"][:4]))
 
     if shot:
         # The clipping is the tile, as on the Oaks reviews page: the article as
@@ -150,8 +142,8 @@ def card(item, show_location=False, brief=False, year=False):
             '  <a class="ch-press__clip" href="%s" target="_blank" rel="noopener" '
             'aria-label="Read &ldquo;%s&rdquo; on %s"><img src="%s" srcset="%s" '
             'sizes="(max-width: 767px) 45vw, 14rem" loading="lazy" decoding="async" '
-            'alt="">%s</a>' % (url, headline, pub, asset(shot["src"]),
-                               html.escape(shot["srcset"], quote=True), stamp)
+            'alt=""></a>' % (url, headline, pub, asset(shot["src"]),
+                             html.escape(shot["srcset"], quote=True))
         )
 
     # A brief card is the clipping alone. Every one of these screenshots is
@@ -602,17 +594,41 @@ def render(section, indent, show_location=False, brief=False, year=False):
     if not items:
         return None
 
+    def tiles(group, pad):
+        out = []
+        for item in group:
+            # data-location is what js/press-filter.js narrows on
+            # Named so the homepage mastheads can link to the piece itself.
+            out.append('%s<li id="press-%s" data-location="%s">'
+                       % (pad, html.escape(item["slug"]),
+                          html.escape(item.get("location", ""))))
+            out.extend(pad + "  " + line for line in card(item, show_location, brief))
+            out.append(pad + "</li>")
+        return out
+
     lines = ['<div class="ch-press">']
-    lines.append('  <ul class="ch-press__grid">')
-    for item in items:
-        # data-location is what js/press-filter.js narrows on
-        # Named so the homepage mastheads can link to the piece itself.
-        lines.append('    <li id="press-%s" data-location="%s">'
-                     % (html.escape(item["slug"]), html.escape(item.get("location", ""))))
-        lines.extend("      " + line
-                     for line in card(item, show_location, brief, year))
-        lines.append("    </li>")
-    lines.append("  </ul>")
+    if year:
+        # A group per year, in the order the items are already in. The heading
+        # carries no data-location, because a year holds cuttings from both
+        # woodlands; press-filter.js hides a group once all of its own are
+        # hidden, which is the only rule that works for a shared heading.
+        eras = []
+        for item in items:
+            stamp = item["date"][:4]
+            if not eras or eras[-1][0] != stamp:
+                eras.append((stamp, []))
+            eras[-1][1].append(item)
+        for stamp, group in eras:
+            lines.append('  <section class="ch-press__era">')
+            lines.append('    <h3 class="ch-press__era-head">%s</h3>' % stamp)
+            lines.append('    <ul class="ch-press__grid">')
+            lines.extend(tiles(group, "      "))
+            lines.append("    </ul>")
+            lines.append("  </section>")
+    else:
+        lines.append('  <ul class="ch-press__grid">')
+        lines.extend(tiles(items, "    "))
+        lines.append("  </ul>")
     lines.append("</div>")
     body = ("\n" + indent).join(lines)
     return "\n%s%s\n%s" % (indent, body, indent)
