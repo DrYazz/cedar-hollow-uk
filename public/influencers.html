@@ -62,7 +62,104 @@
   </style>
 </head>
 <body class="cp">
-  <section class="ch-page-hero"><div class="ch-page-hero__body padding-global"><div class="container-large"><div class="text-align-center"><div class="max-width-xlarge align-center"><p class="ch-page-hero__eyebrow text-size-medium text-style-allcaps">For creators</p><h1 class="heading-style-h1">Share your Stay <span class="text-style-italic">&amp; get rewarded</span></h1><p class="ch-page-hero__lead text-size-large">Post a reel from your stay, include us as a collaborator, and you may be eligible for a refund of up to the whole stay.</p></div></div></div></div></section>
+  <section class="ch-page-hero">
+        <div class="ch-nav w-embed">
+          <style>
+            .ch-nav{width:100%;position:relative;}
+            /* Figma: nav is the hero flex column's first child, flush to the top edge. */
+            .section-hero .hero_contents{padding-top:0;}
+            /* Figma hero frame is 1440x810 with a 720px floor. Ours tracked 100vh, so on
+               any window not 16:9 the width-derived offsets drifted against a height-derived
+               box. Tie height to width instead: 56.25vw = 810/1440, floored at the spec's
+               720px and capped at 810 to match the content caps above 1440. */
+            .section-hero .hero_contents{min-height:100vh;}
+            /* Vertical rhythm measured off the 1440x810 hero export. The hero scales
+               with viewport, so these track it: 10vw = 145px and 5vw = 72px at 1440. */
+            .section-hero .hero_contents > .padding-global{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;justify-content:center;padding-top:min(110px,13.58vh);padding-bottom:min(50px,6.17vh);}
+            .section-hero .button-group{padding-top:0;}
+            /* A little more presence against the 80px heading, while keeping the
+               pill proportion. The 102px version tried earlier dropped the ratio to
+               2.5:1 and read as a lozenge; this holds ~3.7:1. */
+            .section-hero .button-group .button{padding:1rem 2rem;}
+            /* Figma bottom block: pt24, rating, 24 gap, logos, pb36 - one stack. The export
+               carried an extra 36px on .hero_contents and doubled the internal gap. */
+            .section-hero .hero_contents{padding-bottom:0;}
+            .section-hero .hero_logos-wrapper{margin-top:0;padding-top:min(24px,2.96vh);padding-bottom:0;}
+            .section-hero .logo-marquee{padding-top:min(24px,2.96vh);padding-bottom:min(36px,4.44vh);}
+            /* 42px suited the 750px search bar; a 208px button groups better with the
+               heading at a tighter gap. */
+            .section-hero .hero_content .margin-bottom{margin-bottom:min(32px,3.95vh);}
+            /* Figma breaks the heading after "Award-Winning" and "Retreats in";
+               let it wrap naturally on narrow screens instead. */
+            @media screen and (max-width:767px){.hero-br{display:none;}}
+            .section-hero .heading-style-h1{font-size:min(clamp(2.25rem,5.56vw,5rem),9.88vh);letter-spacing:-.035em;line-height:100%;color:#EFEED5;}
+            /* The clamp's 2.25rem floor pushes "Oxfordshire and Dorset" onto a fourth
+               line on phones. 9vw holds the three-line shape from 479px down to 320px
+               (34px -> 29px), measured rather than guessed. */
+            @media (max-width:479px){.section-hero .heading-style-h1{font-size:9vw;}}
+            /* Self-hosted alongside Crimson Pro and Inter. OFL; licence in fonts/. */
+            @font-face{font-family:"Hedvig Letters Serif";src:url("fonts/HedvigLettersSerif_18pt-Regular.ttf") format("truetype");font-weight:400;font-style:normal;font-display:swap;}
+            .ch-nav__bar{display:flex;align-items:center;justify-content:space-between;gap:1rem;width:100%;padding:20px 32px 20px 24px;position:relative;z-index:30;}
+            .ch-nav__logo{display:inline-flex;align-items:center;gap:clamp(.5rem,.83vw,.75rem);text-decoration:none;color:#F1ECDB;}
+            .ch-nav__owl{width:clamp(1.75rem,2.5vw,2.25rem);height:auto;flex:none;}
+            .ch-nav__wordmark{font-family:"Hedvig Letters Serif",var(--font-family--heading,Crimsonpro),serif;font-size:clamp(1.5rem,2.78vw,2.5rem);font-weight:400;line-height:100%;letter-spacing:-.035em;}
+            .ch-nav__toggle{display:flex;flex-direction:column;justify-content:center;gap:6px;width:2rem;height:2rem;padding:0;background:none;border:0;cursor:pointer;}
+            .ch-nav__toggle span[aria-hidden]{display:block;width:32px;height:1.75px;background-color:#F1ECDB;border-radius:0;transition:transform .2s ease,opacity .2s ease;}
+            .ch-nav__toggle[aria-expanded="true"] span[aria-hidden]:nth-child(1){transform:translateY(7.75px) rotate(45deg);}
+            .ch-nav__toggle[aria-expanded="true"] span[aria-hidden]:nth-child(2){opacity:0;}
+            .ch-nav__toggle[aria-expanded="true"] span[aria-hidden]:nth-child(3){transform:translateY(-7.75px) rotate(-45deg);}
+            .ch-nav__toggle:focus-visible{outline:2px solid #F1ECDB;outline-offset:4px;}
+            @media (prefers-reduced-motion: reduce){
+              .ch-nav__menu a{animation:none;opacity:1;transform:none;}
+            }
+            .ch-nav__sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+            .ch-nav__menu[hidden]{display:none;}
+            .ch-nav__menu{position:absolute;top:100%;right:32px;z-index:20;display:flex;flex-direction:column;align-items:flex-end;gap:.35rem;min-width:11rem;padding:.75rem 0 0;text-align:right;}
+            .ch-nav__menu a{color:#F1ECDB;font-size:1.125rem;line-height:1.3;text-decoration:none;padding:.4rem 0;white-space:nowrap;text-shadow:0 1px 14px rgba(16,19,7,.7);opacity:0;transform:translateY(-6px);animation:ch-nav-item .34s cubic-bezier(.2,.7,.3,1) forwards;}
+            .ch-nav__menu a:nth-child(1){animation-delay:.03s;}
+            .ch-nav__menu a:nth-child(2){animation-delay:.07s;}
+            .ch-nav__menu a:nth-child(3){animation-delay:.11s;}
+            .ch-nav__menu a:nth-child(4){animation-delay:.15s;}
+            .ch-nav__menu a:nth-child(5){animation-delay:.19s;}
+            @keyframes ch-nav-item{to{opacity:1;transform:none;}}
+            .ch-nav__menu a:hover,.ch-nav__menu a:focus-visible{text-decoration:underline;}
+            @media screen and (max-width:767px){
+              .ch-nav__menu{position:fixed;inset:0;z-index:15;min-width:0;justify-content:safe center;align-items:center;gap:.75rem;padding:4.5rem 2rem 3rem;background-color:var(--accent,#3b4126);text-align:center;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;}
+              .ch-nav__menu a{font-size:1.75rem;padding:.6rem 0;text-shadow:none;}
+              body.ch-nav-open{overflow:hidden;}
+            }
+          </style>
+          <nav class="ch-nav__bar" aria-label="Primary">
+            <a href="index.html" class="ch-nav__logo"><img src="images/cedar-hollow-owl.svg" loading="eager" alt="Cedar Hollow" class="ch-nav__owl"><span class="ch-nav__wordmark">Cedar Hollow</span></a>
+            <button class="ch-nav__toggle" type="button" aria-expanded="false" aria-controls="ch-nav-menu"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span><span class="ch-nav__sr">Menu</span></button>
+          </nav>
+          <div class="ch-nav__menu" id="ch-nav-menu" hidden>
+            <a href="search-results.html" class="ch-nav__book-cta">Book your Stay</a>
+            <a href="about.html">Our Story</a>
+            <a href="team.html">The Artists</a>
+            <a href="sustainability.html">Sustainability</a>
+            <a href="experiences.html">Experiences</a><a href="influencers.html">Influencers</a>
+            <a href="mailto:hello@cedarhollow.uk">Contact</a>
+          </div>
+          <script>
+            (function(){
+              var btn=document.querySelector(".ch-nav__toggle"),menu=document.getElementById("ch-nav-menu");
+              if(!btn||!menu)return;
+              function close(){btn.setAttribute("aria-expanded","false");menu.hidden=true;document.body.classList.remove("ch-nav-open");}
+              btn.addEventListener("click",function(){
+                var open=btn.getAttribute("aria-expanded")==="true";
+                btn.setAttribute("aria-expanded",String(!open));
+                menu.hidden=open;
+                document.body.classList.toggle("ch-nav-open",!open);
+              });
+              menu.addEventListener("click",function(e){if(e.target.tagName==="A")close();});
+              document.addEventListener("keydown",function(e){
+                if(e.key==="Escape"&&btn.getAttribute("aria-expanded")==="true"){close();btn.focus();}
+              });
+            })();
+          </script>
+        </div>
+    <div class="ch-page-hero__body padding-global"><div class="container-large"><div class="text-align-center"><div class="max-width-xlarge align-center"><p class="ch-page-hero__eyebrow text-size-medium text-style-allcaps">For creators</p><h1 class="heading-style-h1">Share your Stay <span class="text-style-italic">&amp; get rewarded</span></h1><p class="ch-page-hero__lead text-size-large">Post a reel from your stay, include us as a collaborator, and you may be eligible for a refund of up to the whole stay.</p></div></div></div></div></section>
 <section class="bg-off"><div class="padding-section-medium"><div class="padding-global"><div class="container-large"><div class="text-align-center"><div class="ch-prose is-large"><p>Our guests often post reels from their stay, and we love authentic, family-friendly content. Post a public Instagram, TikTok or YouTube reel and include us as a collaborator, and you may be eligible for a refund based on how it performs.</p></div><ul class="ch-cards is-left" style="margin-top:2.5rem"><li><h3 class="heading-style-h4">How it works</h3><ul><li>Post a reel from your stay</li><li>Include us as a collaborator</li><li>Views are counted 14 days after posting</li></ul></li><li><h3 class="heading-style-h4">Rewards</h3><p>From a single reel:</p><ul><li>5,000+ views &rarr; 15% refund</li><li>15,000+ views &rarr; 50% refund</li><li>50,000+ views &rarr; 100% refund of your stay</li></ul><p class="ch-note" style="margin-top:.75rem">Refunds are issued after checkout to the original payment method.</p></li><li><h3 class="heading-style-h4">Include us as a collaborator</h3><dl class="ch-handles"><div class="ch-handles__row"><dt>Instagram</dt><dd><a class="ch-chip" href="https://www.instagram.com/cedarhollowoxford/" target="_blank" rel="noopener">@cedarhollowoxford</a><a class="ch-chip" href="https://www.instagram.com/cedarhollowdorset/" target="_blank" rel="noopener">@cedarhollowdorset</a><a class="ch-chip" href="https://www.instagram.com/cool.escapes/" target="_blank" rel="noopener">@cool.escapes</a></dd></div><div class="ch-handles__row"><dt>TikTok</dt><dd><a class="ch-chip" href="https://www.tiktok.com/@cedarhollow" target="_blank" rel="noopener">@cedarhollow</a></dd></div><div class="ch-handles__row"><dt>YouTube</dt><dd><a class="ch-chip" href="https://www.youtube.com/@CedarHollow" target="_blank" rel="noopener">@CedarHollow</a></dd></div></dl><p class="ch-note" style="margin-top:.75rem">Whichever woodland you stayed in, add both Instagram accounts and Cool Escapes.</p></li></ul><div class="button-group align-center" style="margin-top:2.25rem"><a href="mailto:hello@cedarhollow.uk?subject=Creator collaboration" class="button"><span>Over 300k followers? Get in touch</span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 17 12" fill="none" class="button_icon" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.2443 5.03644L9.48927 1.21321L10.6935 0L16.5 5.91195L10.6783 11.55L9.50444 10.3067L13.17 6.75673H0V5.03644H13.2443Z" fill="currentColor"/></svg></a></div></div></div></div></div></section>
 <div class="ch-cov" data-ch-cov><div class="ch-cov__row" role="group" aria-label="Filter coverage"><button class="ch-wall__btn" type="button" data-cov="all" aria-pressed="true">All</button><button class="ch-wall__btn" type="button" data-cov="news" aria-pressed="false">News</button><button class="ch-wall__btn" type="button" data-cov="screen" aria-pressed="false">On screen</button><button class="ch-wall__btn" type="button" data-cov="guests" aria-pressed="false">Familiar faces</button></div></div>
 <section class="bg-light" data-kind="press" data-cov-panel="news">
