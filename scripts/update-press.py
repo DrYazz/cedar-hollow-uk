@@ -145,6 +145,13 @@ def card(item, show_location=False, brief=False):
                              html.escape(shot["srcset"], quote=True))
         )
 
+    # A brief card is the clipping alone. Every one of these screenshots is
+    # the article as it was published, masthead and all, so the masthead
+    # underneath was the same mark twice on one card.
+    if brief:
+        parts.append("</article>")
+        return parts
+
     parts.append('  <div class="ch-press__body">')
     if logo:
         # Drawn as a mask (see press.css), so the file is named in a style
@@ -163,14 +170,6 @@ def card(item, show_location=False, brief=False):
     else:
         parts.append('    <p class="ch-press__pub">%s</p>' % pub)
 
-    # A brief card is a masthead and nothing else: it is a highlight on a page
-    # that is about something else, and the year, the quote and our note are
-    # the press page's job. The clipping and the link stay, so the tile still
-    # goes somewhere.
-    if brief:
-        parts.append("  </div>")
-        parts.append("</article>")
-        return parts
 
     # The year the piece ran, under the masthead: a reader should be able to
     # tell a 2018 cutting from a 2026 one without opening it.
@@ -204,7 +203,7 @@ def card(item, show_location=False, brief=False):
     return parts
 
 
-def video_card(v, onthumb=False, bare=False, named=False):
+def video_card(v, onthumb=False, bare=False, named=False, keepleft=False):
     """A video as a still with a play button, not an iframe.
 
     Two shapes: most are a button that swaps in the player, and the ones
@@ -261,10 +260,15 @@ def video_card(v, onthumb=False, bare=False, named=False):
         spans = []
         for mark in marks:
             src = asset(mark["src"])
+            # Optical size, as the article cards do it: a two-line lock-up
+            # needs more height than a wordmark to read at the same weight
+            # beside it. Only the marks on a still use it.
+            scale = mark.get("scale") if onthumb else None
+            scale_style = "--ch-logo-scale:%s;" % scale if scale else ""
             spans.append(
                 '<span class="ch-vid__logo" role="img" aria-label="%s" '
-                "style=\"--ch-logo-ar:%s;-webkit-mask-image:url('%s');mask-image:url('%s')\"></span>"
-                % (html.escape(mark["label"]), mark["ar"], src, src)
+                "style=\"%s--ch-logo-ar:%s;-webkit-mask-image:url('%s');mask-image:url('%s')\"></span>"
+                % (html.escape(mark["label"]), scale_style, mark["ar"], src, src)
             )
         source_line = ('    <span class="ch-vid__logos">%s</span>'
                        % "".join(spans))
@@ -321,7 +325,9 @@ def video_card(v, onthumb=False, bare=False, named=False):
 
     return [
         '<article class="ch-vid%s%s" style="--ch-vid-ar:%s">'
-        % (portrait, " ch-vid--onthumb" if onthumb else "", ratio),
+        % (portrait,
+           (" ch-vid--onthumb" if onthumb else "")
+           + (" ch-vid--keepleft" if keepleft else ""), ratio),
         *opener,
         '    <img src="%s" srcset="%s" sizes="(max-width: 767px) 92vw, 22rem"'
         % (asset(v["thumb"]["src"]), html.escape(v["thumb"]["srcset"], quote=True)),
@@ -337,7 +343,8 @@ def video_card(v, onthumb=False, bare=False, named=False):
     ]
 
 
-def render_screen(section, indent, onthumb=(), bare=(), named=(), onthumb_all=False):
+def render_screen(section, indent, onthumb=(), bare=(), named=(),
+                  onthumb_all=False, keepleft=()):
     videos = section.get("screen") or []
     if not videos:
         return None
@@ -368,7 +375,8 @@ def render_screen(section, indent, onthumb=(), bare=(), named=(), onthumb_all=Fa
             lines.extend("      " + line
                          for line in video_card(
                              v, onthumb_all or v["slug"] in onthumb,
-                             v["slug"] in bare, v["slug"] in named))
+                             v["slug"] in bare, v["slug"] in named,
+                             v["slug"] in keepleft))
             lines.append("    </li>")
         lines.append("  </ul>")
     lines.append("</div>")
@@ -738,6 +746,7 @@ def main():
             onthumb = set()
             bare = set()
             named = set()
+            keepleft = set()
             onthumb_all = False
             rest = []
             for word in words:
@@ -748,6 +757,9 @@ def main():
                     onthumb.update(w for w in word[8:].split(",") if w)
                 elif word.startswith("bare:"):
                     bare.update(w for w in word[5:].split(",") if w)
+                elif word.startswith("keepleft:"):
+                    # their own title is in this frame; leave that half alone
+                    keepleft.update(w for w in word[9:].split(",") if w)
                 elif word.startswith("title:"):
                     named.update(w for w in word[6:].split(",") if w)
                 else:
@@ -767,12 +779,12 @@ def main():
             # A slug that is not in the block is a typo, not a gap: it would
             # otherwise go unnoticed as one tile that kept its caption.
             have = set(v["slug"] for v in section.get("screen") or [])
-            astray = sorted((onthumb | bare | named) - have)
+            astray = sorted((onthumb | bare | named | keepleft) - have)
             if astray:
                 sys.exit("%s: the screen marker names no such film: %s"
                          % (page.name, ", ".join(astray)))
             body = render_screen(section, marker_indent(match), onthumb, bare,
-                                 named, onthumb_all)
+                                 named, onthumb_all, keepleft)
             if body is None:
                 return match.group(0)
             seen.append((name or "combined", len(section["screen"]), "screen"))

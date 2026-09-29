@@ -297,8 +297,8 @@
           "source": "Channel 4",
           "url": "https://www.youtube.com/watch?v=fPdU-01UL1Q",
           "thumb": {
-            "src": "images/press-video/fPdU-01UL1Q-640.webp",
-            "srcset": "images/press-video/fPdU-01UL1Q-320.webp 320w, images/press-video/fPdU-01UL1Q-640.webp 640w"
+            "src": "images/press-video/fPdU-01UL1Q-640.webp?v=20260929c",
+            "srcset": "images/press-video/fPdU-01UL1Q-320.webp?v=20260929c 320w, images/press-video/fPdU-01UL1Q-640.webp?v=20260929c 640w"
           },
           "date": "2023-12-30",
           "dateKind": "uploaded",
@@ -308,12 +308,14 @@
             {
               "src": "images/press/channel4.png",
               "label": "Channel 4",
-              "ar": "35/46"
+              "ar": "35/46",
+              "scale": 1.35
             },
             {
-              "src": "images/press/mafs.png",
+              "src": "images/press/mafs.png?v=20260929b",
               "label": "Married at First Sight UK",
-              "ar": "367/90"
+              "ar": "367/90",
+              "scale": 2.4
             }
           ],
           "detail": "Series 8 Episode 31"

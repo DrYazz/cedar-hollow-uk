@@ -170,20 +170,6 @@ section[data-kind][hidden] {
   mask-position: left center;
 }
 
-/* A brief card is the clipping and the masthead, and nothing else: the
-   creator page shows four cuttings as a highlight, and the year, the pull
-   quote and our own note belong on the press page that holds the record.
-
-   The mastheads are drawn at their own sizes (see --logo-scale above), so
-   with nothing underneath to absorb the difference a tall roundel hung
-   lower than a long wordmark. Giving every brief body one height and
-   centring the mark inside it lands all four on a line without resizing
-   any of them. */
-.ch-press__card--brief .ch-press__body {
-  min-height: 2.75rem;
-  justify-content: center;
-}
-
 .ch-press__pub {
   margin: 0;
   font-size: 1rem;
@@ -680,16 +666,49 @@ a.ch-vid__play {
   flex-direction: column;
   align-items: flex-end;
   gap: .3rem;
-  padding: 2.75rem .95rem .85rem;
-  color: #f4f2e4;
-  background: linear-gradient(180deg, rgba(16, 19, 7, 0), rgba(16, 19, 7, .78));
+  padding: 3.5rem .95rem .9rem;
+  color: #fff;
+  isolation: isolate;
   pointer-events: none;
   text-align: right;
+  text-shadow: 0 2px 5px rgba(8, 10, 3, .9), 0 0 2px rgba(8, 10, 3, .55);
 }
 
 /* The name on the still, for the films whose own artwork does not carry it.
    Held to a column so a long title wraps into the corner rather than running
    the width of the picture. */
+/* The scrim, as its own layer so it can fade out to the left. Broadcasters
+   put their own title in the bottom-left of a frame -- World's Most Secret
+   Hotels, Amazing Spaces and the Married at First Sight caption all do --
+   and a scrim across the full width dimmed those to a grey that looked like
+   our doing. It is darkest in the right-hand corner, where our own type
+   sits, and gone by the left edge, where theirs does. */
+.ch-vid__over::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(180deg, rgba(16, 19, 7, 0), rgba(16, 19, 7, .62) 40%, rgba(16, 19, 7, .95));
+  -webkit-mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0), #000 42%);
+  mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0), #000 42%);
+}
+
+/* Two of these stills carry the broadcaster's own title in the bottom-left,
+   and there the scrim has to be gone rather than merely lighter: a gradient
+   that begins fading at the left edge still lies over the whole of it, which
+   measured on the Secret Hotels still cost its title an eighth of its
+   brightness. Clear to 52% and full only at 88%, which is past where the
+   short line in the corner of those two begins. */
+.ch-vid--keepleft .ch-vid__over::before {
+  -webkit-mask-image: linear-gradient(90deg, transparent 0 52%, #000 88%);
+  mask-image: linear-gradient(90deg, transparent 0 52%, #000 88%);
+}
+
+.ch-vid__over > * {
+  position: relative;
+  z-index: 1;
+}
+
 .ch-vid__over .ch-vid__title {
   font-size: 1.0625rem;
   line-height: 1.25;
@@ -706,11 +725,25 @@ a.ch-vid__play {
   gap: .65rem;
 }
 
-/* Smaller than the same mark in a caption: it is over a picture here, not
-   heading a block of type. */
+/* Over a picture, not heading a block of type, so each mark is set from a
+   base height and its own optical scale (see "scale" in press-data.json):
+   one height suits a wordmark and starves a two-line lock-up, which comes
+   out at half a paragraph's size and disappears into the photograph.
+
+   The shadow is what lets a cream mark hold on an unknown still. The scrim
+   below carries most of it, but these pictures are photographs and a bright
+   patch can reach the corner. */
 .ch-vid__over .ch-vid__logo {
-  height: 1.45rem;
-  max-width: 7rem;
+  height: calc(1.5rem * var(--ch-logo-scale, 1));
+  max-width: calc(7rem * var(--ch-logo-scale, 1));
+  background-color: #fff;
+  /* A white halo at no offset before the dark one. A mask can be painted but
+     not emboldened, and these are light serifs; the halo bleeds the
+     silhouette outwards by a pixel, which thickens the strokes the way a
+     heavier weight of the same face would. The dark shadow then applies to
+     the thickened shape and lifts it off the photograph. */
+  filter: drop-shadow(0 0 1px #fff) drop-shadow(0 0 1px #fff)
+          drop-shadow(0 2px 5px rgba(8, 10, 3, .92));
 }
 
 .ch-vid__over .ch-vid__detail {
