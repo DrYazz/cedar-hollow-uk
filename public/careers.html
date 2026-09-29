@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>The artists | Cedar Hollow</title>
+  <title>Work with Us | Cedar Hollow</title>
   <meta content="width=device-width, initial-scale=1" name="viewport">
-  <meta name="description" content="The artists, craftspeople, magicians and makers behind Cedar Hollow: the set designers, sculptors, carvers and imagineers who built the world you stay in.">
+  <meta name="description" content="Every feature, broadcast and award for Cedar Hollow's woodland retreats in Oxfordshire and Dorset.">
   <link href="css/siteswitch.css?v=20260929a" rel="stylesheet" type="text/css">
   <link href="css/normalize.css" rel="stylesheet" type="text/css">
   <link href="css/webflow.css" rel="stylesheet" type="text/css">
@@ -16,13 +16,13 @@
   <link href="site.webmanifest" rel="manifest">
   <meta content="#3B4126" name="theme-color">
   <!--  Link previews. See index.html for why these are absolute.  -->
-  <link href="https://cedarhollow.uk/team.html" rel="canonical">
+  <link href="https://cedarhollow.uk/careers.html" rel="canonical">
   <meta content="Cedar Hollow" property="og:site_name">
   <meta content="website" property="og:type">
   <meta content="en_GB" property="og:locale">
-  <meta content="The artists | Cedar Hollow" property="og:title">
-  <meta content="The artists, craftspeople, magicians and makers behind Cedar Hollow: the set designers, sculptors, carvers and imagineers who built the world you stay in." property="og:description">
-  <meta content="https://cedarhollow.uk/team.html" property="og:url">
+  <meta content="Work with Us | Cedar Hollow" property="og:title">
+  <meta content="Apprenticeships, fixed term contracts and creative projects at Cedar Hollow, and the artists, makers and magicians behind the place." property="og:description">
+  <meta content="https://cedarhollow.uk/careers.html" property="og:url">
   <meta content="https://cedarhollow.uk/images/og-image.jpg" property="og:image">
   <meta content="1200" property="og:image:width">
   <meta content="630" property="og:image:height">
@@ -30,9 +30,121 @@
   <meta content="A timber cabin lit from within, among ferns in golden-hour woodland" property="og:image:alt">
   <meta content="summary_large_image" name="twitter:card">
   <link href="css/page.css?v=20260922a" rel="stylesheet" type="text/css">
+  <link href="css/press.css?v=20260927b" rel="stylesheet" type="text/css">
+  <style>
+    /* page.css styles .ch-prose links but not .ch-list ones, so these were
+       rendering as default browser blue; and .ch-list is not in the accent
+       section's colour rule, so the dark band was showing dark text. */
+    .ch-list a{color:inherit;text-decoration:underline;text-underline-offset:.18em;}
+    .ch-list a:hover,.ch-list a:focus-visible{text-decoration-thickness:2px;}
+    .ch-section--accent .ch-list{color:var(--brand,#efeed5);}
+    .ch-list li{line-height:1.6;}
+  </style>
+  <style>
+  /* Carried from the Oxford stylesheet, which this page used to sit
+     beside. The core site has no rule for these four. */
+  .bg-off{background-color:var(--offwhite)}
+  .ch-badge-row{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:1.25rem 2rem;margin-top:1.75rem}
+  .ch-badge-row img{max-height:5rem;width:auto;object-fit:contain}
+  .ch-note{font-size:1.125rem;color:var(--color-text);font-weight:400;max-width:60ch;margin:1rem auto 0}
+  .ch-section--accent .ch-note{color:var(--brand);opacity:.8}
+  .ch-page-hero__bg{position:absolute;inset:0;z-index:0}
+  .ch-page-hero__bg img{width:100%;height:100%;object-fit:cover}
+  .ch-page-hero__bg::after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,rgba(20,24,10,.55),rgba(59,65,38,.72))}
+
+  /* .card-icon was sized for an emoji glyph; these cards carry drawn marks now,
+     so the slot becomes a quiet disc like the story page's chapter marks. */
+  .ch-cards li .card-icon{display:inline-flex;align-items:center;justify-content:center;
+    width:2.75rem;height:2.75rem;margin-bottom:1rem;border-radius:50%;
+    background:var(--brand-secondary);border:1px solid var(--border--accent-20);
+    color:var(--accent);font-size:0;}
+  .ch-cards li .card-icon .ch-ic{width:1.4rem;height:1.4rem;display:block;}
+
+  /* ---- The three routes ---------------------------------------------
+     .ch-cards gives the box; the photograph, the tag and the button at the
+     foot are what these cards add. The card is a flex column so that the
+     buttons line up across the three whatever length the copy runs to --
+     three buttons at three different heights is the thing that makes a row
+     of cards look accidental. */
+  /* The button that used to close each card now sits under all three, so the
+     card carries its own bottom padding where the button's margin was. */
+  .ch-routes li{display:flex;flex-direction:column;padding:0 0 1.5rem;
+    overflow:hidden;}
+  .ch-route__img{display:block;aspect-ratio:3/2;overflow:hidden;
+    background:var(--brand-secondary);}
+  .ch-route__img img{width:100%;height:100%;object-fit:cover;display:block;
+    transition:transform .6s ease;}
+  .ch-routes li:hover .ch-route__img img{transform:scale(1.04);}
+  .ch-route__tag{display:inline-block;align-self:flex-start;
+    margin:1.5rem 1.5rem 0;padding:.3rem .75rem;border-radius:50em;
+    background:var(--brand-secondary);border:1px solid var(--border--accent-20);
+    color:var(--accent);font-size:.8125rem;font-weight:600;letter-spacing:.06em;
+    text-transform:uppercase;line-height:1.2;}
+  .ch-routes h3{margin:.75rem 1.5rem .25rem;}
+  /* Only one route names a role, and the other two leave the same gap or
+     their copy rides up by a line. Where :has() is not supported nothing is
+     reserved, which is how the cards looked before. */
+  .ch-routes li:not(:has(.ch-route__role)) h3{margin-bottom:calc(.25rem + var(--role-line) + var(--role-gap));}
+  /* The name of the role, under the kind of work it is. Its line box is set
+     rather than left to the inherited 1.7, so that the cards without a role
+     can reserve exactly the same height below their heading -- both sides
+     are written from --role-line and --role-gap, so moving one moves both. */
+  .ch-routes{--role-line:1.4rem;--role-gap:.75rem;}
+  .ch-routes .ch-route__role{margin:0 1.5rem var(--role-gap)!important;
+    font-family:var(--font-family--heading);font-size:1.0625rem;
+    font-style:italic;line-height:var(--role-line);height:var(--role-line);
+    color:var(--accent);opacity:.8;}
+  .ch-routes p{margin:0 1.5rem;}
+  .ch-routes p+p{margin-top:.6rem;}
+  /* the role is a <p> too, so the copy after it must not treat it as the
+     paragraph before */
+  .ch-routes .ch-route__role+p{margin-top:0;}
+  @media (prefers-reduced-motion:reduce){
+    .ch-route__img img{transition:none;}
+    .ch-routes li:hover .ch-route__img img{transform:none;}
+  }
+
+  /* ---- The people behind it all --------------------------------------
+     Prints on a table rather than a grid of avatars: each one sits at a
+     slight angle, the angle alternating so the row does not lean, and
+     straightens when you point at it. The caption is part of the print,
+     under the picture where a name would be written. */
+  .ch-album{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));
+    gap:1.25rem 1rem;list-style:none;margin:2.25rem 0 0;padding:0;}
+  .ch-album__print{background:#fff;padding:.5rem .5rem .75rem;
+    border-radius:2px;box-shadow:0 6px 16px rgba(59,65,38,.13);
+    transform:rotate(-1.4deg);transition:transform .25s ease,box-shadow .25s ease;}
+  .ch-album__print:nth-child(even){transform:rotate(1.4deg);}
+  .ch-album__print:hover{transform:rotate(0);box-shadow:0 10px 22px rgba(59,65,38,.2);}
+  .ch-album__print img{display:block;width:100%;aspect-ratio:3/4;object-fit:cover;}
+  .ch-album__link{display:block;color:inherit;text-decoration:none;}
+  .ch-album__caption{display:block;text-align:center;padding:.55rem .25rem 0;}
+  .ch-album__name{display:block;font-family:var(--font-family--heading);
+    font-size:1.0625rem;font-weight:400;line-height:1.2;color:var(--accent);}
+  .ch-album__note{display:block;margin-top:.15rem;font-size:.8125rem;
+    line-height:1.35;color:var(--color-text);opacity:.75;}
+  @media (max-width:991px){.ch-album{grid-template-columns:repeat(4,minmax(0,1fr));}}
+  @media (max-width:640px){.ch-album{grid-template-columns:repeat(2,minmax(0,1fr));}}
+  @media (prefers-reduced-motion:reduce){
+    .ch-album__print,.ch-album__print:hover{transition:none;transform:none;}
+  }
+
+  /* ---- Already entitled to work in the UK ----------------------------
+     Practical rather than persuasive, so it sits in a panel of its own
+     instead of taking a full section heading and reading as though it
+     ranked with the three routes. */
+  .ch-rtw{max-width:52rem;margin:0 auto;padding:clamp(1.75rem,3vw,2.5rem);
+    background:var(--brand-secondary);border:1px solid var(--border--accent-20);
+    border-radius:var(--radius--16);text-align:left;}
+  .ch-rtw h2{margin:0 0 .9rem;}
+  .ch-rtw p{margin:0;line-height:1.7;color:var(--color-text);font-weight:400;}
+  .ch-rtw p+p{margin-top:.75rem;}
+  .ch-section--accent .ch-cards li .card-icon{background:rgba(255,255,255,.14);
+    border-color:rgba(255,255,255,.28);color:inherit;}
+  </style>
 </head>
 <body class="cp">
-  <section class="ch-page-hero">
+  <section class="ch-page-hero has-image"><div class="ch-page-hero__bg"><img src="oxford/images/working/hero.webp?v=20260928a" srcset="oxford/images/working/hero-sm.webp?v=20260928a 530w, oxford/images/working/hero.webp?v=20260928a 1060w" sizes="100vw" alt="A treehouse raised on stilts among the oaks, its deck lit under the canopy" loading="eager" fetchpriority="high" decoding="async" width="1060" height="596"></div>
         <div class="ch-nav w-embed">
           <style>
             .ch-nav{width:100%;position:relative;}
@@ -106,9 +218,9 @@
           <div class="ch-nav__menu" id="ch-nav-menu" hidden>
             <a href="search-results.html" class="ch-nav__book-cta">Book your Stay</a>
             <a href="about.html">Our Story</a>
-            <a href="team.html" aria-current="page">The Artists</a>
+            
             <a href="sustainability.html">Sustainability</a>
-            <a href="experiences.html">Experiences</a><a href="oxford/working.html">Careers</a><a href="influencers.html">Influencers</a>
+            <a href="experiences.html">Experiences</a><a href="careers.html">Work with Us</a><a href="influencers.html">Influencers</a>
             <a href="mailto:hello@cedarhollow.uk">Contact</a>
           </div>
           <script>
@@ -129,133 +241,8 @@
             })();
           </script>
         </div>
-    <div class="ch-page-hero__body padding-global"><div class="container-large">
-<div class="text-align-center"><div class="max-width-xlarge align-center">
-<p class="ch-page-hero__eyebrow text-size-medium text-style-allcaps">The artists</p>
-<h1 class="heading-style-h1">The artists behind <span class="text-style-italic">the experience</span></h1>
-<p class="ch-page-hero__lead text-size-large">A fellowship of makers, magicians and dreamers turned a wood in Oxfordshire into somewhere that could not exist anywhere else.</p>
-</div></div>
-</div></div>
-  </section>
-  <main>
-<!--  The craft the place is built on. The copy is the studio's own, from the
-      artists section theoaks.uk carries; punctuation is set in the house
-      style (em dashes, curly apostrophes) to match every other page here.  -->
-<section class="bg-light">
-<div class="padding-section-medium">
-<div class="padding-global">
-<div class="container-large">
-<div class="text-align-center">
-<div class="max-width-xlarge align-center">
-<div class="section-title-block">
-<div class="margin-bottom margin-large">
-<h2 class="heading-style-h1">Every detail is <span class="text-style-italic">bespoke</span></h2>
-</div>
-</div>
-<div class="margin-bottom margin-large">
-<p class="heading-style-h3">Every detail you see, every item you interact with, is made for this place and nowhere else.</p>
-</div>
-<div class="margin-bottom margin-large">
-<div class="ch-prose text-size-large">
-<p>We have brought together a team from across the country to turn imagination into an immersive world. Set designers and sculptors, carpenters and chainsaw carvers, magicians of The Magic Circle, an entomologist and a shadow artist.</p>
-<p>We weave enchantment into every corner. But this spellbinding world wasn’t conjured alone. It took a fellowship of brilliant minds.</p>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-</section>
-
-<!--  The people. .ch-people is lifted from the Oxford sub-site's site.css,
-      where beemuseum.html already uses it for the Bee Museum's artists. It is
-      inlined rather than added to css/page.css because this is the only root
-      page that needs it, and page.css is shared by every root page -- adding
-      to it would mean bumping its ?v= across all of them for one page's sake.
-      Two deliberate changes from that copy: an explicit colour (see below),
-      and a six-column cap. The accent-section override is left out, since
-      this grid never sits on moss.  -->
-<section id="artists">
-<div class="padding-section-medium">
-<div class="padding-global">
-<div class="container-large">
-<div class="text-align-center">
-<div class="section-title-block">
-<div class="max-width-xlarge align-center">
-<h2 class="heading-style-h1">A fellowship of <span class="text-style-italic">brilliant minds</span></h2>
-<p class="heading-style-h3">Cedar Hollow is very much a creation of artists, craftspeople, technologists, magicians and dreamers.</p>
-</div>
-</div>
-<div class="w-embed">
-<style>
-  /* ---- People / team, from oxford/css/site.css ---- */
-  .ch-people{display:grid;grid-template-columns:repeat(auto-fit,minmax(9.5rem,1fr));gap:1.5rem 1.25rem;list-style:none;margin:0;padding:0;justify-items:center;text-align:center}
-  .ch-people li{max-width:11rem;width:100%}
-  /* .ch-frame is Oxford-only too, so the whole frame is defined here rather
-     than assumed. Without the img rule the picture kept its height="667"
-     attribute, which forced the frame to 667px tall and defeated the
-     aspect-ratio entirely -- portraits came out as 172x667 slivers. */
-  .ch-people .ch-frame{position:relative;display:block;overflow:hidden;aspect-ratio:3/4;width:100%;
-    background:var(--accent);border:1px solid rgba(59,65,38,.5);
-    border-radius:var(--radius--16);box-shadow:0 14px 22px 0 rgba(0,0,0,.03)}
-  .ch-people .ch-frame img{width:100%;height:100%;object-fit:cover;display:block}
-  .ch-people h3{font-family:var(--font-family--heading);font-size:1.4rem;font-weight:500;letter-spacing:-.02em;margin:.8rem 0 .15rem;color:var(--accent)}
-  .ch-people p{font-size:1.125rem;color:var(--color-text);font-weight:400}
-  /* Colour is set explicitly on both: the name is an <h3> inside the <a>, and
-     the Oxford sheet happens to colour headings globally where this component
-     came from. Root pages do not, so without this the names rendered in the
-     browser's default link blue -- 2.23:1 on the section ground. */
-  .ch-people a{text-decoration:none;display:block;color:var(--accent)}
-  .ch-people a:hover h3{text-decoration:underline;text-underline-offset:.2em}
-  /* The grid is twelve here against the Bee Museum's four, so it is capped at
-     six across: auto-fit alone put all twelve on one line on a wide screen and
-     the portraits came out too small to read a face. */
-  @media (min-width:62rem){.ch-people{grid-template-columns:repeat(6,1fr);gap:2.5rem 1.5rem}}
-  /* 48px between a section heading and its items, as the design has it.
-     .section-title-block carries no bottom margin on root pages, so without
-     this the standfirst sat directly on top of the first row of faces. */
-  .ch-people{margin-top:3rem}
-</style>
-</div>
-<ul class="ch-people">
-<li><a href="https://wizardsofox.uk" target="_blank" rel="noopener"><div class="ch-frame"><img src="oxford/images/photos/4d422ac70ef94371a2aff4adbaa143a3-mv2-fill-500x667.jpg" alt="Mimzo, Creative Director and Magician at Cedar Hollow" loading="lazy" decoding="async" width="500" height="667"></div><h3>Mimzo</h3><p>Creative Director &amp; Magician</p></a></li>
-<li><a href="https://wizardsofox.uk" target="_blank" rel="noopener"><div class="ch-frame"><img src="oxford/images/photos/0dde28ce264f4da09027f4c29384fb37-mv2-fill-500x667.jpg" alt="Maya, Social Media and Magician at Cedar Hollow" loading="lazy" decoding="async" width="500" height="667"></div><h3>Maya</h3><p>Social Media &amp; Magician</p></a></li>
-<li><a href="https://wizardsofox.uk" target="_blank" rel="noopener"><div class="ch-frame"><img src="oxford/images/photos/53f249b7a4c94fa3becf4c82407cc540-mv2-fill-500x667.jpg" alt="Dr Yaz, Imagineer at Cedar Hollow" loading="lazy" decoding="async" width="500" height="667"></div><h3>Dr Yaz</h3><p>Imagineer</p></a></li>
-<li><a href="https://instagram.com/amandacarolinecouture" target="_blank" rel="noopener"><div class="ch-frame"><img src="oxford/images/photos/3c0d3754e23e43d5a7da54092d58dbfa-mv2-fill-500x667.jpg" alt="Amanda, Set Design at Cedar Hollow" loading="lazy" decoding="async" width="500" height="667"></div><h3>Amanda</h3><p>Set Design</p></a></li>
-<li><div class="ch-frame"><img src="oxford/images/photos/a2af0558fbc54ede8e327e7ddcaf7232-mv2-fill-500x667.jpg" alt="Alex, Sculptor and Designer at Cedar Hollow" loading="lazy" decoding="async" width="500" height="667"></div><h3>Alex</h3><p>Sculptor &amp; Designer</p></li>
-<li><div class="ch-frame"><img src="oxford/images/photos/f324230e6328447e87747334528db116-mv2-fill-500x667.jpg" alt="Dan, Master Carpenter at Cedar Hollow" loading="lazy" decoding="async" width="500" height="667"></div><h3>Dan</h3><p>Master Carpenter</p></li>
-<li><a href="https://simonisymeonidou.com/" target="_blank" rel="noopener"><div class="ch-frame"><img src="oxford/images/photos/d33983400bf34894b2f1bd8b6229f11d-mv2-fill-500x667.jpg" alt="Simoni, Shadow Artist at Cedar Hollow" loading="lazy" decoding="async" width="500" height="667"></div><h3>Simoni</h3><p>Shadow Artist</p></a></li>
-<li><a href="https://thefatponyworkshop.co.uk/" target="_blank" rel="noopener"><div class="ch-frame"><img src="oxford/images/photos/3e9794ca7d324b8987436690ee38d1ad-mv2-fill-500x667.jpg" alt="Guy, Artist/Designer at Cedar Hollow" loading="lazy" decoding="async" width="500" height="667"></div><h3>Guy</h3><p>Artist/Designer</p></a></li>
-<li><a href="https://coolescapes.com" target="_blank" rel="noopener"><div class="ch-frame"><img src="oxford/images/photos/773498d6dbff4bc6bd981f32dc289991-mv2-fill-500x667.jpg" alt="Bella, Content Creator at Cedar Hollow" loading="lazy" decoding="async" width="500" height="667"></div><h3>Bella</h3><p>Content Creator</p></a></li>
-<li><a href="https://treecarving.co.uk/" target="_blank" rel="noopener"><div class="ch-frame"><img src="oxford/images/photos/9e0e5c0a6082447ca07a146aee827853-mv2-fill-500x667.jpg" alt="Simon, Chainsaw Carver at Cedar Hollow" loading="lazy" decoding="async" width="500" height="667"></div><h3>Simon</h3><p>Chainsaw Carver</p></a></li>
-<li><a href="https://matthewcrabb.com/" target="_blank" rel="noopener"><div class="ch-frame"><img src="oxford/images/photos/cbb5164bc2f54ef6bbf9529e38e63c41-mv2-fill-500x667.jpg" alt="Matt, Chainsaw Carver at Cedar Hollow" loading="lazy" decoding="async" width="500" height="667"></div><h3>Matt</h3><p>Chainsaw Carver</p></a></li>
-<li><a href="https://www.karenfawcettceramics.com/about-the-artist" target="_blank" rel="noopener"><div class="ch-frame"><img src="oxford/images/photos/1cd5eff43f804f549c79d84bf9c6cc81-mv2-fill-500x667.jpg" alt="Karen, Sculptor at Cedar Hollow" loading="lazy" decoding="async" width="500" height="667"></div><h3>Karen</h3><p>Sculptor</p></a></li>
-</ul>
-</div>
-</div>
-</div>
-</div>
-</section>
-
-<section class="bg-light">
-<div class="padding-section-medium">
-<div class="padding-global">
-<div class="container-large">
-<div class="text-align-center">
-<div class="max-width-xlarge align-center">
-<div class="ch-prose text-size-large">
-<p>Together, we have transformed imagination into the world of Cedar Hollow. We hope you enjoy exploring it as much as we have enjoyed bringing it to life.</p>
-<p>You can also meet the <a href="oxford/beemuseum.html#artists">artists and ecologists behind our Apiary and Bee Museum</a>, or read <a href="about.html">how Cedar Hollow began</a>.</p>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-</section>
-</main>
-  <section class="section-footer">
+    <div class="ch-page-hero__body padding-global"><div class="container-large"><div class="text-align-center"><div class="max-width-xlarge align-center"><p class="ch-page-hero__eyebrow">Help us create somewhere extraordinary</p><h1 class="heading-style-h1">Working <em>with Us</em></h1><p class="ch-page-hero__lead text-size-large">Be part of our imaginative woodland stays, memorable guest experiences, craftsmanship and all the unexpected details that make Cedar Hollow unique.</p></div></div></div></div></section><section class="bg-light"><div class="padding-section-medium"><div class="padding-global"><div class="container-large"><div class="text-align-center"><div class="section-title-block"><div class="max-width-xlarge align-center"></div></div><ul class="ch-cards ch-routes is-left"><li><span class="ch-route__img"><img src="oxford/images/routes/route-keys-1000.webp" srcset="oxford/images/routes/route-keys-500.webp 500w, oxford/images/routes/route-keys-1000.webp 1000w" sizes="(max-width: 767px) 92vw, 22rem" alt="An old brass key on weathered boards, ivy at the edges" loading="lazy" decoding="async" width="1000" height="667"></span><span class="ch-route__tag">Route 1</span><h3 class="heading-style-h4">Keepers of the Keys</h3><p class="ch-route__role">Hospitality Apprenticeships</p><p>Join us as part of a government sponsored apprenticeship scheme. We provide a salary, free on-site accommodation and hands-on experience managing a high-end retreat.</p><p>You will complete the <a href="https://skillsengland.education.gov.uk/apprenticeships/st1420-v1-0?view=standard" target="_blank" rel="noopener">Level 2 Hospitality</a> Accommodation Apprenticeship scheme delivered through a government approved <a href="https://hittraining.co.uk/" target="_blank" rel="noopener">training provider</a>.</p></li><li><span class="ch-route__img"><img src="oxford/images/routes/route-team-1000.webp" srcset="oxford/images/routes/route-team-500.webp 500w, oxford/images/routes/route-team-1000.webp 1000w" sizes="(max-width: 767px) 92vw, 22rem" alt="Five of the Cedar Hollow team behind a stall at a woodland event" loading="lazy" decoding="async" width="1000" height="667"></span><span class="ch-route__tag">Route 2</span><h3 class="heading-style-h4">Fixed Term Contracts</h3><p>Do you have attention to detail? Interested in helping us make memories, look after guests and keep Cedar Hollow running beautifully. Roles cover housekeeping, cooking and food service, gardens and grounds, maintenance and social media.</p><p>Fixed term contracts require a minimum of three to six months.</p></li><li><span class="ch-route__img"><img src="oxford/images/experiences/illusions-01.webp" alt="One of the woodland illusions at Cedar Hollow Oxford" loading="lazy" decoding="async" width="1000" height="750"></span><span class="ch-route__tag">Route 3</span><h3 class="heading-style-h4">Creative Projects</h3><p>Freelance work for artists, designers, makers, carpenters, scenic builders, performers, photographers and writers.</p><p>Some of it is regular; some belongs to a single project, event or new guest experience.</p></li></ul><div class="button-group align-center" style="margin-top:2.25rem"><a href="mailto:hello@theoaks.uk?subject=Working with Cedar Hollow" class="button"><span>Contact Us to Apply</span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 17 12" fill="none" class="button_icon" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.2443 5.03644L9.48927 1.21321L10.6935 0L16.5 5.91195L10.6783 11.55L9.50444 10.3067L13.17 6.75673H0V5.03644H13.2443Z" fill="currentColor"/></svg></a></div></div></div></div></div></section><section class="bg-off"><div class="padding-section-small"><div class="padding-global"><div class="container-large"><div class="ch-rtw"><h2 class="heading-style-h4">Eligibility</h2><p>The apprenticeship scheme is only open to British citizens or those who have lived in the United Kingdom for the last three years.</p><p>Fixed term contracts are open to those on the <strong>Youth Mobility Scheme</strong> or <strong>Student visas</strong>, subject to the conditions of their visa.</p></div></div></div></div></section><section class="bg-off"><div class="padding-section-medium"><div class="padding-global"><div class="container-large"><div class="text-align-center"><div class="section-title-block"><div class="max-width-xlarge align-center"><h2 class="heading-style-h1">The people <em>behind it all</em></h2><p class="ch-note">Cedar Hollow is a creation of artists, craftspeople, technologists, magicians and dreamers. Every detail you see is bespoke.</p></div></div><ul class="ch-album"><li class="ch-album__print"><a class="ch-album__link" href="https://wizardsofox.uk" target="_blank" rel="noopener" aria-label="See more of Mimzo&#x27;s work"><img src="oxford/images/creatives/creative-mimzo-600.webp" srcset="oxford/images/creatives/creative-mimzo-300.webp 300w, oxford/images/creatives/creative-mimzo-600.webp 600w" sizes="(max-width: 767px) 40vw, 12rem" loading="lazy" decoding="async" alt="Mimzo at Cedar Hollow Oxford"><span class="ch-album__caption"><span class="ch-album__name">Mimzo</span><span class="ch-album__note">Creative Director &amp; Magician</span></span></a></li><li class="ch-album__print"><a class="ch-album__link" href="https://wizardsofox.uk" target="_blank" rel="noopener" aria-label="See more of Maya&#x27;s work"><img src="oxford/images/creatives/creative-maya-600.webp" srcset="oxford/images/creatives/creative-maya-300.webp 300w, oxford/images/creatives/creative-maya-600.webp 600w" sizes="(max-width: 767px) 40vw, 12rem" loading="lazy" decoding="async" alt="Maya at Cedar Hollow Oxford"><span class="ch-album__caption"><span class="ch-album__name">Maya</span><span class="ch-album__note">Social Media &amp; Magician</span></span></a></li><li class="ch-album__print"><a class="ch-album__link" href="https://wizardsofox.uk" target="_blank" rel="noopener" aria-label="See more of Dr Yaz&#x27;s work"><img src="oxford/images/creatives/creative-dr-yaz-600.webp" srcset="oxford/images/creatives/creative-dr-yaz-300.webp 300w, oxford/images/creatives/creative-dr-yaz-600.webp 600w" sizes="(max-width: 767px) 40vw, 12rem" loading="lazy" decoding="async" alt="Dr Yaz at Cedar Hollow Oxford"><span class="ch-album__caption"><span class="ch-album__name">Dr Yaz</span><span class="ch-album__note">Imagineer</span></span></a></li><li class="ch-album__print"><a class="ch-album__link" href="https://instagram.com/amandacarolinecouture" target="_blank" rel="noopener" aria-label="See more of Amanda&#x27;s work"><img src="oxford/images/creatives/creative-amanda-600.webp" srcset="oxford/images/creatives/creative-amanda-300.webp 300w, oxford/images/creatives/creative-amanda-600.webp 600w" sizes="(max-width: 767px) 40vw, 12rem" loading="lazy" decoding="async" alt="Amanda at Cedar Hollow Oxford"><span class="ch-album__caption"><span class="ch-album__name">Amanda</span><span class="ch-album__note">Set Design</span></span></a></li><li class="ch-album__print"><img src="oxford/images/creatives/creative-alex-600.webp" srcset="oxford/images/creatives/creative-alex-300.webp 300w, oxford/images/creatives/creative-alex-600.webp 600w" sizes="(max-width: 767px) 40vw, 12rem" loading="lazy" decoding="async" alt="Alex at Cedar Hollow Oxford"><span class="ch-album__caption"><span class="ch-album__name">Alex</span><span class="ch-album__note">Sculptor &amp; Designer</span></span></li><li class="ch-album__print"><img src="oxford/images/creatives/creative-dan-600.webp" srcset="oxford/images/creatives/creative-dan-300.webp 300w, oxford/images/creatives/creative-dan-600.webp 600w" sizes="(max-width: 767px) 40vw, 12rem" loading="lazy" decoding="async" alt="Dan at Cedar Hollow Oxford"><span class="ch-album__caption"><span class="ch-album__name">Dan</span><span class="ch-album__note">Master Carpenter</span></span></li><li class="ch-album__print"><a class="ch-album__link" href="https://simonisymeonidou.com/" target="_blank" rel="noopener" aria-label="See more of Simoni&#x27;s work"><img src="oxford/images/creatives/creative-simoni-600.webp" srcset="oxford/images/creatives/creative-simoni-300.webp 300w, oxford/images/creatives/creative-simoni-600.webp 600w" sizes="(max-width: 767px) 40vw, 12rem" loading="lazy" decoding="async" alt="Simoni at Cedar Hollow Oxford"><span class="ch-album__caption"><span class="ch-album__name">Simoni</span><span class="ch-album__note">Shadow Artist</span></span></a></li><li class="ch-album__print"><a class="ch-album__link" href="https://thefatponyworkshop.co.uk/" target="_blank" rel="noopener" aria-label="See more of Guy&#x27;s work"><img src="oxford/images/creatives/creative-guy-600.webp" srcset="oxford/images/creatives/creative-guy-300.webp 300w, oxford/images/creatives/creative-guy-600.webp 600w" sizes="(max-width: 767px) 40vw, 12rem" loading="lazy" decoding="async" alt="Guy at Cedar Hollow Oxford"><span class="ch-album__caption"><span class="ch-album__name">Guy</span><span class="ch-album__note">Artist and Designer</span></span></a></li><li class="ch-album__print"><a class="ch-album__link" href="https://coolescapes.com" target="_blank" rel="noopener" aria-label="See more of Bella&#x27;s work"><img src="oxford/images/creatives/creative-bella-600.webp" srcset="oxford/images/creatives/creative-bella-300.webp 300w, oxford/images/creatives/creative-bella-600.webp 600w" sizes="(max-width: 767px) 40vw, 12rem" loading="lazy" decoding="async" alt="Bella at Cedar Hollow Oxford"><span class="ch-album__caption"><span class="ch-album__name">Bella</span><span class="ch-album__note">Content Creator</span></span></a></li><li class="ch-album__print"><a class="ch-album__link" href="https://treecarving.co.uk/" target="_blank" rel="noopener" aria-label="See more of Simon&#x27;s work"><img src="oxford/images/creatives/creative-simon-600.webp" srcset="oxford/images/creatives/creative-simon-300.webp 300w, oxford/images/creatives/creative-simon-600.webp 600w" sizes="(max-width: 767px) 40vw, 12rem" loading="lazy" decoding="async" alt="Simon at Cedar Hollow Oxford"><span class="ch-album__caption"><span class="ch-album__name">Simon</span><span class="ch-album__note">Chainsaw Carver</span></span></a></li><li class="ch-album__print"><a class="ch-album__link" href="https://matthewcrabb.com/" target="_blank" rel="noopener" aria-label="See more of Matt&#x27;s work"><img src="oxford/images/creatives/creative-matt-600.webp" srcset="oxford/images/creatives/creative-matt-300.webp 300w, oxford/images/creatives/creative-matt-600.webp 600w" sizes="(max-width: 767px) 40vw, 12rem" loading="lazy" decoding="async" alt="Matt at Cedar Hollow Oxford"><span class="ch-album__caption"><span class="ch-album__name">Matt</span><span class="ch-album__note">Chainsaw Carver</span></span></a></li><li class="ch-album__print"><a class="ch-album__link" href="https://www.karenfawcettceramics.com/about-the-artist" target="_blank" rel="noopener" aria-label="See more of Karen&#x27;s work"><img src="oxford/images/creatives/creative-karen-600.webp" srcset="oxford/images/creatives/creative-karen-300.webp 300w, oxford/images/creatives/creative-karen-600.webp 600w" sizes="(max-width: 767px) 40vw, 12rem" loading="lazy" decoding="async" alt="Karen at Cedar Hollow Oxford"><span class="ch-album__caption"><span class="ch-album__name">Karen</span><span class="ch-album__note">Sculptor</span></span></a></li></ul></div></div></div></div></section><section class="ch-section--accent"><div class="padding-section-medium"><div class="padding-global"><div class="container-large"><div class="text-align-center"><div class="section-title-block"><div class="max-width-xlarge align-center"><h2 class="heading-style-h1">Please help support <em>our charity</em></h2></div></div><div class="ch-badge-row" style="margin-top:0;margin-bottom:1.5rem"><a href="https://togetherwecan.uk/" target="_blank" rel="noopener"><img width="400" height="190" decoding="async" src="oxford/images/photos/376da636dbdc46d79bd0e763b45162aa-mv2-fit-400x400.jpg" alt="Congenital Anaemia Network" loading="lazy" decoding="async"></a></div><div class="button-group align-center"><a href="https://www.justgiving.com/congenital-anaemia-network" class="button" target="_blank" rel="noopener"><span>Donate to the Congenital Anaemia Network</span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 17 12" fill="none" class="button_icon" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.2443 5.03644L9.48927 1.21321L10.6935 0L16.5 5.91195L10.6783 11.55L9.50444 10.3067L13.17 6.75673H0V5.03644H13.2443Z" fill="currentColor"/></svg></a><a href="oxford/philanthropy.html#make-a-memory" class="button is-secondary"><span>Make a Memory with CAN</span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 17 12" fill="none" class="button_icon" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.2443 5.03644L9.48927 1.21321L10.6935 0L16.5 5.91195L10.6783 11.55L9.50444 10.3067L13.17 6.75673H0V5.03644H13.2443Z" fill="currentColor"/></svg></a></div><p class="ch-note" style="margin-top:1.5rem">If you are a patient who suffers from a congenital anaemia or know someone who might enjoy staying at the treehouse, <a href="oxford/philanthropy.html#make-a-memory">please fill out this form</a>. We reserve one weekend per month for the use of patients.</p><div style="margin-top:2.5rem"><ul class="ch-photos "><li><img src="oxford/images/philanthropy/can-01.webp?v=20260923a" srcset="oxford/images/philanthropy/can-01-sm.webp?v=20260923a 560w, oxford/images/philanthropy/can-01.webp?v=20260923a 900w" sizes="(min-width:480px) 46vw, 92vw" alt="A Congenital Anaemia Network event at Cedar Hollow Oxford" loading="lazy" decoding="async" width="900" height="680"></li><li><img src="oxford/images/philanthropy/can-02.webp?v=20260923a" srcset="oxford/images/philanthropy/can-02-sm.webp?v=20260923a 560w, oxford/images/philanthropy/can-02.webp?v=20260923a 900w" sizes="(min-width:480px) 46vw, 92vw" alt="Families gathered in the garden" loading="lazy" decoding="async" width="900" height="680"></li><li><img src="oxford/images/philanthropy/can-03.webp?v=20260923a" srcset="oxford/images/philanthropy/can-03-sm.webp?v=20260923a 560w, oxford/images/philanthropy/can-03.webp?v=20260923a 900w" sizes="(min-width:480px) 46vw, 92vw" alt="CAN event in the woodland" loading="lazy" decoding="async" width="900" height="680"></li></ul></div></div></div></div></div></section>
+<section class="section-footer">
       <div class="padding-section-small">
         <div class="padding-global">
           <div class="container-large">
@@ -343,6 +330,8 @@
           <path d="M117.852 191.592C118.738 191.592 126.418 182.981 130.258 177.934C139.414 165.463 142.959 156.555 143.549 145.569C143.549 141.115 143.254 137.552 142.663 134.583C142.368 132.801 142.073 131.02 142.073 130.129V129.832C142.073 129.832 142.959 131.02 143.845 132.801C147.094 139.333 159.204 147.35 165.997 147.35C166.588 147.35 166.884 147.053 167.474 145.569C169.247 137.849 169.542 128.644 163.635 117.361C161.862 114.095 160.976 111.423 160.976 111.423C161.272 111.423 162.453 112.61 163.635 113.798C170.133 120.627 181.357 125.675 191.99 127.16L195.534 127.457C195.534 121.221 188.446 110.829 186.673 109.047C186.969 109.344 189.036 110.235 191.399 111.423C197.602 114.392 204.986 115.876 210.303 115.876C212.37 115.876 214.143 115.876 215.324 115.283C216.506 114.986 216.801 114.689 216.801 112.907C216.21 103.703 212.666 94.2011 209.712 90.638C207.94 88.8564 209.121 89.1534 214.143 92.4195C219.459 95.9826 223.004 97.1703 223.594 96.2795C223.89 95.6857 224.185 92.7164 224.185 89.1534C224.185 84.1057 223.594 81.7303 222.413 77.8703C219.459 68.6656 214.438 62.7272 207.349 59.1641L203.805 57.3825L207.645 57.0856C217.687 55.8979 222.708 53.5225 230.093 46.0994C232.751 43.4271 235.114 40.4579 235.114 40.1609C235.114 38.6763 227.139 36.004 221.527 35.4102C220.05 35.1132 218.278 35.1132 216.506 35.1132C215.029 35.1132 213.847 35.1132 212.961 35.4102C209.121 35.7071 200.556 38.3794 197.307 40.1609C194.944 41.3486 192.581 42.2394 192.581 41.9425C192.581 41.6456 194.944 39.864 197.897 37.4886C212.961 26.5025 218.573 18.1886 219.755 5.71779L220.345 0.96701L215.619 1.26393C203.214 2.45163 189.332 9.5778 179.584 20.2671L176.335 24.1271L177.812 20.2671C179.584 15.8132 180.471 11.9532 180.471 8.09318C180.471 6.60856 179.584 1.26393 178.698 0.373162C177.812 -0.517609 171.019 1.56086 163.044 5.42087C150.638 11.6563 143.549 21.1578 141.186 25.6117C139.71 27.9871 139.119 28.8778 138.824 28.8778V27.3932C139.414 25.0178 139.414 25.0178 137.937 25.6117C129.667 27.9871 122.874 35.4102 119.329 45.5056C118.738 48.1779 117.852 50.8502 117.852 51.444C117.852 52.0379 117.262 50.5533 116.375 47.881C112.831 36.004 105.447 27.3932 97.4718 25.6117C95.995 25.3148 95.6996 25.3148 96.2904 26.2055C96.8811 27.9871 97.1765 28.8778 96.8811 28.8778C96.5857 28.8778 95.4042 27.6901 93.9274 25.0178C89.2015 17.0009 81.8173 9.87472 73.5469 5.71779C67.0488 2.45163 58.7785 -0.517609 57.597 0.0762385C56.4155 0.670086 55.234 5.42087 55.234 9.28088C55.234 11.0624 56.1201 14.6255 57.3016 18.1886L59.3692 24.1271L53.7572 18.7824C47.5544 12.2501 40.7609 7.79626 33.9675 5.12394C28.6508 3.04548 20.6758 1.26393 16.836 1.26393H14.1777L14.7685 5.12394C15.3592 11.0624 17.4268 16.407 20.6758 21.4548C23.9249 26.5025 27.4693 30.0655 36.3304 36.5979C39.8748 39.2702 41.6471 40.7548 41.6471 41.3486H41.3517C41.0563 41.3486 40.4656 41.3486 39.5795 40.7548C36.6258 38.9733 25.9925 36.004 22.1527 35.7071C17.4268 35.1132 10.9287 36.004 5.61201 38.0825C3.24906 38.9733 1.18148 39.864 1.18148 40.1609L3.24906 43.4271C9.45181 51.741 17.1314 55.8979 28.3554 57.0856L31.8999 57.3825L28.0601 59.461C17.7222 64.5087 11.8148 75.4949 11.8148 89.7472V95.9826C16.836 95.0918 20.3805 92.7164 26.2879 89.7472C21.5619 99.2488 18.9036 103.703 18.9036 112.61C18.9036 113.798 19.4944 114.986 19.4944 114.986C20.0851 115.58 23.3342 115.876 26.8786 115.876C32.786 115.876 37.5119 114.689 43.4193 112.016L48.7359 109.344L46.0776 112.313C43.1239 116.47 40.1702 122.706 40.1702 127.16C54.3479 125.675 61.4368 122.706 70.8886 114.392C72.9562 112.907 74.7284 111.423 74.7284 111.72L71.4793 118.549C68.2303 125.081 66.7534 131.02 66.7534 136.067C66.7534 138.443 67.3442 144.678 68.5256 146.46C69.1164 147.944 69.1164 147.944 72.0701 147.053C78.8636 145.272 87.4293 139.037 91.2691 133.098C92.4506 131.02 93.632 129.238 93.9274 129.238C93.9274 129.535 93.632 131.317 93.0413 133.692C92.4506 136.364 92.1552 139.927 92.1552 143.193C92.1552 147.053 92.4506 150.914 93.3367 154.18C95.995 163.978 104.561 178.23 113.717 187.732C115.785 189.811 117.557 191.592 117.852 191.592ZM62.0275 259.291C62.3229 258.4 57.3016 242.96 56.4155 242.366C55.5294 241.772 41.6471 223.066 38.398 218.018L35.4443 213.267L34.8536 216.237C33.6721 222.472 36.6258 234.349 41.9424 242.366C45.4869 247.711 53.7572 255.728 58.4831 258.4C59.9599 259.291 60.8461 259.885 61.4368 259.885C61.7322 259.885 62.0275 259.588 62.0275 259.291ZM25.1064 218.018C25.6971 218.018 28.6508 212.377 30.7184 207.032C33.0813 200.797 34.5582 193.077 34.5582 186.247C34.5582 181.497 34.2628 180.903 31.8999 176.152C30.7184 173.48 28.9462 169.323 28.3554 166.947C27.7647 164.572 27.174 162.494 26.8786 162.494C26.2879 162.79 17.1314 176.152 15.9499 179.121C14.1777 182.981 13.2916 186.841 13.2916 190.998C13.2916 198.421 16.2453 206.438 22.1527 214.455C23.6295 216.534 24.811 218.018 25.1064 218.018ZM90.383 277.403C90.6783 277.403 88.6108 265.229 89.7922 258.103C91.2691 250.086 92.7459 246.226 94.5181 240.584L89.7922 233.458C87.1339 229.598 83.5895 223.363 81.5219 219.206C79.7497 215.049 77.9775 211.783 77.6821 211.783C77.6821 211.783 76.2052 214.455 74.7284 218.018C72.9562 221.284 69.7071 227.223 67.3442 230.786L62.9136 237.912L63.7997 241.475C66.1627 251.868 75.3191 265.229 85.6571 273.543L90.383 277.403ZM118.148 297C119.034 297 128.19 287.498 131.144 283.342C136.756 275.918 139.119 269.683 139.119 260.478C139.119 257.806 138.233 245.038 135.87 245.038C134.688 245.038 133.507 246.226 130.849 248.008C122.578 253.946 120.806 255.728 119.034 258.994L117.557 262.26C115.785 257.806 115.194 256.618 111.945 253.352C108.4 249.492 100.426 243.851 100.13 244.444C98.3579 247.414 96.8811 256.321 96.8811 260.181C96.8811 270.871 102.198 281.263 112.831 292.249C115.194 294.922 117.557 297 118.148 297ZM56.4155 231.38C57.0063 231.38 63.209 224.848 65.2766 221.581C67.3442 218.315 70.8886 210.595 70.8886 208.517C71.184 207.626 69.4118 204.36 67.6395 201.094C62.0275 191.592 60.5507 187.732 57.8924 173.48L57.3016 170.807L52.5757 174.667C50.2128 176.746 46.6683 179.418 44.8961 180.606C41.6471 182.684 41.0563 184.169 40.4656 192.78C39.2841 204.063 44.6007 218.315 53.1665 228.114C54.6433 229.895 56.1201 231.38 56.4155 231.38ZM7.38423 178.527C9.45181 176.449 20.0851 161.603 23.0388 156.555C27.174 149.726 28.9462 143.787 30.7184 133.395L32.1952 124.487C32.4906 123.893 32.1952 123.597 31.8999 123.597C31.0138 123.597 22.7434 131.613 19.7897 135.177L17.4268 138.443L17.7222 134.88C18.0175 133.098 19.199 129.238 20.0851 126.269C20.9712 123.597 21.8573 121.221 21.5619 121.221C20.9712 120.33 14.4731 125.081 10.3379 129.238C2.95369 136.958 0 144.381 0 154.774C0 161.9 1.18148 166.947 4.43054 173.777C5.90738 177.043 7.38423 178.527 7.38423 178.527ZM38.9887 174.667C39.2841 174.667 41.0563 173.48 42.8285 172.292C47.8498 169.323 55.8248 161.306 59.3692 156.258L62.3229 151.804L60.8461 146.46C59.9599 142.897 59.6646 139.333 59.6646 134.88V128.644C53.1665 131.613 50.2128 131.91 44.01 134.286C34.2628 137.849 33.0813 148.835 33.0813 154.18C33.0813 161.306 34.8536 169.026 37.5119 173.183C38.1026 174.074 38.6934 174.667 38.9887 174.667ZM75.9099 200.5C77.0914 200.5 84.4756 193.374 87.1339 189.514C90.0876 185.654 93.9274 176.449 93.9274 174.37C93.9274 173.777 93.0413 170.807 91.5644 167.541C90.0876 164.275 88.3154 158.93 87.7246 155.664C86.8385 151.507 86.5432 150.617 85.9524 150.617C85.6571 150.617 85.3617 150.617 85.0663 150.914C79.7497 154.477 76.2052 156.258 71.7747 157.446C60.2553 161.306 64.6858 179.418 67.0488 185.06C67.9349 188.029 70.2979 192.483 72.0701 195.452C74.1377 198.124 75.6145 200.5 75.9099 200.5ZM124.646 243.851C124.941 243.851 127.599 242.366 130.258 240.584C139.414 234.646 147.389 224.848 151.524 214.752C152.706 211.783 153.592 209.111 153.592 208.517C153.592 207.923 151.524 205.251 149.457 203.172C145.026 198.718 140.005 191.592 137.937 186.247C137.051 184.466 136.165 182.684 135.87 182.981C134.393 183.575 121.397 199.906 119.625 203.469L117.557 207.626L116.671 204.657C115.194 201.094 112.536 197.234 106.924 190.701L101.016 183.575C100.426 182.684 99.5394 182.091 99.5394 182.091C99.244 182.387 98.6533 184.169 97.7672 185.951C95.4042 191.295 91.8598 196.343 87.7246 200.797L83.8848 204.954L85.0663 208.814C87.1339 217.424 92.4506 226.332 99.8348 234.349C103.084 237.912 109.582 243.257 110.468 243.257C113.422 243.257 117.852 224.254 118.443 224.254C119.034 224.254 120.511 233.161 122.578 239.397C123.464 241.772 124.646 243.851 124.646 243.851ZM145.322 275.621C144.436 277.403 145.322 276.809 149.457 273.543C154.478 269.683 160.976 262.557 164.521 257.509C168.065 252.165 171.905 243.851 172.2 239.991C172.791 233.161 162.158 216.831 159.204 214.158C156.25 222.175 154.183 227.52 145.322 237.318L141.482 241.475L143.254 246.226C145.617 253.946 146.208 258.4 145.912 266.714C145.912 270.871 145.322 275.028 145.322 275.621ZM173.086 259.885C173.086 261.369 179.88 256.915 185.196 251.868C194.648 243.257 199.965 232.568 200.556 221.581C200.556 218.612 200.556 215.94 200.26 215.346C200.26 215.346 198.193 217.128 195.534 220.988C193.171 224.551 188.446 231.083 184.901 235.537C181.061 240.288 178.108 244.444 178.108 244.741L175.449 252.165L173.086 259.885ZM180.175 231.974C180.766 231.974 185.196 226.332 187.264 222.769C189.627 219.206 192.876 211.486 194.058 206.735C194.648 203.766 195.239 199.312 195.239 195.155C195.239 191.592 194.944 188.326 194.353 185.951L193.467 182.091L179.584 171.698L177.517 170.214L177.222 174.37C176.335 184.466 173.382 192.483 167.77 202.281C166.293 204.954 164.816 207.626 164.816 208.517C164.816 212.674 170.723 222.769 176.04 228.411C178.108 230.192 179.88 231.974 180.175 231.974ZM160.09 200.797C162.748 198.718 170.133 185.951 170.133 171.401C170.133 154.477 159.204 156.258 149.161 150.617C149.752 150.023 141.777 172.292 141.777 174.964C141.777 181.794 157.432 200.797 160.09 200.797ZM72.3654 104.593C54.6433 104.593 39.5795 89.4503 39.5795 71.6349C39.5795 53.8194 54.6433 41.0517 71.4793 41.0517C86.5432 41.0517 104.561 51.1471 104.561 74.6041C104.561 89.4503 89.4969 104.593 72.3654 104.593ZM55.5294 72.2287C55.5294 81.4333 63.209 89.7472 72.9562 89.7472C83.5895 89.7472 90.6783 81.7303 90.6783 72.2287C90.6783 63.0241 83.5895 55.3041 73.5469 55.3041C63.209 55.3041 55.5294 63.0241 55.5294 72.2287ZM117.557 130.426C115.194 130.426 104.856 104.593 104.856 100.733C104.856 96.2795 108.991 91.2318 112.536 91.2318C114.603 91.2318 114.603 88.8564 112.831 86.1841C111.945 85.2934 111.65 84.4026 111.65 84.1057C113.717 82.621 116.375 82.0272 118.443 82.0272C119.92 82.0272 121.101 82.3241 122.283 82.918C124.055 84.1057 124.055 84.1057 122.874 85.8872L121.397 89.4503C121.101 90.9349 121.101 91.2318 123.464 91.5288C128.19 92.4195 130.553 95.9826 130.553 101.03C130.553 109.938 125.532 118.252 117.557 130.426ZM60.8461 40.1609C54.6433 40.1609 48.7359 34.5194 43.1239 25.9086H44.8961C50.8035 25.9086 59.9599 32.7379 61.7322 38.9733C62.0275 40.1609 62.0275 40.1609 60.8461 40.1609ZM208.531 215.94C209.417 217.424 209.712 218.315 210.598 218.315C211.189 218.315 212.075 217.128 214.143 214.455C219.755 206.735 222.118 200.5 222.118 193.077C222.118 183.872 219.755 177.637 212.37 168.432L207.94 162.494L207.054 166.354C206.758 168.432 204.986 172.886 203.509 176.152L200.556 182.387L201.442 190.107C202.328 203.172 203.509 207.032 208.531 215.94ZM192.581 171.995C194.353 173.183 195.534 173.777 196.421 173.777C197.897 173.777 198.488 172.292 199.67 168.432C201.442 163.978 202.033 159.524 202.033 154.477C202.033 150.023 201.442 145.272 199.965 140.224L198.488 135.77L194.944 134.88C189.036 133.692 182.834 131.613 179.289 129.832L175.449 128.05V134.583C175.449 139.63 175.154 142.897 174.268 146.163L173.086 151.21L174.563 154.18C176.926 158.337 187.559 168.729 192.581 171.995ZM88.3154 41.3486C87.7246 41.6456 77.0914 36.8948 74.1377 32.144C72.3654 29.7686 70.2979 24.424 70.2979 22.6424C70.2979 20.564 77.0914 25.3148 80.6358 28.5809C84.4756 32.144 86.5432 35.1132 87.7246 38.6763C88.3154 39.864 88.3154 41.0517 88.3154 41.3486ZM228.911 178.23C233.342 171.995 236 163.384 236 155.664C236 144.381 233.046 136.958 224.776 128.941C220.641 124.784 215.915 120.924 214.143 120.924C214.143 120.924 214.733 123.597 215.915 126.863C216.801 129.832 217.687 133.692 217.982 135.473L218.278 138.443L216.21 135.77C212.37 131.02 206.463 125.378 204.986 124.487C203.214 123.597 203.214 123.597 203.509 124.784L204.395 131.02C205.577 139.037 207.94 148.538 210.007 152.695C212.666 158.337 217.687 166.057 223.594 173.183C226.548 177.043 228.025 178.23 228.616 178.23H228.911ZM161.862 104.296C146.503 104.296 130.553 90.9349 130.553 72.2287C130.553 53.5225 144.436 41.3486 163.044 41.3486C180.766 41.3486 195.83 53.8194 195.83 72.5256C195.83 93.6072 182.243 104.296 161.862 104.296ZM144.731 72.5256C144.731 81.7303 150.638 89.7472 162.748 89.7472C172.791 89.7472 180.175 81.7303 180.175 72.5256C180.175 62.7272 172.496 55.3041 163.044 55.3041C150.638 55.3041 144.731 62.7272 144.731 72.5256ZM147.094 41.6456C146.503 41.6456 147.389 38.3794 149.161 35.1132C151.229 30.9563 156.25 25.9086 160.681 23.5332L163.93 22.0486C165.111 31.2532 149.161 41.6456 147.094 41.6456ZM189.332 30.0655C183.72 38.9733 173.972 40.4579 174.268 40.4579C173.677 40.4579 173.382 40.1609 173.382 39.5671V38.9733C175.745 32.144 183.129 25.6117 191.104 25.6117C191.695 25.6117 191.99 25.6117 191.99 25.9086C191.99 25.9086 190.808 27.9871 189.332 30.0655Z" fill="currentColor"></path>
         </svg></div>
     </section>
+  <script src="js/press-video.js?v=20260922b" type="text/javascript"></script>
+  <script src="js/press-filter.js?v=20260927b" type="text/javascript"></script>
   <script src="js/analytics.js" type="text/javascript"></script>
 <script src="/js/tlg-beacon.js" defer></script>
 <script src="js/siteswitch.js?v=20260929a"></script>
