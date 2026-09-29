@@ -77,50 +77,6 @@ section[data-kind][hidden] {
   display: none !important;
 }
 
-/* The year beside the cuttings from it, rather than over them. The point of
-   a year on a record page is the shape of the run, and most of these years
-   hold one or two cuttings, so a heading standing over every group was a
-   band of its own each time.
-
-   It is taken out of the flow and set in the page's own side margin rather
-   than given a column of the grid, because a column is width the grid then
-   does not have: 3.5rem and a gap was enough to drop it from four cuttings
-   across to three, and a third fewer columns makes every card a third wider
-   and taller. Out of flow, the grid packs exactly as it did before there
-   were any years at all. */
-.ch-press__era {
-  position: relative;
-}
-
-.ch-press__era + .ch-press__era {
-  margin-top: 2.25rem;
-}
-
-.ch-press__era-head {
-  margin: 0 0 .6rem;
-  font-family: var(--font-family--heading, Crimsonpro), serif;
-  font-weight: 400;
-  font-size: 1.375rem;
-  line-height: 1.1;
-  letter-spacing: .01em;
-  color: var(--accent, #3b4126);
-  opacity: .75;
-}
-
-/* Only where the page's side margin has room to hold it. Narrower than this
-   it goes back over the row, where it costs a line rather than being cut off
-   by the edge of the screen. */
-@media screen and (min-width: 1200px) {
-  .ch-press__era-head {
-    position: absolute;
-    top: .15rem;
-    right: calc(100% + 1.25rem);
-    margin: 0;
-    text-align: right;
-    white-space: nowrap;
-  }
-}
-
 .ch-press__grid {
   /* Four across on a wide screen, and never fewer than two, so the tiles stay
      portrait clippings rather than growing into banners. */

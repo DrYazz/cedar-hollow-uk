@@ -114,19 +114,9 @@
     }
   }
 
-  /* The year headings over the cuttings. An award heading can carry a
-     data-location and be hidden with its woodland, but a year holds cuttings
-     from both, so it has no woodland of its own. It goes when the last of its
-     own cuttings goes, which can only be worked out after they are hidden. */
-  var eras = document.querySelectorAll(".ch-press__era");
-
   function apply() {
     for (var i = 0; i < hideable.length; i++) {
       hideable[i].hidden = !matches(hideable[i], "location", stateOf("location"));
-    }
-    for (var e = 0; e < eras.length; e++) {
-      eras[e].hidden =
-        !eras[e].querySelector(".ch-press__grid > li:not([hidden])");
     }
     for (var s = 0; s < sections.length; s++) {
       sections[s].hidden = !matches(sections[s], "kind", stateOf("kind"));

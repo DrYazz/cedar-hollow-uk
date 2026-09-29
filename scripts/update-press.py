@@ -130,7 +130,6 @@ def card(item, show_location=False, brief=False):
         klass = "" if quote else " ch-press__card--bare"
     parts = ['<article class="ch-press__card%s">' % klass]
 
-
     if shot:
         # The clipping is the tile, as on the Oaks reviews page: the article as
         # it was published, masthead and headline and lead picture together.
@@ -586,7 +585,7 @@ def render_awards(data, indent, scope=None):
     body = ("\n" + indent).join(lines)
     return "\n%s%s\n%s" % (indent, body, indent)
 
-def render(section, indent, show_location=False, brief=False, year=False):
+def render(section, indent, show_location=False, brief=False):
     items = section.get("items") or []
     # Newest first. The data file keeps them in the order they were added;
     # the page decides how they read.
@@ -594,41 +593,16 @@ def render(section, indent, show_location=False, brief=False, year=False):
     if not items:
         return None
 
-    def tiles(group, pad):
-        out = []
-        for item in group:
-            # data-location is what js/press-filter.js narrows on
-            # Named so the homepage mastheads can link to the piece itself.
-            out.append('%s<li id="press-%s" data-location="%s">'
-                       % (pad, html.escape(item["slug"]),
-                          html.escape(item.get("location", ""))))
-            out.extend(pad + "  " + line for line in card(item, show_location, brief))
-            out.append(pad + "</li>")
-        return out
-
     lines = ['<div class="ch-press">']
-    if year:
-        # A group per year, in the order the items are already in. The heading
-        # carries no data-location, because a year holds cuttings from both
-        # woodlands; press-filter.js hides a group once all of its own are
-        # hidden, which is the only rule that works for a shared heading.
-        eras = []
-        for item in items:
-            stamp = item["date"][:4]
-            if not eras or eras[-1][0] != stamp:
-                eras.append((stamp, []))
-            eras[-1][1].append(item)
-        for stamp, group in eras:
-            lines.append('  <section class="ch-press__era">')
-            lines.append('    <h3 class="ch-press__era-head">%s</h3>' % stamp)
-            lines.append('    <ul class="ch-press__grid">')
-            lines.extend(tiles(group, "      "))
-            lines.append("    </ul>")
-            lines.append("  </section>")
-    else:
-        lines.append('  <ul class="ch-press__grid">')
-        lines.extend(tiles(items, "    "))
-        lines.append("  </ul>")
+    lines.append('  <ul class="ch-press__grid">')
+    for item in items:
+        # data-location is what js/press-filter.js narrows on
+        # Named so the homepage mastheads can link to the piece itself.
+        lines.append('    <li id="press-%s" data-location="%s">'
+                     % (html.escape(item["slug"]), html.escape(item.get("location", ""))))
+        lines.extend("      " + line for line in card(item, show_location, brief))
+        lines.append("    </li>")
+    lines.append("  </ul>")
     lines.append("</div>")
     body = ("\n" + indent).join(lines)
     return "\n%s%s\n%s" % (indent, body, indent)
@@ -741,8 +715,7 @@ def main():
             # remember which way round they were written.
             words = (match.group(2) or "").split()
             brief = "brief" in words
-            year = "years" in words
-            rest = [w for w in words if w not in ("brief", "years")]
+            rest = [w for w in words if w != "brief"]
             if len(rest) > 1:
                 sys.exit("%s: press marker names more than one section: %s"
                          % (page.name, " ".join(rest)))
@@ -758,7 +731,7 @@ def main():
                 section, both_woodlands = sections[name], False
             else:
                 section, both_woodlands = both(sections, "items"), True
-            body = render(section, marker_indent(match), both_woodlands, brief, year)
+            body = render(section, marker_indent(match), both_woodlands, brief)
             label = name or "combined"
             if body is None:
                 seen.append((label, 0, "tiles"))
