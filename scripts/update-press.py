@@ -204,7 +204,7 @@ def card(item, show_location=False, brief=False):
     return parts
 
 
-def video_card(v, onthumb=False, bare=False):
+def video_card(v, onthumb=False, bare=False, named=False):
     """A video as a still with a play button, not an iframe.
 
     Two shapes: most are a button that swaps in the player, and the ones
@@ -294,8 +294,15 @@ def video_card(v, onthumb=False, bare=False):
     over = []
     if onthumb and not bare:
         inner = ""
+        # The name first, for the films whose still does not already carry it.
+        # Where there is no mark either, the source comes with it: "Parallel
+        # Universe" alone does not say who made it.
+        if named:
+            inner += '<span class="ch-vid__title">%s</span>' % title
         if marks:
             inner += '<span class="ch-vid__logos">%s</span>' % "".join(spans)
+        elif named:
+            inner += '<span class="ch-vid__source">%s</span>' % source
         if v.get("detail"):
             inner += ('<span class="ch-vid__detail">%s</span>'
                       % html.escape(v["detail"]))
@@ -330,7 +337,7 @@ def video_card(v, onthumb=False, bare=False):
     ]
 
 
-def render_screen(section, indent, onthumb=(), bare=()):
+def render_screen(section, indent, onthumb=(), bare=(), named=(), onthumb_all=False):
     videos = section.get("screen") or []
     if not videos:
         return None
@@ -359,7 +366,9 @@ def render_screen(section, indent, onthumb=(), bare=()):
             lines.append('    <li id="screen-%s" data-location="%s">'
                          % (html.escape(v["slug"]), html.escape(v.get("location", ""))))
             lines.extend("      " + line
-                         for line in video_card(v, v["slug"] in onthumb, v["slug"] in bare))
+                         for line in video_card(
+                             v, onthumb_all or v["slug"] in onthumb,
+                             v["slug"] in bare, v["slug"] in named))
             lines.append("    </li>")
         lines.append("  </ul>")
     lines.append("</div>")
@@ -728,12 +737,19 @@ def main():
             words = (match.group(2) or "").split()
             onthumb = set()
             bare = set()
+            named = set()
+            onthumb_all = False
             rest = []
             for word in words:
-                if word.startswith("onthumb:"):
+                if word == "onthumb":
+                    # on its own: every film in the block
+                    onthumb_all = True
+                elif word.startswith("onthumb:"):
                     onthumb.update(w for w in word[8:].split(",") if w)
                 elif word.startswith("bare:"):
                     bare.update(w for w in word[5:].split(",") if w)
+                elif word.startswith("title:"):
+                    named.update(w for w in word[6:].split(",") if w)
                 else:
                     rest.append(word)
             if len(rest) > 1:
@@ -751,11 +767,12 @@ def main():
             # A slug that is not in the block is a typo, not a gap: it would
             # otherwise go unnoticed as one tile that kept its caption.
             have = set(v["slug"] for v in section.get("screen") or [])
-            astray = sorted((onthumb | bare) - have)
+            astray = sorted((onthumb | bare | named) - have)
             if astray:
                 sys.exit("%s: the screen marker names no such film: %s"
                          % (page.name, ", ".join(astray)))
-            body = render_screen(section, marker_indent(match), onthumb, bare)
+            body = render_screen(section, marker_indent(match), onthumb, bare,
+                                 named, onthumb_all)
             if body is None:
                 return match.group(0)
             seen.append((name or "combined", len(section["screen"]), "screen"))

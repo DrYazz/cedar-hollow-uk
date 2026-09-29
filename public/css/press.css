@@ -687,6 +687,20 @@ a.ch-vid__play {
   text-align: right;
 }
 
+/* The name on the still, for the films whose own artwork does not carry it.
+   Held to a column so a long title wraps into the corner rather than running
+   the width of the picture. */
+.ch-vid__over .ch-vid__title {
+  font-size: 1.0625rem;
+  line-height: 1.25;
+  max-width: 18rem;
+}
+
+.ch-vid__over .ch-vid__source {
+  font-size: .875rem;
+  opacity: .85;
+}
+
 .ch-vid__over .ch-vid__logos {
   margin-top: 0;
   gap: .65rem;
