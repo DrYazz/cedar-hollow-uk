@@ -2,10 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Press &amp; Recognition | Cedar Hollow Oxford</title>
+  <title>Share your Stay | Cedar Hollow</title>
   <meta content="width=device-width, initial-scale=1" name="viewport">
-<meta name="format-detection" content="telephone=no">
-  <meta name="description" content="Fourteen features and five screen appearances for the Narnia-inspired treehouse, the cave hideaway and the woodland around them.">
+  <meta name="description" content="Every feature, broadcast and award for Cedar Hollow's woodland retreats in Oxfordshire and Dorset.">
   <link href="css/normalize.css" rel="stylesheet" type="text/css">
   <link href="css/webflow.css" rel="stylesheet" type="text/css">
   <link href="css/cedar-hollow-uk.webflow.css?v=20260925a" rel="stylesheet" type="text/css">
@@ -16,13 +15,13 @@
   <link href="site.webmanifest" rel="manifest">
   <meta content="#3B4126" name="theme-color">
   <!--  Link previews. See index.html for why these are absolute.  -->
-  <link href="https://cedarhollow.uk/oxford-press.html" rel="canonical">
+  <link href="https://cedarhollow.uk/influencers.html" rel="canonical">
   <meta content="Cedar Hollow" property="og:site_name">
   <meta content="website" property="og:type">
   <meta content="en_GB" property="og:locale">
-  <meta content="Press &amp; Recognition | Cedar Hollow Oxford" property="og:title">
-  <meta content="Fourteen features and five screen appearances for the Narnia-inspired treehouse, the cave hideaway and the woodland around them." property="og:description">
-  <meta content="https://cedarhollow.uk/oxford-press.html" property="og:url">
+  <meta content="Share your Stay | Cedar Hollow" property="og:title">
+  <meta content="Post a reel from your stay at Cedar Hollow, include us as a collaborator, and you may be eligible for a refund of up to the whole stay." property="og:description">
+  <meta content="https://cedarhollow.uk/influencers.html" property="og:url">
   <meta content="https://cedarhollow.uk/images/og-image.jpg" property="og:image">
   <meta content="1200" property="og:image:width">
   <meta content="630" property="og:image:height">
@@ -30,8 +29,8 @@
   <meta content="A timber cabin lit from within, among ferns in golden-hour woodland" property="og:image:alt">
   <meta content="summary_large_image" name="twitter:card">
   <link href="css/page.css?v=20260922a" rel="stylesheet" type="text/css">
+  <link href="css/reviews-wall.css?v=20260929a" rel="stylesheet" type="text/css">
   <link href="css/press.css?v=20260927b" rel="stylesheet" type="text/css">
-  <link href="css/oxford-footer.css?v=4efd9f7b" rel="stylesheet" type="text/css">
   <style>
     /* page.css styles .ch-prose links but not .ch-list ones, so these were
        rendering as default browser blue; and .ch-list is not in the accent
@@ -41,205 +40,45 @@
     .ch-section--accent .ch-list{color:var(--brand,#efeed5);}
     .ch-list li{line-height:1.6;}
   </style>
+  <style>
+    /* The filter over the three kinds of coverage. It borrows .ch-wall__btn
+       from the reviews page so the buttons are the ones used elsewhere. */
+    .ch-cov{background-color:var(--brand,#efeed5);color:var(--accent,#3b4126);
+      padding:2.5rem 1.25rem;}
+    .ch-cov__row{display:flex;flex-wrap:wrap;align-items:center;
+      justify-content:center;gap:.875rem;margin:0;}
+    /* .bg-light sets display, which beats the browser's own [hidden] rule at
+       equal specificity, so a hidden panel needs saying outright. */
+    [data-cov-panel][hidden]{display:none;}
+
+    /* Where to tag us. A definition list, because that is what it is. */
+    .ch-handles{margin:0;}
+    .ch-handles__row{display:flex;flex-wrap:wrap;align-items:baseline;
+      gap:.35rem .75rem;padding:.5rem 0;border-top:1px solid rgba(59,65,38,.15);}
+    .ch-handles__row:first-child{border-top:0;}
+    .ch-handles dt{flex:0 0 5.5rem;font-size:.8125rem;font-weight:600;
+      letter-spacing:.06em;text-transform:uppercase;opacity:.65;}
+    .ch-handles dd{margin:0;display:flex;flex-wrap:wrap;gap:.4rem;}
+  </style>
 </head>
 <body class="cp">
-  <section class="ch-page-hero">
-        <div class="ch-nav w-embed">
-          <style>
-            .ch-nav{width:100%;position:relative;}
-            /* Figma: nav is the hero flex column's first child, flush to the top edge. */
-            .section-hero .hero_contents{padding-top:0;}
-            /* Figma hero frame is 1440x810 with a 720px floor. Ours tracked 100vh, so on
-               any window not 16:9 the width-derived offsets drifted against a height-derived
-               box. Tie height to width instead: 56.25vw = 810/1440, floored at the spec's
-               720px and capped at 810 to match the content caps above 1440. */
-            .section-hero .hero_contents{min-height:100vh;}
-            /* Vertical rhythm measured off the 1440x810 hero export. The hero scales
-               with viewport, so these track it: 10vw = 145px and 5vw = 72px at 1440. */
-            .section-hero .hero_contents > .padding-global{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;justify-content:center;padding-top:min(110px,13.58vh);padding-bottom:min(50px,6.17vh);}
-            .section-hero .button-group{padding-top:0;}
-            /* A little more presence against the 80px heading, while keeping the
-               pill proportion. The 102px version tried earlier dropped the ratio to
-               2.5:1 and read as a lozenge; this holds ~3.7:1. */
-            .section-hero .button-group .button{padding:1rem 2rem;}
-            /* Figma bottom block: pt24, rating, 24 gap, logos, pb36 - one stack. The export
-               carried an extra 36px on .hero_contents and doubled the internal gap. */
-            .section-hero .hero_contents{padding-bottom:0;}
-            .section-hero .hero_logos-wrapper{margin-top:0;padding-top:min(24px,2.96vh);padding-bottom:0;}
-            .section-hero .logo-marquee{padding-top:min(24px,2.96vh);padding-bottom:min(36px,4.44vh);}
-            /* 42px suited the 750px search bar; a 208px button groups better with the
-               heading at a tighter gap. */
-            .section-hero .hero_content .margin-bottom{margin-bottom:min(32px,3.95vh);}
-            /* Figma breaks the heading after "Award-Winning" and "Retreats in";
-               let it wrap naturally on narrow screens instead. */
-            @media screen and (max-width:767px){.hero-br{display:none;}}
-            .section-hero .heading-style-h1{font-size:min(clamp(2.25rem,5.56vw,5rem),9.88vh);letter-spacing:-.035em;line-height:100%;color:#EFEED5;}
-            /* The clamp's 2.25rem floor pushes "Oxfordshire and Dorset" onto a fourth
-               line on phones. 9vw holds the three-line shape from 479px down to 320px
-               (34px -> 29px), measured rather than guessed. */
-            @media (max-width:479px){.section-hero .heading-style-h1{font-size:9vw;}}
-            /* Self-hosted alongside Crimson Pro and Inter. OFL; licence in fonts/. */
-            @font-face{font-family:"Hedvig Letters Serif";src:url("fonts/HedvigLettersSerif_18pt-Regular.ttf") format("truetype");font-weight:400;font-style:normal;font-display:swap;}
-            .ch-nav__bar{display:flex;align-items:center;justify-content:space-between;gap:1rem;width:100%;padding:20px 32px 20px 24px;position:relative;z-index:30;}
-            .ch-nav__logo{display:inline-flex;align-items:center;gap:clamp(.5rem,.83vw,.75rem);text-decoration:none;color:#F1ECDB;}
-            .ch-nav__owl{width:clamp(1.75rem,2.5vw,2.25rem);height:auto;flex:none;}
-            .ch-nav__wordmark{font-family:"Hedvig Letters Serif",var(--font-family--heading,Crimsonpro),serif;font-size:clamp(1.5rem,2.78vw,2.5rem);font-weight:400;line-height:100%;letter-spacing:-.035em;}
-            .ch-nav__toggle{display:flex;flex-direction:column;justify-content:center;gap:6px;width:2rem;height:2rem;padding:0;background:none;border:0;cursor:pointer;}
-            .ch-nav__toggle span[aria-hidden]{display:block;width:32px;height:1.75px;background-color:#F1ECDB;border-radius:0;transition:transform .2s ease,opacity .2s ease;}
-            .ch-nav__toggle[aria-expanded="true"] span[aria-hidden]:nth-child(1){transform:translateY(7.75px) rotate(45deg);}
-            .ch-nav__toggle[aria-expanded="true"] span[aria-hidden]:nth-child(2){opacity:0;}
-            .ch-nav__toggle[aria-expanded="true"] span[aria-hidden]:nth-child(3){transform:translateY(-7.75px) rotate(-45deg);}
-            .ch-nav__toggle:focus-visible{outline:2px solid #F1ECDB;outline-offset:4px;}
-            @media (prefers-reduced-motion: reduce){
-              .ch-nav__menu a{animation:none;opacity:1;transform:none;}
-            }
-            .ch-nav__sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
-            .ch-nav__menu[hidden]{display:none;}
-            .ch-nav__menu{position:absolute;top:100%;right:32px;z-index:20;display:flex;flex-direction:column;align-items:flex-end;gap:.35rem;min-width:11rem;padding:.75rem 0 0;text-align:right;}
-            .ch-nav__menu a{color:#F1ECDB;font-size:1.125rem;line-height:1.3;text-decoration:none;padding:.4rem 0;white-space:nowrap;text-shadow:0 1px 14px rgba(16,19,7,.7);opacity:0;transform:translateY(-6px);animation:ch-nav-item .34s cubic-bezier(.2,.7,.3,1) forwards;}
-            .ch-nav__menu a:nth-child(1){animation-delay:.03s;}
-            .ch-nav__menu a:nth-child(2){animation-delay:.07s;}
-            .ch-nav__menu a:nth-child(3){animation-delay:.11s;}
-            .ch-nav__menu a:nth-child(4){animation-delay:.15s;}
-            .ch-nav__menu a:nth-child(5){animation-delay:.19s;}
-            @keyframes ch-nav-item{to{opacity:1;transform:none;}}
-            .ch-nav__menu a:hover,.ch-nav__menu a:focus-visible{text-decoration:underline;}
-            @media screen and (max-width:767px){
-              .ch-nav__menu{position:fixed;inset:0;z-index:15;min-width:0;justify-content:safe center;align-items:center;gap:.75rem;padding:4.5rem 2rem 3rem;background-color:var(--accent,#3b4126);text-align:center;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;}
-              .ch-nav__menu a{font-size:1.75rem;padding:.6rem 0;text-shadow:none;}
-              body.ch-nav-open{overflow:hidden;}
-            }
-          </style><style>
-/* The Oxford navigation dropdown.
-
-   These three pages sit at the site root but belong to the Oxford sub-site, so
-   they carry Oxford's nav. They do not load oxford/css/site.css, where the
-   dropdown is styled, and the flat single-column rules above would otherwise
-   run the five groups together on one line. Written out here rather than
-   scraped from that stylesheet, so it is self-contained and readable. */
-/* :not([hidden]) matters. The page's own stylesheet hides the menu with
-   .ch-nav__menu[hidden]{display:none}, which has the same specificity as
-   .ch-nav__menu.is-dropdown -- so a bare display here wins on order alone and
-   the panel never closes, however correctly the toggle sets hidden. The
-   sub-site stylesheet guards it the same way. */
-.ch-nav__menu.is-dropdown:not([hidden]){
-  /* bottom:auto matters. The page's own mobile rule makes the flat menu a
-     full-screen overlay with position:fixed and inset:0, which sets bottom:0.
-     This rule puts position back to absolute and sets top:100% but said nothing
-     about bottom, so bottom:0 survived -- and an absolutely positioned box with
-     both top and bottom fixed takes its height from the containing block, which
-     is the 75px nav bar. 75 - 75 - 0 = zero, so the panel opened to nothing but
-     its own padding. */
-  position:absolute;top:100%;right:32px;bottom:auto;z-index:20;
-  display:grid;grid-template-columns:repeat(2,minmax(9rem,12rem));
-  gap:1.35rem 2.25rem;align-items:start;
-  min-width:0;max-width:calc(100vw - 48px);
-  padding:1.25rem 1.5rem 1.5rem;
-  text-align:left;
-  background:var(--accent,#3b4126);
-  border:1px solid rgba(241,236,219,.16);
-  border-radius:14px;
-  box-shadow:0 18px 40px rgba(0,0,0,.28);
-}
-.ch-nav__menu.is-dropdown .ch-navgroup{display:flex;flex-direction:column;min-width:0;}
-.ch-nav__menu.is-dropdown .ch-navgroup__title{
-  margin:0 0 .45rem;padding-bottom:.35rem;
-  border-bottom:1px solid rgba(241,236,219,.2);
-  font-family:var(--font-family--body,inherit);
-  font-size:.6875rem;font-weight:500;letter-spacing:.09em;
-  text-transform:uppercase;color:rgba(241,236,219,.62);
-}
-.ch-nav__menu.is-dropdown a{
-  display:block;padding:.3rem 0;
-  font-size:.9375rem;font-weight:400;line-height:1.35;
-  color:#f1ecdb;text-decoration:none;text-align:left;white-space:normal;
-}
-.ch-nav__menu.is-dropdown a:hover,
-.ch-nav__menu.is-dropdown a:focus-visible{color:#fff;text-decoration:underline;text-underline-offset:.18em;}
-.ch-nav__menu.is-dropdown a:focus-visible{outline:2px solid #f1ecdb;outline-offset:3px;border-radius:2px;}
-.ch-nav__menu.is-dropdown a[aria-current="page"]{color:#fff;font-weight:500;}
-.ch-nav__menu.is-dropdown a[aria-current="page"]::before{
-  content:"";display:inline-block;width:.3rem;height:.3rem;margin-right:.45rem;
-  vertical-align:.15em;border-radius:50%;background:currentColor;
-}
-/* On a phone the panel takes the width it needs and stacks into one column. */
-@media screen and (max-width:47.9375rem){
-  /* matched to the specificity of the rule above, or its single column loses to
-     the two-column default and the panel stays two-up on a phone */
-  .ch-nav__menu.is-dropdown:not([hidden]){
-    left:16px;right:16px;bottom:auto;grid-template-columns:1fr;gap:1.1rem;
-    max-width:none;max-height:calc(100vh - 6rem);overflow-y:auto;
-  }
-  .ch-nav__menu.is-dropdown a{padding:.45rem 0;font-size:1.0625rem;}
-}
-</style>
-          <nav class="ch-nav__bar" aria-label="Primary">
-            <a href="oxford.html" class="ch-nav__logo"><img src="images/cedar-hollow-owl.svg" loading="eager" alt="Cedar Hollow Oxford" class="ch-nav__owl"><span class="ch-nav__wordmark">Oxford</span></a>
-            <button class="ch-nav__toggle" type="button" aria-expanded="false" aria-controls="ch-nav-menu"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span><span class="ch-nav__sr">Menu</span></button>
-          </nav>
-          <div class="ch-nav__menu is-dropdown" id="ch-nav-menu" hidden><a href="search-results.html?destination=Oxford" class="ch-nav__book-cta"><span>Book your Stay</span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 17 12" fill="none" class="button_icon" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.2443 5.03644L9.48927 1.21321L10.6935 0L16.5 5.91195L10.6783 11.55L9.50444 10.3067L13.17 6.75673H0V5.03644H13.2443Z" fill="currentColor"/></svg></a><div class="ch-navgroup"><p class="ch-navgroup__title">Your Stay</p><a href="oxford/facilities.html">Facilities</a><a href="oxford/wellness.html">Wellness</a><a href="oxford/dining.html">Dining</a><a href="oxford/experiences.html">Experiences</a><a href="oxford/celebrations.html">Celebrations</a><a href="oxford/todo.html">On Our Doorstep</a></div><div class="ch-navgroup"><p class="ch-navgroup__title">About</p><a href="oxford/story.html">Our Story</a><a href="oxford/honey.html">Our Honey</a><a href="oxford-sustainability.html">Sustainability</a><a href="oxford/philanthropy.html">Philanthropy</a><a href="oxford-reviews.html">Reviews</a><a href="oxford-press.html" aria-current="page">Press</a></div><div class="ch-navgroup"><p class="ch-navgroup__title">Work with us</p><a href="oxford/working.html">Careers</a><a href="influencers.html">Influencers</a><a href="oxford/schoolgroups.html">School Groups</a></div></div>
-          <script>
-            (function(){
-              var btn=document.querySelector(".ch-nav__toggle"),menu=document.getElementById("ch-nav-menu");
-              if(!btn||!menu)return;
-              function close(){btn.setAttribute("aria-expanded","false");menu.hidden=true;document.body.classList.remove("ch-nav-open");}
-              btn.addEventListener("click",function(){
-                var open=btn.getAttribute("aria-expanded")==="true";
-                btn.setAttribute("aria-expanded",String(!open));
-                menu.hidden=open;
-                document.body.classList.toggle("ch-nav-open",!open);
-              });
-              menu.addEventListener("click",function(e){if(e.target.tagName==="A")close();});
-              document.addEventListener("keydown",function(e){
-                if(e.key==="Escape"&&btn.getAttribute("aria-expanded")==="true"){close();btn.focus();}
-              });
-            })();
-          </script>
-        </div>
-    <div class="ch-page-hero__body padding-global"><div class="container-large">
-      <div class="text-align-center"><div class="max-width-xlarge align-center">
-        <p class="ch-page-hero__eyebrow text-size-medium text-style-allcaps">Cedar Hollow in the news</p>
-        <h1 class="heading-style-h1">Oxford <span class="text-style-italic">in the press</span></h1>
-        <p class="ch-page-hero__lead text-size-large">Imagined and brought to life by a team of creatives, immerse yourself in a woodland world of story-inspired hideaways and unexpected illusions, rooted in a commitment to eco-tourism.</p>
-      </div></div>
-    </div></div>
-  </section>
-
-
-    <!--  The kind control sits here, above both sections, because it
-          hides a section whole and cannot hide itself. Which woodland
-          is settled by which page you are on, so that half is left out.  -->
-    <section class="bg-light">
-      <div class="padding-global">
-        <div class="container-large">
-          <div class="text-align-center">
-            <div class="max-width-xlarge align-center">
-              <!-- ch:press-filter oxford -->
-              <div class="ch-press__filters">
-                <div class="ch-press__filter" role="group" aria-labelledby="ch-filter-kind">
-                  <span class="ch-press__filter-label" id="ch-filter-kind">Type:</span>
-                  <button class="ch-feed__btn" type="button" data-group="kind" data-filter="all" aria-pressed="true">All <span class="ch-feed__count">28</span></button>
-                  <button class="ch-feed__btn" type="button" data-group="kind" data-filter="press" aria-pressed="false">Press <span class="ch-feed__count">14</span></button>
-                  <button class="ch-feed__btn" type="button" data-group="kind" data-filter="screen" aria-pressed="false">TV <span class="ch-feed__count">5</span></button>
-                  <button class="ch-feed__btn" type="button" data-group="kind" data-filter="awards" aria-pressed="false">Awards <span class="ch-feed__count">9</span></button>
-                </div>
-              </div>
-              <!-- /ch:press-filter -->
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-    <section class="bg-light" data-kind="press">
+  <section class="ch-page-hero"><div class="ch-page-hero__body padding-global"><div class="container-large"><div class="text-align-center"><div class="max-width-xlarge align-center"><p class="ch-page-hero__eyebrow text-size-medium text-style-allcaps">For creators</p><h1 class="heading-style-h1">Share your Stay <span class="text-style-italic">&amp; get rewarded</span></h1><p class="ch-page-hero__lead text-size-large">Post a reel from your stay, include us as a collaborator, and you may be eligible for a refund of up to the whole stay.</p></div></div></div></div></section>
+<section class="bg-off"><div class="padding-section-medium"><div class="padding-global"><div class="container-large"><div class="text-align-center"><div class="ch-prose is-large"><p>Our guests often post reels from their stay, and we love authentic, family-friendly content. Post a public Instagram, TikTok or YouTube reel and include us as a collaborator, and you may be eligible for a refund based on how it performs.</p></div><ul class="ch-cards is-left" style="margin-top:2.5rem"><li><h3 class="heading-style-h4">How it works</h3><ul><li>Post a reel from your stay</li><li>Include us as a collaborator</li><li>Views are counted 14 days after posting</li></ul></li><li><h3 class="heading-style-h4">Rewards</h3><p>From a single reel:</p><ul><li>5,000+ views &rarr; 15% refund</li><li>15,000+ views &rarr; 50% refund</li><li>50,000+ views &rarr; 100% refund of your stay</li></ul><p class="ch-note" style="margin-top:.75rem">Refunds are issued after checkout to the original payment method.</p></li><li><h3 class="heading-style-h4">Include us as a collaborator</h3><dl class="ch-handles"><div class="ch-handles__row"><dt>Instagram</dt><dd><a class="ch-chip" href="https://www.instagram.com/cedarhollowoxford/" target="_blank" rel="noopener">@cedarhollowoxford</a><a class="ch-chip" href="https://www.instagram.com/cedarhollowdorset/" target="_blank" rel="noopener">@cedarhollowdorset</a><a class="ch-chip" href="https://www.instagram.com/cool.escapes/" target="_blank" rel="noopener">@cool.escapes</a></dd></div><div class="ch-handles__row"><dt>TikTok</dt><dd><a class="ch-chip" href="https://www.tiktok.com/@cedarhollow" target="_blank" rel="noopener">@cedarhollow</a></dd></div><div class="ch-handles__row"><dt>YouTube</dt><dd><a class="ch-chip" href="https://www.youtube.com/@CedarHollow" target="_blank" rel="noopener">@CedarHollow</a></dd></div></dl><p class="ch-note" style="margin-top:.75rem">Whichever woodland you stayed in, add both Instagram accounts and Cool Escapes.</p></li></ul><div class="button-group align-center" style="margin-top:2.25rem"><a href="mailto:hello@cedarhollow.uk?subject=Creator collaboration" class="button"><span>Over 300k followers? Get in touch</span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 17 12" fill="none" class="button_icon" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.2443 5.03644L9.48927 1.21321L10.6935 0L16.5 5.91195L10.6783 11.55L9.50444 10.3067L13.17 6.75673H0V5.03644H13.2443Z" fill="currentColor"/></svg></a></div></div></div></div></div></section>
+<div class="ch-cov" data-ch-cov><div class="ch-cov__row" role="group" aria-label="Filter coverage"><button class="ch-wall__btn" type="button" data-cov="all" aria-pressed="true">All</button><button class="ch-wall__btn" type="button" data-cov="news" aria-pressed="false">News</button><button class="ch-wall__btn" type="button" data-cov="screen" aria-pressed="false">On screen</button><button class="ch-wall__btn" type="button" data-cov="guests" aria-pressed="false">Familiar faces</button></div></div>
+<section class="bg-light" data-kind="press" data-cov-panel="news">
       <div class="padding-section-medium">
         <div class="padding-global">
           <div class="container-large">
             <div class="text-align-center">
               <div class="max-width-xlarge align-center">
-                <!--  Written coverage only. The screen coverage has its own section
-                      below: these tiles are portrait clippings, and a landscape still
-                      dropped among them had to be cropped to fit.  -->
-                <!-- ch:press oxford -->
+                <div class="section-title-block">
+                  <div class="margin-bottom margin-large">
+                    <h2 class="heading-style-h1">In the <span class="text-style-italic">press</span></h2>
+                  </div>
+                </div>
+                <!--  Written coverage for both woodlands, newest first. Each card
+                      names its woodland beside the year, since this page mixes them.  -->
+                <!-- ch:press -->
                 <div class="ch-press">
                   <ul class="ch-press__grid">
                     <li id="press-oxfordmail" data-location="oxford">
@@ -247,7 +86,7 @@
                         <a class="ch-press__clip" href="https://www.oxfordmail.co.uk/news/26169566.visitengland-names-oxford-holiday-retreat-among-best-uk/" target="_blank" rel="noopener" aria-label="Read &ldquo;VisitEngland names Oxford holiday retreat among best in UK&rdquo; on Oxford Mail"><img src="images/press-shots/oxfordmail-412.webp?v=20260927" srcset="images/press-shots/oxfordmail-206.webp?v=20260927 206w, images/press-shots/oxfordmail-412.webp?v=20260927 412w" sizes="(max-width: 767px) 45vw, 14rem" loading="lazy" decoding="async" alt=""></a>
                         <div class="ch-press__body">
                           <span class="ch-press__logo" role="img" aria-label="Oxford Mail" style="-webkit-mask-image:url('images/press/oxfordmail.png');mask-image:url('images/press/oxfordmail.png')"></span>
-                          <p class="ch-press__year">2026</p>
+                          <p class="ch-press__year">2026 &middot; Oxfordshire</p>
                           <blockquote class="ch-press__quote"><p>&ldquo;Oxford woodland retreat wins top VisitEngland Award.&rdquo;</p></blockquote>
                         </div>
                       </article>
@@ -257,7 +96,7 @@
                         <a class="ch-press__clip" href="https://www.timeout.com/uk/things-to-do/amazing-uk-treehouses-you-can-actually-stay-in" target="_blank" rel="noopener" aria-label="Read &ldquo;The best treehouse stays in the UK – bookable on Airbnb&rdquo; on Time Out"><img src="images/press-shots/timeout-412.webp?v=20260927" srcset="images/press-shots/timeout-206.webp?v=20260927 206w, images/press-shots/timeout-412.webp?v=20260927 412w" sizes="(max-width: 767px) 45vw, 14rem" loading="lazy" decoding="async" alt=""></a>
                         <div class="ch-press__body">
                           <span class="ch-press__logo" role="img" aria-label="Time Out" style="--logo-scale:1.6;-webkit-mask-image:url('images/press/timeout.svg');mask-image:url('images/press/timeout.svg')"></span>
-                          <p class="ch-press__year">2026</p>
+                          <p class="ch-press__year">2026 &middot; Oxfordshire</p>
                           <blockquote class="ch-press__quote"><p>&ldquo;the treehouse will awaken your inner child&rdquo;</p></blockquote>
                         </div>
                       </article>
@@ -267,7 +106,7 @@
                         <a class="ch-press__clip" href="https://www.thetimes.com/travel/destinations/uk-travel/england/oxford/best-airbnbs-in-oxford-0t0mnf2vx" target="_blank" rel="noopener" aria-label="Read &ldquo;11 of the best Airbnbs in Oxford&rdquo; on The Times"><img src="images/press-shots/times-airbnbs-412.webp?v=20260927a" srcset="images/press-shots/times-airbnbs-206.webp?v=20260927a 206w, images/press-shots/times-airbnbs-412.webp?v=20260927a 412w" sizes="(max-width: 767px) 45vw, 14rem" loading="lazy" decoding="async" alt=""></a>
                         <div class="ch-press__body">
                           <span class="ch-press__logo" role="img" aria-label="The Times" style="-webkit-mask-image:url('images/logo-the-times.svg');mask-image:url('images/logo-the-times.svg')"></span>
-                          <p class="ch-press__year">2025</p>
+                          <p class="ch-press__year">2025 &middot; Oxfordshire</p>
                           <blockquote class="ch-press__quote"><p>&ldquo;With its cave-like vibe, it feels a bit like staying in a movie set&rdquo;</p></blockquote>
                         </div>
                       </article>
@@ -277,7 +116,7 @@
                         <a class="ch-press__clip" href="https://www.thetimes.com/travel/inspiration/family-travel/my-visit-to-the-oxfordshire-woodland-that-inspired-narnia-7fwtlsffc" target="_blank" rel="noopener" aria-label="Read &ldquo;My visit to the Oxfordshire woodland that inspired Narnia&rdquo; on The Sunday Times"><img src="images/press-shots/times-narnia-412.webp?v=20260927a" srcset="images/press-shots/times-narnia-206.webp?v=20260927a 206w, images/press-shots/times-narnia-412.webp?v=20260927a 412w" sizes="(max-width: 767px) 45vw, 14rem" loading="lazy" decoding="async" alt=""></a>
                         <div class="ch-press__body">
                           <span class="ch-press__logo" role="img" aria-label="The Sunday Times" style="-webkit-mask-image:url('images/logo-the-sunday-times.png');mask-image:url('images/logo-the-sunday-times.png')"></span>
-                          <p class="ch-press__year">2025</p>
+                          <p class="ch-press__year">2025 &middot; Oxfordshire</p>
                           <blockquote class="ch-press__quote"><p>&ldquo;I find myself in a 12-acre wood - and inside the world that Lewis created.&rdquo;</p></blockquote>
                         </div>
                       </article>
@@ -287,7 +126,7 @@
                         <a class="ch-press__clip" href="https://euroweeklynews.com/2024/11/27/a-storybook-themed-stay-in-the-uk-narnia-fans-will-love-this/" target="_blank" rel="noopener" aria-label="Read &ldquo;A storybook-themed stay in the UK Narnia fans will love&rdquo; on Euro Weekly News"><img src="images/press-shots/euroweekly-412.webp?v=20260927a" srcset="images/press-shots/euroweekly-206.webp?v=20260927a 206w, images/press-shots/euroweekly-412.webp?v=20260927a 412w" sizes="(max-width: 767px) 45vw, 14rem" loading="lazy" decoding="async" alt=""></a>
                         <div class="ch-press__body">
                           <span class="ch-press__logo" role="img" aria-label="Euro Weekly News" style="--logo-scale:1.4;-webkit-mask-image:url('images/press/euroweekly.png');mask-image:url('images/press/euroweekly.png')"></span>
-                          <p class="ch-press__year">2024</p>
+                          <p class="ch-press__year">2024 &middot; Oxfordshire</p>
                           <blockquote class="ch-press__quote"><p>&ldquo;this whimsical holiday rental is a must-visit destination for fairy tale fans.&rdquo;</p></blockquote>
                         </div>
                       </article>
@@ -297,7 +136,7 @@
                         <a class="ch-press__clip" href="https://www.goodnewsnetwork.org/narnia-themed-treehouse-built-next-to-c-s-lewis-home-features-magic-wardrobe-now-its-a-rental/" target="_blank" rel="noopener" aria-label="Read &ldquo;Narnia themed treehouse built next to C.S. Lewis’ home features magic wardrobe&rdquo; on Good News Network"><img src="images/press-shots/gnn-412.webp?v=20260927a" srcset="images/press-shots/gnn-206.webp?v=20260927a 206w, images/press-shots/gnn-412.webp?v=20260927a 412w" sizes="(max-width: 767px) 45vw, 14rem" loading="lazy" decoding="async" alt=""></a>
                         <div class="ch-press__body">
                           <span class="ch-press__logo" role="img" aria-label="Good News Network" style="--logo-scale:1.35;-webkit-mask-image:url('images/press/gnn.png');mask-image:url('images/press/gnn.png')"></span>
-                          <p class="ch-press__year">2024</p>
+                          <p class="ch-press__year">2024 &middot; Oxfordshire</p>
                           <blockquote class="ch-press__quote"><p>&ldquo;a magic mirror people can talk to, built by an AI engineer and magic circle member&rdquo;</p></blockquote>
                         </div>
                       </article>
@@ -307,7 +146,7 @@
                         <a class="ch-press__clip" href="https://www.thesun.co.uk/travel/31781255/britains-best-treehouse-fantasy-world-magic-wardrobe/" target="_blank" rel="noopener" aria-label="Read &ldquo;I built ‘Britain’s best treehouse’ inspired by fantasy world with ‘magic’ wardrobe&rdquo; on The Sun"><img src="images/press-shots/thesun-412.webp?v=20260927a" srcset="images/press-shots/thesun-206.webp?v=20260927a 206w, images/press-shots/thesun-412.webp?v=20260927a 412w" sizes="(max-width: 767px) 45vw, 14rem" loading="lazy" decoding="async" alt=""></a>
                         <div class="ch-press__body">
                           <span class="ch-press__logo" role="img" aria-label="The Sun" style="-webkit-mask-image:url('images/press/thesun.svg');mask-image:url('images/press/thesun.svg')"></span>
-                          <p class="ch-press__year">2024</p>
+                          <p class="ch-press__year">2024 &middot; Oxfordshire</p>
                           <blockquote class="ch-press__quote"><p>&ldquo;Cedar Hollow is a true work of art, blending seamlessly with the surrounding forest.&rdquo;</p></blockquote>
                         </div>
                       </article>
@@ -317,7 +156,7 @@
                         <a class="ch-press__clip" href="https://www.manchestereveningnews.co.uk/news/property/inside-narnia-themed-treehouse-features-30398002" target="_blank" rel="noopener" aria-label="Read &ldquo;Inside Narnia-themed treehouse that features its own ‘magic’ wardrobe&rdquo; on Evening News"><img src="images/press-shots/men-412.webp?v=20260923" srcset="images/press-shots/men-206.webp?v=20260923 206w, images/press-shots/men-412.webp?v=20260923 412w" sizes="(max-width: 767px) 45vw, 14rem" loading="lazy" decoding="async" alt=""></a>
                         <div class="ch-press__body">
                           <span class="ch-press__logo" role="img" aria-label="Evening News" style="--logo-scale:1.6;-webkit-mask-image:url('images/press/men.png');mask-image:url('images/press/men.png')"></span>
-                          <p class="ch-press__year">2024</p>
+                          <p class="ch-press__year">2024 &middot; Oxfordshire</p>
                           <blockquote class="ch-press__quote"><p>&ldquo;complete with a magic wardrobe door that &#x27;transports&#x27; visitors straight into the countryside.&rdquo;</p></blockquote>
                         </div>
                       </article>
@@ -327,7 +166,7 @@
                         <a class="ch-press__clip" href="https://www.bbc.co.uk/news/articles/cp8l8pge349o" target="_blank" rel="noopener" aria-label="Read &ldquo;Narnia in Oxfordshire: The doctor, the treehouse and the wardrobe&rdquo; on BBC News"><img src="images/press-shots/bbc-412.webp?v=20260927a" srcset="images/press-shots/bbc-206.webp?v=20260927a 206w, images/press-shots/bbc-412.webp?v=20260927a 412w" sizes="(max-width: 767px) 45vw, 14rem" loading="lazy" decoding="async" alt=""></a>
                         <div class="ch-press__body">
                           <span class="ch-press__logo" role="img" aria-label="BBC News" style="-webkit-mask-image:url('images/press/bbc.svg');mask-image:url('images/press/bbc.svg')"></span>
-                          <p class="ch-press__year">2024</p>
+                          <p class="ch-press__year">2024 &middot; Oxfordshire</p>
                           <blockquote class="ch-press__quote"><p>&ldquo;able to transport you into a mythical world.&rdquo;</p></blockquote>
                         </div>
                       </article>
@@ -337,7 +176,7 @@
                         <a class="ch-press__clip" href="https://secretldn.com/treehouse-rental-cedar-hollow/" target="_blank" rel="noopener" aria-label="Read &ldquo;This Narnia-themed treehouse near London is the perfect staycation&rdquo; on Secret London"><img src="images/press-shots/secretldn-412.webp?v=20260925" srcset="images/press-shots/secretldn-206.webp?v=20260925 206w, images/press-shots/secretldn-412.webp?v=20260925 412w" sizes="(max-width: 767px) 45vw, 14rem" loading="lazy" decoding="async" alt=""></a>
                         <div class="ch-press__body">
                           <span class="ch-press__logo" role="img" aria-label="Secret London" style="-webkit-mask-image:url('images/press/secretldn.png');mask-image:url('images/press/secretldn.png')"></span>
-                          <p class="ch-press__year">2024</p>
+                          <p class="ch-press__year">2024 &middot; Oxfordshire</p>
                           <blockquote class="ch-press__quote"><p>&ldquo;The handcrafted woodwork is gorgeously blended with state-of-the-art design&rdquo;</p></blockquote>
                         </div>
                       </article>
@@ -347,7 +186,7 @@
                         <a class="ch-press__clip" href="https://thetab.com/2023/11/09/inside-the-whimsical-narnia-inspired-treehouse-adrienne-and-matt-stayed-in-on-mafs-uk" target="_blank" rel="noopener" aria-label="Read &ldquo;Inside the whimsical treehouse Adrienne and Matt stayed in on MAFS UK&rdquo; on The Tab"><img src="images/press-shots/thetab-412.webp?v=20260927a" srcset="images/press-shots/thetab-206.webp?v=20260927a 206w, images/press-shots/thetab-412.webp?v=20260927a 412w" sizes="(max-width: 767px) 45vw, 14rem" loading="lazy" decoding="async" alt=""></a>
                         <div class="ch-press__body">
                           <span class="ch-press__logo" role="img" aria-label="The Tab" style="-webkit-mask-image:url('images/logo-the-tab.png');mask-image:url('images/logo-the-tab.png')"></span>
-                          <p class="ch-press__year">2023</p>
+                          <p class="ch-press__year">2023 &middot; Oxfordshire</p>
                           <blockquote class="ch-press__quote"><p>&ldquo;Who needs Narnia when a wardrobe can take you onto a zipline?!&rdquo;</p></blockquote>
                         </div>
                       </article>
@@ -357,8 +196,18 @@
                         <a class="ch-press__clip" href="https://www.oxfordshirelive.co.uk/whats-on/whats-on-news/narnia-inspired-treehouse-hidden-shotover-8121466" target="_blank" rel="noopener" aria-label="Read &ldquo;The Narnia-inspired treehouse hidden in Shotover Country Park&rdquo; on Oxfordshire Live"><img src="images/press-shots/oxfordshirelive-412.webp?v=20260927a" srcset="images/press-shots/oxfordshirelive-206.webp?v=20260927a 206w, images/press-shots/oxfordshirelive-412.webp?v=20260927a 412w" sizes="(max-width: 767px) 45vw, 14rem" loading="lazy" decoding="async" alt=""></a>
                         <div class="ch-press__body">
                           <span class="ch-press__logo" role="img" aria-label="Oxfordshire Live" style="-webkit-mask-image:url('images/logo-oxfordshire-live.png');mask-image:url('images/logo-oxfordshire-live.png')"></span>
-                          <p class="ch-press__year">2023</p>
+                          <p class="ch-press__year">2023 &middot; Oxfordshire</p>
                           <blockquote class="ch-press__quote"><p>&ldquo;a memorable stay, blending in with the nature surrounding it.&rdquo;</p></blockquote>
+                        </div>
+                      </article>
+                    </li>
+                    <li id="press-independent" data-location="dorset">
+                      <article class="ch-press__card">
+                        <a class="ch-press__clip" href="https://www.independent.co.uk/travel/uk/england/dorset/woodsmans-treehouse-dorset-hotel-review-b2257213.html" target="_blank" rel="noopener" aria-label="Read &ldquo;Woodsman&#x27;s Treehouse review: Glamping in style in the Dorset woods&rdquo; on The Independent"><img src="images/press-shots/independent-412.webp?v=20260927a" srcset="images/press-shots/independent-206.webp?v=20260927a 206w, images/press-shots/independent-412.webp?v=20260927a 412w" sizes="(max-width: 767px) 45vw, 14rem" loading="lazy" decoding="async" alt=""></a>
+                        <div class="ch-press__body">
+                          <span class="ch-press__logo" role="img" aria-label="The Independent" style="--logo-scale:1.35;-webkit-mask-image:url('images/press/independent.svg');mask-image:url('images/press/independent.svg')"></span>
+                          <p class="ch-press__year">2023 &middot; Dorset</p>
+                          <blockquote class="ch-press__quote"><p>&ldquo;the design takes pains not to interfere with the environment, but rather is perfectly positioned to admire it up close.&rdquo;</p></blockquote>
                         </div>
                       </article>
                     </li>
@@ -367,8 +216,18 @@
                         <a class="ch-press__clip" href="https://www.ok.co.uk/lifestyle/amber-davies-boyfriend-holiday-nick-23167635" target="_blank" rel="noopener" aria-label="Read &ldquo;Inside Amber Davies and boyfriend Nick Kyriacou&#x27;s romantic treehouse retreat&rdquo; on OK! Magazine"><img src="images/press-shots/okmag-412.webp?v=20260927a" srcset="images/press-shots/okmag-206.webp?v=20260927a 206w, images/press-shots/okmag-412.webp?v=20260927a 412w" sizes="(max-width: 767px) 45vw, 14rem" loading="lazy" decoding="async" alt=""></a>
                         <div class="ch-press__body">
                           <span class="ch-press__logo" role="img" aria-label="OK! Magazine" style="--logo-scale:1.6;-webkit-mask-image:url('images/logo-ok-news.png');mask-image:url('images/logo-ok-news.png')"></span>
-                          <p class="ch-press__year">2020</p>
+                          <p class="ch-press__year">2020 &middot; Oxfordshire</p>
                           <blockquote class="ch-press__quote"><p>&ldquo;In a clip uploaded to her Instagram story, the musical theatre actress gave a full tour of the Cedar Hollow retreat nestled in the Oxfordshire woodland.&rdquo;</p></blockquote>
+                        </div>
+                      </article>
+                    </li>
+                    <li id="press-countryliving" data-location="dorset">
+                      <article class="ch-press__card">
+                        <a class="ch-press__clip" href="https://www.countryliving.com/uk/travel-ideas/staycation-uk/a26656349/treehouses-uk-visit/" target="_blank" rel="noopener" aria-label="Read &ldquo;10 incredible treehouses to visit in the UK&rdquo; on Country Living"><img src="images/press-shots/countryliving-412.webp?v=20260925" srcset="images/press-shots/countryliving-206.webp?v=20260925 206w, images/press-shots/countryliving-412.webp?v=20260925 412w" sizes="(max-width: 767px) 45vw, 14rem" loading="lazy" decoding="async" alt=""></a>
+                        <div class="ch-press__body">
+                          <span class="ch-press__logo" role="img" aria-label="Country Living" style="-webkit-mask-image:url('images/press/countryliving.svg');mask-image:url('images/press/countryliving.svg')"></span>
+                          <p class="ch-press__year">2019 &middot; Dorset</p>
+                          <blockquote class="ch-press__quote"><p>&ldquo;A suspended wooden walkway and an outdoor tree shower that makes you feel as though you’re bathing in warm monsoon rain.&rdquo;</p></blockquote>
                         </div>
                       </article>
                     </li>
@@ -377,8 +236,108 @@
                         <a class="ch-press__clip" href="https://www.standard.co.uk/lifestyle/travel/cool-stay-of-the-week-treehouse-oxfordshire-woodlands-a3911831.html" target="_blank" rel="noopener" aria-label="Read &ldquo;Cool stay of the week: a fairytale treehouse in the Oxfordshire woodlands&rdquo; on Evening Standard"><img src="images/press-shots/standard-oxford-412.webp?v=20260925" srcset="images/press-shots/standard-oxford-206.webp?v=20260925 206w, images/press-shots/standard-oxford-412.webp?v=20260925 412w" sizes="(max-width: 767px) 45vw, 14rem" loading="lazy" decoding="async" alt=""></a>
                         <div class="ch-press__body">
                           <span class="ch-press__logo" role="img" aria-label="Evening Standard" style="-webkit-mask-image:url('images/logo-evening-standard.svg');mask-image:url('images/logo-evening-standard.svg')"></span>
-                          <p class="ch-press__year">2018</p>
+                          <p class="ch-press__year">2018 &middot; Oxfordshire</p>
                           <blockquote class="ch-press__quote"><p>&ldquo;Traverse the swinging rope bridge and climb amongst the treetops&rdquo;</p></blockquote>
+                        </div>
+                      </article>
+                    </li>
+                    <li id="press-tatler" data-location="dorset">
+                      <article class="ch-press__card">
+                        <a class="ch-press__clip" href="https://www.tatler.com/gallery/most-romantic-cottages-and-breaks-for-lovers-uk" target="_blank" rel="noopener" aria-label="Read &ldquo;5 romantic boltholes for couples&rdquo; on Tatler"><img src="images/press-shots/tatler-412.webp?v=20260927a" srcset="images/press-shots/tatler-206.webp?v=20260927a 206w, images/press-shots/tatler-412.webp?v=20260927a 412w" sizes="(max-width: 767px) 45vw, 14rem" loading="lazy" decoding="async" alt=""></a>
+                        <div class="ch-press__body">
+                          <span class="ch-press__logo" role="img" aria-label="Tatler" style="-webkit-mask-image:url('images/press/tatler.svg');mask-image:url('images/press/tatler.svg')"></span>
+                          <p class="ch-press__year">2018 &middot; Dorset</p>
+                          <blockquote class="ch-press__quote"><p>&ldquo;this is that childhood fantasy come to life – and then some.&rdquo;</p></blockquote>
+                        </div>
+                      </article>
+                    </li>
+                    <li id="press-standard-dorset" data-location="dorset">
+                      <article class="ch-press__card">
+                        <a class="ch-press__clip" href="https://www.standard.co.uk/lifestyle/travel/the-woodmans-treehouse-dorset-cool-stays-luxury-freestanding-bath-a3698281.html" target="_blank" rel="noopener" aria-label="Read &ldquo;Cool stay of the week: a luxury woodland treehouse in Dorset&rdquo; on Evening Standard"><img src="images/press-shots/standard-dorset-412.webp?v=20260925" srcset="images/press-shots/standard-dorset-206.webp?v=20260925 206w, images/press-shots/standard-dorset-412.webp?v=20260925 412w" sizes="(max-width: 767px) 45vw, 14rem" loading="lazy" decoding="async" alt=""></a>
+                        <div class="ch-press__body">
+                          <span class="ch-press__logo" role="img" aria-label="Evening Standard" style="-webkit-mask-image:url('images/logo-evening-standard.svg');mask-image:url('images/logo-evening-standard.svg')"></span>
+                          <p class="ch-press__year">2017 &middot; Dorset</p>
+                          <blockquote class="ch-press__quote"><p>&ldquo;If you&#x27;ve always imagined stepping into a fairytale, you could find your happily ever after at The Woodsman&#x27;s Treehouse.&rdquo;</p></blockquote>
+                        </div>
+                      </article>
+                    </li>
+                    <li id="press-gq" data-location="dorset">
+                      <article class="ch-press__card">
+                        <a class="ch-press__clip" href="https://www.gq-magazine.co.uk/article/woodmans-treehouse-dorset-uk-review" target="_blank" rel="noopener" aria-label="Read &ldquo;The Woodman&#x27;s Treehouse, Dorset, UK: the GQ review&rdquo; on GQ"><img src="images/press-shots/gq-412.webp?v=20260927a" srcset="images/press-shots/gq-206.webp?v=20260927a 206w, images/press-shots/gq-412.webp?v=20260927a 412w" sizes="(max-width: 767px) 45vw, 14rem" loading="lazy" decoding="async" alt=""></a>
+                        <div class="ch-press__body">
+                          <span class="ch-press__logo" role="img" aria-label="GQ" style="-webkit-mask-image:url('images/press/gq.svg');mask-image:url('images/press/gq.svg')"></span>
+                          <p class="ch-press__year">2017 &middot; Dorset</p>
+                          <blockquote class="ch-press__quote"><p>&ldquo;entirely in sync with its woodland surroundings&rdquo;</p></blockquote>
+                        </div>
+                      </article>
+                    </li>
+                    <li id="press-metro" data-location="dorset">
+                      <article class="ch-press__card">
+                        <a class="ch-press__clip" href="https://metro.co.uk/2017/03/21/treehouse-holiday-live-out-your-childhood-fantasies-in-luxury-with-a-stay-in-the-woodmans-treehouse-in-dorset-6495819/" target="_blank" rel="noopener" aria-label="Read &ldquo;Treehouse holiday: Live out your childhood fantasies in luxury with a stay in The Woodman’s Treehouse in Dorset&rdquo; on Metro"><img src="images/press-shots/metro-412.webp?v=20260927a" srcset="images/press-shots/metro-206.webp?v=20260927a 206w, images/press-shots/metro-412.webp?v=20260927a 412w" sizes="(max-width: 767px) 45vw, 14rem" loading="lazy" decoding="async" alt=""></a>
+                        <div class="ch-press__body">
+                          <span class="ch-press__logo" role="img" aria-label="Metro" style="-webkit-mask-image:url('images/press/metro.svg');mask-image:url('images/press/metro.svg')"></span>
+                          <p class="ch-press__year">2017 &middot; Dorset</p>
+                          <blockquote class="ch-press__quote"><p>&ldquo;Live out your childhood fantasies in luxury&rdquo;</p></blockquote>
+                        </div>
+                      </article>
+                    </li>
+                    <li id="press-dailymail" data-location="dorset">
+                      <article class="ch-press__card">
+                        <a class="ch-press__clip" href="https://www.dailymail.co.uk/travel/travel_news/article-4127672/Britain-s-best-treehouses.html" target="_blank" rel="noopener" aria-label="Read &ldquo;Britain&#x27;s most luxurious treehouse comes with a sauna&rdquo; on Daily Mail"><img src="images/press-shots/dailymail-412.webp?v=20260926b" srcset="images/press-shots/dailymail-206.webp?v=20260926b 206w, images/press-shots/dailymail-412.webp?v=20260926b 412w" sizes="(max-width: 767px) 45vw, 14rem" loading="lazy" decoding="async" alt=""></a>
+                        <div class="ch-press__body">
+                          <span class="ch-press__logo" role="img" aria-label="Daily Mail" style="-webkit-mask-image:url('images/press/dailymail.png');mask-image:url('images/press/dailymail.png')"></span>
+                          <p class="ch-press__year">2017 &middot; Dorset</p>
+                          <blockquote class="ch-press__quote"><p>&ldquo;Britain’s most luxurious treehouse&rdquo;</p></blockquote>
+                        </div>
+                      </article>
+                    </li>
+                    <li id="press-telegraph" data-location="dorset">
+                      <article class="ch-press__card">
+                        <a class="ch-press__clip" href="https://www.telegraph.co.uk/travel/destinations/europe/united-kingdom/england/dorset/articles/inside-woodsmans-treehouse-hotel-dorset/" target="_blank" rel="noopener" aria-label="Read &ldquo;Inside The Woodsman&#x27;s, Dorset: is this England&#x27;s most luxurious treehouse?&rdquo; on The Telegraph"><img src="images/press-shots/telegraph-412.webp?v=20260927a" srcset="images/press-shots/telegraph-206.webp?v=20260927a 206w, images/press-shots/telegraph-412.webp?v=20260927a 412w" sizes="(max-width: 767px) 45vw, 14rem" loading="lazy" decoding="async" alt=""></a>
+                        <div class="ch-press__body">
+                          <span class="ch-press__logo" role="img" aria-label="The Telegraph" style="-webkit-mask-image:url('images/the-telegraph.png');mask-image:url('images/the-telegraph.png')"></span>
+                          <p class="ch-press__year">2016 &middot; Dorset</p>
+                          <blockquote class="ch-press__quote"><p>&ldquo;both fabulously comfortable and in tune with its leafy environment&rdquo;</p></blockquote>
+                        </div>
+                      </article>
+                    </li>
+                    <li id="press-designboom" data-location="dorset">
+                      <article class="ch-press__card">
+                        <a class="ch-press__clip" href="https://www.designboom.com/architecture/woodmans-treehouse-west-dorset-guy-mallinson-brownlie-ernst-and-marks-10-16-2016/" target="_blank" rel="noopener" aria-label="Read &ldquo;woodman&#x27;s treehouse: a sustainable sanctuary near the jurassic coast&rdquo; on designboom"><img src="images/press-shots/designboom-412.webp?v=20260927a" srcset="images/press-shots/designboom-206.webp?v=20260927a 206w, images/press-shots/designboom-412.webp?v=20260927a 412w" sizes="(max-width: 767px) 45vw, 14rem" loading="lazy" decoding="async" alt=""></a>
+                        <div class="ch-press__body">
+                          <span class="ch-press__logo" role="img" aria-label="designboom" style="-webkit-mask-image:url('images/press/designboom.svg');mask-image:url('images/press/designboom.svg')"></span>
+                          <p class="ch-press__year">2016 &middot; Dorset</p>
+                          <blockquote class="ch-press__quote"><p>&ldquo;a secluded sustainable sanctuary near the jurassic coast&rdquo;</p></blockquote>
+                        </div>
+                      </article>
+                    </li>
+                    <li id="press-vogue" data-location="dorset">
+                      <article class="ch-press__card ch-press__card--bare">
+                        <a class="ch-press__clip" href="https://www.vogue.com/slideshow/cabin-fever-chic-cabins-to-rent-this-winter" target="_blank" rel="noopener" aria-label="Read &ldquo;Cabin Fever: Seven Chic Cabins to Rent (or Merely Ogle) This Winter&rdquo; on Vogue"><img src="images/press-shots/vogue-412.webp?v=20260927a" srcset="images/press-shots/vogue-206.webp?v=20260927a 206w, images/press-shots/vogue-412.webp?v=20260927a 412w" sizes="(max-width: 767px) 45vw, 14rem" loading="lazy" decoding="async" alt=""></a>
+                        <div class="ch-press__body">
+                          <span class="ch-press__logo" role="img" aria-label="Vogue" style="-webkit-mask-image:url('images/press/vogue.svg');mask-image:url('images/press/vogue.svg')"></span>
+                          <p class="ch-press__year">2014 &middot; Dorset</p>
+                          <p class="ch-press__note">We’ve come a long way from the days of Tipis and Yurts</p>
+                        </div>
+                      </article>
+                    </li>
+                    <li id="press-cntraveller" data-location="dorset">
+                      <article class="ch-press__card ch-press__card--bare">
+                        <a class="ch-press__clip" href="https://www.cntraveller.com/gallery/guide-to-dorset-england" target="_blank" rel="noopener" aria-label="Read &ldquo;The Best of West Dorset&rdquo; on Condé Nast Traveller"><img src="images/press-shots/cntraveller-412.webp?v=20260927a" srcset="images/press-shots/cntraveller-206.webp?v=20260927a 206w, images/press-shots/cntraveller-412.webp?v=20260927a 412w" sizes="(max-width: 767px) 45vw, 14rem" loading="lazy" decoding="async" alt=""></a>
+                        <div class="ch-press__body">
+                          <span class="ch-press__logo" role="img" aria-label="Condé Nast Traveller" style="--logo-scale:1.75;-webkit-mask-image:url('images/press/cntraveller.svg');mask-image:url('images/press/cntraveller.svg')"></span>
+                          <p class="ch-press__year">2013 &middot; Dorset</p>
+                          <p class="ch-press__note">Pioneering woodland glamping to pioneering woodland treehouses</p>
+                        </div>
+                      </article>
+                    </li>
+                    <li id="press-guardian" data-location="dorset">
+                      <article class="ch-press__card ch-press__card--bare">
+                        <a class="ch-press__clip" href="https://www.theguardian.com/travel/2011/jul/29/glamping-britain-campsites-alastair-sawday" target="_blank" rel="noopener" aria-label="Read &ldquo;Happy glampers: 10 comfy alternatives to a tent&rdquo; on The Guardian"><img src="images/press-shots/guardian-412.webp?v=20260927a" srcset="images/press-shots/guardian-206.webp?v=20260927a 206w, images/press-shots/guardian-412.webp?v=20260927a 412w" sizes="(max-width: 767px) 45vw, 14rem" loading="lazy" decoding="async" alt=""></a>
+                        <div class="ch-press__body">
+                          <span class="ch-press__logo" role="img" aria-label="The Guardian" style="--logo-scale:1.5;-webkit-mask-image:url('images/press/guardian.svg');mask-image:url('images/press/guardian.svg')"></span>
+                          <p class="ch-press__year">2011 &middot; Dorset</p>
+                          <p class="ch-press__note">Celebration of Craft from the very beginning</p>
                         </div>
                       </article>
                     </li>
@@ -391,7 +350,7 @@
         </div>
       </div>
     </section>
-    <section class="bg-light" data-kind="screen">
+    <section class="bg-light" data-kind="screen" data-cov-panel="screen">
       <div class="padding-section-medium">
         <div class="padding-global">
           <div class="container-large">
@@ -399,18 +358,25 @@
               <div class="max-width-xlarge align-center">
                 <div class="section-title-block">
                   <div class="margin-bottom margin-large">
-                    <h2 class="heading-style-h1">Oxfordshire <span class="text-style-italic">on screen</span></h2>
+                    <h2 class="heading-style-h1">On <span class="text-style-italic">screen</span></h2>
                   </div>
                 </div>
-                <div class="ch-prose text-size-large">
-                  <p>Television, film and a music video shot in the woodland.</p>
-                </div>
-                <!--  Held to the same width as the clippings above so the two
-                      sections line up. Half of that is still about 460px a
-                      player, which is why these can play in place.  -->
-                <!-- ch:press-screen oxford -->
+                <!-- ch:press-screen -->
                 <div class="ch-vid-wrap">
                   <ul class="ch-vid-grid is-landscapes">
+                    <li id="screen-secrethotels" data-location="dorset">
+                      <article class="ch-vid" style="--ch-vid-ar:120/67">
+                        <button class="ch-vid__play" type="button" data-video="al53RiDKCVk"
+                                aria-label="Play &ldquo;World’s Most Secret Hotels&rdquo; (Channel 4) in the YouTube player">
+                          <img src="images/press-video/secrethotels-640.webp" srcset="images/press-video/secrethotels-320.webp 320w, images/press-video/secrethotels-640.webp 640w" sizes="(max-width: 767px) 92vw, 22rem"
+                               loading="lazy" decoding="async" alt="">
+                          <span class="ch-vid__icon" aria-hidden="true"><svg viewBox="0 0 68 48" width="100%" height="100%"><path class="ch-vid__icon-bg" d="M66.5 7.7c-.8-2.9-2.5-5.4-5.4-6.2C55.8 0 34 0 34 0S12.2 0 6.9 1.4C4 2.2 2.3 4.8 1.5 7.7 0 13 0 24 0 24s0 11 1.5 16.3c.8 2.9 2.5 5.4 5.4 6.2C12.2 48 34 48 34 48s21.8 0 27.1-1.5c2.9-.8 4.6-3.3 5.4-6.2C68 35 68 24 68 24s0-11-1.5-16.3z"></path><path d="M45 24 27 14v20" fill="#fff"></path></svg></span>
+                        </button>
+                        <p class="ch-vid__meta"><span class="ch-vid__title">World’s Most Secret Hotels</span>
+                          <span class="ch-vid__source">Channel 4</span><span class="ch-vid__detail">Series 2 Episode 2</span><span class="ch-vid__year">2026</span></p>
+                        <a class="ch-vid__link" href="https://www.youtube.com/watch?v=al53RiDKCVk" target="_blank" rel="noopener">Watch on YouTube</a>
+                      </article>
+                    </li>
                     <li id="screen-swns" data-location="oxford">
                       <article class="ch-vid" style="--ch-vid-ar:16/9">
                         <button class="ch-vid__play" type="button" data-video="wflUkc-n0NE"
@@ -450,6 +416,32 @@
                         <a class="ch-vid__link" href="https://www.youtube.com/watch?v=nM3sZNHlARs" target="_blank" rel="noopener">Watch on YouTube</a>
                       </article>
                     </li>
+                    <li id="screen-granddesigns" data-location="dorset">
+                      <article class="ch-vid" style="--ch-vid-ar:16/9">
+                        <button class="ch-vid__play" type="button" data-video="C71PZaFHOwQ"
+                                aria-label="Play &ldquo;Grand Designs: House of the Year&rdquo; (Channel 4) in the YouTube player">
+                          <img src="images/press-video/granddesigns-640.webp" srcset="images/press-video/granddesigns-320.webp 320w, images/press-video/granddesigns-640.webp 640w" sizes="(max-width: 767px) 92vw, 22rem"
+                               loading="lazy" decoding="async" alt="">
+                          <span class="ch-vid__icon" aria-hidden="true"><svg viewBox="0 0 68 48" width="100%" height="100%"><path class="ch-vid__icon-bg" d="M66.5 7.7c-.8-2.9-2.5-5.4-5.4-6.2C55.8 0 34 0 34 0S12.2 0 6.9 1.4C4 2.2 2.3 4.8 1.5 7.7 0 13 0 24 0 24s0 11 1.5 16.3c.8 2.9 2.5 5.4 5.4 6.2C12.2 48 34 48 34 48s21.8 0 27.1-1.5c2.9-.8 4.6-3.3 5.4-6.2C68 35 68 24 68 24s0-11-1.5-16.3z"></path><path d="M45 24 27 14v20" fill="#fff"></path></svg></span>
+                        </button>
+                        <p class="ch-vid__meta"><span class="ch-vid__title">Grand Designs: House of the Year</span>
+                          <span class="ch-vid__source">Channel 4</span><span class="ch-vid__detail">Series 3 Episode 3</span><span class="ch-vid__year">2017</span></p>
+                        <a class="ch-vid__link" href="https://www.youtube.com/watch?v=C71PZaFHOwQ" target="_blank" rel="noopener">Watch on YouTube</a>
+                      </article>
+                    </li>
+                    <li id="screen-amazingspaces" data-location="dorset">
+                      <article class="ch-vid" style="--ch-vid-ar:16/9">
+                        <button class="ch-vid__play" type="button" data-video="lZqNpbfB5MU"
+                                aria-label="Play &ldquo;George Clarke’s Amazing Spaces&rdquo; (Channel 4) in the YouTube player">
+                          <img src="images/press-video/amazingspaces-640.webp" srcset="images/press-video/amazingspaces-320.webp 320w, images/press-video/amazingspaces-640.webp 640w" sizes="(max-width: 767px) 92vw, 22rem"
+                               loading="lazy" decoding="async" alt="">
+                          <span class="ch-vid__icon" aria-hidden="true"><svg viewBox="0 0 68 48" width="100%" height="100%"><path class="ch-vid__icon-bg" d="M66.5 7.7c-.8-2.9-2.5-5.4-5.4-6.2C55.8 0 34 0 34 0S12.2 0 6.9 1.4C4 2.2 2.3 4.8 1.5 7.7 0 13 0 24 0 24s0 11 1.5 16.3c.8 2.9 2.5 5.4 5.4 6.2C12.2 48 34 48 34 48s21.8 0 27.1-1.5c2.9-.8 4.6-3.3 5.4-6.2C68 35 68 24 68 24s0-11-1.5-16.3z"></path><path d="M45 24 27 14v20" fill="#fff"></path></svg></span>
+                        </button>
+                        <p class="ch-vid__meta"><span class="ch-vid__title">George Clarke’s Amazing Spaces</span>
+                          <span class="ch-vid__source">Channel 4</span><span class="ch-vid__detail">Series 6 Episode 1</span><span class="ch-vid__year">2016</span></p>
+                        <a class="ch-vid__link" href="https://www.youtube.com/watch?v=lZqNpbfB5MU" target="_blank" rel="noopener">Watch on YouTube</a>
+                      </article>
+                    </li>
                   </ul>
                   <ul class="ch-vid-grid is-portraits">
                     <li id="screen-bbc" data-location="oxford">
@@ -487,166 +479,237 @@
         </div>
       </div>
     </section>
-    <section class="bg-light" id="awards" data-kind="awards">
-      <div class="padding-section-medium">
-        <div class="padding-global">
-          <div class="container-large">
-            <div class="text-align-center">
-              <div class="max-width-xlarge align-center">
-                <div class="section-title-block">
-                  <div class="margin-bottom margin-large">
-                    <h2 class="heading-style-h1">Awards &amp; <span class="text-style-italic">Accreditations</span></h2>
-                  </div>
-                </div>
-                <div class="ch-prose text-size-large">
-                  <p>Recognition for our hospitality, distinctive woodland stays, architecture and care for the environment.</p>
-                </div>
-                <!-- ch:press-awards oxford -->
-                <div class="ch-awards">
-                  <div class="ch-awards__group" data-location="oxford">
-                    <h3 class="ch-awards__title">Cedar Hollow Oxford <span class="ch-awards__formerly">&middot; formerly Cedar Hollow @ The Oaks</span></h3>
-                    <ul class="ch-awards__grid">
-                      <li id="award-ve-excellence-2026" data-location="oxford">
-                        <article class="ch-awards__item">
-                          <p class="ch-awards__badge"><img src="images/award-visitengland-excellence-2026-plaque.webp" alt="" loading="lazy" decoding="async"></p>
-                          <div class="ch-awards__body">
-                            <p class="ch-awards__kind">National tourism award</p>
-                            <h4 class="ch-awards__org">VisitEngland</h4>
-                            <p class="ch-awards__name">Awards for Excellence</p>
-                            <p class="ch-awards__distinction">Silver &middot; 2026</p>
-                            <p class="ch-awards__note">Self-Catering Accommodation of the Year</p>
-                            <p class="ch-awards__recipient">Cedar Hollow @ The Oaks, Oxfordshire</p>
-                            <p class="ch-awards__source"><a href="https://www.visitbritain.org/news-and-media/industry-news-and-press-releases/visitengland-awards-excellence-2026-winners" target="_blank" rel="noopener">Source</a></p>
-                          </div>
-                        </article>
-                      </li>
-                      <li id="award-ve-rose-2026" data-location="oxford">
-                        <article class="ch-awards__item">
-                          <p class="ch-awards__badge"><img src="images/award-visitengland-rose.png" alt="" loading="lazy" decoding="async"></p>
-                          <div class="ch-awards__body">
-                            <p class="ch-awards__kind">Service excellence award</p>
-                            <h4 class="ch-awards__org">VisitEngland</h4>
-                            <p class="ch-awards__name">ROSE Award</p>
-                            <p class="ch-awards__distinction">2026</p>
-                            <p class="ch-awards__note">Recognition of Service Excellence</p>
-                            <p class="ch-awards__recipient">Faun’s Hideaway at Cedar Hollow Oxford</p>
-                            <p class="ch-awards__source"><a href="https://www.ratedtrips.com/travel-ideas/visitengland-rose-award-winners-2026" target="_blank" rel="noopener">Source</a></p>
-                          </div>
-                        </article>
-                      </li>
-                      <li id="award-beautiful-south-2025" data-location="oxford">
-                        <article class="ch-awards__item">
-                          <p class="ch-awards__badge"><img src="images/award-beautiful-south-silver.png" alt="" loading="lazy" decoding="async"></p>
-                          <div class="ch-awards__body">
-                            <p class="ch-awards__kind">Regional tourism award</p>
-                            <h4 class="ch-awards__org">Beautiful South Tourism Awards</h4>
-                            <p class="ch-awards__name">Self-Catering Accommodation of the Year</p>
-                            <p class="ch-awards__distinction">Silver &middot; 2025</p>
-                            <p class="ch-awards__recipient">Cedar Hollow @ The Oaks, Oxford</p>
-                            <p class="ch-awards__source"><a href="https://www.beautifulsouthawards.co.uk/winners" target="_blank" rel="noopener">Source</a></p>
-                          </div>
-                        </article>
-                      </li>
-                      <li id="award-ve-gold-oxford" data-location="oxford">
-                        <article class="ch-awards__item">
-                          <p class="ch-awards__badge"><img src="images/image-7.png" alt="" loading="lazy" decoding="async"></p>
-                          <div class="ch-awards__body">
-                            <p class="ch-awards__kind">Accommodation quality award</p>
-                            <h4 class="ch-awards__org">VisitEngland</h4>
-                            <p class="ch-awards__name">Gold Award</p>
-                            <p class="ch-awards__distinction">Gold</p>
-                            <p class="ch-awards__recipient">Cedar Hollow Treehouse</p>
-                            <p class="ch-awards__source"><a href="https://www.ratedtrips.com/camping/england/oxfordshire/oxford/cedar-hollow-ox38gh" target="_blank" rel="noopener">Source</a></p>
-                          </div>
-                        </article>
-                      </li>
-                      <li id="award-ve-5star-oxford" data-location="oxford">
-                        <article class="ch-awards__item">
-                          <p class="ch-awards__badge"><img src="images/award-visitengland-5star-glamping.png" alt="" loading="lazy" decoding="async"></p>
-                          <div class="ch-awards__body">
-                            <p class="ch-awards__kind">Quality rating</p>
-                            <h4 class="ch-awards__org">VisitEngland</h4>
-                            <p class="ch-awards__name">Five-Star Glamping</p>
-                            <p class="ch-awards__distinction">Five stars</p>
-                            <p class="ch-awards__recipient">Cedar Hollow Treehouse</p>
-                            <p class="ch-awards__source"><a href="https://www.ratedtrips.com/camping/england/oxfordshire/oxford/cedar-hollow-ox38gh" target="_blank" rel="noopener">Source</a></p>
-                          </div>
-                        </article>
-                      </li>
-                      <li id="award-green-tourism-oxford" data-location="oxford">
-                        <article class="ch-awards__item">
-                          <p class="ch-awards__badge"><img src="images/award-green-tourism-gold.webp" alt="" loading="lazy" decoding="async"></p>
-                          <div class="ch-awards__body">
-                            <p class="ch-awards__kind">Sustainability certification</p>
-                            <h4 class="ch-awards__org">Green Tourism</h4>
-                            <p class="ch-awards__name">Gold</p>
-                            <p class="ch-awards__recipient">Cedar Hollow Oxford</p>
-                            <p class="ch-awards__source"><a href="https://www.ratedtrips.com/camping/england/oxfordshire/oxford/cedar-hollow-ox38gh" target="_blank" rel="noopener">Source</a></p>
-                          </div>
-                        </article>
-                      </li>
-                    </ul>
-                  </div>
-                  <div class="ch-awards__group">
-                    <h3 class="ch-awards__title">Memberships</h3>
-                    <ul class="ch-awards__grid">
-                      <li id="award-aim">
-                        <article class="ch-awards__item">
-                          <p class="ch-awards__badge"><img src="images/award-aim.png" alt="" loading="lazy" decoding="async"></p>
-                          <div class="ch-awards__body">
-                            <h4 class="ch-awards__org">Association of Independent Museums</h4>
-                            <p class="ch-awards__note"><a href="https://aim-museums.co.uk/our-members/" target="_blank" rel="noopener">Membership no. 8369</a></p>
-                          </div>
-                        </article>
-                      </li>
-                      <li id="award-bbka">
-                        <article class="ch-awards__item">
-                          <p class="ch-awards__badge"><img class="is-small" src="images/award-bbka.png" alt="" loading="lazy" decoding="async"></p>
-                          <div class="ch-awards__body">
-                            <h4 class="ch-awards__org">British Beekeepers Association</h4>
-                            <p class="ch-awards__note"><a href="oxford/beemuseum.html" target="_blank" rel="noopener">Membership no. 599.0.12274</a></p>
-                          </div>
-                        </article>
-                      </li>
-                      <li id="award-magic-circle">
-                        <article class="ch-awards__item">
-                          <p class="ch-awards__badge"><img class="is-small" src="images/award-magic-circle.png" alt="" loading="lazy" decoding="async"></p>
-                          <div class="ch-awards__body">
-                            <h4 class="ch-awards__org">The Magic Circle</h4>
-                            <p class="ch-awards__note"><a href="https://wizardsofox.uk" target="_blank" rel="noopener">MMC 2853</a></p>
-                          </div>
-                        </article>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-                <!-- /ch:press-awards -->
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-    <section class="bg-light">
-      <div class="padding-section-medium">
-        <div class="padding-global">
-          <div class="container-large">
-            <div class="text-align-center">
-              <div class="max-width-xlarge align-center">
-                <div class="section-title-block">
-                  <div class="margin-bottom margin-large">
-                    <h2 class="heading-style-h1">More <span class="text-style-italic">press</span></h2>
-                  </div>
-                </div>
-                <div class="ch-prose text-size-large">
-                  <p><a href="dorset-press.html">Cedar Hollow Dorset has its own press record</a>, or see <a href="press.html">every feature for both woodlands together</a>.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+    <section class="ch-section--accent" data-cov-panel="guests"><div class="padding-section-medium"><div class="padding-global"><div class="container-large"><div class="text-align-center"><div class="max-width-xlarge align-center"><div class="section-title-block"><div class="margin-bottom margin-large"><h2 class="heading-style-h1">Familiar <span class="text-style-italic">faces</span></h2></div></div></div><!--  The album is the reviews page's, filled in by scripts/update-guests.py so the
+        two cannot drift apart.  -->
+                <!-- ch:guests -->
+                <ul class="ch-album">
+                                  <li class="ch-album__print">
+                                    <a class="ch-album__link" href="https://www.instagram.com/lukenewtonuk/"
+                                       target="_blank" rel="noopener"
+                                       aria-label="See Luke Newton on Instagram">
+                                      <img src="images/guests/guest-luke-newton-600.webp"
+                                           srcset="images/guests/guest-luke-newton-300.webp 300w, images/guests/guest-luke-newton-600.webp 600w"
+                                           sizes="(max-width: 767px) 40vw, 12rem"
+                                           loading="lazy" decoding="async" alt="Luke Newton at Cedar Hollow">
+                                      <span class="ch-album__caption">
+                                        <span class="ch-album__name">Luke Newton</span>
+                                        <span class="ch-album__note">Colin in Bridgerton</span>
+                                      </span>
+                                    </a>
+                                  </li>
+                                  <li class="ch-album__print">
+                                    <a class="ch-album__link" href="https://www.instagram.com/stephaniedavis88/"
+                                       target="_blank" rel="noopener"
+                                       aria-label="See Stephanie Davis on Instagram">
+                                      <img src="images/guests/guest-stephanie-davis-600.webp"
+                                           srcset="images/guests/guest-stephanie-davis-300.webp 300w, images/guests/guest-stephanie-davis-600.webp 600w"
+                                           sizes="(max-width: 767px) 40vw, 12rem"
+                                           loading="lazy" decoding="async" alt="Stephanie Davis at Cedar Hollow">
+                                      <span class="ch-album__caption">
+                                        <span class="ch-album__name">Stephanie Davis</span>
+                                        <span class="ch-album__note">Sinead in Hollyoaks</span>
+                                      </span>
+                                    </a>
+                                  </li>
+                                  <li class="ch-album__print">
+                                    <a class="ch-album__link" href="https://www.instagram.com/dannycipriani87/"
+                                       target="_blank" rel="noopener"
+                                       aria-label="See Danny Cipriani on Instagram">
+                                      <img src="images/guests/guest-danny-cipriani-600.webp"
+                                           srcset="images/guests/guest-danny-cipriani-300.webp 300w, images/guests/guest-danny-cipriani-600.webp 600w"
+                                           sizes="(max-width: 767px) 40vw, 12rem"
+                                           loading="lazy" decoding="async" alt="Danny Cipriani at Cedar Hollow">
+                                      <span class="ch-album__caption">
+                                        <span class="ch-album__name">Danny Cipriani</span>
+                                        <span class="ch-album__note">Rugby union</span>
+                                      </span>
+                                    </a>
+                                  </li>
+                                  <li class="ch-album__print">
+                                    <a class="ch-album__link" href="https://www.instagram.com/sarahjaynedunn/"
+                                       target="_blank" rel="noopener"
+                                       aria-label="See Sarah-Jayne Dunn on Instagram">
+                                      <img src="images/guests/guest-sarah-jayne-dunn-600.webp"
+                                           srcset="images/guests/guest-sarah-jayne-dunn-300.webp 300w, images/guests/guest-sarah-jayne-dunn-600.webp 600w"
+                                           sizes="(max-width: 767px) 40vw, 12rem"
+                                           loading="lazy" decoding="async" alt="Sarah-Jayne Dunn at Cedar Hollow">
+                                      <span class="ch-album__caption">
+                                        <span class="ch-album__name">Sarah-Jayne Dunn</span>
+                                        <span class="ch-album__note">Mandy in Hollyoaks</span>
+                                      </span>
+                                    </a>
+                                  </li>
+                                  <li class="ch-album__print">
+                                    <a class="ch-album__link" href="https://www.instagram.com/p/Csjq-oSNEn7/"
+                                       target="_blank" rel="noopener"
+                                       aria-label="See Ali Bastian's stay on Instagram">
+                                      <img src="images/guests/guest-ali-bastian-600.webp"
+                                           srcset="images/guests/guest-ali-bastian-300.webp 300w, images/guests/guest-ali-bastian-600.webp 600w"
+                                           sizes="(max-width: 767px) 40vw, 12rem"
+                                           loading="lazy" decoding="async" alt="Ali Bastian at Cedar Hollow">
+                                      <span class="ch-album__caption">
+                                        <span class="ch-album__name">Ali Bastian</span>
+                                        <span class="ch-album__note">Hollyoaks, The Bill</span>
+                                      </span>
+                                    </a>
+                                  </li>
+                                  <li class="ch-album__print">
+                                    <a class="ch-album__link" href="https://www.instagram.com/p/DU9BMv9DDJG/"
+                                       target="_blank" rel="noopener"
+                                       aria-label="See Aston Merrygold's stay on Instagram">
+                                      <img src="images/guests/guest-aston-merrygold-600.webp"
+                                           srcset="images/guests/guest-aston-merrygold-300.webp 300w, images/guests/guest-aston-merrygold-600.webp 600w"
+                                           sizes="(max-width: 767px) 40vw, 12rem"
+                                           loading="lazy" decoding="async" alt="Aston Merrygold and family at Cedar Hollow">
+                                      <span class="ch-album__caption">
+                                        <span class="ch-album__name">Aston Merrygold</span>
+                                        <span class="ch-album__note">JLS, with family</span>
+                                      </span>
+                                    </a>
+                                  </li>
+                                  <li class="ch-album__print">
+                                    <a class="ch-album__link" href="https://www.instagram.com/vickypattison/"
+                                       target="_blank" rel="noopener"
+                                       aria-label="See Vicky Pattison on Instagram">
+                                      <img src="images/guests/guest-vicky-pattison-600.webp"
+                                           srcset="images/guests/guest-vicky-pattison-300.webp 300w, images/guests/guest-vicky-pattison-600.webp 600w"
+                                           sizes="(max-width: 767px) 40vw, 12rem"
+                                           loading="lazy" decoding="async" alt="Vicky Pattison at Cedar Hollow">
+                                      <span class="ch-album__caption">
+                                        <span class="ch-album__name">Vicky Pattison</span>
+                                        <span class="ch-album__note">Winner, I&#x27;m a Celebrity</span>
+                                      </span>
+                                    </a>
+                                  </li>
+                                  <li class="ch-album__print">
+                                    <a class="ch-album__link" href="https://www.instagram.com/andrewtrimble14/"
+                                       target="_blank" rel="noopener"
+                                       aria-label="See Andrew Trimble on Instagram">
+                                      <img src="images/guests/guest-andrew-trimble-600.webp"
+                                           srcset="images/guests/guest-andrew-trimble-300.webp 300w, images/guests/guest-andrew-trimble-600.webp 600w"
+                                           sizes="(max-width: 767px) 40vw, 12rem"
+                                           loading="lazy" decoding="async" alt="Andrew Trimble at Cedar Hollow">
+                                      <span class="ch-album__caption">
+                                        <span class="ch-album__name">Andrew Trimble</span>
+                                        <span class="ch-album__note">Rugby union</span>
+                                      </span>
+                                    </a>
+                                  </li>
+                                  <li class="ch-album__print">
+                                    <a class="ch-album__link" href="https://suzannahlipscomb.com/"
+                                       target="_blank" rel="noopener"
+                                       aria-label="Visit Suzannah Lipscomb's website">
+                                      <img src="images/guests/guest-suzannah-lipscomb-600.webp"
+                                           srcset="images/guests/guest-suzannah-lipscomb-300.webp 300w, images/guests/guest-suzannah-lipscomb-600.webp 600w"
+                                           sizes="(max-width: 767px) 40vw, 12rem"
+                                           loading="lazy" decoding="async" alt="Suzannah Lipscomb at Cedar Hollow">
+                                      <span class="ch-album__caption">
+                                        <span class="ch-album__name">Suzannah Lipscomb</span>
+                                        <span class="ch-album__note">Historian and broadcaster</span>
+                                      </span>
+                                    </a>
+                                  </li>
+                                  <li class="ch-album__print">
+                                    <a class="ch-album__link" href="https://www.instagram.com/georgialouiseharrison"
+                                       target="_blank" rel="noopener"
+                                       aria-label="See Georgia Harrison on Instagram">
+                                      <img src="images/guests/guest-georgia-harrison-600.webp"
+                                           srcset="images/guests/guest-georgia-harrison-300.webp 300w, images/guests/guest-georgia-harrison-600.webp 600w"
+                                           sizes="(max-width: 767px) 40vw, 12rem"
+                                           loading="lazy" decoding="async" alt="Georgia Harrison MBE at Cedar Hollow">
+                                      <span class="ch-album__caption">
+                                        <span class="ch-album__name">Georgia Harrison MBE</span>
+                                        <span class="ch-album__note">Television</span>
+                                      </span>
+                                    </a>
+                                  </li>
+                                  <li class="ch-album__print">
+                                    <a class="ch-album__link" href="https://www.instagram.com/jessvrevell/"
+                                       target="_blank" rel="noopener"
+                                       aria-label="See Jessica Revell on Instagram">
+                                      <img src="images/guests/guest-jessica-revell-600.webp"
+                                           srcset="images/guests/guest-jessica-revell-300.webp 300w, images/guests/guest-jessica-revell-600.webp 600w"
+                                           sizes="(max-width: 767px) 40vw, 12rem"
+                                           loading="lazy" decoding="async" alt="Jessica Revell at Cedar Hollow">
+                                      <span class="ch-album__caption">
+                                        <span class="ch-album__name">Jessica Revell</span>
+                                        <span class="ch-album__note">Actress and singer</span>
+                                      </span>
+                                    </a>
+                                  </li>
+                                  <li class="ch-album__print">
+                                    <a class="ch-album__link" href="https://www.instagram.com/biancagascoigne1/"
+                                       target="_blank" rel="noopener"
+                                       aria-label="See Bianca Gascoigne on Instagram">
+                                      <img src="images/guests/guest-bianca-gascoigne-600.webp"
+                                           srcset="images/guests/guest-bianca-gascoigne-300.webp 300w, images/guests/guest-bianca-gascoigne-600.webp 600w"
+                                           sizes="(max-width: 767px) 40vw, 12rem"
+                                           loading="lazy" decoding="async" alt="Bianca Gascoigne at Cedar Hollow">
+                                      <span class="ch-album__caption">
+                                        <span class="ch-album__name">Bianca Gascoigne</span>
+                                        <span class="ch-album__note">Television</span>
+                                      </span>
+                                    </a>
+                                  </li>
+                                  <li class="ch-album__print">
+                                    <a class="ch-album__link" href="https://www.instagram.com/krisboyson/"
+                                       target="_blank" rel="noopener"
+                                       aria-label="See Kris Boyson on Instagram">
+                                      <img src="images/guests/guest-kris-boyson-600.webp"
+                                           srcset="images/guests/guest-kris-boyson-300.webp 300w, images/guests/guest-kris-boyson-600.webp 600w"
+                                           sizes="(max-width: 767px) 40vw, 12rem"
+                                           loading="lazy" decoding="async" alt="Kris Boyson at Cedar Hollow">
+                                      <span class="ch-album__caption">
+                                        <span class="ch-album__name">Kris Boyson</span>
+                                        <span class="ch-album__note">Television</span>
+                                      </span>
+                                    </a>
+                                  </li>
+                                  <li class="ch-album__print">
+                                    <a class="ch-album__link" href="https://www.instagram.com/jadeydavies/"
+                                       target="_blank" rel="noopener"
+                                       aria-label="See Jade Davies on Instagram">
+                                      <img src="images/guests/guest-jade-davies-600.webp"
+                                           srcset="images/guests/guest-jade-davies-300.webp 300w, images/guests/guest-jade-davies-600.webp 600w"
+                                           sizes="(max-width: 767px) 40vw, 12rem"
+                                           loading="lazy" decoding="async" alt="Jade Davies at Cedar Hollow">
+                                      <span class="ch-album__caption">
+                                        <span class="ch-album__name">Jade Davies</span>
+                                        <span class="ch-album__note">Britain&#x27;s Got Talent, West End</span>
+                                      </span>
+                                    </a>
+                                  </li>
+                                  <li class="ch-album__print">
+                                    <a class="ch-album__link" href="https://www.instagram.com/quirijn.de.lang/"
+                                       target="_blank" rel="noopener"
+                                       aria-label="See Quirijn de Lang on Instagram">
+                                      <img src="images/guests/guest-quirijn-de-lang-600.webp"
+                                           srcset="images/guests/guest-quirijn-de-lang-300.webp 300w, images/guests/guest-quirijn-de-lang-600.webp 600w"
+                                           sizes="(max-width: 767px) 40vw, 12rem"
+                                           loading="lazy" decoding="async" alt="Quirijn de Lang at Cedar Hollow">
+                                      <span class="ch-album__caption">
+                                        <span class="ch-album__name">Quirijn de Lang</span>
+                                        <span class="ch-album__note">Operatic baritone</span>
+                                      </span>
+                                    </a>
+                                  </li>
+                                  <li class="ch-album__print">
+                                    <a class="ch-album__link" href="https://www.instagram.com/amb_d/"
+                                       target="_blank" rel="noopener"
+                                       aria-label="See Amber Davies on Instagram">
+                                      <img src="images/guests/guest-amber-davies-600.webp"
+                                           srcset="images/guests/guest-amber-davies-300.webp 300w, images/guests/guest-amber-davies-600.webp 600w"
+                                           sizes="(max-width: 767px) 40vw, 12rem"
+                                           loading="lazy" decoding="async" alt="Amber Davies at Cedar Hollow">
+                                      <span class="ch-album__caption">
+                                        <span class="ch-album__name">Amber Davies</span>
+                                        <span class="ch-album__note">West End Actress</span>
+                                      </span>
+                                    </a>
+                                  </li>
+                                </ul>
+                <!-- /ch:guests -->
+</div></div></div></div></section>
 <section class="section-footer">
       <div class="padding-section-small">
         <div class="padding-global">
@@ -685,14 +748,38 @@
                     </li>
                   </ul>
                 </div>
-                <div class="footer_content-right"><div class="footer_link-col"><p class="footer_col-title">Your Stay</p><ul role="list" class="footer-link-list"><li><a href="oxford/facilities.html" class="footer_link is-large">Facilities</a></li><li><a href="oxford/wellness.html" class="footer_link is-large">Wellness</a></li><li><a href="oxford/dining.html" class="footer_link is-large">Dining</a></li><li><a href="oxford/experiences.html" class="footer_link is-large">Experiences</a></li><li><a href="oxford/celebrations.html" class="footer_link is-large">Celebrations</a></li><li><a href="oxford/todo.html" class="footer_link is-large">On Our Doorstep</a></li></ul></div><div class="footer_link-col"><p class="footer_col-title">About</p><ul role="list" class="footer-link-list"><li><a href="oxford/story.html" class="footer_link is-large">Our Story</a></li><li><a href="oxford/honey.html" class="footer_link is-large">Our Honey</a></li><li><a href="oxford-sustainability.html" class="footer_link is-large">Sustainability</a></li><li><a href="oxford/philanthropy.html" class="footer_link is-large">Philanthropy</a></li><li><a href="oxford-reviews.html" class="footer_link is-large">Reviews</a></li><li><a href="oxford-press.html" class="footer_link is-large">Press</a></li></ul></div><div class="footer_link-col"><p class="footer_col-title">Work with us</p><ul role="list" class="footer-link-list"><li><a href="oxford/working.html" class="footer_link is-large">Careers</a></li><li><a href="influencers.html" class="footer_link is-large">Influencers</a></li><li><a href="oxford/schoolgroups.html" class="footer_link is-large">School Groups</a></li></ul></div></div>
+                <div class="footer_content-right">
+                  <div class="footer_link-col">
+                    <ul role="list" class="footer-link-list">
+                      <li>
+                        <a href="about.html" class="footer_link is-large">Our Story</a>
+                      </li>
+                      <li>
+                        <a href="search-results.html" class="footer_link is-large">Properties</a>
+                      </li>
+                      <li>
+                        <a href="sustainability.html" class="footer_link is-large">Sustainability</a>
+                      </li>
+                    </ul>
+                  </div>
+                  <div class="footer_link-col">
+                    <ul role="list" class="footer-link-list">
+                      <li>
+                        <a href="experiences.html" class="footer_link is-large">Experiences</a>
+                      </li>
+                      <li>
+                        <a href="mailto:hello@cedarhollow.uk" class="footer_link is-large">Contact</a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
               </div>
             </div>
-            <p class="footer_disclaimer">Cedar Hollow Oxford is a fan-inspired tribute to the works of C.S. Lewis. It is not affiliated or endorsed by the C.S Lewis Estate or the official Chronicles of Narnia franchise.</p><div class="footer_regs"><span>VAT Registration Number : 485 6565 40</span><span>AIM Membership 8369</span><span>Registered Charity (CAN) Number: 1176864</span><span>BBKA Membership 599.0.12274</span><span>Resident Magicians: <a href="https://wizardsofox.uk" target="_blank" rel="noopener">Wizards of Ox</a>, MMC 2853</span></div><div class="footer_legal">
-              <p class="legal-text">© 2026 Cedar Hollow Oxford. All rights reserved.</p>
+            <div class="footer_legal">
+              <p class="legal-text">© 2026 Cedar Hollow. All rights reserved.</p>
               <div class="footer_content-right is-bottom">
-                <ul role="list" class="footer-link-list is-legal"><li><a href="oxford/faq.html" class="footer_link">Frequently Asked Questions</a></li><li><a href="oxford/accessibility.html" class="footer_link">Accessibility</a></li>
-                  <li class="footer_legal-break" aria-hidden="true"></li><li>
+                <ul role="list" class="footer-link-list is-legal">
+                  <li>
                     <a href="privacy-policy.html" class="footer_link">Privacy Policy</a>
                   </li>
                   <li>
@@ -715,5 +802,39 @@
   <script src="js/press-filter.js?v=20260927b" type="text/javascript"></script>
   <script src="js/analytics.js" type="text/javascript"></script>
 <script src="/js/tlg-beacon.js" defer></script>
+  <script>
+    (function () {
+      /* Which kinds of coverage are showing. All three are in the page, so
+         with scripting off the filter simply does not appear and everything
+         is there, one after another. */
+      var bar = document.querySelector("[data-ch-cov]");
+      var panels = document.querySelectorAll("[data-cov-panel]");
+      if (!bar || !panels.length) return;
+
+      function show(which) {
+        for (var i = 0; i < panels.length; i++) {
+          panels[i].hidden = which !== "all" &&
+            panels[i].getAttribute("data-cov-panel") !== which;
+        }
+        var btns = bar.querySelectorAll("[data-cov]");
+        for (var b = 0; b < btns.length; b++) {
+          btns[b].setAttribute("aria-pressed",
+            btns[b].getAttribute("data-cov") === which ? "true" : "false");
+        }
+        var url = new URL(window.location.href);
+        if (which === "all") url.searchParams.delete("show");
+        else url.searchParams.set("show", which);
+        window.history.replaceState({}, "", url);
+      }
+
+      bar.addEventListener("click", function (e) {
+        var btn = e.target.closest && e.target.closest("[data-cov]");
+        if (btn && bar.contains(btn)) show(btn.getAttribute("data-cov"));
+      });
+
+      var asked = new URL(window.location.href).searchParams.get("show");
+      show(/^(news|screen|guests)$/.test(asked || "") ? asked : "all");
+    })();
+  </script>
 </body>
 </html>
