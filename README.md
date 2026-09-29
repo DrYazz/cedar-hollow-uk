@@ -1,6 +1,6 @@
 # Cedar Hollow UK
 
-> Repository initialised — project description to follow.
+> Repository initialised -- project description to follow.
 
 ## Overview
 

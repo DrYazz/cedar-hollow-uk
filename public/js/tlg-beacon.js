@@ -6,7 +6,7 @@
  * identifier, so its page views cannot be stitched into sessions and dwell time
  * is unavailable there in principle, not by omission.
  *
- * DEPLOY THIS INTO EACH APP — do not load it from the portal. The portal sits
+ * DEPLOY THIS INTO EACH APP -- do not load it from the portal. The portal sits
  * behind Cloudflare Access, and even if a path were opened, making an internal
  * ops dashboard a runtime dependency of fourteen customer-facing sites trades a
  * real outage risk for a convenience. Copy it into the app's layout instead; it
@@ -21,7 +21,7 @@
  * personal data of any kind. The id lives in sessionStorage, dies with the tab
  * and is hashed server-side before storage.
  *
- * WHAT IT MEASURES. Engaged time — time the tab was actually visible — not
+ * WHAT IT MEASURES. Engaged time -- time the tab was actually visible -- not
  * wall-clock time. A tab opened and abandoned for an hour contributes the
  * seconds someone looked at it. This is why the numbers will read lower than
  * most analytics products, and why they are worth more.
@@ -84,7 +84,7 @@
 
     try {
       // text/plain keeps this a "simple" request, so the browser never sends a
-      // CORS preflight — one round trip instead of two, from a real visitor's
+      // CORS preflight -- one round trip instead of two, from a real visitor's
       // connection.
       var blob = new Blob([body], { type: "text/plain;charset=UTF-8" });
       if (!navigator.sendBeacon || !navigator.sendBeacon(ENDPOINT, blob)) {
@@ -102,7 +102,7 @@
   }
 
   // Count the page view immediately. Waiting until the tab hides would lose
-  // every visitor who closes the tab abruptly — and those are precisely the
+  // every visitor who closes the tab abruptly -- and those are precisely the
   // ones a bounce rate is meant to describe.
   send(true);
 

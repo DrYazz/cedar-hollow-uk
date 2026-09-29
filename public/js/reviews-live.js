@@ -274,7 +274,7 @@
     });
 
     return '<div class="ch-plat-block">\n' +
-      '  <p class="ch-plat__headline"><strong>' + esc(prop.name) + "</strong> &mdash; " +
+      '  <p class="ch-plat__headline"><strong>' + esc(prop.name) + "</strong>, " +
       fig.rating.toFixed(1) + " from " + num(fig.count) + " guest reviews</p>\n" +
       '  <ul class="ch-plat-grid">\n' + cards.join("\n") + "\n  </ul>\n" +
       '  <p class="text-size-medium">Each figure comes from that platform&#x27;s own ' +
@@ -382,7 +382,7 @@
          rather than leave a stale figure sitting there. */
       if (!score && !meta && item.parentNode) {
         item.parentNode.innerHTML =
-          '<a href="' + esc(prop.page) + '">' + esc(prop.short) + "</a> &mdash; " +
+          '<a href="' + esc(prop.page) + '">' + esc(prop.short) + "</a>, " +
           fig.rating.toFixed(1) + " from " + num(fig.count) +
           " guest reviews on " + sourcesSentence(prop);
       }
