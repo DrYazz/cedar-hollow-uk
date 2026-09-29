@@ -40,8 +40,8 @@ PAGES = [
 # The name is a whole word after a space, so a sibling marker such as
 # ch:press-filter is not read as this block with the name "-filter" and
 # then closed against the articles grid's end marker further down.
-BLOCK_RE = re.compile(r"(<!-- ch:press(?: ([\w-]+))? -->)(.*?)(<!-- /ch:press -->)", re.S)
-SCREEN_RE = re.compile(r"(<!-- ch:press-screen ?([\w-]*) -->)(.*?)(<!-- /ch:press-screen -->)", re.S)
+BLOCK_RE = re.compile(r"(<!-- ch:press(?: ([\w:,-]+))? -->)(.*?)(<!-- /ch:press -->)", re.S)
+SCREEN_RE = re.compile(r"(<!-- ch:press-screen ?([\w:,-]*) -->)(.*?)(<!-- /ch:press-screen -->)", re.S)
 FEED_RE = re.compile(r"(<!-- ch:press-feed ?([\w-]*) -->)(.*?)(<!-- /ch:press-feed -->)", re.S)
 FILTER_RE = re.compile(r"(<!-- ch:press-filter(?: ([\w-]+))? -->)(.*?)(<!-- /ch:press-filter -->)", re.S)
 AWARDS_RE = re.compile(r"(<!-- ch:press-awards(?: ([\w-]+))? -->)(.*?)(<!-- /ch:press-awards -->)", re.S)
@@ -82,6 +82,23 @@ def both(sections, key):
             counts[where] = counts.get(where, 0) + 1
     return {key: out, "counts": counts}
 
+
+def pick(sections, key, slugs, page_name):
+    """Just these entries, from either woodland, in the order asked for.
+
+    A page that shows a handful rather than everything still reads the one
+    data file, so a corrected URL reaches it too. A slug that is not there
+    is a typo rather than a gap, so it stops the build instead of quietly
+    rendering one tile fewer.
+    """
+    everything = {}
+    for sec in sections.values():
+        for entry in sec.get(key) or []:
+            everything[entry['slug']] = entry
+    missing = [g for g in slugs if g not in everything]
+    if missing:
+        sys.exit('%s: no %s entry called %s' % (page_name, key, ', '.join(missing)))
+    return {key: [everything[g] for g in slugs], 'counts': {'all': len(slugs)}}
 
 def marker_indent(match):
     line_start = match.string.rfind("\n", 0, match.start()) + 1
@@ -631,7 +648,10 @@ def main():
             name = match.group(2)
             # no name means the combined page: both woodlands in one grid,
             # so each card names its woodland beside the year
-            if name:
+            if name and name.startswith("pick:"):
+                section = pick(sections, "items", name[5:].split(","), page.name)
+                both_woodlands = True
+            elif name:
                 if name not in sections:
                     sys.exit("%s: unknown press section '%s'" % (page.name, name))
                 section, both_woodlands = sections[name], False
@@ -647,7 +667,9 @@ def main():
 
         def replace_screen(match):
             name = match.group(2)
-            if name:
+            if name and name.startswith("pick:"):
+                section = pick(sections, "screen", name[5:].split(","), page.name)
+            elif name:
                 if name not in sections:
                     sys.exit("%s: unknown press section '%s'" % (page.name, name))
                 section = sections[name]
@@ -712,10 +734,14 @@ def main():
             elif not count:
                 state = "skipped (no items yet)"
             else:
-                pool = (
-                    both(sections, "items")["items"] if name == "combined"
-                    else sections[name].get("items", [])
-                )
+                # the label is a woodland, or "combined", or a list of slugs
+                if name == "combined":
+                    pool = both(sections, "items")["items"]
+                elif name.startswith("pick:"):
+                    pool = pick(sections, "items", name[5:].split(","),
+                                page.name)["items"]
+                else:
+                    pool = sections[name].get("items", [])
                 quoted = sum(1 for i in pool if i.get("quote"))
                 state = "%d tiles, %d quoted" % (count, quoted)
             print("  %-18s %-8s %s" % (page.name, name, state))
