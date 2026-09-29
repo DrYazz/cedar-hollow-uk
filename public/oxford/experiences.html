@@ -45,12 +45,33 @@
      --------------------------------------------------------------------- */
   @media screen and (min-width:768px){
     .ch-features{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
-      gap:clamp(2.5rem,5vw,4.5rem) clamp(2rem,4vw,3.5rem);align-items:start;}
+      gap:clamp(2rem,4vw,3rem) clamp(1.5rem,3vw,2.5rem);align-items:stretch;}
     /* each facility becomes a single column, so the gallery sits over the
        text; the shared sheet's alternating order has nothing left to flip. */
     .ch-features .ch-feature{grid-template-columns:1fr;gap:1.5rem;align-items:start;}
   }
 
+  /* ---------------------------------------------------------------------
+     Each experience as a card, picture flush to the top and the words held
+     inside, as the facilities and wellness pages lay them out. Nine of them
+     loose on the page were nine pictures and nine paragraphs with nothing
+     but the gaps to say which belonged to which, and down a two-column grid
+     the gaps between rows look much like the gaps between columns.
+
+     Lighter than the band it sits on rather than the same cream with a line
+     round it, which at a glance reads as a hairline in the background
+     instead of an edge the card has. No 3D tours on this page to move.
+     --------------------------------------------------------------------- */
+  .ch-features .ch-feature{grid-template-columns:1fr;gap:0;align-items:start;
+    align-content:start;height:100%;
+    background:#fdfcf2;border:1px solid rgba(59,65,38,.12);
+    border-radius:1rem;overflow:hidden;
+    box-shadow:0 .5rem 1.5rem rgba(16,19,7,.07);}
+  .ch-features .ch-feature__body{padding:1.25rem 1.35rem 1.5rem;}
+  .ch-features .ch-feature__body .heading-style-h4{margin-bottom:.6rem;}
+  /* the picture is the card's lid, so it keeps no corners of its own */
+  .ch-features .ch-slides__slide .ch-frame,
+  .ch-features .ch-feature__media .ch-frame{border-radius:0;}
   .ch-slides{position:relative;}
   .ch-slides__track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;
     scrollbar-width:none;-ms-overflow-style:none;}
