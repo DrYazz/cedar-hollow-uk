@@ -1,0 +1,63 @@
+/* The logo's site switcher: Oxford, Dorset and the main site.
+   Lifted verbatim from the nav embed on the three home pages, which had it
+   inline, so that the subpages can carry it without a copy each. */
+.ch-siteswitch{position:relative;display:inline-flex;align-items:center;
+    gap:clamp(.35rem,.6vw,.6rem)}
+.ch-siteswitch__caret{display:inline-flex;align-items:center;justify-content:center;
+    width:1.75rem;height:1.75rem;padding:0;border:0;border-radius:50%;
+    background:none;color:#f1ecdb;cursor:pointer;opacity:.7;
+    transition:opacity .2s ease,transform .25s ease}
+.ch-siteswitch__caret:hover{opacity:1}
+.ch-siteswitch__caret:focus-visible{outline:2px solid #f1ecdb;outline-offset:2px}
+.ch-siteswitch__caret{position:relative}
+.ch-siteswitch__caret::after{content:"";position:absolute;top:50%;left:50%;
+      width:44px;height:44px;transform:translate(-50%,-50%)}
+.ch-siteswitch__list{position:absolute;top:100%;left:0;z-index:40;
+    /* indented so the row does not start flush with the logo's left edge:
+       the pair sits under the wordmark rather than under the owl, which
+       gives the triangle an offset apex instead of a straight left side */
+    /* The owl of the first item lines up with the start of the logo's text.
+       That point is exactly one owl-width plus one logo-gap in, so it is
+       computed from the same two tokens the logo itself uses rather than
+       guessed at -- if either changes, the alignment follows. */
+    margin:clamp(.4rem,.8vw,.7rem) 0 0 calc(clamp(1.75rem,2.5vw,2.25rem) + clamp(.5rem,.83vw,.75rem));
+    padding:0;list-style:none;
+    display:flex;align-items:center;gap:clamp(1rem,2.2vw,2.25rem);
+    white-space:nowrap;
+    visibility:hidden;transition:visibility 0s linear .24s}
+.ch-siteswitch:hover .ch-siteswitch__list,
+  .ch-siteswitch:focus-within .ch-siteswitch__list,
+  .ch-siteswitch.is-open .ch-siteswitch__list{visibility:visible;transition-delay:0s}
+.ch-siteswitch__list li{opacity:0;transform:translateY(-.4rem);
+    transition:opacity .24s ease,transform .24s cubic-bezier(.2,.7,.3,1)}
+.ch-siteswitch:hover .ch-siteswitch__list li,
+  .ch-siteswitch:focus-within .ch-siteswitch__list li,
+  .ch-siteswitch.is-open .ch-siteswitch__list li{opacity:1;transform:none}
+.ch-siteswitch:hover .ch-siteswitch__caret,
+  .ch-siteswitch.is-open .ch-siteswitch__caret{transform:rotate(180deg);opacity:1}
+.ch-siteswitch__list a{display:inline-flex;align-items:center;
+    gap:clamp(.35rem,.6vw,.55rem);text-decoration:none;color:#f1ecdb;
+    /* no panel, so the hero is held off with a shadow rather than a box */
+    text-shadow:0 1px 14px rgba(16,11,1,.55),0 1px 3px rgba(16,11,1,.4);
+    opacity:.94;transition:opacity .18s ease,transform .18s cubic-bezier(.2,.7,.3,1)}
+.ch-siteswitch__list a:hover,.ch-siteswitch__list a:focus-visible{
+    opacity:1;transform:translateX(.15rem)}
+.ch-siteswitch__list a:focus-visible{outline:2px solid #f1ecdb;outline-offset:4px;
+    border-radius:4px}
+.ch-siteswitch__list .ch-nav__owl{filter:drop-shadow(0 1px 8px rgba(16,11,1,.5));
+    width:clamp(1.15rem,1.7vw,1.6rem)}
+.ch-siteswitch__list .ch-nav__wordmark{font-size:clamp(1rem,1.85vw,1.7rem)}
+.ch-siteswitch__list{flex-direction:column;align-items:flex-start;gap:0;
+      margin-left:0}
+.ch-siteswitch__list a{min-height:44px;padding-right:.5rem}
+.ch-siteswitch__list .ch-nav__wordmark{font-size:1rem}
+.ch-siteswitch__list .ch-nav__owl{width:1.05rem}
+.ch-siteswitch__list,.ch-siteswitch__list li,
+    .ch-siteswitch__caret,.ch-siteswitch__list a{transition:none}
+.ch-siteswitch');
+    if (!box) return;
+    var caret = box.querySelector('.ch-siteswitch__caret');
+    function set(open) {
+      box.classList.toggle('is-open', open);
+      caret.setAttribute('aria-expanded', String(open));
+    }

@@ -5,6 +5,7 @@
   <title>Press &amp; Recognition | Cedar Hollow</title>
   <meta content="width=device-width, initial-scale=1" name="viewport">
   <meta name="description" content="Every feature, broadcast and award for Cedar Hollow's woodland retreats in Oxfordshire and Dorset.">
+  <link href="css/siteswitch.css?v=20260929a" rel="stylesheet" type="text/css">
   <link href="css/normalize.css" rel="stylesheet" type="text/css">
   <link href="css/webflow.css" rel="stylesheet" type="text/css">
   <link href="css/cedar-hollow-uk.webflow.css?v=20260925a" rel="stylesheet" type="text/css">
@@ -109,7 +110,7 @@
             }
           </style>
           <nav class="ch-nav__bar" aria-label="Primary">
-            <a href="index.html" class="ch-nav__logo"><img src="images/cedar-hollow-owl.svg" loading="eager" alt="Cedar Hollow" class="ch-nav__owl"><span class="ch-nav__wordmark">Cedar Hollow</span></a>
+            <div class="ch-siteswitch"><a href="index.html" class="ch-nav__logo"><img src="images/cedar-hollow-owl.svg" loading="eager" alt="Cedar Hollow" class="ch-nav__owl"><span class="ch-nav__wordmark">Cedar Hollow</span></a><button class="ch-siteswitch__caret" type="button" aria-expanded="false" aria-controls="ch-siteswitch-list"><span class="ch-nav__sr">Switch site</span><svg viewBox="0 0 12 8" width="12" height="8" fill="none" aria-hidden="true" focusable="false"><path d="M1 1.5 6 6.5l5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><ul class="ch-siteswitch__list" id="ch-siteswitch-list"><li><a href="oxford.html"><img src="images/cedar-hollow-owl.svg" alt="" aria-hidden="true" class="ch-nav__owl"><span class="ch-nav__wordmark">Oxford</span></a></li><li><a href="dorset.html"><img src="images/cedar-hollow-owl.svg" alt="" aria-hidden="true" class="ch-nav__owl"><span class="ch-nav__wordmark">Dorset</span></a></li></ul></div>
             <button class="ch-nav__toggle" type="button" aria-expanded="false" aria-controls="ch-nav-menu"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span><span class="ch-nav__sr">Menu</span></button>
           </nav>
           <div class="ch-nav__menu" id="ch-nav-menu" hidden>
@@ -117,7 +118,7 @@
             <a href="about.html">Our Story</a>
             <a href="team.html">The Artists</a>
             <a href="sustainability.html">Sustainability</a>
-            <a href="experiences.html">Experiences</a>
+            <a href="experiences.html">Experiences</a><a href="influencers.html">Influencers</a>
             <a href="mailto:hello@cedarhollow.uk">Contact</a>
           </div>
           <script>
@@ -926,5 +927,6 @@
   <script src="js/press-filter.js?v=20260927b" type="text/javascript"></script>
   <script src="js/analytics.js" type="text/javascript"></script>
 <script src="/js/tlg-beacon.js" defer></script>
+<script src="js/siteswitch.js?v=20260929a"></script>
 </body>
 </html>
