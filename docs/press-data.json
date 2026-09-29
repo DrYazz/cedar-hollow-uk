@@ -308,12 +308,14 @@
             {
               "src": "images/press/channel4.png",
               "label": "Channel 4",
-              "ar": "35/46"
+              "ar": "35/46",
+              "scale": 1.35
             },
             {
               "src": "images/press/mafs.png",
               "label": "Married at First Sight UK",
-              "ar": "367/90"
+              "ar": "367/90",
+              "scale": 1.9
             }
           ],
           "detail": "Series 8 Episode 31"

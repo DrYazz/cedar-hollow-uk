@@ -261,10 +261,15 @@ def video_card(v, onthumb=False, bare=False, named=False):
         spans = []
         for mark in marks:
             src = asset(mark["src"])
+            # Optical size, as the article cards do it: a two-line lock-up
+            # needs more height than a wordmark to read at the same weight
+            # beside it. Only the marks on a still use it.
+            scale = mark.get("scale") if onthumb else None
+            scale_style = "--ch-logo-scale:%s;" % scale if scale else ""
             spans.append(
                 '<span class="ch-vid__logo" role="img" aria-label="%s" '
-                "style=\"--ch-logo-ar:%s;-webkit-mask-image:url('%s');mask-image:url('%s')\"></span>"
-                % (html.escape(mark["label"]), mark["ar"], src, src)
+                "style=\"%s--ch-logo-ar:%s;-webkit-mask-image:url('%s');mask-image:url('%s')\"></span>"
+                % (html.escape(mark["label"]), scale_style, mark["ar"], src, src)
             )
         source_line = ('    <span class="ch-vid__logos">%s</span>'
                        % "".join(spans))
