@@ -662,6 +662,49 @@ a.ch-vid__play {
 
 /* The year the programme went out. Quieter than the episode line above it,
    so the tile reads title, channel, episode, year. */
+/* The marks on the still, for the tiles that wear their name there and have
+   no caption underneath (see onthumb: in update-press.py). A scrim carries
+   them: these stills are photographs, and a mark in cream over an unknown
+   picture is a coin toss without one. It fades from nothing so the picture
+   keeps its top two thirds, and it sits at the foot so it never reaches the
+   play badge in the middle.
+
+   The marks are masks painted in currentColor, as everywhere else on this
+   page, so the colour here is set on the overlay and they follow it. */
+.ch-vid__over {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: .3rem;
+  padding: 2.75rem .95rem .85rem;
+  color: #f4f2e4;
+  background: linear-gradient(180deg, rgba(16, 19, 7, 0), rgba(16, 19, 7, .78));
+  pointer-events: none;
+  text-align: right;
+}
+
+.ch-vid__over .ch-vid__logos {
+  margin-top: 0;
+  gap: .65rem;
+}
+
+/* Smaller than the same mark in a caption: it is over a picture here, not
+   heading a block of type. */
+.ch-vid__over .ch-vid__logo {
+  height: 1.45rem;
+  max-width: 7rem;
+}
+
+.ch-vid__over .ch-vid__detail {
+  font-size: .9375rem;
+  line-height: 1.3;
+  opacity: .92;
+}
+
 .ch-vid__year {
   font-size: .875rem;
   letter-spacing: .04em;
