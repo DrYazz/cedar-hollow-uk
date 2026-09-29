@@ -105,12 +105,33 @@ section[data-kind][hidden] {
 /* The article as it was published, standing in for the card. */
 .ch-press__clip {
   display: block;
+  position: relative;
   aspect-ratio: 412 / 740;
   overflow: hidden;
   border-radius: var(--radius--16, 1rem);
   background-color: #fff;
   box-shadow: 0 .5rem 1.5rem rgba(16, 19, 7, .16);
   transition: transform .35s cubic-bezier(.2, .7, .3, 1), box-shadow .35s ease;
+}
+
+/* The year, stamped on the corner of the cutting. On a card with no caption
+   it is the one thing the cutting does not say itself, and these grids read
+   newest first, so without it the chronology goes. A pill rather than bare
+   type: it sits over a screenshot of somebody else's page, and there is no
+   telling what is underneath it. */
+.ch-press__stamp {
+  position: absolute;
+  right: .5rem;
+  bottom: .5rem;
+  padding: .2rem .5rem;
+  border-radius: 999px;
+  background: rgba(16, 19, 7, .72);
+  color: #fff;
+  font-size: .75rem;
+  font-weight: 600;
+  letter-spacing: .06em;
+  line-height: 1.4;
+  pointer-events: none;
 }
 
 .ch-press__clip img {

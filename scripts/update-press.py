@@ -115,7 +115,7 @@ def asset(path):
     return html.escape(path, quote=True)
 
 
-def card(item, show_location=False, brief=False):
+def card(item, show_location=False, brief=False, year=False):
     """One article: who ran it, what they called it, and a line from the piece."""
     pub = html.escape(item["publication"])
     url = html.escape(item["url"], quote=True)
@@ -130,6 +130,15 @@ def card(item, show_location=False, brief=False):
         klass = "" if quote else " ch-press__card--bare"
     parts = ['<article class="ch-press__card%s">' % klass]
 
+    # On a card with no caption the year is the one thing the cutting does not
+    # say itself, and these grids read newest first, so it is stamped on the
+    # corner of the clipping. aria-hidden: the link's own label names the piece,
+    # and a date read out mid-sentence there would only interrupt it.
+    stamp = ""
+    if brief and year:
+        stamp = ('<span class="ch-press__stamp" aria-hidden="true">%s</span>'
+                 % html.escape(item["date"][:4]))
+
     if shot:
         # The clipping is the tile, as on the Oaks reviews page: the article as
         # it was published, masthead and headline and lead picture together.
@@ -141,8 +150,8 @@ def card(item, show_location=False, brief=False):
             '  <a class="ch-press__clip" href="%s" target="_blank" rel="noopener" '
             'aria-label="Read &ldquo;%s&rdquo; on %s"><img src="%s" srcset="%s" '
             'sizes="(max-width: 767px) 45vw, 14rem" loading="lazy" decoding="async" '
-            'alt=""></a>' % (url, headline, pub, asset(shot["src"]),
-                             html.escape(shot["srcset"], quote=True))
+            'alt="">%s</a>' % (url, headline, pub, asset(shot["src"]),
+                               html.escape(shot["srcset"], quote=True), stamp)
         )
 
     # A brief card is the clipping alone. Every one of these screenshots is
@@ -585,7 +594,7 @@ def render_awards(data, indent, scope=None):
     body = ("\n" + indent).join(lines)
     return "\n%s%s\n%s" % (indent, body, indent)
 
-def render(section, indent, show_location=False, brief=False):
+def render(section, indent, show_location=False, brief=False, year=False):
     items = section.get("items") or []
     # Newest first. The data file keeps them in the order they were added;
     # the page decides how they read.
@@ -600,7 +609,8 @@ def render(section, indent, show_location=False, brief=False):
         # Named so the homepage mastheads can link to the piece itself.
         lines.append('    <li id="press-%s" data-location="%s">'
                      % (html.escape(item["slug"]), html.escape(item.get("location", ""))))
-        lines.extend("      " + line for line in card(item, show_location, brief))
+        lines.extend("      " + line
+                     for line in card(item, show_location, brief, year))
         lines.append("    </li>")
     lines.append("  </ul>")
     lines.append("</div>")
@@ -715,7 +725,8 @@ def main():
             # remember which way round they were written.
             words = (match.group(2) or "").split()
             brief = "brief" in words
-            rest = [w for w in words if w != "brief"]
+            year = "years" in words
+            rest = [w for w in words if w not in ("brief", "years")]
             if len(rest) > 1:
                 sys.exit("%s: press marker names more than one section: %s"
                          % (page.name, " ".join(rest)))
@@ -731,7 +742,7 @@ def main():
                 section, both_woodlands = sections[name], False
             else:
                 section, both_woodlands = both(sections, "items"), True
-            body = render(section, marker_indent(match), both_woodlands, brief)
+            body = render(section, marker_indent(match), both_woodlands, brief, year)
             label = name or "combined"
             if body is None:
                 seen.append((label, 0, "tiles"))
