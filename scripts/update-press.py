@@ -41,7 +41,7 @@ PAGES = [
 # ch:press-filter is not read as this block with the name "-filter" and
 # then closed against the articles grid's end marker further down.
 BLOCK_RE = re.compile(r"(<!-- ch:press(?: ([\w:, -]+?))? -->)(.*?)(<!-- /ch:press -->)", re.S)
-SCREEN_RE = re.compile(r"(<!-- ch:press-screen ?([\w:,-]*) -->)(.*?)(<!-- /ch:press-screen -->)", re.S)
+SCREEN_RE = re.compile(r"(<!-- ch:press-screen ?([\w:, -]*?) -->)(.*?)(<!-- /ch:press-screen -->)", re.S)
 FEED_RE = re.compile(r"(<!-- ch:press-feed ?([\w-]*) -->)(.*?)(<!-- /ch:press-feed -->)", re.S)
 FILTER_RE = re.compile(r"(<!-- ch:press-filter(?: ([\w-]+))? -->)(.*?)(<!-- /ch:press-filter -->)", re.S)
 AWARDS_RE = re.compile(r"(<!-- ch:press-awards(?: ([\w-]+))? -->)(.*?)(<!-- /ch:press-awards -->)", re.S)
@@ -204,7 +204,7 @@ def card(item, show_location=False, brief=False):
     return parts
 
 
-def video_card(v):
+def video_card(v, onthumb=False, bare=False, named=False):
     """A video as a still with a play button, not an iframe.
 
     Two shapes: most are a button that swaps in the player, and the ones
@@ -222,6 +222,16 @@ def video_card(v):
     source = html.escape(v["source"])
     url = html.escape(v["url"], quote=True)
 
+    # With the caption gone the episode is only on the still, and a still is
+    # not read out, so the button's own label carries it instead.
+    # A bare tile shows nothing at all on the still; it is for the ones whose
+    # own artwork already names them.
+    if bare:
+        onthumb = True
+    said = ""
+    if onthumb and not bare and v.get("detail"):
+        said = ", " + html.escape(v["detail"])
+
     # "embed": false means the owner has disallowed off-site playback, so an
     # iframe here renders YouTube's "This video is unavailable" panel instead
     # of the film. Those entries keep the still and the play badge but are a
@@ -231,13 +241,13 @@ def video_card(v):
     if v.get("embed") is False:
         opener = [
             '  <a class="ch-vid__play is-offsite" href="%s" target="_blank" rel="noopener"' % url,
-            '     aria-label="Watch &ldquo;%s&rdquo; (%s) on YouTube, which is the only place it can be played">' % (title, source),
+            '     aria-label="Watch &ldquo;%s&rdquo; (%s%s) on YouTube, which is the only place it can be played">' % (title, source, said),
         ]
         closer = "  </a>"
     else:
         opener = [
             '  <button class="ch-vid__play" type="button" data-video="%s"' % html.escape(v["id"], quote=True),
-            '          aria-label="Play &ldquo;%s&rdquo; (%s) in the YouTube player">' % (title, source),
+            '          aria-label="Play &ldquo;%s&rdquo; (%s%s) in the YouTube player">' % (title, source, said),
         ]
         closer = "  </button>"
 
@@ -277,8 +287,41 @@ def video_card(v):
     rw, rh = (int(x) for x in ratio.split("/"))
     portrait = " is-portrait" if rh > rw else ""
 
+    # On the still: the marks we have and the episode, over a scrim at the
+    # foot of the picture. aria-hidden because every word of it is already
+    # in the button's label above, and a screen reader should hear the
+    # programme named once.
+    over = []
+    if onthumb and not bare:
+        inner = ""
+        # The name first, for the films whose still does not already carry it.
+        # Where there is no mark either, the source comes with it: "Parallel
+        # Universe" alone does not say who made it.
+        if named:
+            inner += '<span class="ch-vid__title">%s</span>' % title
+        if marks:
+            inner += '<span class="ch-vid__logos">%s</span>' % "".join(spans)
+        elif named:
+            inner += '<span class="ch-vid__source">%s</span>' % source
+        if v.get("detail"):
+            inner += ('<span class="ch-vid__detail">%s</span>'
+                      % html.escape(v["detail"]))
+        if inner:
+            over = ['    <span class="ch-vid__over" aria-hidden="true">%s</span>' % inner]
+
+    # The caption under the still says what the still now says itself.
+    caption = []
+    if not onthumb:
+        caption = [
+            '  <p class="ch-vid__meta"><span class="ch-vid__title">%s</span>' % title,
+            source_line,
+            '  <a class="ch-vid__link" href="%s" target="_blank" rel="noopener">'
+            'Watch on YouTube</a>' % html.escape(v["url"], quote=True),
+        ]
+
     return [
-        '<article class="ch-vid%s" style="--ch-vid-ar:%s">' % (portrait, ratio),
+        '<article class="ch-vid%s%s" style="--ch-vid-ar:%s">'
+        % (portrait, " ch-vid--onthumb" if onthumb else "", ratio),
         *opener,
         '    <img src="%s" srcset="%s" sizes="(max-width: 767px) 92vw, 22rem"'
         % (asset(v["thumb"]["src"]), html.escape(v["thumb"]["srcset"], quote=True)),
@@ -287,16 +330,14 @@ def video_card(v):
         '<svg viewBox="0 0 68 48" width="100%" height="100%">'
         '<path class="ch-vid__icon-bg" d="M66.5 7.7c-.8-2.9-2.5-5.4-5.4-6.2C55.8 0 34 0 34 0S12.2 0 6.9 1.4C4 2.2 2.3 4.8 1.5 7.7 0 13 0 24 0 24s0 11 1.5 16.3c.8 2.9 2.5 5.4 5.4 6.2C12.2 48 34 48 34 48s21.8 0 27.1-1.5c2.9-.8 4.6-3.3 5.4-6.2C68 35 68 24 68 24s0-11-1.5-16.3z"></path>'
         '<path d="M45 24 27 14v20" fill="#fff"></path></svg></span>',
+        *over,
         closer,
-        '  <p class="ch-vid__meta"><span class="ch-vid__title">%s</span>' % title,
-        source_line,
-        '  <a class="ch-vid__link" href="%s" target="_blank" rel="noopener">Watch on YouTube</a>'
-        % html.escape(v["url"], quote=True),
+        *caption,
         "</article>",
     ]
 
 
-def render_screen(section, indent):
+def render_screen(section, indent, onthumb=(), bare=(), named=(), onthumb_all=False):
     videos = section.get("screen") or []
     if not videos:
         return None
@@ -324,7 +365,10 @@ def render_screen(section, indent):
             # page they then have to unfilter.
             lines.append('    <li id="screen-%s" data-location="%s">'
                          % (html.escape(v["slug"]), html.escape(v.get("location", ""))))
-            lines.extend("      " + line for line in video_card(v))
+            lines.extend("      " + line
+                         for line in video_card(
+                             v, onthumb_all or v["slug"] in onthumb,
+                             v["slug"] in bare, v["slug"] in named))
             lines.append("    </li>")
         lines.append("  </ul>")
     lines.append("</div>")
@@ -688,7 +732,30 @@ def main():
             return match.group(1) + body + match.group(4)
 
         def replace_screen(match):
-            name = match.group(2)
+            # The marker is a word list: an optional onthumb:slug,slug, and an
+            # optional name or pick.
+            words = (match.group(2) or "").split()
+            onthumb = set()
+            bare = set()
+            named = set()
+            onthumb_all = False
+            rest = []
+            for word in words:
+                if word == "onthumb":
+                    # on its own: every film in the block
+                    onthumb_all = True
+                elif word.startswith("onthumb:"):
+                    onthumb.update(w for w in word[8:].split(",") if w)
+                elif word.startswith("bare:"):
+                    bare.update(w for w in word[5:].split(",") if w)
+                elif word.startswith("title:"):
+                    named.update(w for w in word[6:].split(",") if w)
+                else:
+                    rest.append(word)
+            if len(rest) > 1:
+                sys.exit("%s: screen marker names more than one section: %s"
+                         % (page.name, " ".join(rest)))
+            name = rest[0] if rest else None
             if name and name.startswith("pick:"):
                 section = pick(sections, "screen", name[5:].split(","), page.name)
             elif name:
@@ -697,7 +764,15 @@ def main():
                 section = sections[name]
             else:
                 section = both(sections, "screen")
-            body = render_screen(section, marker_indent(match))
+            # A slug that is not in the block is a typo, not a gap: it would
+            # otherwise go unnoticed as one tile that kept its caption.
+            have = set(v["slug"] for v in section.get("screen") or [])
+            astray = sorted((onthumb | bare | named) - have)
+            if astray:
+                sys.exit("%s: the screen marker names no such film: %s"
+                         % (page.name, ", ".join(astray)))
+            body = render_screen(section, marker_indent(match), onthumb, bare,
+                                 named, onthumb_all)
             if body is None:
                 return match.group(0)
             seen.append((name or "combined", len(section["screen"]), "screen"))
