@@ -63,17 +63,30 @@
 
 /* --- Page head: the retreats band treatment, reused ---------------------- */
 
+/* No overflow:hidden here. It used to live on this element to contain the
+   blurred photograph, which bleeds past the header on every side, but it also
+   clipped the nav panel: the panel is absolutely positioned inside the header
+   and on a laptop it is taller than the header is, so the bottom two rows of
+   links were invisible and unclickable. The clipping now sits on the layer
+   that actually overflows, which the panel is not inside. */
 .dp-head {
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  overflow: hidden;
   color: var(--dp-brand);
 }
 
-.dp-head__bg { position: absolute; inset: -8%; pointer-events: none; }
-.dp-head__blur { width: 100%; height: 100%; object-fit: cover; filter: blur(25px); }
+.dp-head__bg { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+/* The bleed moves onto the photograph: -8% a side, so 116% across. It has to
+   run past the edges or the blur's own soft border shows. max-width:none
+   because the global img rule caps it at the container width, which would
+   leave the right-hand side short by the width of the bleed. */
+.dp-head__blur {
+  position: absolute; left: -8%; top: -8%;
+  width: 116%; height: 116%; max-width: none;
+  object-fit: cover; filter: blur(25px);
+}
 
 /* The blur makes the photograph its own stacking context, so these two need
    explicit levels or the dark layer paints underneath it. Same reasoning as
