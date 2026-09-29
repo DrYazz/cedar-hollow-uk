@@ -43,6 +43,100 @@
     .ch-list li{line-height:1.6;}
   </style>
   <style>
+    /* Rules this page leans on that the core stylesheets do not carry. */
+    .bg-off{background-color:var(--offwhite,#f8f8e8);}
+    .ch-page-hero__bg{position:absolute;inset:0;z-index:0;}
+    /* page.css gives this padding but not a place in the stacking order, and
+       the background beside it is positioned with z-index 0. Without this the
+       hero's own words paint underneath its photograph. */
+    .ch-page-hero__body{position:relative;z-index:2;}
+    .ch-page-hero__bg img{width:100%;height:100%;object-fit:cover;}
+    /* This treehouse is painted mostly white, so the wash over it has to be
+       heavier than the one the other heroes use, or cream type on cream
+       panelling disappears. */
+    .ch-page-hero__bg::after{content:"";position:absolute;inset:0;
+      background:linear-gradient(to bottom,rgba(20,24,10,.62),rgba(30,36,18,.78));}
+    .ch-note{font-size:1.125rem;line-height:1.6;color:var(--accent,#3b4126);
+      opacity:.8;max-width:56ch;margin:1rem auto 0;}
+    .ch-eyebrow{font-size:.8125rem;font-weight:600;letter-spacing:.18em;
+      text-transform:uppercase;opacity:.75;margin:0 0 1rem;}
+
+    /* ---- Three steps -------------------------------------------------
+       Numbered rather than merely ordered, because the number is the point:
+       stay, then post, then get paid back. */
+    .ch-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:1.25rem;list-style:none;margin:2.75rem 0 0;padding:0;}
+    .ch-steps li{position:relative;display:flex;flex-direction:column;
+      align-items:center;text-align:center;padding:2.25rem 1.5rem 1.75rem;
+      background:var(--brand-secondary,#f3f1e2);border:1px solid rgba(59,65,38,.16);
+      border-radius:1rem;}
+    .ch-step__n{position:absolute;top:1rem;left:1rem;display:inline-flex;
+      align-items:center;justify-content:center;width:2rem;height:2rem;
+      border-radius:50%;background:#b8a06a;color:#fff;font-size:.9375rem;
+      font-weight:600;line-height:1;}
+    .ch-step__ic{display:block;color:var(--accent,#3b4126);opacity:.85;}
+    .ch-step__ic .ch-ic{width:4.5rem;height:4.5rem;display:block;}
+    .ch-step__title{font-family:var(--font-family--heading,serif);
+      font-size:clamp(1.35rem,2vw,1.6rem);font-weight:400;margin:1rem 0 .5rem;
+      color:var(--accent,#3b4126);}
+    .ch-steps p{margin:0;line-height:1.6;color:var(--accent,#3b4126);opacity:.85;}
+
+    /* ---- The rewards band --------------------------------------------
+       The three tiers are the thing being read, so they are cards on the
+       dark rather than another list of sentences. */
+    .ch-rewards__row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr) auto;
+      gap:clamp(1.5rem,4vw,3rem);align-items:center;}
+    .ch-rewards__intro h2{margin:0 0 .75rem;}
+    .ch-rewards__intro p{margin:0;line-height:1.6;opacity:.85;max-width:34ch;}
+    .ch-reward-tiers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:1.25rem;list-style:none;margin:0;padding:0;}
+    .ch-reward-tiers li{background:var(--brand,#efeed5);color:var(--accent,#3b4126);
+      border-radius:1rem;padding:2rem 1rem;text-align:center;}
+    .ch-reward__views{margin:0 0 1rem;padding-bottom:1rem;
+      border-bottom:1px solid rgba(59,65,38,.25);}
+    .ch-reward__views strong{display:block;font-family:var(--font-family--heading,serif);
+      font-size:clamp(1.4rem,2.4vw,1.9rem);font-weight:400;}
+    .ch-reward__views span,.ch-reward__back span{display:block;font-size:1rem;opacity:.75;}
+    .ch-reward__back{margin:0;}
+    .ch-reward__back strong{display:block;font-family:var(--font-family--heading,serif);
+      font-size:clamp(2.6rem,6vw,4rem);font-weight:400;line-height:1;
+      letter-spacing:-.02em;}
+    .ch-rewards__aside{margin:0;writing-mode:vertical-rl;text-orientation:mixed;
+      font-size:.75rem;letter-spacing:.24em;text-transform:uppercase;opacity:.6;}
+    .ch-rewards__note{margin:2.5rem auto 0;text-align:center;color:inherit;opacity:.7;}
+
+    /* These are written for a light ground. On the dark band they have to
+       turn over, or they are the page's own colour on the page's own
+       colour. */
+    .ch-section--accent .ch-note,
+    .ch-section--accent .ch-eyebrow,
+    .ch-rewards__intro p,
+    .ch-rewards__aside{color:var(--brand,#efeed5);}
+
+    /* ---- What we love -------------------------------------------------- */
+    .ch-love{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);
+      gap:clamp(1.5rem,4vw,3.5rem);align-items:center;}
+    .ch-love__body h2{margin:0 0 1rem;}
+    .ch-love__body p{margin:0;line-height:1.7;color:var(--accent,#3b4126);opacity:.85;}
+    .ch-chips{display:flex;flex-wrap:wrap;gap:.75rem;list-style:none;margin:0;padding:0;}
+    .ch-chip{display:inline-flex;align-items:center;gap:.5rem;padding:.55rem 1.05rem;
+      border-radius:50em;background:var(--brand-secondary,#f3f1e2);
+      border:1px solid rgba(59,65,38,.18);color:var(--accent,#3b4126);
+      font-size:.9375rem;line-height:1.2;text-decoration:none;}
+    .ch-chip .ch-ic{width:1.35rem;height:1.35rem;flex:none;opacity:.8;}
+    .ch-quote{margin:1.5rem 0 0;padding:1.25rem 1.5rem;border-radius:1rem;
+      background:var(--brand-secondary,#f3f1e2);font-style:italic;line-height:1.6;
+      color:var(--accent,#3b4126);}
+
+    @media screen and (max-width:991px){
+      .ch-steps{grid-template-columns:1fr;}
+      .ch-rewards__row{grid-template-columns:1fr;}
+      .ch-rewards__aside{writing-mode:horizontal-tb;letter-spacing:.18em;}
+      .ch-love{grid-template-columns:1fr;}
+    }
+    @media screen and (max-width:640px){
+      .ch-reward-tiers{grid-template-columns:1fr;}
+    }
     /* The filter over the three kinds of coverage. It borrows .ch-wall__btn
        from the reviews page so the buttons are the ones used elsewhere. */
     .ch-cov{background-color:var(--brand,#efeed5);color:var(--accent,#3b4126);
@@ -64,7 +158,7 @@
   </style>
 </head>
 <body class="cp">
-  <section class="ch-page-hero">
+  <section class="ch-page-hero has-image"><div class="ch-page-hero__bg"><img src="images/influencers-hero.webp?v=20260929a" srcset="images/influencers-hero-sm.webp?v=20260929a 530w, images/influencers-hero.webp?v=20260929a 1060w" sizes="100vw" alt="The Dazzle Treehouse on its stilts among the trees" loading="eager" fetchpriority="high" decoding="async" width="1060" height="596"></div>
         <div class="ch-nav w-embed">
           <style>
             .ch-nav{width:100%;position:relative;}
@@ -181,8 +275,7 @@
           </script>
         </div>
     <div class="ch-page-hero__body padding-global"><div class="container-large"><div class="text-align-center"><div class="max-width-xlarge align-center"><p class="ch-page-hero__eyebrow text-size-medium text-style-allcaps">For creators</p><h1 class="heading-style-h1">Share your Stay <span class="text-style-italic">&amp; get rewarded</span></h1><p class="ch-page-hero__lead text-size-large">Post a reel from your stay, include us as a collaborator, and you may be eligible for a refund of up to the whole stay.</p></div></div></div></div></section>
-<section class="bg-off"><div class="padding-section-medium"><div class="padding-global"><div class="container-large"><div class="text-align-center"><div class="ch-prose is-large"><p>Our guests often post reels from their stay, and we love authentic, family-friendly content. Post a public Instagram, TikTok or YouTube reel and include us as a collaborator, and you may be eligible for a refund based on how it performs.</p></div><ul class="ch-cards is-left" style="margin-top:2.5rem"><li><h3 class="heading-style-h4">How it works</h3><ul><li>Post a reel from your stay</li><li>Include us as a collaborator</li><li>Views are counted 14 days after posting</li></ul></li><li><h3 class="heading-style-h4">Rewards</h3><p>From a single reel:</p><ul><li>5,000+ views &rarr; 15% refund</li><li>15,000+ views &rarr; 50% refund</li><li>50,000+ views &rarr; 100% refund of your stay</li></ul><p class="ch-note" style="margin-top:.75rem">Refunds are issued after checkout to the original payment method.</p></li><li><h3 class="heading-style-h4">Include us as a collaborator</h3><dl class="ch-handles"><div class="ch-handles__row"><dt>Instagram</dt><dd><a class="ch-chip" href="https://www.instagram.com/cedarhollowoxford/" target="_blank" rel="noopener">@cedarhollowoxford</a><a class="ch-chip" href="https://www.instagram.com/cedarhollowdorset/" target="_blank" rel="noopener">@cedarhollowdorset</a><a class="ch-chip" href="https://www.instagram.com/cool.escapes/" target="_blank" rel="noopener">@cool.escapes</a></dd></div><div class="ch-handles__row"><dt>TikTok</dt><dd><a class="ch-chip" href="https://www.tiktok.com/@cedarhollow" target="_blank" rel="noopener">@cedarhollow</a></dd></div><div class="ch-handles__row"><dt>YouTube</dt><dd><a class="ch-chip" href="https://www.youtube.com/@CedarHollow" target="_blank" rel="noopener">@CedarHollow</a></dd></div></dl><p class="ch-note" style="margin-top:.75rem">Whichever woodland you stayed in, add both Instagram accounts and Cool Escapes.</p></li></ul><div class="button-group align-center" style="margin-top:2.25rem"><a href="mailto:hello@cedarhollow.uk?subject=Creator collaboration" class="button"><span>Over 300k followers? Get in touch</span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 17 12" fill="none" class="button_icon" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.2443 5.03644L9.48927 1.21321L10.6935 0L16.5 5.91195L10.6783 11.55L9.50444 10.3067L13.17 6.75673H0V5.03644H13.2443Z" fill="currentColor"/></svg></a></div></div></div></div></div></section>
-<div class="ch-cov" data-ch-cov><div class="ch-cov__row" role="group" aria-label="Filter coverage"><button class="ch-wall__btn" type="button" data-cov="all" aria-pressed="true">All</button><button class="ch-wall__btn" type="button" data-cov="news" aria-pressed="false">News</button><button class="ch-wall__btn" type="button" data-cov="screen" aria-pressed="false">On screen</button><button class="ch-wall__btn" type="button" data-cov="guests" aria-pressed="false">Familiar faces</button></div></div>
+<section class="bg-off"><div class="padding-section-medium"><div class="padding-global"><div class="container-large"><div class="text-align-center"><div class="section-title-block"><div class="max-width-xlarge align-center"><h2 class="heading-style-h1">How it <span class="text-style-italic">works</span></h2><p class="ch-note">A simple way to turn your stay into a story that inspires others.</p></div></div><ul class="ch-steps"><li><span class="ch-step__n" aria-hidden="true">1</span><span class="ch-step__ic"><svg class="ch-ic" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M10 24 24 13l14 11"/><path d="M13 22v13h22V22"/><path d="M21 35v-8h6v8"/><path d="M8 20v-6M8 14l-3 3M8 14l3 3"/><path d="M40 20v-6M40 14l-3 3M40 14l3 3"/></svg></span><h3 class="ch-step__title">Stay</h3><p>Book and enjoy your Cedar Hollow stay. Soak up the nature, the details and the magic.</p></li><li><span class="ch-step__n" aria-hidden="true">2</span><span class="ch-step__ic"><svg class="ch-ic" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="8" y="16" width="32" height="20" rx="3"/><path d="M18 16l2.5-4h7L30 16"/><circle cx="24" cy="26" r="6"/></svg></span><h3 class="ch-step__title">Create</h3><p>Post a Reel, TikTok or YouTube Short sharing your authentic experience.</p></li><li><span class="ch-step__n" aria-hidden="true">3</span><span class="ch-step__ic"><svg class="ch-ic" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M16 12h8l-1 10a3 3 0 0 1-6 0Z"/><path d="M20 22v11M16 33h8"/><path d="M26 12h8l-1 10a3 3 0 0 1-6 0Z"/><path d="M30 22v11M26 33h8"/><path d="M36 10l1 3 3 1-3 1-1 3-1-3-3-1 3-1Z"/></svg></span><h3 class="ch-step__title">Get rewarded</h3><p>Your content&rsquo;s performance could earn you a refund, from 15% up to 100% back.</p></li></ul></div></div></div></div></section><section class="ch-section--accent ch-rewards"><div class="padding-section-medium"><div class="padding-global"><div class="container-large"><div class="ch-rewards__row"><div class="ch-rewards__intro"><p class="ch-eyebrow">Creator rewards</p><h2 class="heading-style-h1">Great stories <span class="text-style-italic">go further.</span></h2><p>The more your content inspires, the more you get back. Here is how it works:</p></div><ul class="ch-reward-tiers"><li><p class="ch-reward__views"><strong>5,000+</strong><span>views</span></p><p class="ch-reward__back"><strong>15%</strong><span>back</span></p></li><li><p class="ch-reward__views"><strong>15,000+</strong><span>views</span></p><p class="ch-reward__back"><strong>50%</strong><span>back</span></p></li><li><p class="ch-reward__views"><strong>50,000+</strong><span>views</span></p><p class="ch-reward__back"><strong>100%</strong><span>back</span></p></li></ul><p class="ch-rewards__aside">Beautiful places deserve to be shared</p></div><p class="ch-note ch-rewards__note">Views are counted 14 days after posting, from a single reel. Refunds are issued after checkout to the original payment method.</p></div></div></div></section><section class="bg-off"><div class="padding-section-medium"><div class="padding-global"><div class="container-large"><div class="ch-love"><div class="ch-love__body"><h2 class="heading-style-h1">What we <span class="text-style-italic">love</span></h2><p>We are drawn to authentic, family-friendly storytelling that captures the real magic of time well spent in nature.</p></div><div class="ch-love__side"><ul class="ch-chips"><li><span class="ch-chip"><svg class="ch-ic" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M24 8l3.4 9.2L37 20l-9.6 2.8L24 32l-3.4-9.2L11 20l9.6-2.8Z"/></svg>Wonder</span></li><li><span class="ch-chip"><svg class="ch-ic" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M24 38V22"/><path d="M24 22c0-7 5-11 12-11 0 7-5 11-12 11Z"/><path d="M24 26c0-6-4-9-10-9 0 6 4 9 10 9Z"/></svg>Nature</span></li><li><span class="ch-chip"><svg class="ch-ic" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M10 24 24 13l14 11"/><path d="M13 22v13h22V22"/></svg>Design</span></li><li><span class="ch-chip"><svg class="ch-ic" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 10l2.2 6L28 18l-5.8 2L20 26l-2.2-6L12 18l5.8-2Z"/><path d="M33 26l1.4 3.6L38 31l-3.6 1.4L33 36l-1.4-3.6L28 31l3.6-1.4Z"/></svg>Unexpected moments</span></li></ul><blockquote class="ch-quote">&ldquo;Real moments. Genuine experiences. A kinder, more curious world.&rdquo;</blockquote></div></div></div></div></div></section><section class="bg-light"><div class="padding-section-medium"><div class="padding-global"><div class="container-large"><div class="text-align-center"><div class="section-title-block"><div class="max-width-xlarge align-center"><h2 class="heading-style-h1">Include us as a <span class="text-style-italic">collaborator</span></h2><p class="ch-note">Whichever woodland you stayed in, add both Instagram accounts and Cool Escapes.</p></div></div><dl class="ch-handles"><div class="ch-handles__row"><dt>Instagram</dt><dd><a class="ch-chip" href="https://www.instagram.com/cedarhollowoxford/" target="_blank" rel="noopener">@cedarhollowoxford</a><a class="ch-chip" href="https://www.instagram.com/cedarhollowdorset/" target="_blank" rel="noopener">@cedarhollowdorset</a><a class="ch-chip" href="https://www.instagram.com/cool.escapes/" target="_blank" rel="noopener">@cool.escapes</a></dd></div><div class="ch-handles__row"><dt>TikTok</dt><dd><a class="ch-chip" href="https://www.tiktok.com/@cedarhollow" target="_blank" rel="noopener">@cedarhollow</a></dd></div><div class="ch-handles__row"><dt>YouTube</dt><dd><a class="ch-chip" href="https://www.youtube.com/@CedarHollow" target="_blank" rel="noopener">@CedarHollow</a></dd></div></dl><div class="button-group align-center" style="margin-top:2.25rem"><a href="mailto:hello@cedarhollow.uk?subject=Creator collaboration" class="button"><span>Over 300k followers? Get in touch</span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 17 12" fill="none" class="button_icon" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.2443 5.03644L9.48927 1.21321L10.6935 0L16.5 5.91195L10.6783 11.55L9.50444 10.3067L13.17 6.75673H0V5.03644H13.2443Z" fill="currentColor"/></svg></a></div></div></div></div></div></section><div class="ch-cov" data-ch-cov><div class="ch-cov__row" role="group" aria-label="Filter coverage"><button class="ch-wall__btn" type="button" data-cov="all" aria-pressed="true">All</button><button class="ch-wall__btn" type="button" data-cov="news" aria-pressed="false">News</button><button class="ch-wall__btn" type="button" data-cov="screen" aria-pressed="false">On screen</button><button class="ch-wall__btn" type="button" data-cov="guests" aria-pressed="false">Familiar faces</button></div></div>
 <section class="bg-light" data-kind="press" data-cov-panel="news">
       <div class="padding-section-medium">
         <div class="padding-global">
