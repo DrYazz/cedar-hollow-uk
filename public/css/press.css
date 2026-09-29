@@ -682,7 +682,7 @@ a.ch-vid__play {
   gap: .3rem;
   padding: 3.5rem .95rem .9rem;
   color: #fff;
-  background: linear-gradient(180deg, rgba(16, 19, 7, 0), rgba(16, 19, 7, .62) 40%, rgba(16, 19, 7, .95));
+  isolation: isolate;
   pointer-events: none;
   text-align: right;
   text-shadow: 0 2px 5px rgba(8, 10, 3, .9), 0 0 2px rgba(8, 10, 3, .55);
@@ -691,6 +691,27 @@ a.ch-vid__play {
 /* The name on the still, for the films whose own artwork does not carry it.
    Held to a column so a long title wraps into the corner rather than running
    the width of the picture. */
+/* The scrim, as its own layer so it can fade out to the left. Broadcasters
+   put their own title in the bottom-left of a frame -- World's Most Secret
+   Hotels, Amazing Spaces and the Married at First Sight caption all do --
+   and a scrim across the full width dimmed those to a grey that looked like
+   our doing. It is darkest in the right-hand corner, where our own type
+   sits, and gone by the left edge, where theirs does. */
+.ch-vid__over::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(180deg, rgba(16, 19, 7, 0), rgba(16, 19, 7, .62) 40%, rgba(16, 19, 7, .95));
+  -webkit-mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0), #000 55%);
+  mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0), #000 55%);
+}
+
+.ch-vid__over > * {
+  position: relative;
+  z-index: 1;
+}
+
 .ch-vid__over .ch-vid__title {
   font-size: 1.0625rem;
   line-height: 1.25;
