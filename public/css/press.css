@@ -680,11 +680,12 @@ a.ch-vid__play {
   flex-direction: column;
   align-items: flex-end;
   gap: .3rem;
-  padding: 2.75rem .95rem .85rem;
+  padding: 3.5rem .95rem .9rem;
   color: #f4f2e4;
-  background: linear-gradient(180deg, rgba(16, 19, 7, 0), rgba(16, 19, 7, .78));
+  background: linear-gradient(180deg, rgba(16, 19, 7, 0), rgba(16, 19, 7, .55) 45%, rgba(16, 19, 7, .88));
   pointer-events: none;
   text-align: right;
+  text-shadow: 0 1px 3px rgba(10, 12, 4, .7);
 }
 
 /* The name on the still, for the films whose own artwork does not carry it.
@@ -706,11 +707,18 @@ a.ch-vid__play {
   gap: .65rem;
 }
 
-/* Smaller than the same mark in a caption: it is over a picture here, not
-   heading a block of type. */
+/* Over a picture, not heading a block of type, so each mark is set from a
+   base height and its own optical scale (see "scale" in press-data.json):
+   one height suits a wordmark and starves a two-line lock-up, which comes
+   out at half a paragraph's size and disappears into the photograph.
+
+   The shadow is what lets a cream mark hold on an unknown still. The scrim
+   below carries most of it, but these pictures are photographs and a bright
+   patch can reach the corner. */
 .ch-vid__over .ch-vid__logo {
-  height: 1.45rem;
-  max-width: 7rem;
+  height: calc(1.5rem * var(--ch-logo-scale, 1));
+  max-width: calc(7rem * var(--ch-logo-scale, 1));
+  filter: drop-shadow(0 1px 3px rgba(10, 12, 4, .65));
 }
 
 .ch-vid__over .ch-vid__detail {
