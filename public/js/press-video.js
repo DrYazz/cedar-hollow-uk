@@ -99,7 +99,7 @@
     var title = card && card.querySelector(".ch-vid__title");
     var source = card && card.querySelector(".ch-vid__source");
     box.querySelector(".ch-lightbox__caption").textContent =
-      (title ? title.textContent : "") + (source ? " — " + source.textContent : "");
+      (title ? title.textContent : "") + (source ? ", " + source.textContent : "");
     box.setAttribute("aria-label", title ? title.textContent : "Video");
 
     var stage = box.querySelector(".ch-lightbox__stage");

@@ -1,5 +1,5 @@
 /*
- * Cedar Hollow — Worker entry point.
+ * Cedar Hollow -- Worker entry point.
  *
  * One Worker serves the whole site:
  *   - every static file, via the ASSETS binding (see wrangler.toml)
@@ -37,8 +37,8 @@ export default {
       return json({ ok: true, mailConfigured: mailReady(env) });
     }
 
-    // Static assets normally never reach the Worker — Cloudflare serves them
-    // first — but fall through explicitly so nothing depends on that ordering.
+    // Static assets normally never reach the Worker -- Cloudflare serves them
+    // first -- but fall through explicitly so nothing depends on that ordering.
     return env.ASSETS.fetch(request);
   },
 };
@@ -83,7 +83,7 @@ async function handleContact(request, env) {
 
   try {
     await sendViaResend(env, {
-      subject: `Cedar Hollow website — new "${label}" submission`,
+      subject: `Cedar Hollow website: new "${label}" submission`,
       text: body,
       replyTo: isEmail(data.email) ? String(data.email).trim() : null,
     });

@@ -1,4 +1,4 @@
-/* Cedar Hollow Oxford — shared behaviour (no dependencies) */
+/* Cedar Hollow Oxford -- shared behaviour (no dependencies) */
 (function () {
   "use strict";
 

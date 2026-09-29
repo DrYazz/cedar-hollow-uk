@@ -177,7 +177,7 @@ def breakdown(data, figs, indent, scope=""):
         lines.append('<div class="ch-plat-block">')
         lines.append(
             f'  <p class="ch-plat__headline"><strong>{html.escape(prop["name"])}</strong>'
-            f" &mdash; {rating:.1f} from {count:,} guest reviews</p>"
+            f", {rating:.1f} from {count:,} guest reviews</p>"
         )
         lines.append('  <ul class="ch-plat-grid">')
         for src in prop["sources"]:
@@ -249,7 +249,7 @@ def index_links(data, figs, indent):
 
 
 def sources_sentence(prop):
-    """"Google, Tripadvisor and Airbnb" — each platform once, in data order."""
+    """"Google, Tripadvisor and Airbnb" -- each platform once, in data order."""
     seen = []
     for src in prop["sources"]:
         if src["platform"] not in seen:
