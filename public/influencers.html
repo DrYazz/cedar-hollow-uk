@@ -113,53 +113,77 @@
     .ch-rewards__intro p,
     .ch-rewards__aside{color:var(--brand,#efeed5);}
 
-    /* ---- What we love -------------------------------------------------- */
-    .ch-love{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);
-      gap:clamp(1.5rem,4vw,3.5rem);align-items:center;}
-    .ch-love__body h2{margin:0 0 1rem;}
-    .ch-love__body p{margin:0;line-height:1.7;color:var(--accent,#3b4126);opacity:.85;}
-    .ch-chips{display:flex;flex-wrap:wrap;gap:.75rem;list-style:none;margin:0;padding:0;}
-    .ch-chip{display:inline-flex;align-items:center;gap:.5rem;padding:.55rem 1.05rem;
-      border-radius:50em;background:var(--brand-secondary,#f3f1e2);
-      border:1px solid rgba(59,65,38,.18);color:var(--accent,#3b4126);
-      font-size:.9375rem;line-height:1.2;text-decoration:none;}
-    .ch-chip .ch-ic{width:1.35rem;height:1.35rem;flex:none;opacity:.8;}
-    .ch-quote{margin:1.5rem 0 0;padding:1.25rem 1.5rem;border-radius:1rem;
-      background:var(--brand-secondary,#f3f1e2);font-style:italic;line-height:1.6;
-      color:var(--accent,#3b4126);}
-
     @media screen and (max-width:991px){
       .ch-steps{grid-template-columns:1fr;}
       .ch-rewards__row{grid-template-columns:1fr;}
       .ch-rewards__aside{writing-mode:horizontal-tb;letter-spacing:.18em;}
-      .ch-love{grid-template-columns:1fr;}
     }
     @media screen and (max-width:640px){
       .ch-reward-tiers{grid-template-columns:1fr;}
     }
-    /* ---- Our handles --------------------------------------------------
-       A card per platform, with the accounts under it, beside a short
-       introduction rather than under a centred heading. */
-    .ch-handles-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2.1fr);
-      gap:clamp(1.5rem,4vw,3rem);align-items:center;}
-    .ch-handles-row__intro h2{margin:0 0 1rem;}
-    .ch-handles-row__intro p{margin:0;line-height:1.7;color:var(--accent,#3b4126);
-      opacity:.85;max-width:34ch;}
-    .ch-plats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem;
-      list-style:none;margin:0;padding:0;}
-    .ch-plat{background:var(--brand-secondary,#f3f1e2);
-      border:1px solid rgba(59,65,38,.14);border-radius:1rem;padding:1.5rem 1.35rem;}
-    .ch-plat__head{display:flex;align-items:center;gap:.6rem;margin:0 0 .9rem;
-      color:var(--accent,#3b4126);}
-    .ch-plat__head span{font-size:.75rem;font-weight:600;letter-spacing:.16em;
-      text-transform:uppercase;opacity:.75;}
-    .ch-plat__ic{width:1.6rem;height:1.6rem;flex:none;display:block;}
-    .ch-plat__list{list-style:none;margin:0;padding:0;display:flex;
-      flex-direction:column;gap:.3rem;}
-    .ch-plat__list a{color:var(--accent,#3b4126);text-decoration:none;
-      font-size:1rem;line-height:1.5;text-underline-offset:.18em;}
-    .ch-plat__list a:hover,.ch-plat__list a:focus-visible{text-decoration:underline;}
+    /* ---- The three boxes ----------------------------------------------
+       Two carry a photograph behind them and one carries the accounts, so
+       they are the same box with different insides rather than three
+       components. Equal height, because a row of cards at three heights
+       reads as an accident. */
+    .ch-boxes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1.25rem;
+      list-style:none;margin:2.75rem 0 0;padding:0;}
+    .ch-box{position:relative;isolation:isolate;overflow:hidden;border-radius:1rem;
+      min-height:24rem;display:flex;
+      background:var(--brand-secondary,#f3f1e2);border:1px solid rgba(59,65,38,.16);}
+    .ch-box__bg{position:absolute;inset:0;z-index:0;}
+    .ch-box__bg img{width:100%;height:100%;object-fit:cover;display:block;}
+    .ch-box__bg::after{content:"";position:absolute;inset:0;
+      background:linear-gradient(180deg,rgba(20,24,10,.8),rgba(20,24,10,.42));}
+    /* All three start their contents at the top, so the three titles land
+       on one line. Two of them sat at the foot of a photograph before, which
+       looked well on its own and put the headings at three heights. */
+    .ch-box__body{position:relative;z-index:1;display:flex;flex-direction:column;
+      justify-content:flex-start;gap:.6rem;padding:1.75rem 1.5rem;width:100%;}
+    /* inside the card, not straddling its edge */
+    .ch-box__n{position:absolute;top:1.1rem;left:1.1rem;display:inline-flex;
+      align-items:center;justify-content:center;width:2rem;height:2rem;border-radius:50%;
+      background:#b8a06a;color:#fff;font-size:.9375rem;font-weight:600;line-height:1;}
+    .ch-box__title{font-family:var(--font-family--heading,serif);font-weight:400;
+      font-size:clamp(1.35rem,2.1vw,1.7rem);margin:2.5rem 0 0;}
+    .ch-box p{margin:0;line-height:1.55;}
+    /* This one is a dusk photograph, already dark, so the wash over it only
+       has to earn the bottom of the box where the tiers sit. */
+    .ch-box--reward .ch-box__bg::after{
+      background:linear-gradient(180deg,rgba(20,24,10,.72),rgba(20,24,10,.3));}
+    .ch-box--shot,.ch-box--shot .ch-box__title{color:var(--brand,#efeed5);}
+    .ch-box--shot p{color:var(--brand,#efeed5);opacity:.9;}
+    .ch-box--accounts,.ch-box--accounts .ch-box__title{color:var(--accent,#3b4126);}
+    .ch-box--accounts p{color:var(--accent,#3b4126);opacity:.8;}
+    .ch-box__fine{font-size:.8125rem;line-height:1.5;opacity:.75!important;}
 
+    /* the accounts, with what each profile says about itself */
+    .ch-accts{list-style:none;margin:1rem 0 0;padding:0;display:flex;
+      flex-direction:column;gap:.6rem;}
+    /* The card is centred, which left each name and each following on its own
+       centre line and the numbers scattered. They read as a list, so they
+       line up on the left like one. */
+    .ch-accts{text-align:left;}
+    .ch-accts a{display:flex;align-items:center;gap:.75rem;text-decoration:none;
+      color:inherit;padding:.4rem;border-radius:.75rem;}
+    .ch-accts a:hover,.ch-accts a:focus-visible{background:rgba(59,65,38,.07);}
+    .ch-accts img{width:2.75rem;height:2.75rem;border-radius:50%;flex:none;
+      object-fit:cover;display:block;}
+    .ch-acct__text{display:flex;flex-direction:column;min-width:0;}
+    .ch-acct__name{font-size:.9375rem;line-height:1.3;}
+    .ch-acct__n{font-size:.8125rem;opacity:.7;}
+
+    /* the rewards, in the box rather than a band of their own */
+    .ch-tiers{list-style:none;margin:.75rem 0 0;padding:0;display:flex;
+      flex-direction:column;gap:.35rem;}
+    .ch-tiers li{display:flex;align-items:baseline;justify-content:space-between;
+      gap:.75rem;padding:.45rem .75rem;border-radius:.6rem;
+      background:rgba(239,238,213,.14);}
+    .ch-tiers span{font-size:.875rem;opacity:.9;}
+    .ch-tiers strong{font-family:var(--font-family--heading,serif);font-weight:400;
+      font-size:1.25rem;white-space:nowrap;}
+
+    @media screen and (max-width:991px){.ch-boxes{grid-template-columns:1fr;}}
     /* ---- For larger creators ------------------------------------------
        A photograph with the type over it, so the section needs its own
        stacking: the picture is positioned, and without a place in the
@@ -185,8 +209,6 @@
       border-color:var(--brand,#efeed5);}
 
     @media screen and (max-width:991px){
-      .ch-handles-row{grid-template-columns:1fr;}
-      .ch-plats{grid-template-columns:1fr;}
       .ch-bespoke__row{grid-template-columns:1fr;}
       .ch-bespoke__bg::after{background:linear-gradient(180deg,rgba(20,24,10,.8),rgba(20,24,10,.8));}
     }
@@ -328,7 +350,7 @@
           </script>
         </div>
     <div class="ch-page-hero__body padding-global"><div class="container-large"><div class="text-align-center"><div class="max-width-xlarge align-center"><p class="ch-page-hero__eyebrow text-size-medium text-style-allcaps">For creators</p><h1 class="heading-style-h1">Share your Stay <span class="text-style-italic">&amp; get rewarded</span></h1><p class="ch-page-hero__lead text-size-large">Post a reel from your stay, include us as a collaborator, and you may be eligible for a refund of up to the whole stay.</p></div></div></div></div></section>
-<section class="bg-off"><div class="padding-section-medium"><div class="padding-global"><div class="container-large"><div class="text-align-center"><div class="section-title-block"><div class="max-width-xlarge align-center"><h2 class="heading-style-h1">How it <span class="text-style-italic">works</span></h2><p class="ch-note">A simple way to turn your stay into a story that inspires others.</p></div></div><ul class="ch-steps"><li><span class="ch-step__n" aria-hidden="true">1</span><span class="ch-step__ic"><svg class="ch-ic" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M10 24 24 13l14 11"/><path d="M13 22v13h22V22"/><path d="M21 35v-8h6v8"/><path d="M8 20v-6M8 14l-3 3M8 14l3 3"/><path d="M40 20v-6M40 14l-3 3M40 14l3 3"/></svg></span><h3 class="ch-step__title">Stay</h3><p>Book and enjoy your Cedar Hollow stay. Soak up the nature, the details and the magic.</p></li><li><span class="ch-step__n" aria-hidden="true">2</span><span class="ch-step__ic"><svg class="ch-ic" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="8" y="16" width="32" height="20" rx="3"/><path d="M18 16l2.5-4h7L30 16"/><circle cx="24" cy="26" r="6"/></svg></span><h3 class="ch-step__title">Create</h3><p>Post a Reel, TikTok or YouTube Short sharing your authentic experience.</p></li><li><span class="ch-step__n" aria-hidden="true">3</span><span class="ch-step__ic"><svg class="ch-ic" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M16 12h8l-1 10a3 3 0 0 1-6 0Z"/><path d="M20 22v11M16 33h8"/><path d="M26 12h8l-1 10a3 3 0 0 1-6 0Z"/><path d="M30 22v11M26 33h8"/><path d="M36 10l1 3 3 1-3 1-1 3-1-3-3-1 3-1Z"/></svg></span><h3 class="ch-step__title">Get rewarded</h3><p>Your content&rsquo;s performance could earn you a refund, from 15% up to 100% back.</p></li></ul></div></div></div></div></section><section class="ch-section--accent ch-rewards"><div class="padding-section-medium"><div class="padding-global"><div class="container-large"><div class="ch-rewards__row"><div class="ch-rewards__intro"><p class="ch-eyebrow">Creator rewards</p><h2 class="heading-style-h1">Great stories <span class="text-style-italic">go further.</span></h2><p>The more your content inspires, the more you get back. Here is how it works:</p></div><ul class="ch-reward-tiers"><li><p class="ch-reward__views"><strong>5,000+</strong><span>views</span></p><p class="ch-reward__back"><strong>15%</strong><span>back</span></p></li><li><p class="ch-reward__views"><strong>15,000+</strong><span>views</span></p><p class="ch-reward__back"><strong>50%</strong><span>back</span></p></li><li><p class="ch-reward__views"><strong>50,000+</strong><span>views</span></p><p class="ch-reward__back"><strong>100%</strong><span>back</span></p></li></ul><p class="ch-rewards__aside">Beautiful places deserve to be shared</p></div><p class="ch-note ch-rewards__note">Views are counted 14 days after posting, from a single reel. Refunds are issued after checkout to the original payment method.</p></div></div></div></section><section class="bg-off"><div class="padding-section-medium"><div class="padding-global"><div class="container-large"><div class="ch-love"><div class="ch-love__body"><h2 class="heading-style-h1">What we <span class="text-style-italic">love</span></h2><p>We are drawn to authentic, family-friendly storytelling that captures the real magic of time well spent in nature.</p></div><div class="ch-love__side"><ul class="ch-chips"><li><span class="ch-chip"><svg class="ch-ic" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M24 8l3.4 9.2L37 20l-9.6 2.8L24 32l-3.4-9.2L11 20l9.6-2.8Z"/></svg>Wonder</span></li><li><span class="ch-chip"><svg class="ch-ic" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M24 38V22"/><path d="M24 22c0-7 5-11 12-11 0 7-5 11-12 11Z"/><path d="M24 26c0-6-4-9-10-9 0 6 4 9 10 9Z"/></svg>Nature</span></li><li><span class="ch-chip"><svg class="ch-ic" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M10 24 24 13l14 11"/><path d="M13 22v13h22V22"/></svg>Design</span></li><li><span class="ch-chip"><svg class="ch-ic" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 10l2.2 6L28 18l-5.8 2L20 26l-2.2-6L12 18l5.8-2Z"/><path d="M33 26l1.4 3.6L38 31l-3.6 1.4L33 36l-1.4-3.6L28 31l3.6-1.4Z"/></svg>Unexpected moments</span></li></ul><blockquote class="ch-quote">&ldquo;Real moments. Genuine experiences. A kinder, more curious world.&rdquo;</blockquote></div></div></div></div></div></section><section class="bg-off"><div class="padding-section-medium"><div class="padding-global"><div class="container-large"><div class="ch-handles-row"><div class="ch-handles-row__intro"><h2 class="heading-style-h1">Our <span class="text-style-italic">handles</span></h2><p>Include us as a collaborator so we can see your content, share what we love, and be part of your story.</p></div><ul class="ch-plats"><li class="ch-plat"><p class="ch-plat__head"><svg class="ch-plat__ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true" focusable="false"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"/></svg><span>Instagram</span></p><ul class="ch-plat__list"><li><a href="https://www.instagram.com/cedarhollowoxford/" target="_blank" rel="noopener">@cedarhollowoxford</a></li><li><a href="https://www.instagram.com/cedarhollowdorset/" target="_blank" rel="noopener">@cedarhollowdorset</a></li><li><a href="https://www.instagram.com/cool.escapes/" target="_blank" rel="noopener">@cool.escapes</a></li></ul></li><li class="ch-plat"><p class="ch-plat__head"><svg class="ch-plat__ic" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M16.5 3h-2.6v11.4a2.5 2.5 0 1 1-2-2.45V9.3a5.4 5.4 0 1 0 4.6 5.35V8.9a6.2 6.2 0 0 0 3.5 1.1V7.4a3.6 3.6 0 0 1-3.5-3.6Z"/></svg><span>TikTok</span></p><ul class="ch-plat__list"><li><a href="https://www.tiktok.com/@cedarhollow" target="_blank" rel="noopener">@cedarhollow</a></li></ul></li><li class="ch-plat"><p class="ch-plat__head"><svg class="ch-plat__ic" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><rect x="2.2" y="5.4" width="19.6" height="13.2" rx="3.6" fill="currentColor"/><path d="M10.2 9.2v5.6l4.8-2.8Z" fill="#f6f4ea"/></svg><span>YouTube</span></p><ul class="ch-plat__list"><li><a href="https://www.youtube.com/@CedarHollow" target="_blank" rel="noopener">@CedarHollow</a></li></ul></li></ul></div></div></div></div></section><section class="ch-bespoke"><div class="ch-bespoke__bg" aria-hidden="true"><img src="images/creators-band.webp?v=20260929a" srcset="images/creators-band-sm.webp?v=20260929a 800w, images/creators-band.webp?v=20260929a 1600w" sizes="100vw" alt="" loading="lazy" decoding="async" width="1600" height="552"></div><div class="padding-section-medium"><div class="padding-global"><div class="container-large"><div class="ch-bespoke__row"><div><p class="ch-eyebrow">For larger creators</p><h2 class="heading-style-h1">300k+ followers?<br><span class="text-style-italic">Let&rsquo;s create something bespoke.</span></h2></div><div class="ch-bespoke__aside"><p>We love working with established creators on unique collaborations, from immersive stay experiences to longer-form content and brand partnerships.</p><div class="button-group"><a href="mailto:hello@cedarhollow.uk?subject=Creator collaboration" class="button is-secondary"><span>Get in touch</span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 17 12" fill="none" class="button_icon" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.2443 5.03644L9.48927 1.21321L10.6935 0L16.5 5.91195L10.6783 11.55L9.50444 10.3067L13.17 6.75673H0V5.03644H13.2443Z" fill="currentColor"/></svg></a></div></div></div></div></div></div></section><div class="ch-cov" data-ch-cov><div class="ch-cov__row" role="group" aria-label="Filter coverage"><button class="ch-wall__btn" type="button" data-cov="all" aria-pressed="true">All</button><button class="ch-wall__btn" type="button" data-cov="news" aria-pressed="false">News</button><button class="ch-wall__btn" type="button" data-cov="screen" aria-pressed="false">On screen</button><button class="ch-wall__btn" type="button" data-cov="guests" aria-pressed="false">Familiar faces</button></div></div>
+<section class="bg-off"><div class="padding-section-medium"><div class="padding-global"><div class="container-large"><div class="text-align-center"><ul class="ch-boxes"><li class="ch-box ch-box--shot"><span class="ch-box__bg" aria-hidden="true"><img src="images/card-stay-600.webp?v=20260929a" srcset="images/card-stay-300.webp?v=20260929a 300w, images/card-stay-600.webp?v=20260929a 600w" sizes="(max-width:991px) 92vw, 30vw" width="600" height="750" loading="lazy" decoding="async" alt=""></span><span class="ch-box__body"><span class="ch-box__n" aria-hidden="true">1</span><h3 class="ch-box__title">Stay &amp; Create</h3><p>Book your stay, soak up the nature and the details, and post a Reel, TikTok or YouTube Short of it.</p></span></li><li class="ch-box ch-box--accounts"><span class="ch-box__body"><span class="ch-box__n" aria-hidden="true">2</span><h3 class="ch-box__title">Collaborate</h3><p>Add us as a collaborator on the post.</p><ul class="ch-accts"><li><a href="https://www.instagram.com/cedarhollowoxford/" target="_blank" rel="noopener"><img src="images/handles/avatar-cedarhollowoxford-80.webp" srcset="images/handles/avatar-cedarhollowoxford-80.webp 80w, images/handles/avatar-cedarhollowoxford-160.webp 160w" sizes="44px" width="80" height="80" loading="lazy" decoding="async" alt=""><span class="ch-acct__text"><span class="ch-acct__name">Cedar Hollow Oxford</span><span class="ch-acct__n">145K followers</span></span></a></li><li><a href="https://www.instagram.com/mallinsonswoodlandretreat/" target="_blank" rel="noopener"><img src="images/handles/avatar-mallinsonswoodlandretreat-80.webp" srcset="images/handles/avatar-mallinsonswoodlandretreat-80.webp 80w, images/handles/avatar-mallinsonswoodlandretreat-160.webp 160w" sizes="44px" width="80" height="80" loading="lazy" decoding="async" alt=""><span class="ch-acct__text"><span class="ch-acct__name">Mallinson&rsquo;s Woodland Retreat</span><span class="ch-acct__n">47K followers</span></span></a></li><li><a href="https://www.instagram.com/cool.escapes/" target="_blank" rel="noopener"><img src="images/handles/avatar-cool-escapes-80.webp" srcset="images/handles/avatar-cool-escapes-80.webp 80w, images/handles/avatar-cool-escapes-160.webp 160w" sizes="44px" width="80" height="80" loading="lazy" decoding="async" alt=""><span class="ch-acct__text"><span class="ch-acct__name">Cool Escapes</span><span class="ch-acct__n">1.2M followers</span></span></a></li></ul></span></li><li class="ch-box ch-box--shot ch-box--reward"><span class="ch-box__bg" aria-hidden="true"><img src="images/card-reward-600.webp?v=20260929a" srcset="images/card-reward-300.webp?v=20260929a 300w, images/card-reward-600.webp?v=20260929a 600w" sizes="(max-width:991px) 92vw, 30vw" width="600" height="750" loading="lazy" decoding="async" alt=""></span><span class="ch-box__body"><span class="ch-box__n" aria-hidden="true">3</span><h3 class="ch-box__title">Get rewarded</h3><ul class="ch-tiers"><li><span>5,000+ views</span><strong>15% back</strong></li><li><span>15,000+ views</span><strong>50% back</strong></li><li><span>50,000+ views</span><strong>100% back</strong></li></ul><p class="ch-box__fine">Counted 14 days after posting, from a single reel. Refunded after checkout to the original payment method.</p></span></li></ul></div></div></div></div></section><section class="ch-bespoke"><div class="ch-bespoke__bg" aria-hidden="true"><img src="images/creators-band.webp?v=20260929a" srcset="images/creators-band-sm.webp?v=20260929a 800w, images/creators-band.webp?v=20260929a 1600w" sizes="100vw" alt="" loading="lazy" decoding="async" width="1600" height="552"></div><div class="padding-section-medium"><div class="padding-global"><div class="container-large"><div class="ch-bespoke__row"><div><p class="ch-eyebrow">For larger creators</p><h2 class="heading-style-h1">300k+ followers?<br><span class="text-style-italic">Let&rsquo;s create something bespoke.</span></h2></div><div class="ch-bespoke__aside"><p>We love working with established creators on unique collaborations, from immersive stay experiences to longer-form content and brand partnerships.</p><div class="button-group"><a href="mailto:hello@cedarhollow.uk?subject=Creator collaboration" class="button is-secondary"><span>Get in touch</span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 17 12" fill="none" class="button_icon" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.2443 5.03644L9.48927 1.21321L10.6935 0L16.5 5.91195L10.6783 11.55L9.50444 10.3067L13.17 6.75673H0V5.03644H13.2443Z" fill="currentColor"/></svg></a></div></div></div></div></div></div></section><div class="ch-cov" data-ch-cov><div class="ch-cov__row" role="group" aria-label="Filter coverage"><button class="ch-wall__btn" type="button" data-cov="all" aria-pressed="true">All</button><button class="ch-wall__btn" type="button" data-cov="news" aria-pressed="false">News</button><button class="ch-wall__btn" type="button" data-cov="screen" aria-pressed="false">On screen</button><button class="ch-wall__btn" type="button" data-cov="guests" aria-pressed="false">Familiar faces</button></div></div>
 <section class="bg-light" data-kind="press" data-cov-panel="news">
       <div class="padding-section-medium">
         <div class="padding-global">
@@ -406,7 +428,7 @@
                     <h2 class="heading-style-h1">On <span class="text-style-italic">screen</span></h2>
                   </div>
                 </div>
-                <!-- ch:press-screen pick:mafs,secrethotels,amazingspaces,granddesigns,bbc -->
+                <!-- ch:press-screen -->
                 <div class="ch-vid-wrap">
                   <ul class="ch-vid-grid is-landscapes">
                     <li id="screen-secrethotels" data-location="dorset">
@@ -422,6 +444,19 @@
                         <a class="ch-vid__link" href="https://www.youtube.com/watch?v=al53RiDKCVk" target="_blank" rel="noopener">Watch on YouTube</a>
                       </article>
                     </li>
+                    <li id="screen-swns" data-location="oxford">
+                      <article class="ch-vid" style="--ch-vid-ar:16/9">
+                        <button class="ch-vid__play" type="button" data-video="wflUkc-n0NE"
+                                aria-label="Play &ldquo;Ultimate treehouse is Narnia themed with magic wardrobe door near CS Lewis home&rdquo; (SWNS) in the YouTube player">
+                          <img src="images/press-video/wflUkc-n0NE-640.webp" srcset="images/press-video/wflUkc-n0NE-320.webp 320w, images/press-video/wflUkc-n0NE-640.webp 640w" sizes="(max-width: 767px) 92vw, 22rem"
+                               loading="lazy" decoding="async" alt="">
+                          <span class="ch-vid__icon" aria-hidden="true"><svg viewBox="0 0 68 48" width="100%" height="100%"><path class="ch-vid__icon-bg" d="M66.5 7.7c-.8-2.9-2.5-5.4-5.4-6.2C55.8 0 34 0 34 0S12.2 0 6.9 1.4C4 2.2 2.3 4.8 1.5 7.7 0 13 0 24 0 24s0 11 1.5 16.3c.8 2.9 2.5 5.4 5.4 6.2C12.2 48 34 48 34 48s21.8 0 27.1-1.5c2.9-.8 4.6-3.3 5.4-6.2C68 35 68 24 68 24s0-11-1.5-16.3z"></path><path d="M45 24 27 14v20" fill="#fff"></path></svg></span>
+                        </button>
+                        <p class="ch-vid__meta"><span class="ch-vid__title">Ultimate treehouse is Narnia themed with magic wardrobe door near CS Lewis home</span>
+                          <span class="ch-vid__logos"><span class="ch-vid__logo" role="img" aria-label="SWNS" style="--ch-logo-ar:9/2;-webkit-mask-image:url('images/press/swns.png');mask-image:url('images/press/swns.png')"></span></span><span class="ch-vid__year">2025</span></p>
+                        <a class="ch-vid__link" href="https://www.youtube.com/watch?v=wflUkc-n0NE" target="_blank" rel="noopener">Watch on YouTube</a>
+                      </article>
+                    </li>
                     <li id="screen-mafs" data-location="oxford">
                       <article class="ch-vid" style="--ch-vid-ar:737/540">
                         <button class="ch-vid__play" type="button" data-video="fPdU-01UL1Q"
@@ -433,6 +468,19 @@
                         <p class="ch-vid__meta"><span class="ch-vid__title">Cedar Hollow on Married at First Sight UK</span>
                           <span class="ch-vid__logos"><span class="ch-vid__logo" role="img" aria-label="Channel 4" style="--ch-logo-ar:35/46;-webkit-mask-image:url('images/press/channel4.png');mask-image:url('images/press/channel4.png')"></span><span class="ch-vid__logo" role="img" aria-label="Married at First Sight UK" style="--ch-logo-ar:367/90;-webkit-mask-image:url('images/press/mafs.png');mask-image:url('images/press/mafs.png')"></span></span><span class="ch-vid__detail">Series 8 Episode 31</span><span class="ch-vid__year">2023</span></p>
                         <a class="ch-vid__link" href="https://www.youtube.com/watch?v=fPdU-01UL1Q" target="_blank" rel="noopener">Watch on YouTube</a>
+                      </article>
+                    </li>
+                    <li id="screen-parallel-universe" data-location="oxford">
+                      <article class="ch-vid" style="--ch-vid-ar:16/9">
+                        <a class="ch-vid__play is-offsite" href="https://www.youtube.com/watch?v=nM3sZNHlARs" target="_blank" rel="noopener"
+                           aria-label="Watch &ldquo;Parallel Universe&rdquo; (Cassa Jackson, music video) on YouTube, which is the only place it can be played">
+                          <img src="images/press-video/nM3sZNHlARs-640.webp" srcset="images/press-video/nM3sZNHlARs-320.webp 320w, images/press-video/nM3sZNHlARs-640.webp 640w" sizes="(max-width: 767px) 92vw, 22rem"
+                               loading="lazy" decoding="async" alt="">
+                          <span class="ch-vid__icon" aria-hidden="true"><svg viewBox="0 0 68 48" width="100%" height="100%"><path class="ch-vid__icon-bg" d="M66.5 7.7c-.8-2.9-2.5-5.4-5.4-6.2C55.8 0 34 0 34 0S12.2 0 6.9 1.4C4 2.2 2.3 4.8 1.5 7.7 0 13 0 24 0 24s0 11 1.5 16.3c.8 2.9 2.5 5.4 5.4 6.2C12.2 48 34 48 34 48s21.8 0 27.1-1.5c2.9-.8 4.6-3.3 5.4-6.2C68 35 68 24 68 24s0-11-1.5-16.3z"></path><path d="M45 24 27 14v20" fill="#fff"></path></svg></span>
+                        </a>
+                        <p class="ch-vid__meta"><span class="ch-vid__title">Parallel Universe</span>
+                          <span class="ch-vid__source">Cassa Jackson, music video</span><span class="ch-vid__year">2021</span></p>
+                        <a class="ch-vid__link" href="https://www.youtube.com/watch?v=nM3sZNHlARs" target="_blank" rel="noopener">Watch on YouTube</a>
                       </article>
                     </li>
                     <li id="screen-granddesigns" data-location="dorset">
@@ -474,6 +522,19 @@
                         <p class="ch-vid__meta"><span class="ch-vid__title">The Engineer, the Magician and the Narnia Inspired Treehouse</span>
                           <span class="ch-vid__logos"><span class="ch-vid__logo" role="img" aria-label="BBC" style="--ch-logo-ar:80/23;-webkit-mask-image:url('images/press/bbc.svg');mask-image:url('images/press/bbc.svg')"></span></span><span class="ch-vid__year">2024</span></p>
                         <a class="ch-vid__link" href="https://www.youtube.com/watch?v=gQYoL97OArg" target="_blank" rel="noopener">Watch on YouTube</a>
+                      </article>
+                    </li>
+                    <li id="screen-betasquad" data-location="oxford">
+                      <article class="ch-vid is-portrait" style="--ch-vid-ar:9/16">
+                        <a class="ch-vid__play is-offsite" href="https://www.youtube.com/watch?v=SkR9W_XbE1c" target="_blank" rel="noopener"
+                           aria-label="Watch &ldquo;Come Dine With Me - AJ Edition&rdquo; (Beta Squad) on YouTube, which is the only place it can be played">
+                          <img src="images/press-video/betasquad-640.webp" srcset="images/press-video/betasquad-320.webp 320w, images/press-video/betasquad-640.webp 640w" sizes="(max-width: 767px) 92vw, 22rem"
+                               loading="lazy" decoding="async" alt="">
+                          <span class="ch-vid__icon" aria-hidden="true"><svg viewBox="0 0 68 48" width="100%" height="100%"><path class="ch-vid__icon-bg" d="M66.5 7.7c-.8-2.9-2.5-5.4-5.4-6.2C55.8 0 34 0 34 0S12.2 0 6.9 1.4C4 2.2 2.3 4.8 1.5 7.7 0 13 0 24 0 24s0 11 1.5 16.3c.8 2.9 2.5 5.4 5.4 6.2C12.2 48 34 48 34 48s21.8 0 27.1-1.5c2.9-.8 4.6-3.3 5.4-6.2C68 35 68 24 68 24s0-11-1.5-16.3z"></path><path d="M45 24 27 14v20" fill="#fff"></path></svg></span>
+                        </a>
+                        <p class="ch-vid__meta"><span class="ch-vid__title">Come Dine With Me - AJ Edition</span>
+                          <span class="ch-vid__source">Beta Squad</span><span class="ch-vid__year">2023</span></p>
+                        <a class="ch-vid__link" href="https://www.youtube.com/watch?v=SkR9W_XbE1c" target="_blank" rel="noopener">Watch on YouTube</a>
                       </article>
                     </li>
                   </ul>
