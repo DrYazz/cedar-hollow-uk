@@ -689,8 +689,19 @@ a.ch-vid__play {
   inset: 0;
   z-index: 0;
   background: linear-gradient(180deg, rgba(16, 19, 7, 0), rgba(16, 19, 7, .62) 40%, rgba(16, 19, 7, .95));
-  -webkit-mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0), #000 55%);
-  mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0), #000 55%);
+  -webkit-mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0), #000 42%);
+  mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0), #000 42%);
+}
+
+/* Two of these stills carry the broadcaster's own title in the bottom-left,
+   and there the scrim has to be gone rather than merely lighter: a gradient
+   that begins fading at the left edge still lies over the whole of it, which
+   measured on the Secret Hotels still cost its title an eighth of its
+   brightness. Clear to 52% and full only at 88%, which is past where the
+   short line in the corner of those two begins. */
+.ch-vid--keepleft .ch-vid__over::before {
+  -webkit-mask-image: linear-gradient(90deg, transparent 0 52%, #000 88%);
+  mask-image: linear-gradient(90deg, transparent 0 52%, #000 88%);
 }
 
 .ch-vid__over > * {
