@@ -20,6 +20,14 @@
     menu.addEventListener("click", function (e) {
       if (e.target.tagName === "A") closeNav();
     });
+    /* A click anywhere off the panel closes it. The toggle is excluded:
+       it sits outside the panel, so without this its own click would
+       open the panel and then immediately close it again. */
+    document.addEventListener("click", function (e) {
+      if (btn.getAttribute("aria-expanded") !== "true") return;
+      if (menu.contains(e.target) || btn.contains(e.target)) return;
+      closeNav();
+    });
     document.addEventListener("keydown", function (e) {
       if (e.key === "Escape" && btn.getAttribute("aria-expanded") === "true") {
         closeNav();
