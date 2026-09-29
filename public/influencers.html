@@ -156,11 +156,13 @@
     .ch-box--accounts,.ch-box--accounts .ch-box__title{color:var(--accent,#3b4126);}
     .ch-box--accounts p{color:var(--accent,#3b4126);opacity:.8;}
     .ch-box__fine{font-size:.8125rem;line-height:1.5;opacity:.75!important;}
-    /* This box has a title and one short paragraph, so left at the top it sat
-       in the upper third with half a photograph under it. Auto margins above
-       and below put the paragraph in the middle of what is left, which keeps
-       the title in line with the other two. */
-    .ch-box--stay .ch-box__body p{margin-block:auto;}
+    /* This box has a title and one short paragraph, so left in the flow it sat
+       in the upper third with half a photograph under it. Taking it out of the
+       flow and pinning it to the middle puts it half way down the box itself,
+       rather than half way down what the title left over, and leaves the title
+       in line with the other two. */
+    .ch-box--stay .ch-box__body p{position:absolute;left:1.5rem;right:1.5rem;
+      top:50%;transform:translateY(-50%);margin:0;}
 
     /* the accounts, with what each profile says about itself */
     .ch-accts{list-style:none;margin:1rem 0 0;padding:0;display:flex;
