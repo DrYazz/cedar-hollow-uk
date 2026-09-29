@@ -170,20 +170,6 @@ section[data-kind][hidden] {
   mask-position: left center;
 }
 
-/* A brief card is the clipping and the masthead, and nothing else: the
-   creator page shows four cuttings as a highlight, and the year, the pull
-   quote and our own note belong on the press page that holds the record.
-
-   The mastheads are drawn at their own sizes (see --logo-scale above), so
-   with nothing underneath to absorb the difference a tall roundel hung
-   lower than a long wordmark. Giving every brief body one height and
-   centring the mark inside it lands all four on a line without resizing
-   any of them. */
-.ch-press__card--brief .ch-press__body {
-  min-height: 2.75rem;
-  justify-content: center;
-}
-
 .ch-press__pub {
   margin: 0;
   font-size: 1rem;

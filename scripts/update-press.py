@@ -145,6 +145,13 @@ def card(item, show_location=False, brief=False):
                              html.escape(shot["srcset"], quote=True))
         )
 
+    # A brief card is the clipping alone. Every one of these screenshots is
+    # the article as it was published, masthead and all, so the masthead
+    # underneath was the same mark twice on one card.
+    if brief:
+        parts.append("</article>")
+        return parts
+
     parts.append('  <div class="ch-press__body">')
     if logo:
         # Drawn as a mask (see press.css), so the file is named in a style
@@ -163,14 +170,6 @@ def card(item, show_location=False, brief=False):
     else:
         parts.append('    <p class="ch-press__pub">%s</p>' % pub)
 
-    # A brief card is a masthead and nothing else: it is a highlight on a page
-    # that is about something else, and the year, the quote and our note are
-    # the press page's job. The clipping and the link stay, so the tile still
-    # goes somewhere.
-    if brief:
-        parts.append("  </div>")
-        parts.append("</article>")
-        return parts
 
     # The year the piece ran, under the masthead: a reader should be able to
     # tell a 2018 cutting from a 2026 one without opening it.
