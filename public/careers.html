@@ -49,6 +49,10 @@
   .ch-note{font-size:1.125rem;color:var(--color-text);font-weight:400;max-width:60ch;margin:1rem auto 0}
   .ch-section--accent .ch-note{color:var(--brand);opacity:.8}
   .ch-page-hero__bg{position:absolute;inset:0;z-index:0}
+    /* page.css gives this padding but not a place in the stacking order, and
+       the background beside it is positioned with z-index 0. Without this the
+       hero's own words paint underneath its photograph. */
+    .ch-page-hero__body{position:relative;z-index:2;}
   .ch-page-hero__bg img{width:100%;height:100%;object-fit:cover}
   .ch-page-hero__bg::after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,rgba(20,24,10,.55),rgba(59,65,38,.72))}
 
