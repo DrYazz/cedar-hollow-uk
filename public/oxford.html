@@ -1709,6 +1709,33 @@ animation:marquee-scroll 70s linear infinite;
       ul.querySelectorAll(".cabin-item").forEach(function (card, i) {
         var first = card.querySelector(".cabin-item_features p");
         if (first && items[i] && items[i].type) first.textContent = items[i].type;
+
+        // The 3D tour, on the picture, as the sub-pages carry it. The picture
+        // is already wrapped in a link to the search page and a link cannot
+        // hold another link, so the button gets a positioned box around the
+        // picture to hang off rather than going inside it.
+        var tour = items[i] && items[i].tourUrl;
+        var wrap = card.querySelector(".cabin-item_img-wrap");
+        if (!tour || !wrap || wrap.parentNode.classList.contains("cabin-item_media")) return;
+        var media = document.createElement("div");
+        media.className = "cabin-item_media";
+        wrap.parentNode.insertBefore(media, wrap);
+        media.appendChild(wrap);
+        var a = document.createElement("a");
+        a.className = "ch-tour";
+        a.href = tour;
+        a.target = "_blank";
+        a.rel = "noopener";
+        // the short label is on the thing it describes; the long one is for
+        // anyone who cannot see which card it sits on
+        a.setAttribute("aria-label", "Take a 3D tour of " + items[i].name);
+        a.innerHTML = '<span class="ch-tour__ic"><svg viewBox="0 0 24 24" fill="none" '
+          + 'stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" '
+          + 'stroke-linecap="round" aria-hidden="true" focusable="false">'
+          + '<path d="M12 2.9 20.3 7.2v9.6L12 21.1 3.7 16.8V7.2z"/>'
+          + '<path d="M3.7 7.2 12 11.5l8.3-4.3M12 11.5v9.6"/></svg></span>'
+          + '<span>3D Tour</span>';
+        media.appendChild(a);
       });
     }
   })();
@@ -1985,6 +2012,28 @@ requestAnimationFrame(measureFPS)
     @media (prefers-reduced-motion:reduce){
       .ch-wa{transform:none;transition:opacity .01s linear,visibility 0s linear .01s;}
       .ch-wa.is-in:hover,.ch-wa.is-in:focus-visible{transform:none;}
+    }
+    /* ---------------------------------------------------------------------
+       The 3D tour on a featured rental's photograph, matching the button the
+       facilities, wellness and dining pages carry. The box is built by the
+       script above, because the picture's own link cannot hold another link.
+       --------------------------------------------------------------------- */
+    .cabin-item_media{position:relative;}
+    .ch-tour{position:absolute;left:.75rem;bottom:.75rem;z-index:2;
+      display:inline-flex;align-items:center;gap:.4rem;
+      padding:.35rem .75rem .35rem .6rem;border-radius:50em;
+      background:rgba(247,245,225,.94);color:var(--accent,#3b4126);
+      border:1px solid rgba(59,65,38,.18);
+      font-size:.8125rem;font-weight:600;letter-spacing:.02em;line-height:1.4;
+      text-decoration:none;box-shadow:0 .25rem .75rem rgba(16,19,7,.18);
+      transition:background-color .2s ease;}
+    .ch-tour:hover,.ch-tour:focus-visible{background:#fffdf0;text-decoration:none;}
+    .ch-tour:focus-visible{outline:2px solid var(--accent,#3b4126);outline-offset:2px;}
+    .ch-tour__ic{display:block;width:1rem;height:1rem;flex:none;}
+    .ch-tour__ic svg{display:block;width:100%;height:100%;}
+    @media screen and (max-width:767px),(pointer:coarse){
+      .ch-tour{min-height:2.75rem;padding-left:.8rem;padding-right:.95rem;
+        font-size:.875rem;left:.5rem;bottom:.5rem;}
     }
   </style>
   <a class="ch-wa" href="https://wa.me/447488894589?text=Hi%20Cedar%20Hollow%20Oxford%20%E2%80%94%20I%27d%20like%20to%20ask%20about%20a%20stay." target="_blank" rel="noopener" aria-label="Message Cedar Hollow Oxford on WhatsApp">
