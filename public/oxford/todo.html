@@ -28,11 +28,32 @@
      Same rule as the facilities page. */
   @media screen and (min-width:768px){
     .ch-features{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
-      gap:clamp(2.5rem,5vw,4.5rem) clamp(2rem,4vw,3.5rem);align-items:start;}
+      gap:clamp(2rem,4vw,3rem) clamp(1.5rem,3vw,2.5rem);align-items:stretch;}
     .ch-features .ch-feature{grid-template-columns:1fr;gap:1.5rem;align-items:start;}
     /* the alternating media order only makes sense in a single column */
     .ch-features .ch-feature:nth-child(even) .ch-feature__media{order:0;}
   }
+  /* ---------------------------------------------------------------------
+     Each of the nine as a card, photograph flush to the top and the words
+     held inside, as the facilities, wellness and experiences pages lay them
+     out. Loose on the page they were nine pictures and nine paragraphs with
+     nothing but the gaps to say which belonged to which, and down a
+     two-column grid the gaps between rows look much like the gaps between
+     columns.
+
+     Lighter than the band it sits on rather than the same cream with a line
+     round it, which at a glance reads as a hairline in the background
+     instead of an edge the card has. No galleries and no 3D tours on this
+     page, so the photograph is simply the lid.
+     --------------------------------------------------------------------- */
+  .ch-features .ch-feature{grid-template-columns:1fr;gap:0;align-items:start;
+    align-content:start;height:100%;
+    background:#fdfcf2;border:1px solid rgba(59,65,38,.12);
+    border-radius:1rem;overflow:hidden;
+    box-shadow:0 .5rem 1.5rem rgba(16,19,7,.07);}
+  .ch-features .ch-feature__body{padding:1.25rem 1.35rem 1.5rem;}
+  .ch-features .ch-feature__body .heading-style-h4{margin-bottom:.6rem;}
+  .ch-features .ch-feature__media .ch-frame{border-radius:0;}
   /* The five museum links sit inline in their list items, so WCAG exempts them
      from the 44px target -- and at 35px line boxes with 6px between them, padding
      them to 44px would make neighbouring links overlap, which causes more
