@@ -30,6 +30,9 @@ DATA = ROOT / "docs" / "press-data.json"
 # corrected URL or a new quote lands everywhere at once.
 PAGES = [
     ROOT / "public" / "press.html",
+    # The creator page carries the same two grids in their unnamed form, so
+    # the coverage it shows is the press page's, not a copy of it.
+    ROOT / "public" / "influencers.html",
     ROOT / "public" / "oxford-press.html",
     ROOT / "public" / "dorset-press.html",
 ]
