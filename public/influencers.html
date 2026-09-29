@@ -254,12 +254,16 @@
     /* The filter over the three kinds of coverage. It borrows .ch-wall__btn
        from the reviews page so the buttons are the ones used elsewhere. */
     .ch-cov{background-color:var(--brand,#efeed5);color:var(--accent,#3b4126);
-      padding:2.5rem 1.25rem;}
+      padding:2.5rem 1.25rem 1.5rem;}
     .ch-cov__row{display:flex;flex-wrap:wrap;align-items:center;
       justify-content:center;gap:.875rem;margin:0;}
     /* .bg-light sets display, which beats the browser's own [hidden] rule at
        equal specificity, so a hidden panel needs saying outright. */
     [data-cov-panel][hidden]{display:none;}
+    /* The heading belongs to the filter above it: these panels are switched,
+       not scrolled past, so the section's usual opening padding put 120px of
+       nothing between a button and the thing it had just chosen. */
+    [data-cov-panel] > .padding-section-medium{padding-top:1.5rem;}
 
     /* Where to tag us. A definition list, because that is what it is. */
     .ch-handles{margin:0;}
