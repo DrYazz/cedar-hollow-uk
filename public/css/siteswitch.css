@@ -1,6 +1,12 @@
 /* The logo's site switcher: Oxford, Dorset and the main site.
-   Lifted verbatim from the nav embed on the three home pages, which had it
-   inline, so that the subpages can carry it without a copy each. */
+
+   Taken from the home pages, which carry it inline, so that the sixty-odd
+   subpages share one copy. Every rule that mentions the switcher comes
+   across, including the ones inside media queries: the touch behaviour,
+   the 44px rows on a phone, and the reduced-motion case. Leaving those
+   behind is what made the list on the subpages stack full-size instead of
+   sitting under the logo as a panel. */
+
 .ch-siteswitch{position:relative;display:inline-flex;align-items:center;
     gap:clamp(.35rem,.6vw,.6rem)}
 .ch-siteswitch__caret{display:inline-flex;align-items:center;justify-content:center;
@@ -9,9 +15,11 @@
     transition:opacity .2s ease,transform .25s ease}
 .ch-siteswitch__caret:hover{opacity:1}
 .ch-siteswitch__caret:focus-visible{outline:2px solid #f1ecdb;outline-offset:2px}
-.ch-siteswitch__caret{position:relative}
-.ch-siteswitch__caret::after{content:"";position:absolute;top:50%;left:50%;
+@media (hover:none) {
+  .ch-siteswitch__caret{position:relative}
+  .ch-siteswitch__caret::after{content:"";position:absolute;top:50%;left:50%;
       width:44px;height:44px;transform:translate(-50%,-50%)}
+}
 .ch-siteswitch__list{position:absolute;top:100%;left:0;z-index:40;
     /* indented so the row does not start flush with the logo's left edge:
        the pair sits under the wordmark rather than under the owl, which
@@ -47,17 +55,16 @@
 .ch-siteswitch__list .ch-nav__owl{filter:drop-shadow(0 1px 8px rgba(16,11,1,.5));
     width:clamp(1.15rem,1.7vw,1.6rem)}
 .ch-siteswitch__list .ch-nav__wordmark{font-size:clamp(1rem,1.85vw,1.7rem)}
-.ch-siteswitch__list{flex-direction:column;align-items:flex-start;gap:0;
+@media screen and (max-width:767px) {
+  .ch-siteswitch__list{flex-direction:column;align-items:flex-start;gap:0;
       margin-left:0}
-.ch-siteswitch__list a{min-height:44px;padding-right:.5rem}
-.ch-siteswitch__list .ch-nav__wordmark{font-size:1rem}
-.ch-siteswitch__list .ch-nav__owl{width:1.05rem}
-.ch-siteswitch__list,.ch-siteswitch__list li,
+  .ch-siteswitch__list a{min-height:44px;padding-right:.5rem}
+}
+@media screen and (max-width:479px) {
+  .ch-siteswitch__list .ch-nav__wordmark{font-size:1rem}
+  .ch-siteswitch__list .ch-nav__owl{width:1.05rem}
+}
+@media (prefers-reduced-motion:reduce) {
+  .ch-siteswitch__list,.ch-siteswitch__list li,
     .ch-siteswitch__caret,.ch-siteswitch__list a{transition:none}
-.ch-siteswitch');
-    if (!box) return;
-    var caret = box.querySelector('.ch-siteswitch__caret');
-    function set(open) {
-      box.classList.toggle('is-open', open);
-      caret.setAttribute('aria-expanded', String(open));
-    }
+}

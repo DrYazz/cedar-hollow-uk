@@ -6,6 +6,7 @@
   <meta content="width=device-width, initial-scale=1" name="viewport">
   <meta content="Six award-winning woodland retreats: treehouses, a cave hideaway and a glamping pod: in Oxfordshire and Dorset. Rated 5.0 by 400+ verified guests." name="description">
   <meta content="Webflow" name="generator">
+  <link href="css/siteswitch.css?v=20260929b" rel="stylesheet" type="text/css">
   <link href="css/normalize.css" rel="stylesheet" type="text/css">
   <link href="css/webflow.css" rel="stylesheet" type="text/css">
   <link href="css/cedar-hollow-uk.webflow.css?v=20260925a" rel="stylesheet" type="text/css">
@@ -219,88 +220,39 @@ width:100%;
      centring is the truer triangle, but the logo sits 24px from the edge of
      the screen and the pair is wider than the logo, so half of it would hang
      off the left. */
-  .ch-siteswitch{position:relative;display:inline-flex;align-items:center;
-    gap:clamp(.35rem,.6vw,.6rem)}
-  .ch-siteswitch__caret{display:inline-flex;align-items:center;justify-content:center;
-    width:1.75rem;height:1.75rem;padding:0;border:0;border-radius:50%;
-    background:none;color:#f1ecdb;cursor:pointer;opacity:.7;
-    transition:opacity .2s ease,transform .25s ease}
-  .ch-siteswitch__caret:hover{opacity:1}
-  .ch-siteswitch__caret:focus-visible{outline:2px solid #f1ecdb;outline-offset:2px}
-  @media (hover:none){
-    /* a 28px mark with a finger-sized target behind it */
-    .ch-siteswitch__caret{position:relative}
-    .ch-siteswitch__caret::after{content:"";position:absolute;top:50%;left:50%;
-      width:44px;height:44px;transform:translate(-50%,-50%)}
-  }
+  
+  
+  
+  
+  
 
-  .ch-siteswitch__list{position:absolute;top:100%;left:0;z-index:40;
-    /* indented so the row does not start flush with the logo's left edge:
-       the pair sits under the wordmark rather than under the owl, which
-       gives the triangle an offset apex instead of a straight left side */
-    /* The owl of the first item lines up with the start of the logo's text.
-       That point is exactly one owl-width plus one logo-gap in, so it is
-       computed from the same two tokens the logo itself uses rather than
-       guessed at -- if either changes, the alignment follows. */
-    margin:clamp(.4rem,.8vw,.7rem) 0 0 calc(clamp(1.75rem,2.5vw,2.25rem) + clamp(.5rem,.83vw,.75rem));
-    padding:0;list-style:none;
-    display:flex;align-items:center;gap:clamp(1rem,2.2vw,2.25rem);
-    white-space:nowrap;
-    visibility:hidden;transition:visibility 0s linear .24s}
+  
   /* visibility:hidden also keeps both links out of the tab order while shut */
-  .ch-siteswitch:hover .ch-siteswitch__list,
-  .ch-siteswitch:focus-within .ch-siteswitch__list,
-  .ch-siteswitch.is-open .ch-siteswitch__list{visibility:visible;transition-delay:0s}
+  
 
-  .ch-siteswitch__list li{opacity:0;transform:translateY(-.4rem);
-    transition:opacity .24s ease,transform .24s cubic-bezier(.2,.7,.3,1)}
-  .ch-siteswitch:hover .ch-siteswitch__list li,
-  .ch-siteswitch:focus-within .ch-siteswitch__list li,
-  .ch-siteswitch.is-open .ch-siteswitch__list li{opacity:1;transform:none}
-  .ch-siteswitch:hover .ch-siteswitch__caret,
-  .ch-siteswitch.is-open .ch-siteswitch__caret{transform:rotate(180deg);opacity:1}
+  
+  
+  
 
-  .ch-siteswitch__list a{display:inline-flex;align-items:center;
-    gap:clamp(.35rem,.6vw,.55rem);text-decoration:none;color:#f1ecdb;
-    /* no panel, so the hero is held off with a shadow rather than a box */
-    text-shadow:0 1px 14px rgba(16,11,1,.55),0 1px 3px rgba(16,11,1,.4);
-    opacity:.94;transition:opacity .18s ease,transform .18s cubic-bezier(.2,.7,.3,1)}
+  
   /* The nudge that was here before the layout was rebuilt, on both links this
      time rather than whichever one happened to have it. 2.4px and a lift from
      .94 to full: enough to feel like the link answers, not enough to shift the
      row. */
-  .ch-siteswitch__list a:hover,.ch-siteswitch__list a:focus-visible{
-    opacity:1;transform:translateX(.15rem)}
-  .ch-siteswitch__list a:focus-visible{outline:2px solid #f1ecdb;outline-offset:4px;
-    border-radius:4px}
-  .ch-siteswitch__list .ch-nav__owl{filter:drop-shadow(0 1px 8px rgba(16,11,1,.5));
-    width:clamp(1.15rem,1.7vw,1.6rem)}
+  
+  
+  
   /* both the same size, a little under the logo's own */
-  .ch-siteswitch__list .ch-nav__wordmark{font-size:clamp(1rem,1.85vw,1.7rem)}
+  
 
   /* On a phone the row becomes a short list, one under the other. 767px is the
      width the rest of the site already treats as a phone -- where the nav menu
      goes full screen and the footer stacks -- so the switcher changes with it
      rather than at a width of its own. */
-  @media screen and (max-width:767px){
-    /* the stacked list reads better flush under the logo */
-    .ch-siteswitch__list{flex-direction:column;align-items:flex-start;gap:0;
-      margin-left:0}
-    /* 21px of text with a 10px gap is too small and too close for a thumb, so
-       each becomes a 44px row. The gap goes to zero because the padding now
-       provides the separation -- otherwise the two hit areas would overlap and
-       the mis-taps would be worse than the small targets. */
-    .ch-siteswitch__list a{min-height:44px;padding-right:.5rem}
-  }
-  @media screen and (max-width:479px){
-    .ch-siteswitch__list .ch-nav__wordmark{font-size:1rem}
-    .ch-siteswitch__list .ch-nav__owl{width:1.05rem}
-  }
+  
+  
 
-  @media (prefers-reduced-motion:reduce){
-    .ch-siteswitch__list,.ch-siteswitch__list li,
-    .ch-siteswitch__caret,.ch-siteswitch__list a{transition:none}
-  }
+  
 </style>
 <style>
   /* This panel had no background: at desktop the links sat straight on
