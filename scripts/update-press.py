@@ -40,7 +40,7 @@ PAGES = [
 # The name is a whole word after a space, so a sibling marker such as
 # ch:press-filter is not read as this block with the name "-filter" and
 # then closed against the articles grid's end marker further down.
-BLOCK_RE = re.compile(r"(<!-- ch:press(?: ([\w:,-]+))? -->)(.*?)(<!-- /ch:press -->)", re.S)
+BLOCK_RE = re.compile(r"(<!-- ch:press(?: ([\w:, -]+?))? -->)(.*?)(<!-- /ch:press -->)", re.S)
 SCREEN_RE = re.compile(r"(<!-- ch:press-screen ?([\w:,-]*) -->)(.*?)(<!-- /ch:press-screen -->)", re.S)
 FEED_RE = re.compile(r"(<!-- ch:press-feed ?([\w-]*) -->)(.*?)(<!-- /ch:press-feed -->)", re.S)
 FILTER_RE = re.compile(r"(<!-- ch:press-filter(?: ([\w-]+))? -->)(.*?)(<!-- /ch:press-filter -->)", re.S)
@@ -115,7 +115,7 @@ def asset(path):
     return html.escape(path, quote=True)
 
 
-def card(item, show_location=False):
+def card(item, show_location=False, brief=False):
     """One article: who ran it, what they called it, and a line from the piece."""
     pub = html.escape(item["publication"])
     url = html.escape(item["url"], quote=True)
@@ -124,7 +124,11 @@ def card(item, show_location=False):
     logo = item.get("logo")
     shot = item.get("shot")
 
-    parts = ['<article class="ch-press__card%s">' % ("" if quote else " ch-press__card--bare")]
+    if brief:
+        klass = " ch-press__card--brief"
+    else:
+        klass = "" if quote else " ch-press__card--bare"
+    parts = ['<article class="ch-press__card%s">' % klass]
 
     if shot:
         # The clipping is the tile, as on the Oaks reviews page: the article as
@@ -158,6 +162,15 @@ def card(item, show_location=False):
         )
     else:
         parts.append('    <p class="ch-press__pub">%s</p>' % pub)
+
+    # A brief card is a masthead and nothing else: it is a highlight on a page
+    # that is about something else, and the year, the quote and our note are
+    # the press page's job. The clipping and the link stay, so the tile still
+    # goes somewhere.
+    if brief:
+        parts.append("  </div>")
+        parts.append("</article>")
+        return parts
 
     # The year the piece ran, under the masthead: a reader should be able to
     # tell a 2018 cutting from a 2026 one without opening it.
@@ -520,7 +533,7 @@ def render_awards(data, indent, scope=None):
     body = ("\n" + indent).join(lines)
     return "\n%s%s\n%s" % (indent, body, indent)
 
-def render(section, indent, show_location=False):
+def render(section, indent, show_location=False, brief=False):
     items = section.get("items") or []
     # Newest first. The data file keeps them in the order they were added;
     # the page decides how they read.
@@ -535,7 +548,7 @@ def render(section, indent, show_location=False):
         # Named so the homepage mastheads can link to the piece itself.
         lines.append('    <li id="press-%s" data-location="%s">'
                      % (html.escape(item["slug"]), html.escape(item.get("location", ""))))
-        lines.extend("      " + line for line in card(item, show_location))
+        lines.extend("      " + line for line in card(item, show_location, brief))
         lines.append("    </li>")
     lines.append("  </ul>")
     lines.append("</div>")
@@ -645,7 +658,16 @@ def main():
         seen = []
 
         def replace(match):
-            name = match.group(2)
+            # The marker is a word list: an optional `brief`, and an optional
+            # name or pick. Order does not matter, so neither page has to
+            # remember which way round they were written.
+            words = (match.group(2) or "").split()
+            brief = "brief" in words
+            rest = [w for w in words if w != "brief"]
+            if len(rest) > 1:
+                sys.exit("%s: press marker names more than one section: %s"
+                         % (page.name, " ".join(rest)))
+            name = rest[0] if rest else None
             # no name means the combined page: both woodlands in one grid,
             # so each card names its woodland beside the year
             if name and name.startswith("pick:"):
@@ -657,7 +679,7 @@ def main():
                 section, both_woodlands = sections[name], False
             else:
                 section, both_woodlands = both(sections, "items"), True
-            body = render(section, marker_indent(match), both_woodlands)
+            body = render(section, marker_indent(match), both_woodlands, brief)
             label = name or "combined"
             if body is None:
                 seen.append((label, 0, "tiles"))
