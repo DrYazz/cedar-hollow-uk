@@ -681,11 +681,11 @@ a.ch-vid__play {
   align-items: flex-end;
   gap: .3rem;
   padding: 3.5rem .95rem .9rem;
-  color: #f4f2e4;
-  background: linear-gradient(180deg, rgba(16, 19, 7, 0), rgba(16, 19, 7, .55) 45%, rgba(16, 19, 7, .88));
+  color: #fff;
+  background: linear-gradient(180deg, rgba(16, 19, 7, 0), rgba(16, 19, 7, .62) 40%, rgba(16, 19, 7, .95));
   pointer-events: none;
   text-align: right;
-  text-shadow: 0 1px 3px rgba(10, 12, 4, .7);
+  text-shadow: 0 2px 5px rgba(8, 10, 3, .9), 0 0 2px rgba(8, 10, 3, .55);
 }
 
 /* The name on the still, for the films whose own artwork does not carry it.
@@ -718,7 +718,14 @@ a.ch-vid__play {
 .ch-vid__over .ch-vid__logo {
   height: calc(1.5rem * var(--ch-logo-scale, 1));
   max-width: calc(7rem * var(--ch-logo-scale, 1));
-  filter: drop-shadow(0 1px 3px rgba(10, 12, 4, .65));
+  background-color: #fff;
+  /* A white halo at no offset before the dark one. A mask can be painted but
+     not emboldened, and these are light serifs; the halo bleeds the
+     silhouette outwards by a pixel, which thickens the strokes the way a
+     heavier weight of the same face would. The dark shadow then applies to
+     the thickened shape and lifts it off the photograph. */
+  filter: drop-shadow(0 0 1px #fff) drop-shadow(0 0 1px #fff)
+          drop-shadow(0 2px 5px rgba(8, 10, 3, .92));
 }
 
 .ch-vid__over .ch-vid__detail {
