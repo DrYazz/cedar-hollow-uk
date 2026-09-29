@@ -193,20 +193,42 @@
     // ?destination=Oxford&guests=N. With no such parameters the page is
     // unchanged: all six properties, in catalogue order.
     var params = new URLSearchParams(window.location.search);
-    var wantPlace = (params.get("destination") || "").trim().toLowerCase();
+    // data-destination on <html> marks a destination page: oxford-stays.html
+    // and dorset-stays.html. It is a hard scope, not a default. The URL
+    // promises one place, so a property from the other never appears on it,
+    // whatever the query string asks for and even when a filter empties the
+    // list. Without that the pages would be a query parameter with extra
+    // steps, and an Oxford URL could end up showing Dorset.
+    var scope = (document.documentElement.getAttribute("data-destination") || "")
+      .trim().toLowerCase();
+    var wantPlace = scope || (params.get("destination") || "").trim().toLowerCase();
     var wantGuests = parseInt(params.get("guests"), 10);
     if (isNaN(wantGuests)) wantGuests = 0;
 
-    var items = CH.listings;
-    var narrowed = items.filter(function (it) {
-      if (wantPlace && it.destination.toLowerCase() !== wantPlace) return false;
+    var all = CH.listings;
+    // Everything this page is allowed to show, before any search narrows it.
+    var inScope = scope
+      ? all.filter(function (it) { return it.destination.toLowerCase() === scope; })
+      : all;
+
+    var narrowed = inScope.filter(function (it) {
+      if (!scope && wantPlace && it.destination.toLowerCase() !== wantPlace) return false;
       if (wantGuests && it.sleeps < wantGuests) return false;
       return true;
     });
-    // An over-tight search must never leave an empty page; fall back to the
-    // whole catalogue and say nothing was narrowed.
-    var filtered = (wantPlace || wantGuests) && narrowed.length && narrowed.length < items.length;
-    if (filtered) items = narrowed;
+
+    var items, filtered, dropped = false;
+    if (scope) {
+      // An over-tight search must never leave an empty page. On the combined
+      // page that means widening to the whole catalogue; here the widest this
+      // page may go is its own destination, so the guest filter is what gives.
+      dropped = !narrowed.length;
+      items = dropped ? inScope : narrowed;
+      filtered = true;
+    } else {
+      filtered = (wantPlace || wantGuests) && narrowed.length && narrowed.length < all.length;
+      items = filtered ? narrowed : all;
+    }
 
     tiles.innerHTML = items.map(tile).join("");
     list.innerHTML = items.map(property).join("");
@@ -217,11 +239,19 @@
     note.className = "pp-filter";
 
     if (filtered) {
-      var said = [];
-      if (wantPlace) said.push("Cedar Hollow " + items[0].destination);
-      if (wantGuests) said.push(wantGuests + (wantGuests === 1 ? " guest" : " guests"));
-      note.innerHTML = "Showing " + esc(said.join(" \u00b7 ")) +
-        ' <a href="search-results.html">Show all retreats</a>';
+      var place = items[0].destination;
+      if (dropped) {
+        note.innerHTML = "No " + esc(place) + " retreat sleeps " + wantGuests +
+          ". Showing all " + esc(place) + " retreats" +
+          ' <a href="search-results.html?guests=' + wantGuests +
+          '">Try both destinations</a>';
+      } else {
+        var said = [];
+        if (wantPlace) said.push("Cedar Hollow " + place);
+        if (wantGuests) said.push(wantGuests + (wantGuests === 1 ? " guest" : " guests"));
+        note.innerHTML = "Showing " + esc(said.join(" \u00b7 ")) +
+          ' <a href="search-results.html">Show all retreats</a>';
+      }
     } else {
       // Unfiltered, the line does the opposite job: it says so, and offers the
       // places as the way in. Read off the catalogue rather than typed, so a
