@@ -255,6 +255,44 @@ width:100%;
 
   
 </style>
+<!-- ch:schema -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://cedarhollow.uk/#organization",
+      "name": "Cedar Hollow",
+      "url": "https://cedarhollow.uk/",
+      "logo": "https://cedarhollow.uk/images/apple-touch-icon.png",
+      "email": "hello@cedarhollow.uk",
+      "sameAs": [
+        "https://www.youtube.com/@CedarHollow"
+      ],
+      "subOrganization": [
+        {
+          "@id": "https://cedarhollow.uk/oxford/#business"
+        },
+        {
+          "@id": "https://cedarhollow.uk/dorset/#business"
+        }
+      ]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://cedarhollow.uk/#website",
+      "url": "https://cedarhollow.uk/",
+      "name": "Cedar Hollow",
+      "inLanguage": "en-GB",
+      "publisher": {
+        "@id": "https://cedarhollow.uk/#organization"
+      }
+    }
+  ]
+}
+</script>
+<!-- /ch:schema -->
 </head>
 <body>
   <div class="page-style w-embed">
