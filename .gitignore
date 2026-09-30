@@ -18,3 +18,4 @@ The Oaks Full Movie.MP4
 
 # Playwright MCP scratch output: screenshots, snapshots and console logs.
 .playwright-mcp/
+__pycache__/
