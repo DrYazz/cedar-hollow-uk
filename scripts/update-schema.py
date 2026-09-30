@@ -128,12 +128,12 @@ def star_gradings():
 # written out here and checked against that line on every run: if the awards
 # data changes, this stops rather than quietly claiming a grading for a stay
 # that does not hold it, and a grading that appears in the data without an
-# entry here stops it too.
+# entry here stops it too. "*" is a grading VisitEngland gives the site as a
+# whole rather than stay by stay; the word beside it is what the recipient
+# line must still say.
 RATED = {
     "Oxford": {
-        "ve-5star-oxford": {"cedar-hollow-treehouse": "Cedar Hollow Treehouse",
-                            "fauns-hideaway": "Faun"},
-        "ve-4star-oxford": {"beavers-den": "Beaver"},
+        "ve-5star-oxford": {"*": "Cedar Hollow Oxford"},
     },
     "Dorset": {
         "ve-5star-dorset": {"woodsmans-treehouse": "Woodsman",
@@ -245,7 +245,7 @@ def business(dest, stays, ratings):
                          % (slug, word, rating["recipient"]))
         stars = STARS[rating["award"]]
         stay_names = [s["name"] for s in stays if s["id"] in covered]
-        if len(covered) == len(stays):
+        if "*" in covered or len(covered) == len(stays):
             node["starRating"] = {
                 "@type": "Rating",
                 "ratingValue": str(stars),
