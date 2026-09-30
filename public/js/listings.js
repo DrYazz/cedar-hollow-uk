@@ -520,8 +520,14 @@
   // which of the two sites a property sits on is the thing this section exists
   // to answer. `bedrooms` is still shown on the search-results cards, where
   // listings appear alongside the larger properties and the count does vary.
-  function featuredCardHtml(item) {
-    var href = "search-results.html?q=" + encodeURIComponent(item.name);
+  // `opts.base` is the page the card opens: a sub-site's home page sends its
+  // cards to that sub-site's stays page, so a guest reading about Oxford stays
+  // in Oxford. Called through Array.map without it, the second argument is the
+  // index, which is why this checks the type rather than just its truthiness.
+  // The core home page passes nothing and keeps the combined page.
+  function featuredCardHtml(item, opts) {
+    var base = (opts && typeof opts === "object" && opts.base) || "search-results.html";
+    var href = base + "?q=" + encodeURIComponent(item.name);
 
     return (
       '<li class="splide__slide">' +

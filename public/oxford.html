@@ -1832,7 +1832,7 @@ animation:marquee-scroll 70s linear infinite;
   <script src="js/vendor/splide-4.1.4.min.js"></script>
   <!--  Splide AutoScroll Extension  -->
   <script src="js/vendor/splide-auto-scroll-0.5.3.min.js"></script>
-  <script src="js/listings.js?v=20260930a" type="text/javascript"></script>
+  <script src="js/listings.js?v=20260930b" type="text/javascript"></script>
   <script>
   // Populate the "Featured Properties" carousel from the catalogue BEFORE
   // Splide initialises below, so it mounts over the generated slides.
@@ -1844,7 +1844,10 @@ animation:marquee-scroll 70s linear infinite;
     // Oxford page: only this site's retreats, in the catalogue's featured order.
     var items = CH.featured().filter(function (l) { return l.destination === "Oxford"; });
     if (items.length) {
-      ul.innerHTML = items.map(CH.featuredCardHtml).join("");
+      // Oxford's cards open Oxford's stays page, not the combined one.
+      ul.innerHTML = items.map(function (it) {
+        return CH.featuredCardHtml(it, { base: "oxford-stays.html" });
+      }).join("");
       // Figma 73:169. featuredCardHtml is shared with the homepage carousel,
       // so the Oxford wording is applied here rather than in the catalogue.
       ul.querySelectorAll(".cabin-item .button span").forEach(function (el) {
