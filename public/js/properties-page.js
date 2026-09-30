@@ -247,10 +247,17 @@
           '">Try both destinations</a>';
       } else {
         var said = [];
-        if (wantPlace) said.push("Cedar Hollow " + place);
+        // On a destination page the place is the page, so saying it here only
+        // repeats the heading, and there is no way out to offer: the whole
+        // point of the page is that it stays in one place.
+        if (wantPlace && !scope) said.push("Cedar Hollow " + place);
         if (wantGuests) said.push(wantGuests + (wantGuests === 1 ? " guest" : " guests"));
-        note.innerHTML = "Showing " + esc(said.join(" \u00b7 ")) +
-          ' <a href="search-results.html">Show all retreats</a>';
+        if (!said.length) {
+          note = null;
+        } else {
+          note.innerHTML = "Showing " + esc(said.join(" \u00b7 ")) +
+            (scope ? "" : ' <a href="search-results.html">Show all retreats</a>');
+        }
       }
     } else {
       // Unfiltered, the line does the opposite job: it says so, and offers the
@@ -266,7 +273,7 @@
       }).join("");
     }
 
-    tiles.parentNode.insertBefore(note, tiles);
+    if (note) tiles.parentNode.insertBefore(note, tiles);
 
     // A Featured Properties card links here as ?q=<property name>. Both the
     // tiles and the cards are rendered above, so at the moment the browser
