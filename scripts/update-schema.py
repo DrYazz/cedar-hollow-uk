@@ -103,6 +103,35 @@ def listings():
     return json.loads(out)
 
 
+def five_star():
+    """The VisitEngland Five-Star Glamping ratings, from the awards data.
+
+    Read from docs/press-data.json, where the press pages' awards come from,
+    so the structured data and the visible awards cannot disagree.
+    """
+    path = os.path.join(ROOT, "docs", "press-data.json")
+    data = json.load(io.open(path, encoding="utf-8"))
+    out = {}
+    for key, dest in (("oxford", "Oxford"), ("dorset", "Dorset")):
+        for a in data["sections"][key].get("awards") or []:
+            if a.get("org") == "VisitEngland" and a.get("award") == "Five-Star Glamping":
+                out[dest] = a
+    return out
+
+
+# Which stays each rating covers. The recipient line in the awards data is
+# prose ("Woodsman's, Dazzle and Pinwheel Treehouses"), so the mapping is
+# written out here and checked against that line on every run: if the awards
+# data changes, this stops rather than quietly claiming a rating for a stay
+# that does not hold one.
+RATED = {
+    "Oxford": {"cedar-hollow-treehouse": "Cedar Hollow Treehouse"},
+    "Dorset": {"woodsmans-treehouse": "Woodsman",
+               "dazzle-treehouse": "Dazzle",
+               "pinwheel-treehouse": "Pinwheel"},
+}
+
+
 def read(rel):
     return io.open(os.path.join(PUBLIC, rel), encoding="utf-8", newline="").read()
 
@@ -164,7 +193,7 @@ def stay_id(item):
     return url if "#" in url else url + "#accommodation"
 
 
-def business(dest, stays):
+def business(dest, stays, ratings):
     b = BUSINESS[dest]
     prices = [s["price"] for s in stays if s.get("price")]
     node = {
@@ -186,6 +215,31 @@ def business(dest, stays):
         node["priceRange"] = "From £%d per night" % min(prices)
     if b["telephone"]:
         node["telephone"] = b["telephone"]
+
+    # VisitEngland's Five-Star Glamping is an official quality grading, not
+    # a review score, so it is not caught by the rule against marking up
+    # other platforms' reviews. It goes on as starRating only where every
+    # stay in the woodland holds it; schema.org has no starRating for a
+    # single Accommodation, so where only some do, it is named as an award
+    # with the stay it belongs to rather than claimed for the whole business.
+    rating = ratings.get(dest)
+    if rating:
+        covered = RATED[dest]
+        for word in covered.values():
+            if word.lower() not in rating["recipient"].lower():
+                sys.exit("%s five-star recipient no longer names %r: %s"
+                         % (dest, word, rating["recipient"]))
+        stay_names = [s["name"] for s in stays if s["id"] in covered]
+        if len(covered) == len(stays):
+            node["starRating"] = {
+                "@type": "Rating",
+                "ratingValue": "5",
+                "bestRating": "5",
+                "author": {"@type": "Organization", "name": "VisitEngland"},
+            }
+            node["award"] = ["VisitEngland Five-Star Glamping"]
+        else:
+            node["award"] = ["VisitEngland Five-Star Glamping: " + ", ".join(stay_names)]
     return node
 
 
@@ -223,9 +277,10 @@ def graphs(items):
     by = {"Oxford": [i for i in items if i["destination"] == "Oxford"],
           "Dorset": [i for i in items if i["destination"] == "Dorset"]}
     org = organization()
+    ratings = five_star()
 
     def woodland(dest):
-        return [business(dest, by[dest])] + [accommodation(i) for i in by[dest]]
+        return [business(dest, by[dest], ratings)] + [accommodation(i) for i in by[dest]]
 
     pages = {
         "index.html": [org, website()],
@@ -238,7 +293,7 @@ def graphs(items):
     # it belongs to so containedInPlace resolves on the page itself.
     for item in by["Dorset"]:
         pages["dorset-%s.html" % item["id"]] = [accommodation(item),
-                                                 business("Dorset", by["Dorset"])]
+                                                 business("Dorset", by["Dorset"], ratings)]
     return pages
 
 

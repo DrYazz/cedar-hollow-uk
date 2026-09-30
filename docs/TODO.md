@@ -129,7 +129,7 @@ complete and verified live:
   Oxford"/"Explore Dorset" (`index.html:320,338`), all booking CTAs →
   `theoaks.uk/availability`, listing copy still says "the magic of The Oaks"
   (`search-results.html:177,242,307`). Repoint every outbound link to Cedar Hollow.
-- [ ] **Contact email mismatch.** Footer says `hello@cedarhollow.uk`
+- [x] **Contact email mismatch.** Resolved 2026-09-30: every address on the site is now `hello@cedarhollow.uk`. Footer says `hello@cedarhollow.uk`
   (`index.html:779`) vs README's `hello@theoaks.uk`. Reconcile the correct address.
 - [ ] **Four of five pages are orphaned.** The only internal `.html` link is the
   logo → `index.html`. Nothing links to `search-results.html`,
