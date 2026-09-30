@@ -40,6 +40,14 @@
      parent. Everything else about these entries is as it was. */
   .ch-eateries .ch-frame{position:relative;}
 
+  /* The telephone numbers on one line across a row. An address runs to one
+     line or two depending on the place, which left the four buttons at three
+     different heights. The entry becomes a column and the number is pushed
+     to the foot of it, so the addresses still sit under their own names and
+     the buttons line up with each other. */
+  .ch-eateries li{display:flex;flex-direction:column;}
+  .ch-eateries li > p:last-of-type{margin-top:auto;}
+
   /* The guide's own mark, on the corner of the photograph. It replaces a
      line of type that was competing with the name above it, and says the
      same thing faster. */
