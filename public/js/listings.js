@@ -66,7 +66,7 @@
       highlight: "Narnia-inspired cave",
       minimumStay: "",
       photos: [
-        { src: "images/gallery/fauns-hideaway-s01-1060.webp", srcset: "images/gallery/fauns-hideaway-s01-530.webp 530w, images/gallery/fauns-hideaway-s01-1060.webp 1060w" },
+        { src: "images/gallery/fauns-hideaway-s01-1060.webp", srcset: "images/gallery/fauns-hideaway-s01-530.webp 530w, images/gallery/fauns-hideaway-s01-1060.webp 1060w, images/gallery/fauns-hideaway-s01-1525.webp 1525w" },
         { src: "images/gallery/fauns-hideaway-s02-1060.webp", srcset: "images/gallery/fauns-hideaway-s02-530.webp 530w, images/gallery/fauns-hideaway-s02-1060.webp 1060w" },
         { src: "images/gallery/fauns-hideaway-s03-1023.webp", srcset: "images/gallery/fauns-hideaway-s03-530.webp 530w, images/gallery/fauns-hideaway-s03-1023.webp 1023w" },
         { src: "images/gallery/fauns-hideaway-s04-1060.webp", srcset: "images/gallery/fauns-hideaway-s04-530.webp 530w, images/gallery/fauns-hideaway-s04-1060.webp 1060w" },
