@@ -21,9 +21,32 @@ const CONTACT_PATH = "/api/contact";
 const RESEND_ENDPOINT = "https://api.resend.com/emails";
 const MAX_BODY_BYTES = 64 * 1024; // parity with the old express.json({ limit: "64kb" })
 
+/*
+ * Directory-style spellings of the two woodland pages.
+ *
+ * /oxford/ matched nothing: there is a real public/oxford/ directory holding
+ * the sub-pages, and no index.html inside it, so the trailing slash resolved
+ * to a directory and 404ed while /oxford served fine. /dorset/ 404ed for the
+ * plainer reason that no such directory exists.
+ *
+ * These live here rather than in public/_redirects because that file is not
+ * being processed by this deployment -- it is served as an ordinary asset at
+ * /_redirects, and none of its fifteen rules fire. The Worker does run, and
+ * anything that matches no asset reaches it, which is exactly these two.
+ */
+const PAGE_ALIASES = {
+  "/oxford/": "/oxford.html",
+  "/dorset/": "/dorset.html",
+};
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+
+    const alias = PAGE_ALIASES[url.pathname];
+    if (alias) {
+      return Response.redirect(new URL(alias, url).toString(), 301);
+    }
 
     if (url.pathname === CONTACT_PATH) {
       if (request.method !== "POST") {
