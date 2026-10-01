@@ -1192,3 +1192,37 @@ a.ch-vid__play {
 .ch-page-hero__lead[data-lead-stack] > [data-lead-on] {
   visibility: visible;
 }
+
+/* ---- Socials (press page) ----
+   The three Instagram accounts as cards: the avatar in Instagram's ring,
+   the follower count large, a line about the account, a button, and a
+   photograph closing the card. */
+.ch-socials__total{margin:0 0 .75rem;font-family:var(--font-family--heading);
+  font-size:clamp(1.5rem,2.6vw,2.25rem);font-weight:400;line-height:1.2;color:var(--accent,#3b4126);}
+.ch-socials{list-style:none;margin:2.5rem 0 0;padding:0;display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));gap:1.5rem;text-align:center;}
+.ch-social{display:flex;flex-direction:column;align-items:center;overflow:hidden;
+  background:#f7f5e1;border:1px solid var(--border--accent-20,#3b412633);border-radius:1rem;
+  padding:1.75rem 1.5rem 0;}
+.ch-social__avatar{width:7rem;height:7rem;border-radius:50%;padding:4px;
+  background:linear-gradient(45deg,#f9a825,#f15b2a 35%,#d62976 65%,#962fbf);}
+.ch-social__avatar img{display:block;width:100%;height:100%;border-radius:50%;
+  border:3px solid #f7f5e1;object-fit:cover;background:#f7f5e1;}
+.ch-social__name{margin:1rem 0 .25rem;font-family:var(--font-family--heading);
+  font-size:1.75rem;font-weight:400;line-height:1.15;color:var(--accent,#3b4126);}
+.ch-social__count{margin:0;display:flex;flex-direction:column;align-items:center;
+  padding-bottom:.85rem;border-bottom:1px solid var(--border--accent-20,#3b412633);min-width:60%;}
+.ch-social__count strong{font-family:var(--font-family--heading);font-size:3.25rem;
+  font-weight:500;line-height:1.05;color:var(--accent,#3b4126);}
+.ch-social__count span{font-size:1rem;color:var(--accent,#3b4126);opacity:.8;}
+.ch-social__blurb{margin:.9rem 0 1.25rem;max-width:22rem;font-size:1rem;line-height:1.55;
+  color:var(--accent,#3b4126);flex:1 0 auto;}
+.ch-social__btn{display:inline-flex;align-items:center;gap:.55rem;padding:.75rem 1.4rem;
+  border-radius:50em;background:var(--accent,#3b4126);color:#f7f5e1;text-decoration:none;
+  font-weight:500;line-height:1;transition:background-color .2s ease;}
+.ch-social__btn:hover{background:#2c311c;}
+.ch-social__btn:focus-visible{outline:2px solid var(--accent,#3b4126);outline-offset:3px;}
+.ch-social__photo{display:block;align-self:stretch;margin:1.5rem -1.5rem 0;aspect-ratio:16/9;overflow:hidden;}
+.ch-social__photo img{display:block;width:100%;height:100%;object-fit:cover;}
+.ch-socials__note{margin:1.5rem auto 0;font-size:.875rem;opacity:.7;}
+@media (max-width:991px){.ch-socials{grid-template-columns:minmax(0,1fr);max-width:30rem;margin-left:auto;margin-right:auto;}}
