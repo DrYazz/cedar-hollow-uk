@@ -13,6 +13,17 @@
 .pp .ch-nav__toggle:focus-visible { outline-color: var(--accent, #3b4126); }
 .pp .ch-nav__menu a { color: var(--accent, #3b4126); text-shadow: none; }
 @media screen and (max-width: 767px) { .pp .ch-nav__menu a { color: var(--brand, #efeed5); } }
+/* On a phone the open menu covers the page in green, so the green logo and
+   burger above it vanish -- the close cross with them. While it is open they
+   go back to the cream they are everywhere else. */
+@media screen and (max-width: 767px) {
+  .pp.ch-nav-open .ch-nav__logo, .pp.ch-nav-open .ch-nav__wordmark,
+  .pp.ch-nav-open .ch-siteswitch__caret { color: var(--cream, #f1ecdb); }
+  .pp.ch-nav-open .ch-nav__owl { filter: none; }
+  .pp.ch-nav-open .ch-nav__toggle span[aria-hidden] { background-color: var(--cream, #f1ecdb); }
+  /* The search bar lives in the nav and would sit over the open menu. */
+  .pp.ch-nav-open .ch-searchbar { display: none; }
+}
 
 /* ---- Page rhythm: 64px pad, 96px between blocks (desktop) -------------- */
 .pp-content { display: flex; flex-direction: column; gap: 96px; padding: 64px; }

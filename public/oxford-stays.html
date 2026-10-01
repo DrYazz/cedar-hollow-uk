@@ -10,7 +10,7 @@
   <link href="css/normalize.css" rel="stylesheet" type="text/css">
   <link href="css/webflow.css" rel="stylesheet" type="text/css">
   <link href="css/cedar-hollow-uk.webflow.css?v=20260925a" rel="stylesheet" type="text/css">
-  <link href="css/properties.css?v=20260927e" rel="stylesheet" type="text/css">
+  <link href="css/properties.css?v=20261001b" rel="stylesheet" type="text/css">
   <link href="css/search-bar.css?v=20260930b" rel="stylesheet" type="text/css">
   <link href="css/oxford-footer.css?v=4efd9f7b" rel="stylesheet" type="text/css">
   <link href="images/favicon.svg" rel="icon" type="image/svg+xml">
@@ -304,15 +304,28 @@
   content:"";display:inline-block;width:.3rem;height:.3rem;margin-right:.45rem;
   vertical-align:.15em;border-radius:50%;background:currentColor;
 }
-/* On a phone the panel takes the width it needs and stacks into one column. */
+/* On a phone the menu is the full-screen list every other Oxford page opens.
+   It was a card hung below the bar with left and right set, but width
+   max-content from the rule above outranks right, so it came out 280px wide
+   against the left edge, away from the burger it opens from; and its height
+   was capped at 100vh less the bar, which on a phone counts the browser's own
+   toolbar, so the last links sat below the bottom of the screen. Fixed to
+   the screen it scrolls inside itself to the last link, and the bar, which
+   sits above it, keeps the burger there to close it. */
 @media screen and (max-width:47.9375rem){
-  /* matched to the specificity of the rule above, or its single column loses to
-     the two-column default and the panel stays two-up on a phone */
+  /* matched to the specificity of the rule above */
   .ch-nav__menu.is-dropdown:not([hidden]){
-    left:16px;right:16px;bottom:auto;grid-template-columns:1fr;gap:1.1rem;
-    max-width:none;max-height:calc(100vh - 6rem);overflow-y:auto;
+    position:fixed;inset:0;z-index:15;
+    display:block;width:auto;max-width:none;max-height:none;
+    overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
+    padding:5.5rem 1.75rem 3rem;
+    border:0;border-radius:0;box-shadow:none;
   }
+  .ch-nav__menu.is-dropdown .ch-navgroup + .ch-navgroup{margin-top:1.5rem;}
   .ch-nav__menu.is-dropdown a{padding:.45rem 0;font-size:1.0625rem;}
+  /* The stays page carries the search bar in the nav. It would sit over the
+     open menu, and on the narrowest phones it pushes the bar to two lines. */
+  body.ch-nav-open .ch-searchbar{display:none;}
 }
 </style>
           <nav class="ch-nav__bar" aria-label="Primary">
