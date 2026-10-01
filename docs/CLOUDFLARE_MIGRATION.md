@@ -1,5 +1,12 @@
 # Migrating from Railway to Cloudflare
 
+> **History.** This migration was done on 2 September 2026, rolled back to
+> Railway on 4 September, and redone in October 2026 with **Workers Builds**,
+> so the Worker now deploys on every push to `main` as Railway did, instead of
+> by hand. Railway keeps
+> building the site as a rollback copy until Phase 5. Day-to-day publishing is
+> in [`PAGES_UPLOAD.md`](PAGES_UPLOAD.md).
+
 Moves the site and the contact form onto Cloudflare Workers, at £0/month.
 Phase 1 is done. Phases 2 onward are dashboard work.
 

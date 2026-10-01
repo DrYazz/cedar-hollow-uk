@@ -1,8 +1,9 @@
 # Cedar Hollow — Cloudflare Workers configuration.
 #
-# One Worker serves the static site and the contact-form endpoint. Deploy with:
-#
-#   npx wrangler deploy
+# One Worker serves the static site and the contact-form endpoint. It deploys
+# itself: Cloudflare Workers Builds runs `npx wrangler deploy` on every push to
+# main (see docs/PAGES_UPLOAD.md). The name below must match the Worker the repo
+# is connected to, or those builds fail.
 #
 # There is deliberately no package.json: the Worker has no imports at all, so
 # there is nothing to install.
