@@ -525,6 +525,39 @@
   window.addEventListener("resize", reposition);
   window.addEventListener("scroll", reposition, { passive: true });
 
+  /* On a phone the bar sat in the nav beside the logo and left it no room:
+     the owl was hidden outright below 380, and on the sub-site pages the
+     wordmark went too, so the one thing telling you which site you were on
+     disappeared on the narrowest screens. Below the tablet breakpoint the bar
+     moves under the page heading instead and the nav keeps the logo and the
+     burger, which is all it needs there.
+
+     The pickers need nothing: place() reads the bar's live rectangle each
+     time one opens, and reposition() above already runs on resize and scroll,
+     so they follow the bar down the page. */
+  var phone = window.matchMedia("(max-width: 767px)");
+  var navHome = bar.parentNode;
+  var navNext = bar.nextSibling;
+  var heading = document.querySelector(".pp-title");
+
+  function placeBar() {
+    if (!heading || !heading.parentNode) return;
+    if (phone.matches) {
+      if (bar.parentNode !== heading.parentNode) {
+        heading.parentNode.insertBefore(bar, heading.nextSibling);
+        bar.classList.add("ch-searchbar--under-title");
+      }
+    } else if (bar.parentNode !== navHome) {
+      navHome.insertBefore(bar, navNext);
+      bar.classList.remove("ch-searchbar--under-title");
+    }
+    close();
+  }
+
+  placeBar();
+  if (phone.addEventListener) phone.addEventListener("change", placeBar);
+  else phone.addListener(placeBar);          /* Safari before 14 */
+
   paintDates();
   paintGuests();
   commit();
