@@ -183,19 +183,11 @@ def breakdown(data, figs, indent, scope=""):
         for src in prop["sources"]:
             lines.append("  " + platform_card(src))
         lines.append("  </ul>")
-        # The sentence has to be true of whatever the reader is actually
-        # looking at. For a property on the live feed this markup is the
-        # fallback -- real figures, read by hand, possibly a little behind --
-        # and js/reviews-live.js replaces the whole block when it can reach
-        # the feed. For a property without one, this is all there ever is.
-        if prop.get("live"):
-            lines.append(
-                f'  <p class="text-size-medium">Each figure was read from that'
-                f" platform&#x27;s own listing on {checked}, and updates to the"
-                f" platform&#x27;s current total automatically where your browser"
-                f" can reach it.</p>"
-            )
-        else:
+        # For a property on the live feed the cards speak for themselves:
+        # js/reviews-live.js keeps them current, and a sentence saying so told
+        # the reader nothing they needed. A property without the feed still
+        # says when its figures were read, because they only move by hand.
+        if not prop.get("live"):
             lines.append(
                 f'  <p class="text-size-medium">Each figure was read from that'
                 f" platform&#x27;s own listing on {checked}."

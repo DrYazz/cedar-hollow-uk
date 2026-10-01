@@ -276,10 +276,7 @@
     return '<div class="ch-plat-block">\n' +
       '  <p class="ch-plat__headline"><strong>' + esc(prop.name) + "</strong>, " +
       fig.rating.toFixed(1) + " from " + num(fig.count) + " guest reviews</p>\n" +
-      '  <ul class="ch-plat-grid">\n' + cards.join("\n") + "\n  </ul>\n" +
-      '  <p class="text-size-medium">Each figure comes from that platform&#x27;s own ' +
-      "listing and refreshes automatically, so the total here is the one the " +
-      "platforms are showing right now.</p>\n</div>";
+      '  <ul class="ch-plat-grid">\n' + cards.join("\n") + "\n  </ul>\n</div>";
   }
 
   function replaceBetween(start, end, html) {
