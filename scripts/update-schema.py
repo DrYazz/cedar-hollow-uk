@@ -59,6 +59,9 @@ BUSINESS = {
         "telephone": "+44 7488 894589",
         "address": {"streetAddress": "The Oaks, Old Road", "addressLocality": "Oxford",
                     "addressRegion": "Oxfordshire", "postalCode": "OX3 8GH"},
+        # The same point the locations map pins, and the what3words of it.
+        "geo": (51.753457, -1.186921),
+        "map": "https://what3words.com/steep.wisdom.pines",
         "sameAs": [
             "https://www.instagram.com/cedarhollowoxford/",
             "https://www.tiktok.com/@cedarhollowoxford",
@@ -77,6 +80,9 @@ BUSINESS = {
         "telephone": None,
         "address": {"streetAddress": "Yonder Hill", "addressLocality": "Holditch",
                     "addressRegion": "Dorset", "postalCode": "TA20 4NL"},
+        # The locations map's pin; the what3words is the car park, where you arrive.
+        "geo": (50.82062, -2.929622),
+        "map": "https://what3words.com/emerald.newlywed.gathers",
         "sameAs": [
             "https://www.instagram.com/mallinsonswoodlandretreat/",
             "https://www.youtube.com/@CedarHollow",
@@ -217,6 +223,8 @@ def business(dest, stays, ratings):
         "image": og_image(b["page"]),
         "email": "hello@cedarhollow.uk",
         "address": dict({"@type": "PostalAddress", "addressCountry": "GB"}, **b["address"]),
+        "geo": {"@type": "GeoCoordinates", "latitude": b["geo"][0], "longitude": b["geo"][1]},
+        "hasMap": b["map"],
         "sameAs": b["sameAs"],
         "parentOrganization": {"@id": ORG_ID},
         "containsPlace": [{"@id": stay_id(s)} for s in stays],
