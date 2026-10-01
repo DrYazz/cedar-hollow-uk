@@ -100,9 +100,15 @@
   .ch-route__cap{position:absolute;left:0;right:0;bottom:0;z-index:1;
     padding:0 1.25rem 1rem;color:#f7f5e1;text-shadow:0 1px 12px rgba(16,19,7,.55);}
   .ch-routes .ch-route__title{margin:0;color:inherit;}
-  .ch-routes .ch-route__role{margin:.15rem 0 0!important;
+  /* The role line's height is set, so the cards without one can leave the
+     same space under their title and all three titles sit on one line. */
+  .ch-routes{--role-h:1.5rem;--role-gap:.15rem;}
+  .ch-routes .ch-route__role{margin:var(--role-gap) 0 0!important;
     font-family:var(--font-family--heading);font-size:1.0625rem;
-    font-style:italic;line-height:1.4;color:inherit;opacity:.92;}
+    font-style:italic;line-height:var(--role-h);height:var(--role-h);
+    color:inherit;opacity:.92;}
+  .ch-route__cap:not(:has(.ch-route__role)){
+    padding-bottom:calc(1rem + var(--role-h) + var(--role-gap));}
   .ch-routes .ch-route__img + p{margin-top:1.25rem;}
   .ch-routes p{margin:0 1.5rem;}
   .ch-routes p+p{margin-top:.6rem;}
