@@ -2689,6 +2689,56 @@ a.awards-logo_svg > img {
   mask-repeat: no-repeat;
 }
 
+/* Three more traced mastheads, masked for the reason .thetimes is. Inline,
+   the Mail on Sunday ran to 182KB and The Standard to 143KB of path data,
+   and the home page carried each twice and the Dorset page three times:
+   over a megabyte of HTML for three logos. Each is now one small lossless
+   alpha image, fetched once and cached. No width cap here: the two without
+   a class of their own keep the base cap, as they did when inline, and
+   .independent keeps the caps it already has. */
+
+.awards-logo_svg.mailonsunday {
+  display: block;
+  aspect-ratio: 912 / 184;
+  background-color: currentColor;
+  -webkit-mask-image: url("../images/press/logo-mail-on-sunday.webp");
+  -webkit-mask-position: center;
+  -webkit-mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-image: url("../images/press/logo-mail-on-sunday.webp");
+  mask-position: center;
+  mask-size: contain;
+  mask-repeat: no-repeat;
+}
+
+.awards-logo_svg.thestandard {
+  display: block;
+  aspect-ratio: 988 / 199;
+  background-color: currentColor;
+  -webkit-mask-image: url("../images/press/logo-the-standard.webp");
+  -webkit-mask-position: center;
+  -webkit-mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-image: url("../images/press/logo-the-standard.webp");
+  mask-position: center;
+  mask-size: contain;
+  mask-repeat: no-repeat;
+}
+
+.awards-logo_svg.independent {
+  display: block;
+  aspect-ratio: 1153 / 188;
+  background-color: currentColor;
+  -webkit-mask-image: url("../images/press/logo-the-independent.webp");
+  -webkit-mask-position: center;
+  -webkit-mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-image: url("../images/press/logo-the-independent.webp");
+  mask-position: center;
+  mask-size: contain;
+  mask-repeat: no-repeat;
+}
+
 .awards-logo_svg.bbc {
   max-width: 7.5rem;
 }
