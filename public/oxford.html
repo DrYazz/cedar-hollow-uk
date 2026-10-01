@@ -7,10 +7,13 @@
 <meta name="format-detection" content="telephone=no">
   <meta content="A C.S. Lewis-inspired woodland retreat outside Oxford: a treehouse, a Narnia cave hideaway and a woodland pod, with a bee museum, escape rooms and an evening of magic." name="description">
   <meta content="Webflow" name="generator">
-  <link href="css/siteswitch.css?v=20260929c" rel="stylesheet" type="text/css">
+  <link rel="preload" href="fonts/CrimsonPro-Light.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/Inter_24pt-Medium.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/HedvigLettersSerif_18pt-Regular.woff2" as="font" type="font/woff2" crossorigin>
+<link href="css/siteswitch.css?v=20260929c" rel="stylesheet" type="text/css">
   <link href="css/normalize.css" rel="stylesheet" type="text/css">
   <link href="css/webflow.css" rel="stylesheet" type="text/css">
-  <link href="css/cedar-hollow-uk.webflow.css?v=20260925a" rel="stylesheet" type="text/css">
+  <link href="css/cedar-hollow-uk.webflow.css?v=20261001a" rel="stylesheet" type="text/css">
   <!-- Prize-draw popup paused on request, 1 Oct 2026. To restore, uncomment this and the signup-popup.js tag near </body>. The dialog markup is still in the page, carrying hidden. -->
   <!-- <link href="css/social-signup.css?v=20260916e" rel="stylesheet" type="text/css"> -->
   <link href="css/subsite-nav.css?v=9c51be3c" rel="stylesheet" type="text/css">
@@ -444,7 +447,7 @@ width:100%;
               .hero-br--m{display:inline;}
         }
             /* Self-hosted alongside Crimson Pro and Inter. OFL; licence in fonts/. */
-            @font-face{font-family:"Hedvig Letters Serif";src:url("fonts/HedvigLettersSerif_18pt-Regular.ttf") format("truetype");font-weight:400;font-style:normal;font-display:swap;}
+            @font-face{font-family:"Hedvig Letters Serif";src:url("fonts/HedvigLettersSerif_18pt-Regular.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap;}
             @keyframes ch-nav-item{to{opacity:1;transform:none;}}</style>
           <nav class="ch-nav__bar" aria-label="Primary">
             <div class="ch-siteswitch"><a href="oxford.html" aria-current="page" class="ch-nav__logo"><img src="images/cedar-hollow-owl.svg" loading="eager" alt="Cedar Hollow Oxford" class="ch-nav__owl"><span class="ch-nav__wordmark">Oxford</span></a><button class="ch-siteswitch__caret" type="button" aria-expanded="false" aria-controls="ch-siteswitch-list"><span class="ch-nav__sr">Switch site</span><svg viewBox="0 0 12 8" width="12" height="8" fill="none" aria-hidden="true" focusable="false"><path d="M1 1.5 6 6.5l5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><ul class="ch-siteswitch__list" id="ch-siteswitch-list"><li><a href="dorset.html"><img src="images/cedar-hollow-owl.svg" alt="" aria-hidden="true" class="ch-nav__owl"><span class="ch-nav__wordmark">Dorset</span></a></li><li><a href="index.html"><img src="images/cedar-hollow-owl.svg" alt="" aria-hidden="true" class="ch-nav__owl"><span class="ch-nav__wordmark">Cedar Hollow</span></a></li></ul></div>

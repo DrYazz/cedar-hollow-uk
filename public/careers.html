@@ -5,11 +5,14 @@
   <title>Work with Us | Cedar Hollow</title>
   <meta content="width=device-width, initial-scale=1" name="viewport">
   <meta name="description" content="Apprenticeships, fixed-term contracts and creative work at Cedar Hollow, in twelve acres of woodland on the edge of Oxford.">
-  <link href="css/siteswitch.css?v=20260929c" rel="stylesheet" type="text/css">
+  <link rel="preload" href="fonts/CrimsonPro-Light.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/Inter_24pt-Medium.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/HedvigLettersSerif_18pt-Regular.woff2" as="font" type="font/woff2" crossorigin>
+<link href="css/siteswitch.css?v=20260929c" rel="stylesheet" type="text/css">
   <link href="css/navpanel.css?v=20260929a" rel="stylesheet" type="text/css">
   <link href="css/normalize.css" rel="stylesheet" type="text/css">
   <link href="css/webflow.css" rel="stylesheet" type="text/css">
-  <link href="css/cedar-hollow-uk.webflow.css?v=20260925a" rel="stylesheet" type="text/css">
+  <link href="css/cedar-hollow-uk.webflow.css?v=20261001a" rel="stylesheet" type="text/css">
   <link href="images/favicon.svg" rel="icon" type="image/svg+xml">
   <link href="images/favicon.png" rel="icon" type="image/png" sizes="32x32" media="(prefers-color-scheme: light)">
   <link href="images/favicon-dark.png" rel="icon" type="image/png" sizes="32x32" media="(prefers-color-scheme: dark)">
@@ -185,7 +188,7 @@
                (34px -> 29px), measured rather than guessed. */
             @media (max-width:479px){.section-hero .heading-style-h1{font-size:9vw;}}
             /* Self-hosted alongside Crimson Pro and Inter. OFL; licence in fonts/. */
-            @font-face{font-family:"Hedvig Letters Serif";src:url("fonts/HedvigLettersSerif_18pt-Regular.ttf") format("truetype");font-weight:400;font-style:normal;font-display:swap;}
+            @font-face{font-family:"Hedvig Letters Serif";src:url("fonts/HedvigLettersSerif_18pt-Regular.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap;}
             .ch-nav__bar{display:flex;align-items:center;justify-content:space-between;gap:1rem;width:100%;padding:20px 32px 20px 24px;position:relative;z-index:30;}
             .ch-nav__logo{display:inline-flex;align-items:center;gap:clamp(.5rem,.83vw,.75rem);text-decoration:none;color:#F1ECDB;}
             .ch-nav__owl{width:clamp(1.75rem,2.5vw,2.25rem);height:auto;flex:none;}
