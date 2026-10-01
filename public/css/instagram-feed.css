@@ -1,0 +1,100 @@
+/* ---------------------------------------------------------------------------
+   The Instagram grid on the location home pages.
+
+   Instagram retired the Basic Display API in 2024 and its replacement needs a
+   server to refresh tokens, which a static export on Railway does not have. So
+   the posts are curated: real posts with their thumbnails served from our own
+   images/instagram/, each linking to the post. Nothing third-party, nothing
+   that expires -- Instagram's own CDN URLs are signed and die within days, so
+   hotlinking them would have left holes in the grid.
+
+   This used to live in social-signup.css alongside the prize-draw dialog. The
+   two have nothing to do with each other, and keeping them together meant
+   switching the dialog off took the grid down with it: the page lost its
+   stylesheet link and the grid fell back to a stacked list with bullets.
+
+   Radius follows --radius--16, the token the property cards and the Oxford
+   mosaic use.
+   --------------------------------------------------------------------------- */
+
+/* Four across at the full container width, matching .ch-tiles under "Not Just
+   Woodland" -- same column count, same 1.5rem gutter, same breakpoints. The
+   grid is a sibling of the title block rather than a child of
+   .max-width-xlarge, which was holding it to 960 of the container's 1280. */
+.ch-ig__grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ch-ig__grid li {
+  margin: 0;
+}
+
+.ch-ig__item {
+  position: relative;
+  display: block;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: var(--radius--16, 1rem);
+  background-color: var(--accent, #3b4126);
+}
+
+.ch-ig__item img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .5s cubic-bezier(.2, .7, .3, 1);
+}
+
+.ch-ig__item:hover img,
+.ch-ig__item:focus-visible img {
+  transform: scale(1.04);
+}
+
+.ch-ig__item:focus-visible {
+  outline: 2px solid var(--accent, #3b4126);
+  outline-offset: 3px;
+}
+
+/* The glyph marks a reel without needing a second asset per tile. */
+.ch-ig__badge {
+  position: absolute;
+  top: .625rem;
+  right: .625rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #fff;
+  filter: drop-shadow(0 1px 3px rgba(16, 19, 7, .5));
+  pointer-events: none;
+}
+
+@media screen and (max-width: 991px) {
+  .ch-ig__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* .ch-tiles drops to one column here; four photographs at full width would be
+   an enormous scroll, so these stay two up. */
+@media screen and (max-width: 767px) {
+  .ch-ig__grid {
+    gap: .75rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ch-ig__item img {
+    transition: opacity .01s linear, visibility 0s linear .01s;
+    transform: none;
+  }
+
+  .ch-ig__item:hover img,
+  .ch-ig__item:focus-visible img {
+    transform: none;
+  }
+}
