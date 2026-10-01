@@ -6,6 +6,12 @@
   font-display: swap;
 }
 
+/* width/height on an <img> let the browser reserve its space before it arrives,
+   so nothing below jumps. Zero specificity, so the attributes never override
+   a stylesheet's own height on an image. */
+:where(img[width][height]){height:auto}
+
+
 @font-face {
   font-family: Crimsonpro;
   src: url('../fonts/CrimsonPro-Regular.woff2') format('woff2');
@@ -2392,9 +2398,13 @@ img {
    to reach the original three as well, so this rule must not carry anything
    that resizes them -- an earlier max-height here capped badge two at 150px
    and shrank it from the 105x151 the design has always rendered. */
-.awards-top-logos img {
-  flex: 0 1 auto;
+.awards-top-logos img {
+  flex: 0 1 auto;
   min-width: 0;
+  /* The badges are sized by height (max-height on .awards-logo-top), so
+     the width attribute every <img> now carries must not become the flex
+     basis; width:auto hands sizing back to the height and the ratio. */
+  width: auto;
 }
 
 /* Badges added after the original three carry no width cap of their own, so
