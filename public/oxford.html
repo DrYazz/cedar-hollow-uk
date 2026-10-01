@@ -1699,10 +1699,23 @@ animation:marquee-scroll 70s linear infinite;
               gestureScale = null;
             });
 
-            var t;
+            /* Re-fit only when the map gets wider or narrower. On a phone the
+               browser's address bar shows and hides as you scroll, and each time
+               fires a resize that changes only the window's height; re-fitting
+               on those snapped the map back to its starting view on every scroll
+               -- zooming it in and out, and undoing any pan or zoom of the
+               reader's own. The map's box does not depend on the window's
+               height, so nothing needs redoing then. */
+            var t, lastW = map.getContainer().clientWidth;
             window.addEventListener("resize", function () {
               clearTimeout(t);
-              t = setTimeout(function () { map.invalidateSize(); frame(); }, 180);
+              t = setTimeout(function () {
+                var w = map.getContainer().clientWidth;
+                if (w === lastW) return;
+                lastW = w;
+                map.invalidateSize();
+                frame();
+              }, 180);
             });
           }
 
