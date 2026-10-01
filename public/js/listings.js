@@ -47,7 +47,7 @@
         "A 750 sq ft luxury treehouse set among the oaks, with underfloor heating, a full kitchen and a gas BBQ on the balcony.",
       longDescription:
         "Sleeps two adults and up to four children across an open-plan layout with en-suite facilities. Underfloor heating, a fully equipped kitchen and a top-of-the-line gas BBQ on the balcony.",
-      calendarUrl: "https://checked.in/widget/booking-calendar/theoaks?preset=rustic",
+      calendarUrl: "https://checked.in/widget/booking-calendar/theoaks?preset=rustic&layout=portrait",
       bookingUrl: "https://app.checked.in/widget/calendar2/theoaks",
       tourUrl: "https://magichourweb5.s3.eu-west-2.amazonaws.com/TheOaks/index.htm?ss=CedarHollowTreehouse_Entrance"
     },
@@ -101,7 +101,7 @@
         "A Narnia-inspired cave hideaway lit by warm lantern light, with underfloor heating, air conditioning and a full kitchen.",
       longDescription:
         "One bedroom with en-suite, underfloor heating and air conditioning throughout, and a full kitchen: an enchanting realm tucked into the woodland.",
-      calendarUrl: "https://checked.in/widget/booking-calendar/fauns-hideaway?preset=rustic",
+      calendarUrl: "https://checked.in/widget/booking-calendar/fauns-hideaway?preset=rustic&layout=portrait",
       bookingUrl: "https://app.checked.in/widget/calendar2/fauns-hideaway",
       tourUrl: "https://magichourweb5.s3.eu-west-2.amazonaws.com/TheOaks/index.htm?ss=FaunsHideaway_LivingArea"
     },
@@ -155,7 +155,7 @@
         "An uninsulated woodland glamping pod with a private BBQ, firepit, wood-fired hot tub and an escape room challenge.",
       longDescription:
         "A simpler, wilder stay. Uninsulated pod with shared bathroom facilities in the nearby pool room, plus a private BBQ, firepit and wood-fired hot tub.",
-      calendarUrl: "https://checked.in/widget/booking-calendar/beavers-den-1?preset=rustic",
+      calendarUrl: "https://checked.in/widget/booking-calendar/beavers-den-1?preset=rustic&layout=portrait",
       bookingUrl: "https://app.checked.in/widget/calendar2/beavers-den-1",
       tourUrl: "https://magichourweb5.s3.eu-west-2.amazonaws.com/TheOaks/index.htm?ss=BeaversDen_Entrance"
     },

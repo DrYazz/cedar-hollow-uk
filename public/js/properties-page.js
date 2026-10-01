@@ -113,20 +113,6 @@
   // FAQ gives one policy for all three Dorset treehouses; the Oaks gives none,
   // so the Oxford three have no facts left to show here at all and the list
   // does not render for them.
-  /*
-   * Square on a phone, landscape above it.
-   *
-   * The widget takes the shape as a URL parameter, so the catalogue holds the
-   * address and the preset and the shape is decided here, per width. 640px is
-   * the line asked for. It has to be re-decided when the window crosses it,
-   * which calendarShape() below does, because the frame is built once.
-   */
-  var PHONE_CAL = window.matchMedia("(max-width: 640px)");
-
-  function calendarSrc(item) {
-    return item.calendarUrl + "&layout=" + (PHONE_CAL.matches ? "square" : "landscape");
-  }
-
   function bookingPanel(item) {
     var hasCal = !!item.calendarUrl;
 
@@ -134,7 +120,7 @@
     // most people read part of, and its title names the property, because a
     // screen reader announces a frame by its title and nothing else.
     var calendar = hasCal
-      ? '<iframe class="pp-book__cal" src="' + esc(calendarSrc(item)) +
+      ? '<iframe class="pp-book__cal" src="' + esc(item.calendarUrl) +
         '" title="Availability calendar for ' + esc(item.name) + '" loading="lazy"></iframe>'
       : "";
 
@@ -183,13 +169,7 @@
 
   function property(item) {
     var n = splitName(item.name);
-    // Only a card carrying a calendar rearranges itself for one. Dorset's
-    // panel is a button and a line of text; it stays in the column beside the
-    // photograph, where it has always been, rather than being stretched across
-    // the card to hold a button.
-    var cal = !!item.calendarUrl;
-    return '<article class="pp-item' + (cal ? " pp-item--cal" : "") +
-      '" id="property-' + esc(item.id) + '">' +
+    return '<article class="pp-item" id="property-' + esc(item.id) + '">' +
       '<div class="pp-item__row">' +
         '<div class="pp-item__media">' + frame(item, { gallery: true }) + arrows(item) + tourLink(item) + "</div>" +
         '<div class="pp-info">' +
@@ -198,15 +178,9 @@
             "<p>" + esc(item.description) + "</p>" +
             '<p class="pp-price">From <strong>&pound;' + item.price + '</strong><span>pn</span></p>' +
           "</div>" +
-          (cal ? "" : bookingPanel(item)) +
+          bookingPanel(item) +
         "</div>" +
       "</div>" +
-      // With a calendar the panel is a sibling of the row, not a child of the
-      // column beside the photograph. In that column it only ever had 310 to
-      // 344px on a laptop, and the landscape layout needs about 680 before it
-      // lays out landscape at all: below that it reflows to a column taller
-      // than the portrait one was. Out here it has the width of the card.
-      (cal ? bookingPanel(item) : "") +
       '<div class="pp-notes"><p>' + esc(item.longDescription) + "</p></div>" +
       "</article>";
   }
@@ -432,28 +406,6 @@
    * the height in the stylesheet stands, which is also what someone with this
    * script blocked keeps.
    */
-  /*
-   * The frames are built once, so crossing 640px has to swap the shape in
-   * place. The height goes with it: the inline height is the old shape's
-   * measurement, and the new one reports its own as soon as it loads, so
-   * clearing it hands the gap back to the stylesheet for that moment rather
-   * than holding a landscape height around a square calendar.
-   */
-  function calendarShape() {
-    var want = PHONE_CAL.matches ? "square" : "landscape";
-    var frames = document.querySelectorAll("iframe.pp-book__cal");
-    for (var i = 0; i < frames.length; i++) {
-      var src = frames[i].getAttribute("src") || "";
-      var next = src.replace(/([?&]layout=)(square|landscape|portrait)/, "$1" + want);
-      if (next === src) continue;
-      frames[i].style.height = "";
-      frames[i].setAttribute("src", next);
-    }
-  }
-
-  if (PHONE_CAL.addEventListener) PHONE_CAL.addEventListener("change", calendarShape);
-  else PHONE_CAL.addListener(calendarShape);     /* Safari before 14 */
-
   window.addEventListener("message", function (e) {
     var height = e.data && e.data.cinStripHeight;
     if (typeof height !== "number" || height < 80 || height > 2000) return;
