@@ -24,6 +24,13 @@ compatibility_date = "2026-09-02"
 directory = "./public"
 binding = "ASSETS"
 not_found_handling = "404-page"   # serves /404.html once one exists
+# Serve pages at the address they are written with. Cloudflare's default
+# (auto-trailing-slash) answered every /page.html with a temporary redirect to
+# /page, but every canonical, the sitemap and every internal link on the site
+# use .html -- so Google was told the true address of each page was one that
+# bounced, and each click cost a round trip. The short forms people may
+# already have shared are sent on permanently by public/_redirects.
+html_handling = "none"
 
 # --- Contact form ------------------------------------------------------------
 # Mail goes through Resend's HTTP API. Cloudflare's own send_email binding was
