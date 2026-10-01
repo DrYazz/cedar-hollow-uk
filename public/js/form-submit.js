@@ -9,13 +9,16 @@
 (function () {
   "use strict";
 
-  // The site is served from Railway, so submissions go cross-origin to the
-  // standalone form-handler service. ALLOWED_ORIGINS on that service must list
-  // every hostname the site is served from, or the browser blocks the POST.
+  // The site is served by the Cloudflare Worker, which answers /api/contact
+  // same-origin (worker/index.js) and sends through Resend.
   //
-  // The Cloudflare Worker also answers /api/contact same-origin, so if the site
-  // moves back there, this becomes: var ENDPOINT = "/api/contact";
-  var ENDPOINT = "https://form-handler-production-f871.up.railway.app/api/contact";
+  // Railway still builds the site as a rollback copy, but its static server has
+  // no /api/contact, so on *.railway.app submissions go cross-origin to the
+  // standalone form-handler service instead. ALLOWED_ORIGINS on that service
+  // must list the hostname, or the browser blocks the POST.
+  var ENDPOINT = /\.railway\.app$/.test(location.hostname)
+    ? "https://form-handler-production-f871.up.railway.app/api/contact"
+    : "/api/contact";
 
   // Capture-phase listener on document so this runs before Webflow's jQuery
   // submit handler; stopPropagation then prevents Webflow from also handling it.

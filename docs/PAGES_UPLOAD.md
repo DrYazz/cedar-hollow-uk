@@ -11,23 +11,25 @@ there and what to do if it needs rolling back.
 # 1. edit files, then preview locally
 npx wrangler dev            # the real site at localhost:8787, Worker and all
 
-# 2. publish
-npx wrangler deploy         # ← this is what changes the live site
-
-# 3. record it
+# 2. publish: merge or push to main
 git add -A && git commit -m "..." && git push
 ```
 
-> **Steps 2 and 3 are independent, and this is the thing people get wrong.**
-> Railway used to deploy automatically when you pushed. Cloudflare does not.
->
-> - **Push without deploy** → the live site is unchanged.
-> - **Deploy without push** → the live site is built from edits that exist
->   nowhere but your laptop.
->
-> Do both, every time, until push-to-deploy is set up (see the end of this file).
+**Pushing to `main` is what changes the live site.** Cloudflare Workers Builds
+watches the GitHub repo and runs `npx wrangler deploy` on every push to `main`,
+so a merged pull request is live a minute or two later. Progress and logs are
+under **Workers & Pages → cedar-hollow-uk → Deployments**, and GitHub shows a
+tick or cross against the commit.
 
-Deploys take about 15 seconds. Only changed files upload.
+Pushes to any other branch build a **preview version** with its own URL and
+leave the live site alone, which is a quick way to show someone a change
+before merging it.
+
+Don't run `npx wrangler deploy` by hand. It works, but it publishes whatever is
+in your folder rather than what is on `main`, and the next push overwrites it
+anyway. See "What to do if someone updates the site but not GitHub" below.
+
+Only changed files upload.
 
 `wrangler dev` watches the assets directory, which is `public/` — the site and
 nothing else. That boundary is why it works: when the assets directory was the
@@ -51,6 +53,10 @@ npx wrangler deployments list
 Rolling back is almost always better than fixing forward under pressure. You
 can also pick a specific version from **Workers & Pages → cedar-hollow-uk →
 Deployments**.
+
+A rollback only lasts until the next push to `main`, which deploys `main`
+again. So roll back to stop the damage, then `git revert` the bad commit and
+push, so that `main` and the live site agree.
 
 To see what the live Worker is doing, including every form submission:
 
@@ -163,10 +169,11 @@ Note that nobody can add a page through the Cloudflare dashboard — the editor
 there only edits the Worker script, not static files. So "someone changed the
 site directly" always means someone ran `wrangler deploy` from another folder.
 
-### 1. Don't deploy yet
+### 1. Don't deploy yet, and don't push to main
 
-Your deploy is the thing that would destroy their work. Sort out the drift
-first.
+Your deploy is the thing that would destroy their work, and **any push to
+`main` is a deploy**, including merging someone else's pull request. Sort out
+the drift first.
 
 ### 2. Confirm it happened
 
@@ -219,31 +226,41 @@ extensionless URL, link it from somewhere real, then:
 
 ```bash
 git add -A && git commit -m "..." && git push
-npx wrangler deploy
 ```
 
-Deploying from the repo afterwards is what makes `main` and production agree
-again. Until you do, the two are still out of step.
+The push deploys it, and from then on `main` and production agree again.
 
 ### Avoiding it
 
-- **Deploy from a clean, up-to-date checkout.** `git pull` first, every time.
-  A stale folder is the realistic cause of this, not anybody acting badly — a
-  clone once five weeks behind produced a deploy of a five-week-old site.
-- **Connect Workers Builds** (below). Once Git is the deploy path, a
-  `Source: Upload` deployment becomes a visible anomaly instead of routine.
+- **Publish through GitHub, never `wrangler deploy` from a laptop.** Every
+  deployment made by Workers Builds is tied to a commit; a `Source: Upload`
+  entry in `wrangler deployments list` means someone deployed by hand, and is
+  worth asking about.
+- **If you must deploy by hand**, do it from a clean, up-to-date checkout:
+  `git pull` first. A clone once five weeks behind produced a deploy of a
+  five-week-old site.
 
-## Getting push-to-deploy back
+## How push-to-deploy is set up
 
-Railway published on every push; Cloudflare does not, and that gap is the main
-way this setup goes wrong. Two ways to close it:
+**Workers & Pages → cedar-hollow-uk → Settings → Build** connects the Worker to
+`thelabgroup/cedar-hollow-uk` through Cloudflare's GitHub app:
 
-1. **Workers Builds** *(recommended)* — **Workers & Pages → cedar-hollow-uk →
-   Settings → Build**, connect the GitHub repo. Pushing to `main` then builds
-   and deploys. No tokens to manage.
-2. **GitHub Actions** — a workflow using `cloudflare/wrangler-action` and a
-   `CLOUDFLARE_API_TOKEN` repo secret. More moving parts, but the config is
-   visible in the repo.
+| Setting | Value |
+| - | - |
+| Production branch | `main` |
+| Build command | *(empty: there is nothing to build)* |
+| Deploy command | `npx wrangler deploy` |
+| Non-production branch deploy command | `npx wrangler versions upload` |
+| Root directory | `/` |
 
-Until one of those is in place, `npx wrangler deploy` is the only thing that
-changes the live site.
+There is no token in the repo or in GitHub's secrets; Cloudflare manages the
+build's credentials itself. `wrangler.toml` is still the config: change the
+Worker's name there and builds start failing, because the name must match the
+Worker the repo is connected to.
+
+The custom domains (`cedarhollow.uk`, `www.cedarhollow.uk`) are attached under
+**Settings → Domains & Routes**, not in `wrangler.toml`, and deploys leave them
+alone.
+
+Secrets (`RESEND_API_KEY`, `IG_TOKEN_OXFORD`, `IG_TOKEN_DORSET`) live on the
+Worker, not in the build settings, and survive every deploy.

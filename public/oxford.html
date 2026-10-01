@@ -2173,6 +2173,13 @@ requestAnimationFrame(measureFPS)
        script above, because the picture's own link cannot hold another link.
        --------------------------------------------------------------------- */
     .cabin-item_media{position:relative;}
+    /* The picture's link is a .w-inline-block. As a direct child of .cabin-item,
+       which is a flex column, it was stretched to the card's width. Inside this
+       box it is an inline-block in a block, so it shrank to the photograph and
+       sat against the left edge: from about 400px up the card grew and the
+       picture did not, leaving it 26px off centre at 430 and 35px at 440.
+       Narrow phones hid it, because there the two widths agree. */
+    .cabin-item_media > .cabin-item_img-wrap{display:block;}
     .ch-tour{position:absolute;left:.75rem;bottom:.75rem;z-index:2;
       display:inline-flex;align-items:center;gap:.4rem;
       padding:.35rem .75rem .35rem .6rem;border-radius:50em;
