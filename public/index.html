@@ -19,7 +19,7 @@
   <link href="images/favicon.png" rel="icon" type="image/png" sizes="32x32" media="(prefers-color-scheme: light)">
   <link href="images/favicon-dark.png" rel="icon" type="image/png" sizes="32x32" media="(prefers-color-scheme: dark)">
   <link href="images/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180">
-  <link href="site.webmanifest" rel="manifest">
+  <link href="manifest.json" rel="manifest">
   <meta content="#3B4126" name="theme-color">
   <!--  Link previews. Scrapers never resolve relative URLs, so og:url and
         og:image are absolute. X falls back to the og:* tags for everything
@@ -1088,6 +1088,8 @@ animation:marquee-scroll 70s linear infinite;
         .ch-map .leaflet-popup-content{margin:14px 18px;font-size:.9375rem;line-height:1.5;}
         .ch-map .leaflet-popup-content a{color:#3b4126;font-weight:600;text-decoration:underline;}
         .ch-map .leaflet-popup-content a + a{margin-left:.9em;}
+.leaflet-popup-content a.ch-map__w3w{display:inline-block;margin:.15em 0 .35em;font-weight:500;text-decoration:none;color:#b3141f;}
+.leaflet-popup-content a.ch-map__w3w + br + a{margin-left:0;}
         .ch-map .leaflet-control-attribution{background:rgba(247,245,225,.6);color:rgba(59,65,38,.55);font-size:9px;padding:1px 6px;border-radius:6px 0 0 0;}
         .ch-map .leaflet-control-attribution a{color:rgba(59,65,38,.55);text-decoration:none;}
         @media screen and (max-width:767px){
@@ -1106,10 +1108,10 @@ animation:marquee-scroll 70s linear infinite;
           // Mallinson's Woodland Retreat -- rather than dropping an unnamed pin at
           // a coordinate, which is what building the URL from lat/lng used to do.
           var LOCATIONS = [
-            { name: "Cedar Hollow Oxford", place: "Headington, Oxfordshire",
+            { name: "Cedar Hollow Oxford", place: "Headington, Oxfordshire", w3w: "steep.wisdom.pines",
               lat: 51.753457, lng: -1.186921, site: "oxford.html",
               directions: "https://maps.app.goo.gl/95imeHn77mPDHBsE7" },
-            { name: "Cedar Hollow Dorset", place: "Holditch, Dorset",
+            { name: "Cedar Hollow Dorset", place: "Holditch, Dorset", w3w: "emerald.newlywed.gathers",
               lat: 50.82062, lng: -2.929622, site: "dorset.html",
               directions: "https://maps.app.goo.gl/YBHhqEu2greQmPHY7" }
           ];
@@ -1213,6 +1215,9 @@ animation:marquee-scroll 70s linear infinite;
                 .addTo(map)
                 .bindTooltip(loc.name.replace("Cedar Hollow ", ""), { permanent: true, direction: "top", className: "ch-map__label" })
                 .bindPopup("<strong>" + loc.name + "</strong><br>" +
+                  /* what3words: the three-word address of the exact spot, for
+                     sat-navs and guests arriving after dark. */
+                  '<a class="ch-map__w3w" href="https://what3words.com/' + loc.w3w + '" target="_blank" rel="noopener">///' + loc.w3w + '</a><br>' +
                   '<a href="' + loc.site + '">Visit site</a>' +
                   '<a href="' + dir + '" target="_blank" rel="noopener">Directions</a>');
               bounds.push([loc.lat, loc.lng]);
