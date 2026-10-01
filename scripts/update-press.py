@@ -115,6 +115,66 @@ def asset(path):
     return html.escape(path, quote=True)
 
 
+def image_size(bare):
+    """Pixel width and height of an image under public/, from its header.
+
+    No Pillow here, so the few formats the press assets use are read by
+    hand. An SVG gives its viewBox; one drawn in tiny units is scaled up so
+    the attributes are whole numbers at the same ratio. None if unreadable.
+    """
+    f = ROOT / "public" / bare
+    try:
+        b = f.read_bytes()
+    except OSError:
+        return None
+    try:
+        if b[:8] == b"\x89PNG\r\n\x1a\n":
+            return int.from_bytes(b[16:20], "big"), int.from_bytes(b[20:24], "big")
+        if b[:4] == b"RIFF" and b[8:12] == b"WEBP":
+            k = b[12:16]
+            if k == b"VP8X":
+                return 1 + int.from_bytes(b[24:27], "little"), 1 + int.from_bytes(b[27:30], "little")
+            if k == b"VP8L":
+                w = (b[21] | (b[22] << 8)) & 0x3FFF
+                h = ((b[22] >> 6) | (b[23] << 2) | ((b[24] & 0x0F) << 10)) & 0x3FFF
+                return w + 1, h + 1
+            if k == b"VP8 ":
+                return int.from_bytes(b[26:28], "little") & 0x3FFF, int.from_bytes(b[28:30], "little") & 0x3FFF
+        if b[:2] == b"\xff\xd8":
+            i = 2
+            while i + 9 < len(b):
+                if b[i] != 0xFF:
+                    i += 1
+                    continue
+                m = b[i + 1]
+                if m in (0xD8, 0x01) or 0xD0 <= m <= 0xD7:
+                    i += 2
+                    continue
+                n = int.from_bytes(b[i + 2:i + 4], "big")
+                if m in (0xC0, 0xC1, 0xC2, 0xC3, 0xC5, 0xC6, 0xC7, 0xC9, 0xCA, 0xCB, 0xCD, 0xCE, 0xCF):
+                    return int.from_bytes(b[i + 7:i + 9], "big"), int.from_bytes(b[i + 5:i + 7], "big")
+                i += 2 + n
+        if b[:6] in (b"GIF87a", b"GIF89a"):
+            return int.from_bytes(b[6:8], "little"), int.from_bytes(b[8:10], "little")
+        if bare.lower().endswith(".svg"):
+            head = b[:2000].decode("utf-8", "replace")
+            m = re.search(r'viewBox="\s*[\d.\-]+[\s,]+[\d.\-]+[\s,]+([\d.]+)[\s,]+([\d.]+)', head, re.I)
+            if m:
+                w, h = float(m.group(1)), float(m.group(2))
+                k = 1000 / max(w, h) if max(w, h) < 100 else 1
+                return int(round(w * k)), int(round(h * k))
+    except (IndexError, ValueError):
+        return None
+    return None
+
+
+def dims(path):
+    """width/height attributes for an <img>, so the browser can reserve its
+    box before the file arrives and nothing below it moves."""
+    size = image_size(path.split("?", 1)[0])
+    return ' width="%d" height="%d"' % size if size else ""
+
+
 def card(item, show_location=False, brief=False):
     """One article: who ran it, what they called it, and a line from the piece."""
     pub = html.escape(item["publication"])
@@ -141,8 +201,8 @@ def card(item, show_location=False, brief=False):
             '  <a class="ch-press__clip" href="%s" target="_blank" rel="noopener" '
             'aria-label="Read &ldquo;%s&rdquo; on %s"><img src="%s" srcset="%s" '
             'sizes="(max-width: 767px) 45vw, 14rem" loading="lazy" decoding="async" '
-            'alt=""></a>' % (url, headline, pub, asset(shot["src"]),
-                             html.escape(shot["srcset"], quote=True))
+            'alt=""%s></a>' % (url, headline, pub, asset(shot["src"]),
+                               html.escape(shot["srcset"], quote=True), dims(shot["src"]))
         )
 
     # A brief card is the clipping alone. Every one of these screenshots is
@@ -331,7 +391,7 @@ def video_card(v, onthumb=False, bare=False, named=False, keepleft=False):
         *opener,
         '    <img src="%s" srcset="%s" sizes="(max-width: 767px) 92vw, 22rem"'
         % (asset(v["thumb"]["src"]), html.escape(v["thumb"]["srcset"], quote=True)),
-        '         loading="lazy" decoding="async" alt="">',
+        '         loading="lazy" decoding="async" alt=""%s>' % dims(v["thumb"]["src"]),
         '    <span class="ch-vid__icon" aria-hidden="true">'
         '<svg viewBox="0 0 68 48" width="100%" height="100%">'
         '<path class="ch-vid__icon-bg" d="M66.5 7.7c-.8-2.9-2.5-5.4-5.4-6.2C55.8 0 34 0 34 0S12.2 0 6.9 1.4C4 2.2 2.3 4.8 1.5 7.7 0 13 0 24 0 24s0 11 1.5 16.3c.8 2.9 2.5 5.4 5.4 6.2C12.2 48 34 48 34 48s21.8 0 27.1-1.5c2.9-.8 4.6-3.3 5.4-6.2C68 35 68 24 68 24s0-11-1.5-16.3z"></path>'
@@ -485,8 +545,8 @@ def award_card(a):
         # it fills its box; "small" brings those down so a row sits even.
         size = ' class="is-small"' if a.get("logoSize") == "small" else ""
         parts.append('  <p class="ch-awards__badge"><img%s src="%s" alt="" '
-                     'loading="lazy" decoding="async"></p>'
-                     % (size, asset(a["logo"])))
+                     'loading="lazy" decoding="async"%s></p>'
+                     % (size, asset(a["logo"]), dims(a["logo"])))
     else:
         parts.append('  <p class="ch-awards__badge"></p>')
     parts.append('  <div class="ch-awards__body">')

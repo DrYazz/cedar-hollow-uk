@@ -8,6 +8,12 @@
 
 /* ---- Fonts (self-hosted, same files as cedarhollow.uk) ---- */
 @font-face{font-family:"Crimsonpro";src:url("../../fonts/CrimsonPro-Light.woff2") format("woff2");font-weight:300;font-style:normal;font-display:swap}
+
+/* width/height on an <img> let the browser reserve its space before it arrives,
+   so nothing below jumps. Zero specificity, so the attributes never override
+   a stylesheet's own height on an image. */
+:where(img[width][height]){height:auto}
+
 @font-face{font-family:"Crimsonpro";src:url("../../fonts/CrimsonPro-Regular.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}
 @font-face{font-family:"Crimsonpro";src:url("../../fonts/CrimsonPro-Medium.woff2") format("woff2");font-weight:500;font-style:normal;font-display:swap}
 @font-face{font-family:"Crimsonpro";src:url("../../fonts/CrimsonPro-SemiBold.woff2") format("woff2");font-weight:600;font-style:normal;font-display:swap}
