@@ -660,7 +660,12 @@ body.ch-book-open{overflow:hidden}
 
 /* ---- Misc ---- */
 .ch-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start}
-@media (max-width:767px){.ch-grid-2{grid-template-columns:1fr}}
+/* A narrow column beside a wide one: contact details by a form, a figure by
+   its exhibit text. It was an inline style on ten pages, which outranked the
+   phone rule below and kept both columns side by side on a phone, the
+   narrow one overlapping the wide. As a class the phone rule can stack it. */
+.ch-grid-2.is-narrow-wide{grid-template-columns:minmax(0,1fr) minmax(0,2fr)}
+@media (max-width:767px){.ch-grid-2,.ch-grid-2.is-narrow-wide{grid-template-columns:1fr}}
 .ch-quote{font-family:var(--font-family--heading);font-size:clamp(1.5rem,2.6vw,2.25rem);font-weight:300;font-style:italic;letter-spacing:-.02em;line-height:1.3;max-width:34ch;margin:0 auto}
 .ch-cta-row{display:flex;flex-wrap:wrap;justify-content:center;gap:1rem;margin-top:1.75rem}
 .ch-note{font-size:1.125rem;color:var(--color-text);font-weight:400;max-width:60ch;margin:1rem auto 0}
