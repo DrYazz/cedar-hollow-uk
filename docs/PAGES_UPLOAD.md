@@ -268,7 +268,7 @@ The push deploys it, and from then on `main` and production agree again.
 | Production branch | `main` |
 | Build command | *(empty: there is nothing to build)* |
 | Deploy command | `npx wrangler deploy` |
-| Non-production branch deploy command | `npx wrangler versions upload` |
+| Non-production branch deploy command | `npx wrangler preview` (needs the `[previews]` block in `wrangler.toml`) |
 | Root directory | `/` |
 
 There is no token in the repo or in GitHub's secrets; Cloudflare manages the

@@ -43,18 +43,6 @@ not_found_handling = "404-page"   # serves /404.html once one exists
 #
 # Never put the key in this file — it is committed to the repo.
 
-# --- Instagram -----------------------------------------------------------------
-# The tokens are secrets (IG_TOKEN_OXFORD, IG_TOKEN_DORSET; see worker/index.js).
-# They expire after 60 days, so every Monday at 04:17 UTC the Worker swaps each
-# for a fresh one and keeps it in this KV namespace. Nothing else is stored here.
-
-[[kv_namespaces]]
-binding = "IG_KV"
-id = "8d6bb0fe7112447ca233e6cd03e8d8b8"   # cedar-hollow-instagram
-
-[triggers]
-crons = ["17 4 * * 1"]
-
 [vars]
 CONTACT_TO = "hello@thelabgroup.com"
 CONTACT_FROM = "website@send.cedarhollow.uk"
@@ -81,9 +69,37 @@ CONTACT_FROM_NAME = "Cedar Hollow website"
 # Until a token is set the endpoint answers 503 and each page keeps the four
 # curated posts in its own markup, so the grid is never empty.
 #
-# Instagram's long-lived tokens last 60 days and have to be refreshed before
-# they lapse; GET https://graph.instagram.com/refresh_access_token does it.
-# Nothing here does that automatically: the Worker has no storage to keep a
-# new token in, so the refresh is manual until a KV namespace is added. When
-# a token does lapse the grid falls back rather than breaking, which buys
-# time but is quiet about it — /health lists which sites have a token.
+# Instagram's long-lived tokens last 60 days. Every Monday at 04:17 UTC the
+# cron below swaps each for a fresh one and keeps it in this KV namespace,
+# since a Worker cannot rewrite its own secrets. /health shows the last
+# renewal per site; if a token lapses anyway, set a new secret and it takes
+# over at once.
+
+[[kv_namespaces]]
+binding = "IG_KV"
+id = "8d6bb0fe7112447ca233e6cd03e8d8b8"   # cedar-hollow-instagram
+
+[triggers]
+crons = ["17 4 * * 1"]
+
+# --- Previews ----------------------------------------------------------------
+# Every branch other than main is built with `npx wrangler preview`, which gets
+# its own URL and leaves the live site alone. It refuses to run without this
+# block, because it will not guess which settings a preview should share with
+# production.
+#
+# The contact addresses are the same as production: a test enquiry from a
+# preview lands in the same inbox, which is what you want when checking one.
+#
+# The KV namespace is NOT shared. Previews get an empty one of their own, so
+# nothing a preview does can overwrite the live site's renewed Instagram
+# tokens. Cron triggers do not run on previews at all.
+
+[previews.vars]
+CONTACT_TO = "hello@thelabgroup.com"
+CONTACT_FROM = "website@send.cedarhollow.uk"
+CONTACT_FROM_NAME = "Cedar Hollow website"
+
+[[previews.kv_namespaces]]
+binding = "IG_KV"
+id = "32001cdba6234083a471c18aef5bbc5f"   # cedar-hollow-instagram-preview
