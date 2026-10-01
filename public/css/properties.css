@@ -353,6 +353,19 @@
   .pp-item__media { grid-column: 1; grid-row: 1; }
   .pp-info { grid-column: 2; grid-row: 1 / span 2; }
   .pp-notes { grid-column: 1; grid-row: 2; width: 100%; align-self: start; }
+
+  /* A card with a calendar gives it the width of the card, on a row of its
+     own: anything narrower and the landscape layout is not landscape. The
+     info column then spans one row rather than two, because the panel no
+     longer sits inside it making it tall, so it stretches to the photograph
+     beside it instead of standing short next to it. Its own justify-content
+     keeps the words centred in the taller box.
+
+     Cards without one -- Dorset's three, whose panel is a button and a line
+     of text -- keep the two-row shape above. */
+  .pp-item--cal .pp-info { grid-row: 1; align-self: stretch; }
+  .pp-item--cal .pp-book { grid-column: 1 / -1; grid-row: 2; }
+  .pp-item--cal .pp-notes { grid-row: 3; }
 }
 
 /* The same 40px the calendar needed off the photograph, now that the columns
