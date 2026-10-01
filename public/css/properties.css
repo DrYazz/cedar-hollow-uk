@@ -283,18 +283,26 @@
    every width the panel takes -- the day grid scrolls sideways rather than
    reflowing -- and a row is 25px, so 370px clears a six-week month with room
    to spare. */
-/* The booking-calendar widget, which replaced the old month grid. It is
-   responsive and fills whatever frame it is given, so nothing here caps or
-   centres it any more: the old 356px cap existed because the previous
-   widget's card stopped at about 330px and sat left, leaving white space
-   with a calendar in the corner. The sixth-row reserve went with it, for the
-   same reason -- this one reports its own height instead, and
-   js/properties-page.js sets it from the message the widget posts.
-   The figure here is the one CheckedIn's own embed starts from, and it is
-   what stands if that message never arrives. */
+/* The calendar card inside the widget stops at about 330px and sits left, so
+   a frame any wider than that is white space with a calendar in the corner.
+   Capping the frame and centring it keeps the two the same shape. */
 .pp-book__cal {
-  display: block; width: 100%; height: 690px;
+  display: block; width: 100%; max-width: 356px; height: 370px;
+  margin-left: auto; margin-right: auto;
+  /* The card is 326px and a week is 25, so the frame carries 44px of reserve
+     for the months that need a sixth row. Taken off the bottom margin, that
+     reserve costs no layout: in a five-week month the panel closes up right
+     under the card, and in a six-week one the extra row paints into padding
+     that has nothing in it. Without this the panel held 28px above the
+     calendar and 72 below, which is what read as off-centre. */
+  margin-bottom: -44px;
   border: 0;
+  /* The widget is another site's page, so its white ground cannot be styled
+     from here. Multiplying the frame against the panel drops that white
+     into the panel's own colour -- white multiplied by anything is that
+     thing -- while the dark text and the availability colours, which are
+     all darker than the panel, come through as they are. */
+  mix-blend-mode: multiply;
 }
 
 /* Between 992 and 1200 the panel is at its narrowest it ever gets, and the

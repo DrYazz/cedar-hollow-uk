@@ -385,38 +385,4 @@
 
     list.addEventListener("touchcancel", function () { touch = null; }, { passive: true });
   });
-
-  /*
-   * The availability widget sizes itself.
-   *
-   * CheckedIn's own embed is a <script> that document.writes the iframe. That
-   * cannot be used here: these cards are built from the catalogue after the
-   * page has loaded, where document.write replaces the whole document. So the
-   * iframe the snippet would have written is written directly, in
-   * bookingPanel() above, and this is the other half of the snippet -- the
-   * part that listens for the height.
-   *
-   * The server sizes the frame from the number of rows, which is all it knows;
-   * how tall the widget actually draws depends on how wide the panel turns out
-   * to be, because the colour key wraps when it is narrow. So the widget
-   * measures itself and posts it.
-   *
-   * Identity, not origin, exactly as the snippet does: only a frame on this
-   * page can resize itself, so nothing else can reach in. Without a message
-   * the height in the stylesheet stands, which is also what someone with this
-   * script blocked keeps.
-   */
-  window.addEventListener("message", function (e) {
-    var height = e.data && e.data.cinStripHeight;
-    if (typeof height !== "number" || height < 80 || height > 2000) return;
-
-    var frames = document.querySelectorAll("iframe.pp-book__cal");
-    for (var i = 0; i < frames.length; i++) {
-      if (frames[i].contentWindow !== e.source) continue;
-      if (Math.abs(frames[i].offsetHeight - height) > 2) {
-        frames[i].style.height = height + "px";
-      }
-      return;
-    }
-  });
 })();
