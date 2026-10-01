@@ -6,3 +6,32 @@
   Referrer-Policy: strict-origin-when-cross-origin
   X-Content-Type-Options: nosniff
   X-XSS-Protection: 1; mode=block
+  Strict-Transport-Security: max-age=31536000
+
+# ---- Caching (added 2026-10-01) ----
+# Without these Cloudflare sends max-age=0 on everything, so a returning
+# visitor re-checks every font, image and script on every page. Pages keep
+# that default, so an edit shows at once. Fonts never change in place. Images
+# and videos sometimes are replaced under the same name, so they are trusted
+# for a day and refreshed in the background for a week after. Stylesheets and
+# scripts mostly carry a ?v= stamp, but not all of them, so an hour.
+/fonts/*
+  Cache-Control: public, max-age=2592000
+/images/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+/oxford/images/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+/videos/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+/oxford/videos/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+/map/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+/css/*
+  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+/oxford/css/*
+  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+/js/*
+  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+/oxford/js/*
+  Cache-Control: public, max-age=3600, stale-while-revalidate=86400

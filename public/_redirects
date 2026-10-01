@@ -41,3 +41,107 @@
 # The Klevio app instructions. Check-in now runs through the guest web-app,
 # which the Oxford FAQ explains and links, so that is where this goes.
 /oxford/klevio.html  /oxford/faq.html  301
+
+# The home page. With html_handling off, / no longer maps to index.html by
+# itself, so it is served from there here: a rewrite (200), not a redirect,
+# so the address stays /.
+/  /index.html  200
+
+# ---- Short and folder forms (added 2026-10-01, with html_handling = "none") ----
+# Pages are served at /page.html, the address every canonical and link uses.
+# These send the other spellings there permanently: /oxford/ and /dorset/,
+# which have no index of their own, and /page without .html, which the
+# previous host and Cloudflare's default both answered, so it may have been
+# shared or indexed. Retired pages' short forms go straight to where the
+# page itself forwards, rather than through it.
+/oxford/                     /oxford.html                                    301
+/dorset/                     /dorset.html                                    301
+/index.html                  /                                               301
+/about                       /about.html                                     301
+/careers                     /careers.html                                   301
+/cookies                     /cookies.html                                   301
+/design-a-treehouse          /design-a-treehouse.html                        301
+/detail_properties           /search-results.html                            301
+/dorset-compare              /dorset-compare.html                            301
+/dorset-contact              /dorset-contact.html                            301
+/dorset-dazzle-manual        /dorset-dazzle-manual.html                      301
+/dorset-dazzle-treehouse     /dorset-dazzle-treehouse.html                   301
+/dorset-directions           /dorset-directions.html                         301
+/dorset-faq                  /dorset-faq.html                                301
+/dorset-gift-certificates    /search-results.html?destination=Dorset         301
+/dorset-guest-information    /dorset-guest-information.html                  301
+/dorset-information          /dorset-information.html                        301
+/dorset-local-information    /dorset-local-information.html                  301
+/dorset-pinwheel-manual      /dorset-pinwheel-manual.html                    301
+/dorset-pinwheel-treehouse   /dorset-pinwheel-treehouse.html                 301
+/dorset-pizza-oven           /dorset-pizza-oven.html                         301
+/dorset-pre-arrival          /dorset-pre-arrival.html                        301
+/dorset-press-enquiries      /dorset-press-enquiries.html                    301
+/dorset-press                /dorset-press.html                              301
+/dorset-prices               /dorset-prices.html                             301
+/dorset-retreats             /dorset-retreats.html                           301
+/dorset-reviews              /dorset-reviews.html                            301
+/dorset-stays                /dorset-stays.html                              301
+/dorset-sustainability       /dorset-sustainability.html                     301
+/dorset-woodland-map         /dorset-woodland-map.html                       301
+/dorset-woodland             /dorset-woodland.html                           301
+/dorset-woodsmans-manual     /dorset-woodsmans-manual.html                   301
+/dorset-woodsmans-treehouse  /dorset-woodsmans-treehouse.html                301
+/dorset                      /dorset.html                                    301
+/experiences                 /experiences.html                               301
+/influencers                 /influencers.html                               301
+/oxford-press                /oxford-press.html                              301
+/oxford-reviews              /oxford-reviews.html                            301
+/oxford-stays                /oxford-stays.html                              301
+/oxford-sustainability       /oxford-sustainability.html                     301
+/oxford                      /oxford.html                                    301
+/oxford/accessibility        /oxford/accessibility.html                      301
+/oxford/adaptation           /oxford/adaptation.html                         301
+/oxford/availability         /search-results.html?destination=Oxford         301
+/oxford/beemuseum            /oxford/beemuseum.html                          301
+/oxford/bees                 /oxford/bees.html                               301
+/oxford/celebrations         /oxford/celebrations.html                       301
+/oxford/chocolate            /oxford/chocolate.html                          301
+/oxford/colonial             /oxford/colonial.html                           301
+/oxford/copy-of-facilities   /search-results.html?destination=Oxford         301
+/oxford/copy-of-map          /oxford.html                                    301
+/oxford/dining               /oxford/dining.html                             301
+/oxford/enemies              /oxford/enemies.html                            301
+/oxford/events               /oxford/events.html                             301
+/oxford/experiences          /oxford/experiences.html                        301
+/oxford/facilities           /oxford/facilities.html                         301
+/oxford/faq                  /oxford/faq.html                                301
+/oxford/form                 /oxford/form.html                               301
+/oxford/honey                /oxford/honey.html                              301
+/oxford/illusions            /oxford/illusions.html                          301
+/oxford/index2               /oxford.html                                    301
+/oxford/invasion             /oxford/invasion.html                           301
+/oxford/klevio               /oxford/faq.html                                301
+/oxford/makeamemory          /oxford/philanthropy.html#make-a-memory         301
+/oxford/map                  /oxford/map.html                                301
+/oxford/mutualism            /oxford/mutualism.html                          301
+/oxford/otherbees            /oxford/otherbees.html                          301
+/oxford/parasitoid           /oxford/parasitoid.html                         301
+/oxford/philanthropy         /oxford/philanthropy.html                       301
+/oxford/privacy              /oxford/privacy.html                            301
+/oxford/product-bonbons      /oxford/chocolate.html                          301
+/oxford/product-honey        /oxford/honey.html                              301
+/oxford/reviews              /oxford-reviews.html                            301
+/oxford/schoolgroups         /oxford/schoolgroups.html                       301
+/oxford/shop                 /oxford.html                                    301
+/oxford/story                /oxford/story.html                              301
+/oxford/sustainability       /oxford-sustainability.html                     301
+/oxford/terms                /oxford/terms.html                              301
+/oxford/todo                 /oxford/todo.html                               301
+/oxford/vr                   /oxford.html                                    301
+/oxford/vr2                  /oxford.html                                    301
+/oxford/wasps                /oxford/wasps.html                              301
+/oxford/wellness             /oxford/wellness.html                           301
+/press                       /press.html                                     301
+/privacy-policy              /privacy-policy.html                            301
+/prize-draw-terms            /prize-draw-terms.html                          301
+/reviews                     /reviews.html                                   301
+/search-results              /search-results.html                            301
+/style-guide                 /style-guide.html                               301
+/sustainability              /sustainability.html                            301
+/terms-of-service            /terms-of-service.html                          301
