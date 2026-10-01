@@ -1126,8 +1126,13 @@ animation:marquee-scroll 70s linear infinite;
               var first=document.createElement("div"); first.className="logo-marquee__content";
               while(row.firstChild)first.appendChild(row.firstChild);
               var second=first.cloneNode(true);
+              /* The copy is there only to make the loop seamless, so it is hidden from
+                 screen readers and its links are taken out of the tab order. It must
+                 stay clickable, though: inert also swallowed clicks, and for half of
+                 every loop the logos passing across the screen are this copy, so they
+                 went dead. */
               second.setAttribute("aria-hidden","true");
-              second.setAttribute("inert","");
+              second.querySelectorAll("a").forEach(function(a){a.setAttribute("tabindex","-1");});
               track.appendChild(first); track.appendChild(second);
               mq.appendChild(track);
               row.parentNode.replaceChild(mq,row);
