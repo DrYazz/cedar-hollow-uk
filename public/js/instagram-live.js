@@ -19,12 +19,13 @@
 (function () {
   "use strict";
 
-  /* The site is served from Railway, so this goes to the same service the
-     contact form does, cross-origin. The Cloudflare Worker answers the same
-     path same-origin, so if the site moves back there this becomes:
-     var ENDPOINT = "/api/instagram";  -- see js/form-submit.js, which carries
-     the identical note for identical reasons. */
-  var ENDPOINT = "https://form-handler-production-f871.up.railway.app/api/instagram";
+  /* The site is served by the Cloudflare Worker, which answers this path
+     same-origin. On *.railway.app, the rollback copy, it goes cross-origin to
+     the form-handler service instead -- see js/form-submit.js, which makes the
+     identical split for identical reasons. */
+  var ENDPOINT = /\.railway\.app$/.test(location.hostname)
+    ? "https://form-handler-production-f871.up.railway.app/api/instagram"
+    : "/api/instagram";
   var TIMEOUT_MS = 4000;
 
   var grid = document.querySelector(".ch-ig__grid[data-ig-site]");

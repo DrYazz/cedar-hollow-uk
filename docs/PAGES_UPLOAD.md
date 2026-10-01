@@ -103,6 +103,24 @@ npx wrangler secret put RESEND_API_KEY
 Delete the old key afterwards. The key is never in the repo — it lives
 encrypted at Cloudflare and is only readable by the Worker at runtime.
 
+**The Instagram grids.** The Oxford and Dorset pages show each account's four
+latest posts, fetched by the Worker with one token per account:
+`IG_TOKEN_OXFORD` (@cedarhollowoxford) and `IG_TOKEN_DORSET`
+(@mallinsonswoodlandretreat), set as secrets under **Workers & Pages →
+cedar-hollow-uk → Settings → Variables and Secrets**. Without a working token
+the page keeps the four posts written into its HTML, so nothing ever looks
+broken; it just stops updating.
+
+Tokens last 60 days. Every Monday the Worker renews both and keeps the renewed
+copies in the KV namespace `cedar-hollow-instagram`, so nobody needs to touch
+them. `https://cedarhollow.uk/health` shows the last renewal date per account
+under `instagramRenewed`. If a date there is more than about a fortnight old,
+renewal is failing: `npx wrangler tail` during the Monday 04:17 UTC run, or the
+Worker's logs, give the reason. If a token has lapsed altogether, generate a new
+one in the Meta developer dashboard (the app's **Instagram → API setup with
+Instagram login → Generate token**) and set it as the secret again; the Worker
+switches to it at once.
+
 **Check whether mail is working.** `https://cedarhollow.uk/health` returns
 `{"ok":true,"mailConfigured":true}`. Resend → **Logs** shows delivery status
 for every send.
@@ -250,7 +268,7 @@ The push deploys it, and from then on `main` and production agree again.
 | Production branch | `main` |
 | Build command | *(empty: there is nothing to build)* |
 | Deploy command | `npx wrangler deploy` |
-| Non-production branch deploy command | `npx wrangler versions upload` |
+| Non-production branch deploy command | `npx wrangler preview` (needs the `[previews]` block in `wrangler.toml`) |
 | Root directory | `/` |
 
 There is no token in the repo or in GitHub's secrets; Cloudflare manages the
