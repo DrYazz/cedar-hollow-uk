@@ -43,6 +43,18 @@ not_found_handling = "404-page"   # serves /404.html once one exists
 #
 # Never put the key in this file — it is committed to the repo.
 
+# --- Instagram -----------------------------------------------------------------
+# The tokens are secrets (IG_TOKEN_OXFORD, IG_TOKEN_DORSET; see worker/index.js).
+# They expire after 60 days, so every Monday at 04:17 UTC the Worker swaps each
+# for a fresh one and keeps it in this KV namespace. Nothing else is stored here.
+
+[[kv_namespaces]]
+binding = "IG_KV"
+id = "8d6bb0fe7112447ca233e6cd03e8d8b8"   # cedar-hollow-instagram
+
+[triggers]
+crons = ["17 4 * * 1"]
+
 [vars]
 CONTACT_TO = "hello@thelabgroup.com"
 CONTACT_FROM = "website@send.cedarhollow.uk"

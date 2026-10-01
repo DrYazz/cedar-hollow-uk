@@ -43,9 +43,20 @@ const MAX_BODY_BYTES = 64 * 1024; // parity with the old express.json({ limit: "
  * these were downloaded in the first place. Handing them straight to the
  * browser is fine as long as they are fresh, hence a cache measured in
  * minutes rather than days.
+ *
+ * The tokens themselves expire after 60 days. Instagram will swap a token for
+ * a fresh 60-day one if it is at least a day old and not yet expired, so a
+ * weekly cron (see [triggers] in wrangler.toml, and scheduled() below) does
+ * that and keeps the result in KV. A Worker cannot rewrite its own secrets,
+ * hence KV.
+ *
+ * Each KV entry records a hash of the secret it descends from. Setting a new
+ * secret -- after a lapse, or for a different account -- changes the hash, and
+ * the stale KV entry is ignored from that moment rather than shadowing it.
  */
 const IG_PATH = "/api/instagram";
 const IG_ENDPOINT = "https://graph.instagram.com/me/media";
+const IG_REFRESH_ENDPOINT = "https://graph.instagram.com/refresh_access_token";
 const IG_FIELDS = "id,caption,media_type,media_url,permalink,thumbnail_url,timestamp";
 const IG_COUNT = 4;
 const IG_EDGE_TTL = 1800;   // 30 minutes at the edge
@@ -100,16 +111,30 @@ export default {
 
     // Kept from the old service so the migration can be smoke-tested the same way.
     if (url.pathname === "/health") {
+      const sites = Object.keys(IG_TOKENS).filter((s) => Boolean(env[IG_TOKENS[s]]));
+      const renewed = {};
+      for (const site of sites) {
+        const stored = await igStored(env, site);
+        if (stored && stored.from === (await sha256(env[IG_TOKENS[site]]))) {
+          renewed[site] = stored.renewed;
+        }
+      }
       return json({
         ok: true,
         mailConfigured: mailReady(env),
-        instagram: Object.keys(IG_TOKENS).filter((s) => Boolean(env[IG_TOKENS[s]])),
+        instagram: sites,
+        instagramRenewed: renewed,
       });
     }
 
     // Static assets normally never reach the Worker -- Cloudflare serves them
     // first -- but fall through explicitly so nothing depends on that ordering.
     return env.ASSETS.fetch(request);
+  },
+
+  // The cron in wrangler.toml. Its only job is keeping the Instagram tokens alive.
+  async scheduled(event, env, ctx) {
+    ctx.waitUntil(refreshInstagramTokens(env));
   },
 };
 
@@ -128,7 +153,7 @@ async function handleInstagram(url, env, ctx) {
     return igFail("Unknown site", 400);
   }
 
-  const token = env[IG_TOKENS[site]];
+  const token = await igToken(env, site);
   if (!token) return igFail("Not configured", 503);
 
   // Keyed on the site alone: same answer for every visitor, and nothing
@@ -172,6 +197,78 @@ async function handleInstagram(url, env, ctx) {
   });
   if (ctx && ctx.waitUntil) ctx.waitUntil(cache.put(cacheKey, response.clone()));
   return response;
+}
+
+/*
+ * The token to use for a site: the renewed one in KV if it descends from the
+ * secret currently set, otherwise the secret itself. Null when neither exists.
+ */
+async function igToken(env, site) {
+  const secret = env[IG_TOKENS[site]];
+  if (!secret) return null;
+  const stored = await igStored(env, site);
+  if (stored && stored.from === (await sha256(secret))) return stored.token;
+  return secret;
+}
+
+async function igStored(env, site) {
+  if (!env.IG_KV) return null;
+  try {
+    const stored = await env.IG_KV.get(`token:${site}`, "json");
+    return stored && stored.token ? stored : null;
+  } catch {
+    return null;
+  }
+}
+
+/*
+ * Weekly: swap each site's token for a fresh 60-day one. A failure leaves the
+ * current token in place, and is logged; the next week tries again, and with
+ * 60 days of validity there are eight chances before anything lapses.
+ */
+async function refreshInstagramTokens(env) {
+  if (!env.IG_KV) {
+    console.error("[instagram] no IG_KV binding; tokens cannot be renewed");
+    return;
+  }
+  for (const site of Object.keys(IG_TOKENS)) {
+    const secret = env[IG_TOKENS[site]];
+    if (!secret) continue;
+    const from = await sha256(secret);
+    const current = await igToken(env, site);
+
+    const query = new URL(IG_REFRESH_ENDPOINT);
+    query.searchParams.set("grant_type", "ig_refresh_token");
+    query.searchParams.set("access_token", current);
+
+    try {
+      const res = await fetch(query.toString(), { headers: { accept: "application/json" } });
+      const body = await res.json().catch(() => null);
+      if (!res.ok || !body || !body.access_token) {
+        // The error object names the reason; it never contains the token.
+        const reason = body && body.error ? body.error.message : `HTTP ${res.status}`;
+        console.error(`[instagram] ${site}: renewal refused: ${reason}`);
+        continue;
+      }
+      await env.IG_KV.put(
+        `token:${site}`,
+        JSON.stringify({
+          token: body.access_token,
+          from,
+          renewed: new Date().toISOString(),
+          expiresIn: body.expires_in || null,
+        })
+      );
+      console.log(`[instagram] ${site}: token renewed`);
+    } catch (err) {
+      console.error(`[instagram] ${site}: renewal failed: ${err && err.message ? err.message : err}`);
+    }
+  }
+}
+
+async function sha256(text) {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+  return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
 /* One post, trimmed to what the grid draws. */
