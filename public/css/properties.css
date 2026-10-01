@@ -136,7 +136,7 @@
 .pp-item { display: flex; flex-direction: column; gap: 20px; align-items: flex-start; }
 
 .pp-item__row { display: flex; gap: 24px; align-items: stretch; justify-content: center; width: 100%; }
-@media (max-width: 991px) { .pp-item__row { flex-direction: column; gap: 32px; } }
+@media (max-width: 1199px) { .pp-item__row { flex-direction: column; gap: 32px; } }
 
 /* 762px is the Figma width, but as a basis rather than a floor: with
    `flex: 0 0 762px` the image refused to shrink, so between the 991px stacking
@@ -145,7 +145,7 @@
    and the row then overflowed the page sideways. Letting the image shrink and
    giving .pp-info a real basis makes the two columns give way together. */
 .pp-item__media { position: relative; flex: 0 1 762px; max-width: 762px; min-width: 0; }
-@media (max-width: 991px) { .pp-item__media { flex: 1 1 auto; max-width: none; } }
+@media (max-width: 1199px) { .pp-item__media { flex: 1 1 auto; max-width: none; } }
 /* The picture keeps the 390:294 the design draws it at rather than stretching
    to whatever the column beside it comes to. Stretching was fine while both
    columns held much the same thing; with a calendar in the Oxford panels and
@@ -210,16 +210,10 @@
   box-shadow: 0 13.993px 22.388px 0 rgba(0, 0, 0, .03);
   padding: 32px 12px 12px;
 }
-/* Between the stacking breakpoint and 1200px the info column is at its
-   narrowest, and the calendar inside it has a width below which it stops
-   fitting a week across and scrolls sideways instead. Forty pixels off a
-   seven-hundred-pixel photograph is not a sacrifice; a calendar you have to
-   drag to see Sunday is. */
-@media (min-width: 992px) and (max-width: 1200px) {
-  .pp-info { flex-basis: 372px; }
-}
-
-@media (max-width: 991px) { .pp-info { background: none; border: 0; border-radius: 0; box-shadow: none; padding: 0 20px; } }
+/* The card is side by side from 1200px only. Below that there is not room for
+   both a photograph and a booking column wide enough for the calendar to draw
+   its two columns, so the card stacks, as it does on a phone. */
+@media (max-width: 1199px) { .pp-info { background: none; border: 0; border-radius: 0; box-shadow: none; padding: 0 20px; } }
 
 .pp-name {
   margin: 0; max-width: 380px; text-align: center;
@@ -310,13 +304,6 @@
 .pp-book--cal { padding-left: 14px; padding-right: 14px; }
 .pp-book--cal .pp-book__facts { padding: 0 10px; }
 
-@media (min-width: 992px) and (max-width: 1200px) {
-  .pp-book--cal { padding-left: 0; padding-right: 0; }
-  .pp-book--cal .pp-book__facts,
-  .pp-book--cal .pp-book__actions,
-  .pp-book--cal .pp-book__note { padding-left: 14px; padding-right: 14px; }
-}
-
 /* The way out of the frame sits in the note, so it takes the note's colour
    rather than arriving as browser blue. */
 .pp-book__note a { color: inherit; text-underline-offset: 2px; }
@@ -328,7 +315,7 @@
    column -- not centred under the whole row, where it detaches from its own
    property and reads as loose text sitting in the gap before the next one. */
 .pp-notes { width: 762px; max-width: 100%; margin: 0; padding: 0 12px; }
-@media (max-width: 991px) { .pp-notes { width: 100%; padding: 0 28px; } }
+@media (max-width: 1199px) { .pp-notes { width: 100%; padding: 0 28px; } }
 .pp-notes p { margin: 0 0 1em; font-size: 16px; line-height: 1.35; color: var(--accent, #3b4126); }
 .pp-notes p:last-child { margin-bottom: 0; }
 
@@ -341,7 +328,7 @@
    The row hands its two children to this grid rather than laying them out
    itself, which leaves the markup alone: stacked on a phone the order is still
    picture, then the property, then the description. */
-@media (min-width: 992px) {
+@media (min-width: 1200px) {
   .pp-item {
     /* The row used to carry width: 100% for this. With the row handing its
        children to the grid, the grid itself has to ask for the width, or it
@@ -349,7 +336,13 @@
        fill. */
     width: 100%;
     display: grid;
-    grid-template-columns: minmax(0, 762px) minmax(320px, 1fr);
+    /* A floor under the booking column, not a share of what is left. The
+       calendar needs 460px of frame to draw two columns, and the frame is the
+       column less 56px of panel and card padding, so the column cannot go
+       below about 516. 520 gives 464px of frame at 1280 and grows from there.
+       The photograph takes what remains: it is capped at 762 and shrinks, so
+       wide screens are unchanged and only the crowded ones give ground. */
+    grid-template-columns: minmax(0, 762px) minmax(520px, 1fr);
     grid-template-rows: auto 1fr;
     column-gap: 24px; row-gap: 20px;
     justify-content: center; align-items: start;
@@ -360,10 +353,5 @@
   .pp-notes { grid-column: 1; grid-row: 2; width: 100%; align-self: start; }
 }
 
-/* The same 40px the calendar needed off the photograph, now that the columns
-   are set here rather than by flex-basis. */
-@media (min-width: 992px) and (max-width: 1200px) {
-  .pp-item { grid-template-columns: minmax(0, 762px) minmax(372px, 1fr); }
-}
 .pp-notes .pp-notes__fine { font-size: 14px; }
 @media (max-width: 991px) { .pp-notes p { font-size: 13px; } .pp-notes .pp-notes__fine { font-size: 11px; } }
