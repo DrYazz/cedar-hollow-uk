@@ -46,3 +46,31 @@ not_found_handling = "404-page"   # serves /404.html once one exists
 CONTACT_TO = "hello@thelabgroup.com"
 CONTACT_FROM = "website@send.cedarhollow.uk"
 CONTACT_FROM_NAME = "Cedar Hollow website"
+
+# --- Instagram ---------------------------------------------------------------
+# GET /api/instagram?site=oxford|dorset returns the four most recent posts for
+# that woodland, which js/instagram-live.js paints into the grid on the two
+# location home pages.
+#
+# The two woodlands are two accounts, so two tokens:
+#
+#   @cedarhollowoxford            -> IG_TOKEN_OXFORD
+#   @mallinsonswoodlandretreat    -> IG_TOKEN_DORSET
+#
+# Both are secrets, set once each:
+#
+#   npx wrangler secret put IG_TOKEN_OXFORD
+#   npx wrangler secret put IG_TOKEN_DORSET
+#
+# Never put a token in this file — it is committed to the repo, same as the
+# Resend key above.
+#
+# Until a token is set the endpoint answers 503 and each page keeps the four
+# curated posts in its own markup, so the grid is never empty.
+#
+# Instagram's long-lived tokens last 60 days and have to be refreshed before
+# they lapse; GET https://graph.instagram.com/refresh_access_token does it.
+# Nothing here does that automatically: the Worker has no storage to keep a
+# new token in, so the refresh is manual until a KV namespace is added. When
+# a token does lapse the grid falls back rather than breaking, which buys
+# time but is quiet about it — /health lists which sites have a token.

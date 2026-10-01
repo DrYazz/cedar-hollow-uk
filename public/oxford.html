@@ -14,7 +14,7 @@
   <link href="css/normalize.css" rel="stylesheet" type="text/css">
   <link href="css/webflow.css" rel="stylesheet" type="text/css">
   <link href="css/cedar-hollow-uk.webflow.css?v=20261001c" rel="stylesheet" type="text/css">
-  <!-- Prize-draw popup paused on request, 1 Oct 2026. To restore, uncomment this and the signup-popup.js tag near </body>. The dialog markup is still in the page, carrying hidden. -->
+  <!-- Prize-draw popup paused on request, 1 Oct 2026. To restore, uncomment this and the signup-popup.js tag near the end of the page. The dialog markup is still in the page, carrying hidden. -->
   <!-- <link href="css/social-signup.css?v=20260916e" rel="stylesheet" type="text/css"> -->
   <link href="css/instagram-feed.css?v=20261001a" rel="stylesheet" type="text/css">
   <link href="css/subsite-nav.css?v=9c51be3c" rel="stylesheet" type="text/css">
@@ -1412,7 +1412,7 @@ animation:marquee-scroll 70s linear infinite;
                 </div>
               </div>
             </div>
-            <ul role="list" class="ch-ig__grid">
+            <ul role="list" class="ch-ig__grid" data-ig-site="oxford">
               <li><a class="ch-ig__item" href="https://www.instagram.com/cedarhollowoxford/p/DdUYCYzDoAg/" target="_blank" rel="noopener"><img src="images/instagram/oxford-DdUYCYzDoAg.webp" width="600" height="600" loading="lazy" decoding="async" alt="A railway carriage lifted in by crane beside the barn"></a></li>
               <li><a class="ch-ig__item" href="https://www.instagram.com/cedarhollowoxford/p/DdH6seSDfK1/" target="_blank" rel="noopener"><img src="images/instagram/oxford-DdH6seSDfK1.webp" width="600" height="600" loading="lazy" decoding="async" alt="Guests inside the bus, under its red drapes"></a></li>
               <li><a class="ch-ig__item" href="https://www.instagram.com/cedarhollowoxford/reel/DdEZUzfI-sR/" target="_blank" rel="noopener"><img src="images/instagram/oxford-DdEZUzfI-sR.webp" width="600" height="600" loading="lazy" decoding="async" alt="A sculpted figure being finished by hand"><svg class="ch-ig__badge" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2.5 7h19M8.5 2.5 11 7M15 2.5 17.5 7" stroke="currentColor" stroke-width="1.8" fill="none"/><path d="M3 7h18a1 1 0 0 1 1 1v12a1.5 1.5 0 0 1-1.5 1.5h-17A1.5 1.5 0 0 1 2 20V8a1 1 0 0 1 1-1Z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m10.5 11.5 4.5 2.75-4.5 2.75z"/></svg></a></li>
@@ -2232,5 +2232,6 @@ requestAnimationFrame(measureFPS)
     });
   })();
 </script>
+  <script src="js/instagram-live.js?v=20261001a" type="text/javascript"></script>
 </body>
 </html>

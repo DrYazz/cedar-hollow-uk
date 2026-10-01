@@ -22,6 +22,42 @@ const RESEND_ENDPOINT = "https://api.resend.com/emails";
 const MAX_BODY_BYTES = 64 * 1024; // parity with the old express.json({ limit: "64kb" })
 
 /*
+ * Instagram.
+ *
+ * The grids on the two location home pages were curated by hand because the
+ * Basic Display API was retired in 2024 and its replacement needs a server to
+ * hold a token. There is a server now, so this is that.
+ *
+ * The two woodlands are two accounts, so two tokens. Each is a secret:
+ *
+ *   npx wrangler secret put IG_TOKEN_OXFORD
+ *   npx wrangler secret put IG_TOKEN_DORSET
+ *
+ * Never a var in wrangler.toml -- that file is committed.
+ *
+ * Without a token the endpoint answers 503 and the page keeps the markup it
+ * shipped with, so the grid is never empty and nothing breaks while a token
+ * is missing or expired.
+ *
+ * media_url and thumbnail_url are signed and expire within days, which is why
+ * these were downloaded in the first place. Handing them straight to the
+ * browser is fine as long as they are fresh, hence a cache measured in
+ * minutes rather than days.
+ */
+const IG_PATH = "/api/instagram";
+const IG_ENDPOINT = "https://graph.instagram.com/me/media";
+const IG_FIELDS = "id,caption,media_type,media_url,permalink,thumbnail_url,timestamp";
+const IG_COUNT = 4;
+const IG_EDGE_TTL = 1800;   // 30 minutes at the edge
+const IG_BROWSER_TTL = 900; // 15 minutes in the browser
+const IG_FAIL_TTL = 120;    // back off briefly rather than hammering on failure
+
+const IG_TOKENS = {
+  oxford: "IG_TOKEN_OXFORD",
+  dorset: "IG_TOKEN_DORSET",
+};
+
+/*
  * Directory-style spellings of the two woodland pages.
  *
  * /oxford/ matched nothing: there is a real public/oxford/ directory holding
@@ -40,7 +76,7 @@ const PAGE_ALIASES = {
 };
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
 
     const alias = PAGE_ALIASES[url.pathname];
@@ -55,9 +91,20 @@ export default {
       return handleContact(request, env);
     }
 
+    if (url.pathname === IG_PATH) {
+      if (request.method !== "GET") {
+        return json({ ok: false, error: "Method not allowed" }, 405);
+      }
+      return handleInstagram(url, env, ctx);
+    }
+
     // Kept from the old service so the migration can be smoke-tested the same way.
     if (url.pathname === "/health") {
-      return json({ ok: true, mailConfigured: mailReady(env) });
+      return json({
+        ok: true,
+        mailConfigured: mailReady(env),
+        instagram: Object.keys(IG_TOKENS).filter((s) => Boolean(env[IG_TOKENS[s]])),
+      });
     }
 
     // Static assets normally never reach the Worker -- Cloudflare serves them
@@ -65,6 +112,106 @@ export default {
     return env.ASSETS.fetch(request);
   },
 };
+
+/*
+ * GET /api/instagram?site=oxford|dorset
+ *
+ * Answers {ok:true, posts:[...]} or, for every failure, {ok:false} with a
+ * status the caller is expected to ignore: js/instagram-live.js leaves the
+ * page's own markup alone unless it gets a full set of posts back.
+ *
+ * The token never appears in a response, a log, or a cache key.
+ */
+async function handleInstagram(url, env, ctx) {
+  const site = String(url.searchParams.get("site") || "").toLowerCase();
+  if (!Object.prototype.hasOwnProperty.call(IG_TOKENS, site)) {
+    return igFail("Unknown site", 400);
+  }
+
+  const token = env[IG_TOKENS[site]];
+  if (!token) return igFail("Not configured", 503);
+
+  // Keyed on the site alone: same answer for every visitor, and nothing
+  // secret in the key.
+  const cacheKey = new Request(`${url.origin}${IG_PATH}?site=${site}`, { method: "GET" });
+  const cache = caches.default;
+  const hit = await cache.match(cacheKey);
+  if (hit) return hit;
+
+  const query = new URL(IG_ENDPOINT);
+  query.searchParams.set("fields", IG_FIELDS);
+  query.searchParams.set("limit", String(IG_COUNT));
+  query.searchParams.set("access_token", token);
+
+  let payload;
+  try {
+    const res = await fetch(query.toString(), {
+      headers: { accept: "application/json" },
+      cf: { cacheTtl: 0 },
+    });
+    if (!res.ok) return igFail("Upstream rejected the request", 502);
+    payload = await res.json();
+  } catch (e) {
+    return igFail("Upstream unreachable", 502);
+  }
+
+  const posts = (Array.isArray(payload && payload.data) ? payload.data : [])
+    .map(igPost)
+    .filter(Boolean)
+    .slice(0, IG_COUNT);
+
+  if (posts.length < IG_COUNT) return igFail("Too few posts", 502);
+
+  const body = JSON.stringify({ ok: true, site, posts });
+  const response = new Response(body, {
+    status: 200,
+    headers: {
+      "content-type": "application/json; charset=utf-8",
+      "cache-control": `public, max-age=${IG_BROWSER_TTL}, s-maxage=${IG_EDGE_TTL}`,
+    },
+  });
+  if (ctx && ctx.waitUntil) ctx.waitUntil(cache.put(cacheKey, response.clone()));
+  return response;
+}
+
+/* One post, trimmed to what the grid draws. */
+function igPost(item) {
+  if (!item || !item.permalink) return null;
+  const video = item.media_type === "VIDEO";
+  const image = video ? item.thumbnail_url : item.media_url;
+  if (!image) return null;
+  return {
+    permalink: item.permalink,
+    image,
+    // A reel gets the glyph the curated markup gave it.
+    reel: video && /\/reel(s)?\//.test(item.permalink),
+    alt: igAlt(item.caption),
+    timestamp: item.timestamp || "",
+  };
+}
+
+/*
+ * The curated grid had alt text written by hand, which a feed cannot produce.
+ * The first sentence of the caption is the closest honest substitute; where
+ * there is no caption the image is decorative beside a link that names the
+ * destination, so an empty alt is better than a guess.
+ */
+function igAlt(caption) {
+  if (!caption) return "";
+  const first = String(caption).split(/(?<=[.!?])\s|\n/)[0].trim();
+  if (!first) return "";
+  return first.length > 140 ? first.slice(0, 137).trimEnd() + "..." : first;
+}
+
+function igFail(error, status) {
+  return new Response(JSON.stringify({ ok: false, error }), {
+    status,
+    headers: {
+      "content-type": "application/json; charset=utf-8",
+      "cache-control": `public, max-age=${IG_FAIL_TTL}`,
+    },
+  });
+}
 
 function mailReady(env) {
   return Boolean(env.RESEND_API_KEY && env.CONTACT_TO && env.CONTACT_FROM);
