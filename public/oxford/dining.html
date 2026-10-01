@@ -151,11 +151,15 @@
   .ch-spread__btn:focus-visible{outline:2px solid var(--accent,#3b4126);
     outline-offset:2px;border-radius:.2rem;}
   .ch-spread__panel{position:absolute;top:calc(100% + .5rem);left:0;z-index:6;
-    display:block;width:min(21rem,80vw);padding:.85rem 1rem;
+    display:block;width:min(21rem,calc(100vw - 2rem));padding:.85rem 1rem;
     background:#fdfcf2;border:1px solid rgba(59,65,38,.18);border-radius:.75rem;
     box-shadow:0 .75rem 1.75rem rgba(16,19,7,.18);
     font-size:.9375rem;line-height:1.5;text-align:left;}
   .ch-spread__panel[hidden]{display:none;}
+  /* The panel hangs from the start of the word, so a word near the right of
+     a phone pushed it off the screen. Its width is capped at the screen less
+     a 1rem margin each side, and the script nudges it sideways on opening so
+     it always lands inside that margin, wherever the line breaks. */
   .ch-slides{position:relative;}
   .ch-slides__track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;
     scrollbar-width:none;-ms-overflow-style:none;}
@@ -318,6 +322,27 @@
         open = null;
       }
 
+      /* Keep the open panel inside the screen with 16px to spare each side.
+         It is placed from the word's left edge first, then shifted by however
+         far it overhangs; the width cap means it always fits once shifted. Rerun on resize and rotation, since the word may
+         wrap to a different place. */
+      var GAP = 16;
+      function place(panel) {
+        var vw = document.documentElement.clientWidth;
+        // 100vw in the stylesheet counts a scrollbar where there is one, so
+        // the cap that matters is set here from the width actually visible.
+        panel.style.maxWidth = (vw - 2 * GAP) + "px";
+        panel.style.left = "0px";
+        var r = panel.getBoundingClientRect();
+        var shift = 0;
+        if (r.right > vw - GAP) shift = (vw - GAP) - r.right;
+        if (r.left + shift < GAP) shift = GAP - r.left;
+        panel.style.left = shift + "px";
+      }
+      window.addEventListener("resize", function () {
+        if (open) place(open.querySelector(".ch-spread__panel"));
+      });
+
       spreads.forEach(function (wrap) {
         var btn = wrap.querySelector(".ch-spread__btn");
         var panel = wrap.querySelector(".ch-spread__panel");
@@ -327,6 +352,7 @@
           shut();
           if (wasOpen) return;
           panel.hidden = false;
+          place(panel);
           btn.setAttribute("aria-expanded", "true");
           open = wrap;
         });
