@@ -119,9 +119,16 @@
     // The frame is lazy, so six calendars do not all load at once on a page
     // most people read part of, and its title names the property, because a
     // screen reader announces a frame by its title and nothing else.
+    //
+    // Landscape on desktop, square on phones, chosen once at load. The widget
+    // reports its own height by postMessage, so the frame starts at the layout's
+    // tallest month and then follows the widget.
+    var layout = window.matchMedia("(max-width: 640px)").matches ? "square" : "landscape";
+    var startHeight = layout === "square" ? 590 : 520;
     var calendar = hasCal
-      ? '<iframe class="pp-book__cal" src="' + esc(item.calendarUrl) +
-        '" title="Availability calendar for ' + esc(item.name) + '" loading="lazy"></iframe>'
+      ? '<iframe class="pp-book__cal" src="' + esc(item.calendarUrl) + "&layout=" + layout +
+        '" height="' + startHeight + '" allowtransparency="true" scrolling="no"' +
+        ' title="Availability calendar for ' + esc(item.name) + '" loading="lazy"></iframe>'
       : "";
 
     // With the calendar in the panel there is nothing left for the button to
@@ -384,5 +391,20 @@
     }, { passive: true });
 
     list.addEventListener("touchcancel", function () { touch = null; }, { passive: true });
+  });
+
+  // The Checked.in widget measures itself once it knows how wide its slot is and
+  // posts { cinStripHeight: <px> }. Only the frame that sent the message is
+  // resized, matched by its window, so nothing else on the page can resize them.
+  window.addEventListener("message", function (e) {
+    var height = e.data && e.data.cinStripHeight;
+    if (typeof height !== "number" || height < 80 || height > 2000) return;
+    var frames = document.querySelectorAll("iframe.pp-book__cal");
+    for (var i = 0; i < frames.length; i++) {
+      if (frames[i].contentWindow === e.source) {
+        frames[i].style.height = height + "px";
+        return;
+      }
+    }
   });
 })();
