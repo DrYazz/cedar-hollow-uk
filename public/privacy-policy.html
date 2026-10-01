@@ -35,7 +35,10 @@
       font-family:var(--font-family--body,Inter,Arial,sans-serif);margin:0}
     .cp-nav{border-bottom:1px solid var(--border--accent-20,#3b412633);padding:1.35rem 0}
     .cp-nav-inner{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
-    .cp-nav img{height:2.25rem;width:auto;display:block}
+    /* The logo file is drawn cream for the dark headers elsewhere; on this
+   cream page it all but vanished. Tinted to the accent green, the same
+   filter the stays page uses for its owl. */
+.cp-nav img{height:2.25rem;width:auto;display:block;filter:brightness(0) saturate(100%) invert(21%) sepia(11%) saturate(1430%) hue-rotate(43deg) brightness(94%) contrast(88%)}
     .cp-nav nav{display:flex;gap:1.25rem;flex-wrap:wrap}
     .cp-nav nav a{color:var(--accent,#3b4126);text-decoration:none;font-size:.95rem}
     .cp-nav nav a:hover{text-decoration:underline}
