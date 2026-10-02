@@ -123,8 +123,8 @@
     // Landscape on desktop, square on phones, chosen once at load. The widget
     // reports its own height by postMessage, so the frame starts at the layout's
     // tallest month and then follows the widget.
-    var layout = window.matchMedia("(max-width: 640px)").matches ? "square" : "landscape";
-    var startHeight = layout === "square" ? 590 : 520;
+    var layout = window.matchMedia("(max-width: 640px)").matches ? "portrait" : "landscape";
+    var startHeight = layout === "portrait" ? 690 : 520;
     var calendar = hasCal
       ? '<iframe class="pp-book__cal" src="' + esc(item.calendarUrl) + "&layout=" + layout +
         '" height="' + startHeight + '" allowtransparency="true" scrolling="no"' +
