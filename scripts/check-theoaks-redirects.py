@@ -49,13 +49,20 @@ def read_worker():
 
 
 def fetch(url):
-    """One GET, redirects not followed: (status, Location, body)."""
+    """One GET, redirects not followed: (status, Location, body).
+
+    A request that never gets an answer -- no DNS record yet, a certificate
+    the host does not have, a timeout -- comes back with the error in place
+    of the status, so it is reported like any other failure.
+    """
     u = urllib.parse.urlsplit(url)
     conn = (http.client.HTTPSConnection if u.scheme == "https" else http.client.HTTPConnection)(u.netloc, timeout=30)
     try:
         conn.request("GET", (u.path or "/") + ("?" + u.query if u.query else ""), headers={"User-Agent": UA})
         r = conn.getresponse()
         return r.status, r.getheader("Location"), r.read().decode("utf-8", "replace")
+    except (OSError, http.client.HTTPException) as e:
+        return "%s (%s)" % (type(e).__name__, e), None, ""
     finally:
         conn.close()
 
