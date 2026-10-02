@@ -238,11 +238,31 @@
 
 /* 128px sidebar and a 466px-tall body, per the design's own columns. The
    calendar scrolls within it rather than the card growing. */
+/* place() in js/search-bar.js caps the panel to the space between the bar and
+   the bottom of the window. The calendar block below was a flat 26rem, so on a
+   short window the panel shrank and the block did not: 416px of calendar plus
+   the 50px footer inside a 297px panel put the nights count and Clear dates
+   out of sight, and the last row of weeks with them. Laying the panel out as a
+   column lets the block give way instead, down to a floor of eleven rem; the
+   month list and the weeks already scroll inside it, and the footer does not
+   shrink, so it stays where it belongs at the bottom. */
+.ch-book--when {
+  display: flex;
+  flex-direction: column;
+}
+
 .ch-book__cal {
   display: grid;
   grid-template-columns: 8rem 1fr;
+  flex: 1 1 auto;
   height: 26rem;
+  min-height: 11rem;
+  max-height: 26rem;
   border-bottom: 1px solid rgba(59, 65, 38, .19);
+}
+
+.ch-book__dates-foot {
+  flex: none;
 }
 
 .ch-pick__months {
