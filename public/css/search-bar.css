@@ -308,7 +308,14 @@
 
 .ch-book__cal {
   display: grid;
-  grid-template-columns: 8rem 1fr;
+  /* 8rem here was sized against month labels that were sitting flush to the
+     panel edge, because the inset below never actually applied. With the
+     inset restored the column has to carry it: the longest label,
+     "September 2027", measures 115.3px at 15px, and 115.3 plus two 14px
+     insets needs 144. 148 leaves a little room for a font that loads
+     slightly wider, and costs the calendar 20px it can spare -- its day
+     cells go from 45.1px to 42.4. */
+  grid-template-columns: 9.25rem 1fr;
   flex: 1 1 auto;
   height: 26rem;
   min-height: 11rem;
@@ -332,7 +339,13 @@
   display: none;
 }
 
-.ch-pick__month-btn {
+/* Qualified with .ch-book so it outranks the .ch-book button reset above,
+   which strips padding off every button in the panel. As a bare class this
+   rule lost: .ch-book button is a class and a type, so it is the more
+   specific of the two whatever order they come in, and the months had been
+   sitting hard against the panel's left edge, one pixel off it, since the
+   reset was written. */
+.ch-book .ch-pick__month-btn {
   display: block;
   width: 100%;
   height: 2rem;
