@@ -390,28 +390,38 @@
   }
 
   form.addEventListener("submit", function () {
-    /* Where the search lands depends on what it asks.
+    /* Where the search lands answers two questions: what is being asked, and
+     * which site is asking.
      *
-     * With both dates it is a question about availability, which only
-     * CheckedIn can answer, so it goes to availability.html and its frame.
-     * With a guest count and no dates there is nothing to ask CheckedIn, and
-     * search-results.html filtering the cards is still the right answer.
+     * What: with both dates it is a question about availability, which only
+     * CheckedIn can answer, so it goes to a frame page. With a guest count and
+     * no dates there is nothing to ask CheckedIn, and filtering the cards is
+     * still the right answer.
      *
-     * Dorset has no CheckedIn results page yet, so a Dorset search carries on
-     * to the cards whatever dates it has. The hidden destination field travels
-     * either way. */
+     * Which site: a search begun inside Oxford or Dorset stays there. Every
+     * kind of search has a page in each sub-site, so none of them needs to
+     * surface in the core site any more. */
     // destination is the page's own hidden input, not one of the fields this
     // script builds, so it is read off the form rather than out of `fields`.
     var dest = form.querySelector('input[name="destination"]');
     var both = fields.from.value && fields.to.value;
     var place = ((dest && dest.value) || "").trim().toLowerCase();
-    /* And it lands in the site it started from: a search begun in Oxford ends
-       on Oxford's availability page, not in the core site. Dorset's page
-       exists but has no CheckedIn account yet, so a Dorset search still goes
-       to the cards; swapping that line in is all it will take. */
+    /* The site the search began in, which is not the same thing as the place
+       it asks about. data-destination marks a page that belongs to a sub-site
+       and is fixed in its markup; the hidden field above can also be set by a
+       ?destination= in the address, and the core page filtered to Oxford is
+       still the core page. Only the first should keep a searcher in place. */
+    var home = (document.documentElement.getAttribute("data-destination") || "")
+      .trim().toLowerCase();
+    /* Dorset has no CheckedIn account yet, so a dated Dorset search has no
+       availability to show and falls through to its own cards, which filter on
+       guests and ignore the dates. When the account arrives it joins Oxford on
+       the line above and stops falling through. */
     var where = "search-results.html";
     if (both && place === "oxford") where = "oxford-availability.html";
     else if (both && place !== "dorset") where = "availability.html";
+    else if (home === "oxford") where = "oxford-stays.html";
+    else if (home === "dorset") where = "dorset-stays.html";
     form.setAttribute("action", where);
 
     // guests carries the headline number; the breakdown only earns its place
