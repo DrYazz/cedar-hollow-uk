@@ -39,20 +39,27 @@
   flex: 0 1 34.6875rem;
 }
 
-/* Below the tablet breakpoint js/search-bar.js moves the bar out of the nav
-   and under the page heading, so the nav is back to the logo and the burger.
-   Three rules used to live here making room for the bar in the nav: the owl
-   hidden below 380, the sub-site wordmark hidden below 768, and the bar
-   dropped to its own row below 380. All of them took something away from the
-   logo to pay for the bar, which is the trade this replaces. */
+/* js/search-bar.js moves the bar out of the nav and under the page heading,
+   at every width, so the nav is the logo and the burger. Three rules used to
+   live here making room for the bar in the nav -- the owl hidden below 380,
+   the sub-site wordmark hidden below 768, and the bar dropped onto its own
+   row below 380 -- and all of them took something from the logo to pay for
+   it. Moving the bar is the trade that replaces them. */
 .ch-searchbar--under-title {
   /* Not a flex item here, so the 1 1 auto it carries for the nav does nothing
      and the width has to be said. .pp-header is a 46px-gap column; the bar
      belongs to the heading above it rather than to that rhythm. */
   width: 100%;
-  max-width: 26rem;
+  max-width: 34rem;
   margin: -1.5rem auto 0;
   flex: none;
+}
+
+/* On a phone the bar is as wide as the column allows; the cap above is for
+   desktop, where a bar the full width of the page under a centred heading
+   reads as a banner rather than as one control. */
+@media screen and (max-width: 767px) {
+  .ch-searchbar--under-title { max-width: 26rem; }
 }
 
 .ch-searchbar {

@@ -562,28 +562,16 @@
      The pickers need nothing: place() reads the bar's live rectangle each
      time one opens, and reposition() above already runs on resize and scroll,
      so they follow the bar down the page. */
-  var phone = window.matchMedia("(max-width: 767px)");
-  var navHome = bar.parentNode;
-  var navNext = bar.nextSibling;
+  // The bar belongs under the page's heading, at every width. It began in the
+  // nav and moved down on phones only, where it left the logo no room; it
+  // reads better under the heading everywhere, and the nav is the logo and the
+  // burger again. No breakpoint and nothing to re-place on resize, so the
+  // media query that used to drive this is gone.
   var heading = document.querySelector(".pp-title");
-
-  function placeBar() {
-    if (!heading || !heading.parentNode) return;
-    if (phone.matches) {
-      if (bar.parentNode !== heading.parentNode) {
-        heading.parentNode.insertBefore(bar, heading.nextSibling);
-        bar.classList.add("ch-searchbar--under-title");
-      }
-    } else if (bar.parentNode !== navHome) {
-      navHome.insertBefore(bar, navNext);
-      bar.classList.remove("ch-searchbar--under-title");
-    }
-    close();
+  if (heading && heading.parentNode) {
+    heading.parentNode.insertBefore(bar, heading.nextSibling);
+    bar.classList.add("ch-searchbar--under-title");
   }
-
-  placeBar();
-  if (phone.addEventListener) phone.addEventListener("change", placeBar);
-  else phone.addListener(placeBar);          /* Safari before 14 */
 
   paintDates();
   paintGuests();
