@@ -113,6 +113,16 @@
   // FAQ gives one policy for all three Dorset treehouses; the Oaks gives none,
   // so the Oxford three have no facts left to show here at all and the list
   // does not render for them.
+  /* A head count from the address: the named parameter, then the one it falls
+     back to, then a default. Anything that is not a positive whole number is
+     treated as absent rather than passed on to CheckedIn. */
+  function cinCount(value, fallback, dflt) {
+    var n = parseInt(value, 10);
+    if (isNaN(n) || n < 0) n = parseInt(fallback, 10);
+    if (isNaN(n) || n < 0) n = dflt;
+    return n;
+  }
+
   function bookingPanel(item) {
     var hasCal = !!item.calendarUrl;
 
@@ -212,6 +222,29 @@
     var wantGuests = parseInt(params.get("guests"), 10);
     if (isNaN(wantGuests)) wantGuests = 0;
 
+    /*
+     * With both dates in the address, the question stops being "which of our
+     * places could suit you" and becomes "which of them is free", and only
+     * CheckedIn can answer that. So the cards give way to its results page for
+     * the dates asked for, and the guest filter with them: the frame does its
+     * own filtering, by availability rather than by how many a place sleeps.
+     *
+     * Only on search-results.html. The two destination pages carry a scope and
+     * keep their cards. Only Oxford has a results page so far, so a Dorset
+     * search is unchanged until there is an account id for it.
+     */
+    var ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+    var CIN_ACCOUNT = { oxford: 4 };
+    var from = (params.get("from") || "").trim();
+    var to = (params.get("to") || "").trim();
+    var haveDates = ISO_DATE.test(from) && ISO_DATE.test(to);
+    // Oxford when it is asked for, and when nothing is: the combined page
+    // leads with the destination that can answer and keeps Dorset below.
+    var cinSite = !wantPlace || wantPlace === "oxford" ? "oxford" : null;
+    var showResults = haveDates && !scope && cinSite && CIN_ACCOUNT[cinSite];
+    // Dorset's cards still follow the frame when no destination was named.
+    var dorsetBelow = showResults && !wantPlace;
+
     var all = CH.listings;
     // Everything this page is allowed to show, before any search narrows it.
     var inScope = scope
@@ -238,7 +271,35 @@
     }
 
     tiles.innerHTML = items.map(tile).join("");
-    list.innerHTML = items.map(property).join("");
+
+    if (showResults) {
+      // The frame starts tall and then takes the height the page posts, the
+      // same arrangement the booking calendars use. loading="eager" because
+      // this is the answer to the question that was asked, not something
+      // further down the page.
+      var src = "https://checked.in/widget/results/" + CIN_ACCOUNT[cinSite] +
+        "?preset=cedarhollow" +
+        "&checkInDate=" + encodeURIComponent(from) +
+        "&checkOutDate=" + encodeURIComponent(to) +
+        "&adults=" + cinCount(params.get("adults"), params.get("guests"), 2) +
+        "&kids=" + cinCount(params.get("children"), null, 0);
+
+      var html = '<iframe class="pp-results" src="' + esc(src) +
+        '" title="What’s free for your dates" loading="eager"' +
+        ' style="width:100%;border:0;display:block;height:900px"></iframe>';
+
+      if (dorsetBelow) {
+        var dorset = all.filter(function (it) { return it.destination === "Dorset"; });
+        html += '<p class="pp-filter">Dorset availability is on each property’s page.</p>' +
+          dorset.map(property).join("");
+      }
+      list.innerHTML = html;
+    }
+
+    // Not an early return: the gallery arrows and the swipe are delegated from
+    // this list further down, and Dorset's cards below the frame still need
+    // them bound.
+    if (!showResults) list.innerHTML = items.map(property).join("");
 
     // Tell people what they are looking at, and give them the way out. Without
     // this a narrowed list is indistinguishable from a shorter catalogue.
@@ -280,7 +341,9 @@
       }).join("");
     }
 
-    if (note) tiles.parentNode.insertBefore(note, tiles);
+    // The frame writes its own headline, so the line about what was filtered
+    // would only argue with it.
+    if (note && !showResults) tiles.parentNode.insertBefore(note, tiles);
 
     // A Featured Properties card links here as ?q=<property name>. Both the
     // tiles and the cards are rendered above, so at the moment the browser
@@ -396,10 +459,21 @@
   // The Checked.in widget measures itself once it knows how wide its slot is and
   // posts { cinStripHeight: <px> }. Only the frame that sent the message is
   // resized, matched by its window, so nothing else on the page can resize them.
+  //
+  // Both kinds of frame answer here: a property's booking calendar, and the
+  // results page that replaces the cards when the address carries dates. One
+  // listener, because the message is the same and the sender is identified by
+  // its own window either way.
+  // The 2000px ceiling came from CheckedIn's own calendar snippet, where no
+  // month can be that tall. The results page can: at 390px wide it stacks
+  // every free property and posts 2171, which this threw away, leaving the
+  // frame at its 900px start with the rest behind an inner scrollbar. The
+  // ceiling is only here to ignore nonsense, so it moves out of the way of a
+  // real page rather than the other way round.
   window.addEventListener("message", function (e) {
     var height = e.data && e.data.cinStripHeight;
-    if (typeof height !== "number" || height < 80 || height > 2000) return;
-    var frames = document.querySelectorAll("iframe.pp-book__cal");
+    if (typeof height !== "number" || height < 80 || height > 6000) return;
+    var frames = document.querySelectorAll("iframe.pp-book__cal, iframe.pp-results");
     for (var i = 0; i < frames.length; i++) {
       if (frames[i].contentWindow === e.source) {
         frames[i].style.height = height + "px";
