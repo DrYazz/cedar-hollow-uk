@@ -98,6 +98,37 @@
   box-shadow: 0 1px 2px rgba(16, 19, 7, .05), 0 .625rem 1.5rem rgba(16, 19, 7, .09);
 }
 
+/* On a desktop screen the bar grows. Every number above is clamped against
+   vw and tops out around 1200px, which is where the bar was asked to be small
+   because it shared the nav with the owl and the burger. It does not share
+   with anything now: it has its own line under the heading, and at 1440 a
+   544x55 pill under an 88px heading in a 1312px column read as a leftover
+   from the nav rather than as the way into the page.
+
+   It grows rather than just widens. Measured at 1440, the bar was already
+   mostly air -- 113px of it between each of the four things inside -- so
+   width on its own would have spread those further apart and made the bar
+   emptier, not bigger. The height, the type and the button all go up with it,
+   and the 4rem bar keeps the air in the same proportion it has now.
+
+   Scoped to --under-title, which is the only place the bar renders, so the
+   nav sizing above stays exactly as it is for the case where the move does
+   not happen. The submit button needs no rule: it is height-relative already
+   and follows the bar up to 56px, which is a better target as well. */
+@media screen and (min-width: 992px) {
+  .ch-searchbar--under-title { max-width: 38rem; }
+
+  /* Same specificity as the .js .ch-searchbar that sets these, so this has to
+     come after it in the file to win. */
+  .ch-searchbar--under-title.ch-searchbar {
+    height: 4rem;
+    padding-left: 2.25rem;
+  }
+
+  .ch-searchbar--under-title .ch-searchbar__label { font-size: .8125rem; }
+  .ch-searchbar--under-title .ch-searchbar__value { font-size: 1.0625rem; }
+}
+
 .ch-searchbar__seg {
   display: flex;
   flex-direction: column;
