@@ -267,17 +267,12 @@
         }
       }
     } else {
-      // Unfiltered, the line does the opposite job: it says so, and offers the
-      // places as the way in. Read off the catalogue rather than typed, so a
-      // third location would appear here without anyone remembering to.
-      var places = [];
-      items.forEach(function (it) {
-        if (places.indexOf(it.destination) < 0) places.push(it.destination);
-      });
-      note.innerHTML = "Showing all retreats" + places.map(function (place) {
-        return ' <a href="search-results.html?destination=' +
-          encodeURIComponent(place) + '">' + esc(place) + "</a>";
-      }).join("");
+      // Nothing was narrowed, so there is nothing to explain. The line used to
+      // say "Showing all retreats" and offer the two places as a way in, which
+      // only restated the page: every retreat is on it, under a heading that
+      // says so. It earns its place when a search has cut the list down, and
+      // not before.
+      note = null;
     }
 
     if (note) tiles.parentNode.insertBefore(note, tiles);
