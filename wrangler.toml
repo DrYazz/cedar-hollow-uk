@@ -93,15 +93,18 @@ ANALYTICS_SITE = "ae885004b4b34ac2a39e3b5dc349a8eb"   # cedarhollow.uk
 # renewal per site; if a token lapses anyway, set a new secret and it takes
 # over at once.
 #
-# The same Monday cron sends the weekly visitor report, covering the Monday to
-# Sunday just ended.
+# The cron runs every day at 04:17 UTC, not just Mondays: each morning it
+# keeps the previous day's visitor figures while they are still exact (see
+# "Weekly visitor report" in worker/index.js), and on Mondays it also renews
+# the Instagram tokens and emails the visitor report for the Monday to Sunday
+# just ended.
 
 [[kv_namespaces]]
 binding = "IG_KV"
 id = "8d6bb0fe7112447ca233e6cd03e8d8b8"   # cedar-hollow-instagram
 
 [triggers]
-crons = ["17 4 * * 1"]
+crons = ["17 4 * * *"]
 
 # --- Previews ----------------------------------------------------------------
 # Every branch other than main is built with `npx wrangler preview`, which gets

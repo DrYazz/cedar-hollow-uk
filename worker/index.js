@@ -74,15 +74,24 @@ const IG_TOKENS = {
 /*
  * Weekly visitor report.
  *
- * Early every Monday the cron in wrangler.toml also emails last week's
- * Cloudflare Web Analytics figures for cedarhollow.uk: the websites visitors
- * came from, each split by computer, phone and tablet, with the week's totals
- * and most-read pages, and the full source-by-device breakdown attached as a
- * spreadsheet. Cloudflare keeps six months of Web Analytics and thins it to a
- * sample after a week, so these emails are also the long-term record.
+ * Early every Monday an email of last week's Cloudflare Web Analytics figures
+ * for cedarhollow.uk goes out: the websites visitors came from, each split by
+ * computer, phone and tablet, with the week's totals and most-read pages, and
+ * the full source-by-device breakdown attached as a spreadsheet.
  *
- * The figures come from Cloudflare's GraphQL Analytics API, which needs an API
- * token with Account Analytics: Read. It is a secret, set once:
+ * The figures come from Cloudflare's GraphQL Analytics API. It keeps them
+ * exact for seven days and as a one-in-ten sample after that, and answers any
+ * question spanning more than a week from the sample -- which, on a site this
+ * size, can turn a website that sent two visitors into none, or ten. So the
+ * cron runs every morning: it reads the day just ended, while it is exact,
+ * and keeps it in KV (IG_KV, beside the Instagram tokens, under
+ * visits:day:YYYY-MM-DD). Monday's report adds up seven of those days; a day
+ * the cron missed is read from the API when the report needs it, as exactly
+ * as the API still has it. The kept days are also the long-term record, since
+ * the dashboard goes back only six months. Bots are left out throughout, as
+ * the dashboard leaves them out by default.
+ *
+ * The API needs a token with Account Analytics: Read. It is a secret, set once:
  *
  *   npx wrangler secret put ANALYTICS_API_TOKEN
  *
@@ -101,6 +110,9 @@ const GRAPHQL_ENDPOINT = "https://api.cloudflare.com/client/v4/graphql";
 const REPORT_TZ = "Europe/London";
 const REPORT_TOP_SOURCES = 15;
 const REPORT_TOP_PAGES = 10;
+const DAY_KEY = "visits:day:";            // + YYYY-MM-DD, in IG_KV
+const DAY_KEEP = 3 * 365 * 86400;         // seconds a kept day lasts: three years
+const DAY_PAGES = 100;                    // pages kept per day
 
 // Visits were not counted from the move to Workers static assets until the
 // beacon went back in (worker-served pages never got Cloudflare's injected
@@ -202,11 +214,14 @@ export default {
     return env.ASSETS.fetch(request);
   },
 
-  // The cron in wrangler.toml, early on Mondays: keep the Instagram tokens
-  // alive, and email last week's visitor report. Each fails on its own.
+  // The cron in wrangler.toml, early every morning: keep yesterday's visitor
+  // figures, and on Mondays also renew the Instagram tokens and email last
+  // week's report. Each job fails on its own.
   async scheduled(event, env, ctx) {
-    ctx.waitUntil(refreshInstagramTokens(env));
-    ctx.waitUntil(sendWeeklyReport(env));
+    const now = event.scheduledTime || Date.now();
+    const monday = new Date(londonDate(now)).getUTCDay() === 1;
+    if (monday) ctx.waitUntil(refreshInstagramTokens(env));
+    ctx.waitUntil(visitorCron(env, now, monday));
   },
 };
 
@@ -424,7 +439,7 @@ async function sendWeeklyReport(env, { day = Date.now(), containing = false, dry
 
   let email;
   try {
-    email = renderReport(env, await fetchReport(env, week));
+    email = renderReport(env, await fetchReport(env, week, !dry));
   } catch (err) {
     const reason = err && err.message ? err.message : String(err);
     console.error(`[report] ${weekLabel(week)}: ${reason}`);
@@ -443,7 +458,10 @@ async function sendWeeklyReport(env, { day = Date.now(), containing = false, dry
     const { attachments, ...rest } = email;
     return { ok: true, ...rest };
   }
-  if (!mailReady(env)) return { ok: false, error: "Mail not configured" };
+  if (!mailReady(env)) {
+    console.error("[report] mail not configured; report not sent");
+    return { ok: false, error: "Mail not configured" };
+  }
 
   try {
     const { csv, ...message } = email;
@@ -469,33 +487,102 @@ async function sameSecret(a, b) {
 }
 
 /*
- * One GraphQL request for the whole report: the week's totals, the week
- * before's for comparison, visits by source and device, and the top pages.
+ * The daily job: keep yesterday's figures while they are exact, then on a
+ * Monday send the report, which finds all seven days kept.
  */
-async function fetchReport(env, week) {
-  const thisWeek = rumFilter(env, week.from, week.to);
-  const weekBefore = rumFilter(env, week.before, week.from);
+async function visitorCron(env, now, monday) {
+  if (!analyticsReady(env)) {
+    console.error("[report] not configured: needs ANALYTICS_API_TOKEN, ANALYTICS_ACCOUNT and ANALYTICS_SITE");
+    return;
+  }
+  try {
+    await dayFigures(env, londonDate(now) - DAY, true);
+  } catch (err) {
+    console.error("[report] could not keep yesterday:", err && err.message ? err.message : err);
+  }
+  if (monday) await sendWeeklyReport(env, { day: now });
+}
+
+/*
+ * The report's figures: the week's seven days added up, and the week
+ * before's totals to compare them with.
+ */
+async function fetchReport(env, week, store) {
+  const seven = (monday) => Promise.all(
+    Array.from({ length: 7 }, (_, i) => dayFigures(env, monday + i * DAY, store))
+  );
+  const [days, before] = await Promise.all([seven(week.monday), seven(week.monday - 7 * DAY)]);
+  const total = (list, field) => list.reduce((n, d) => n + d[field], 0);
+
+  const byRow = new Map();
+  const byPage = new Map();
+  for (const d of days) {
+    for (const [host, device, visits] of d.sources) {
+      const key = JSON.stringify([host, device]);
+      byRow.set(key, (byRow.get(key) || 0) + visits);
+    }
+    for (const [path, views] of d.pages) byPage.set(path, (byPage.get(path) || 0) + views);
+  }
+
+  return {
+    week,
+    account: env.ANALYTICS_ACCOUNT,
+    site: env.ANALYTICS_SITE,
+    visits: total(days, "visits"),
+    views: total(days, "views"),
+    before: { visits: total(before, "visits"), views: total(before, "views") },
+    rows: [...byRow].map(([key, visits]) => {
+      const [host, device] = JSON.parse(key);
+      return { host, source: sourceName(host), device: DEVICE_NAMES[device] || "Other", visits };
+    }),
+    pages: [...byPage]
+      .map(([path, views]) => ({ path, views }))
+      .sort((a, b) => b.views - a.views || a.path.localeCompare(b.path))
+      .slice(0, REPORT_TOP_PAGES),
+  };
+}
+
+/*
+ * One London day's figures: from KV if kept, otherwise from the API -- and,
+ * with `store`, kept from then on. Never a day still under way, whose figures
+ * are not final.
+ */
+async function dayFigures(env, date, store) {
+  const key = DAY_KEY + isoDate(date);
+  if (env.IG_KV) {
+    const kept = await env.IG_KV.get(key, "json").catch(() => null);
+    if (kept) return kept;
+  }
+  const day = await fetchDay(env, date);
+  if (store && env.IG_KV && londonMidnight(date + DAY) <= Date.now()) {
+    await env.IG_KV.put(key, JSON.stringify(day), { expirationTtl: DAY_KEEP }).catch((err) =>
+      console.error(`[report] could not keep ${day.date}:`, err && err.message ? err.message : err)
+    );
+  }
+  return day;
+}
+
+/*
+ * One day from the GraphQL API, in one request: totals, visits by website
+ * and device, and the most-viewed pages. The API scales sampled figures up
+ * itself, so they are used as given.
+ */
+async function fetchDay(env, date) {
+  const filter = rumFilter(env, londonMidnight(date), londonMidnight(date + DAY));
   const query = `{
     viewer {
       accounts(filter: { accountTag: ${JSON.stringify(env.ANALYTICS_ACCOUNT)} }) {
-        week: rumPageloadEventsAdaptiveGroups(filter: ${thisWeek}, limit: 1) {
+        total: rumPageloadEventsAdaptiveGroups(filter: ${filter}, limit: 1) {
           count
           sum { visits }
           avg { sampleInterval }
         }
-        before: rumPageloadEventsAdaptiveGroups(filter: ${weekBefore}, limit: 1) {
-          count
+        sources: rumPageloadEventsAdaptiveGroups(filter: ${filter}, limit: 5000, orderBy: [sum_visits_DESC]) {
           sum { visits }
-          avg { sampleInterval }
-        }
-        sources: rumPageloadEventsAdaptiveGroups(filter: ${thisWeek}, limit: 5000, orderBy: [sum_visits_DESC]) {
-          sum { visits }
-          avg { sampleInterval }
           dimensions { refererHost deviceType }
         }
-        pages: rumPageloadEventsAdaptiveGroups(filter: ${thisWeek}, limit: ${REPORT_TOP_PAGES}, orderBy: [count_DESC]) {
+        pages: rumPageloadEventsAdaptiveGroups(filter: ${filter}, limit: ${DAY_PAGES}, orderBy: [count_DESC]) {
           count
-          avg { sampleInterval }
           dimensions { requestPath }
         }
       }
@@ -520,51 +607,33 @@ async function fetchReport(env, week) {
     throw new Error("analytics API returned no account: check ANALYTICS_ACCOUNT and the token's account access");
   }
 
-  const total = (rows) => {
-    const g = (rows || [])[0];
-    return { visits: estimate(g && g.sum && g.sum.visits, g), views: estimate(g && g.count, g) };
-  };
-
-  // One row per website and device. A page view from inside the site carries
-  // no visit, so rows without one are the site linking to itself and go.
-  const rows = [];
-  for (const g of account.sources || []) {
-    const visits = estimate(g.sum && g.sum.visits, g);
-    if (!visits) continue;
-    const host = String((g.dimensions && g.dimensions.refererHost) || "").toLowerCase();
-    rows.push({
-      host,
-      source: sourceName(host),
-      device: DEVICE_NAMES[g.dimensions && g.dimensions.deviceType] || "Other",
-      visits,
-    });
-  }
-
+  const whole = (n) => Math.round(Number(n) || 0);
+  const t = (account.total || [])[0] || {};
+  const dim = (g) => g.dimensions || {};
   return {
-    week,
-    account: env.ANALYTICS_ACCOUNT,
-    site: env.ANALYTICS_SITE,
-    ...total(account.week),
-    before: total(account.before),
-    rows,
-    pages: (account.pages || []).map((g) => ({
-      path: String((g.dimensions && g.dimensions.requestPath) || "/"),
-      views: estimate(g.count, g),
-    })),
+    date: isoDate(date),
+    visits: whole(t.sum && t.sum.visits),
+    views: whole(t.count),
+    // 1 while the day is exact; about 10 once Cloudflare has thinned it.
+    sampleInterval: Number((t.avg && t.avg.sampleInterval) || 1),
+    // [website, device, visits]. A page view from inside the site carries no
+    // visit, so rows without one are the site linking to itself, and go.
+    sources: (account.sources || [])
+      .map((g) => [String(dim(g).refererHost || "").toLowerCase(), String(dim(g).deviceType || ""), whole(g.sum && g.sum.visits)])
+      .filter((row) => row[2] > 0),
+    // [path, page views]
+    pages: (account.pages || []).map((g) => [String(dim(g).requestPath || "/"), whole(g.count)]),
   };
 }
 
-// Web Analytics thins its data to a sample after a week, and reports how
-// thinly in sampleInterval; scaling by it gives the estimate the dashboard
-// shows. Within the last week it is 1.
-function estimate(value, group) {
-  const interval = (group && group.avg && group.avg.sampleInterval) || 1;
-  return Math.round((Number(value) || 0) * interval);
-}
-
+// Bots left out, as the dashboard leaves them out by default.
 function rumFilter(env, from, to) {
   const time = (t) => JSON.stringify(new Date(t).toISOString().replace(/\.\d{3}Z$/, "Z"));
-  return `{ siteTag: ${JSON.stringify(env.ANALYTICS_SITE)}, datetime_geq: ${time(from)}, datetime_lt: ${time(to)} }`;
+  return `{ siteTag: ${JSON.stringify(env.ANALYTICS_SITE)}, datetime_geq: ${time(from)}, datetime_lt: ${time(to)}, bot: 0 }`;
+}
+
+function isoDate(date) {
+  return new Date(date).toISOString().slice(0, 10);
 }
 
 function sourceName(host) {
@@ -696,7 +765,7 @@ function renderReport(env, r) {
     "“Direct” means the visitor’s browser didn’t say where they came from: " +
     "the address typed in, a bookmark, or a link in WhatsApp, an email or another app.";
   const incompleteNote =
-    "Visits weren’t counted from 1 October until the afternoon of 2 October, " +
+    "Most visits went uncounted from 1 October until the afternoon of 2 October, " +
     "so this week’s figures are incomplete.";
 
   // ---- plain text ---------------------------------------------------------
@@ -804,7 +873,7 @@ ${pageHtml}
 </div></body></html>`;
 
   // ---- spreadsheet --------------------------------------------------------
-  const weekStart = new Date(week.monday).toISOString().slice(0, 10);
+  const weekStart = isoDate(week.monday);
   const csvRows = [...r.rows].sort(
     (a, b) =>
       (bySource.get(b.source).visits - bySource.get(a.source).visits) ||
