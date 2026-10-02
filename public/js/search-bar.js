@@ -572,16 +572,70 @@
      The pickers need nothing: place() reads the bar's live rectangle each
      time one opens, and reposition() above already runs on resize and scroll,
      so they follow the bar down the page. */
-  // The bar belongs under the page's heading, at every width. It began in the
-  // nav and moved down on phones only, where it left the logo no room; it
-  // reads better under the heading everywhere, and the nav is the logo and the
-  // burger again. No breakpoint and nothing to re-place on resize, so the
-  // media query that used to drive this is gone.
+  /* Where the bar lives depends on the width.
+   *
+   * On a desktop screen it goes back into the nav, but on the right this
+   * time, with the burger to its right. Its first home was the nav's left,
+   * in the wordmark's place, and the trouble there was that it and the logo
+   * were fighting over the same end of the bar. On the right it has the whole
+   * span from the logo to the burger and takes nothing from either.
+   *
+   * Below that it stays under the page heading, which is where it has to be:
+   * the nav has no room for it on a phone, and that was what moved it out in
+   * the first place.
+   *
+   * The pickers need no help. They hang off document.body, place() reads the
+   * bar's live rectangle each time one opens and clamps itself to the window,
+   * so a bar on the right drops its panel against the right edge rather than
+   * off it. */
   var heading = document.querySelector(".pp-title");
-  if (heading && heading.parentNode) {
-    heading.parentNode.insertBefore(bar, heading.nextSibling);
-    bar.classList.add("ch-searchbar--under-title");
+  /* Anchor on the burger rather than on a wrapper. The core site puts the
+     burger inside a .ch-nav__actions group and the two sub-sites hang it
+     straight off .ch-nav__bar, so looking for the group found it on
+     search-results.html and nothing on oxford-stays.html or
+     dorset-stays.html, where the bar simply stayed under the heading. The
+     burger is the one thing all three navs have, and going in just ahead of
+     it lands the bar in the right place in either shape. */
+  var burger = document.querySelector(".ch-nav__toggle");
+  var navHome = burger && burger.parentNode;
+  var inNav = window.matchMedia("(min-width: 992px)");
+
+  var placed = false;
+
+  function placeBar() {
+    var wantNav = !!(inNav.matches && navHome);
+    var isNav = !!(navHome && bar.parentNode === navHome);
+    // Cheap enough to call on every resize tick because it does nothing
+    // unless the bar is on the wrong side of the breakpoint. The flag is for
+    // the first call, where the bar is still in the markup's .ch-nav__brand
+    // and so is in neither home yet.
+    if (placed && wantNav === isNav) return;
+    placed = true;
+
+    // An open panel is positioned against wherever the bar used to be, so it
+    // is shut before the bar moves out from under it.
+    close();
+    if (wantNav) {
+      // Before the burger, so the burger keeps the right edge it has always
+      // had and the bar sits inboard of it.
+      navHome.insertBefore(bar, burger);
+      bar.classList.remove("ch-searchbar--under-title");
+      bar.classList.add("ch-searchbar--in-nav");
+    } else if (heading && heading.parentNode) {
+      heading.parentNode.insertBefore(bar, heading.nextSibling);
+      bar.classList.remove("ch-searchbar--in-nav");
+      bar.classList.add("ch-searchbar--under-title");
+    }
   }
+
+  placeBar();
+  /* Both signals, because the bar being in the wrong place is a visible
+     breakage and neither signal is free. addListener is the Safari 13
+     spelling of the first, deprecated rather than gone; resize is the
+     backstop, and the script is already listening to it for reposition(). */
+  if (inNav.addEventListener) inNav.addEventListener("change", placeBar);
+  else if (inNav.addListener) inNav.addListener(placeBar);
+  window.addEventListener("resize", placeBar);
 
   paintDates();
   paintGuests();

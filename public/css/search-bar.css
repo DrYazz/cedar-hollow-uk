@@ -98,35 +98,52 @@
   box-shadow: 0 1px 2px rgba(16, 19, 7, .05), 0 .625rem 1.5rem rgba(16, 19, 7, .09);
 }
 
-/* On a desktop screen the bar grows. Every number above is clamped against
-   vw and tops out around 1200px, which is where the bar was asked to be small
-   because it shared the nav with the owl and the burger. It does not share
-   with anything now: it has its own line under the heading, and at 1440 a
-   544x55 pill under an 88px heading in a 1312px column read as a leftover
-   from the nav rather than as the way into the page.
+/* From 992px the bar sits in the nav again, at the right, with the burger
+   outboard of it. js/search-bar.js does the moving.
 
-   It grows rather than just widens. Measured at 1440, the bar was already
-   mostly air -- 113px of it between each of the four things inside -- so
-   width on its own would have spread those further apart and made the bar
-   emptier, not bigger. The height, the type and the button all go up with it,
-   and the 4rem bar keeps the air in the same proportion it has now.
+   Its first home was the nav's left, in the wordmark's place, and what went
+   wrong there was that the bar and the logo were competing for one end of the
+   nav: the owl came off below 380 and the sub-site wordmark below 768, both
+   paying for the bar out of the one thing that says which site you are on.
+   On the right the bar has the span between the logo and the burger, and
+   takes nothing from either.
 
-   Scoped to --under-title, which is the only place the bar renders, so the
-   nav sizing above stays exactly as it is for the case where the move does
-   not happen. The submit button needs no rule: it is height-relative already
-   and follows the bar up to 56px, which is a better target as well. */
+   The height is flat here rather than clamped. The clamp this overrides runs
+   off vw and would leave a 43px bar at 992 growing to 55 at 1440, which read
+   as the nav shrinking it; 55px holds across the range and puts the nav at
+   85px, which is where it stood when the bar last lived in it.
+
+   This is also where the 608x64 bar from under the heading goes. In the nav
+   the height is not free: every pixel on the bar is a pixel on the nav, and
+   64px would stand it at 94. The type goes back to the clamp's own sizes for
+   the same reason. */
 @media screen and (min-width: 992px) {
-  .ch-searchbar--under-title { max-width: 38rem; }
-
-  /* Same specificity as the .js .ch-searchbar that sets these, so this has to
-     come after it in the file to win. */
-  .ch-searchbar--under-title.ch-searchbar {
-    height: 4rem;
-    padding-left: 2.25rem;
+  .ch-searchbar--in-nav.ch-searchbar {
+    /* The width is a width, not a flex basis, and that is the whole trick.
+       On the core page the bar goes inside .ch-nav__actions, which is itself
+       a shrink-to-fit flex item, and a flex item inside one of those
+       contributes its content size to the measurement and not its basis: the
+       same trap .ch-nav__brand above carries a comment about. Given as
+       flex: 0 1 34rem the bar measured 271px at 1440 instead of 544. A
+       definite width is what the container measures. */
+    width: 34rem;
+    max-width: 100%;
+    flex: 0 1 auto;
+    min-width: 0;
+    height: 3.4375rem;
+    /* The two sub-sites hang the burger straight off the nav, so there the
+       bar becomes the middle of three items in a space-between row and would
+       sit stranded in the centre. An auto margin eats the free space to its
+       left and puts it against the burger, which is where it already is on
+       the core page inside the actions group. */
+    margin-left: auto;
   }
 
-  .ch-searchbar--under-title .ch-searchbar__label { font-size: .8125rem; }
-  .ch-searchbar--under-title .ch-searchbar__value { font-size: 1.0625rem; }
+  /* The bar is no longer in this group -- it holds the logo alone now -- so
+     the 555px basis it carries to make room for the bar only risks squeezing
+     the logo when the nav is tight. Only the six pages that load this
+     stylesheet are affected. */
+  .ch-nav__brand { flex: 0 1 auto; }
 }
 
 .ch-searchbar__seg {
