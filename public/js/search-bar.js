@@ -405,8 +405,14 @@
     var dest = form.querySelector('input[name="destination"]');
     var both = fields.from.value && fields.to.value;
     var place = ((dest && dest.value) || "").trim().toLowerCase();
-    form.setAttribute("action",
-      both && place !== "dorset" ? "availability.html" : "search-results.html");
+    /* And it lands in the site it started from: a search begun in Oxford ends
+       on Oxford's availability page, not in the core site. Dorset's page
+       exists but has no CheckedIn account yet, so a Dorset search still goes
+       to the cards; swapping that line in is all it will take. */
+    var where = "search-results.html";
+    if (both && place === "oxford") where = "oxford-availability.html";
+    else if (both && place !== "dorset") where = "availability.html";
+    form.setAttribute("action", where);
 
     // guests carries the headline number; the breakdown only earns its place
     // in the query string when there is something to break down.

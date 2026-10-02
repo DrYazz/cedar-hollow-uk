@@ -3,18 +3,19 @@
 <head>
   <script>document.documentElement.className+=" js";</script>
   <meta charset="utf-8">
-  <title>What’s free for your dates | Cedar Hollow</title>
+  <title>What’s free for your dates | Cedar Hollow Oxford</title>
   <meta content="width=device-width, initial-scale=1" name="viewport">
   <meta name="description" content="Live availability for the Cedar Hollow Oxford retreats, for the dates you choose.">
   <link rel="preload" href="fonts/CrimsonPro-Light.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/Inter_24pt-Medium.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/HedvigLettersSerif_18pt-Regular.woff2" as="font" type="font/woff2" crossorigin>
+<link href="css/siteswitch.css?v=20260929c" rel="stylesheet" type="text/css">
 <link href="css/normalize.css" rel="stylesheet" type="text/css">
-  <link href="css/navpanel.css?v=20260929a" rel="stylesheet" type="text/css">
   <link href="css/webflow.css" rel="stylesheet" type="text/css">
   <link href="css/cedar-hollow-uk.webflow.css?v=20261001c" rel="stylesheet" type="text/css">
   <link href="css/properties.css?v=20261002a" rel="stylesheet" type="text/css">
   <link href="css/search-bar.css?v=20261002a" rel="stylesheet" type="text/css">
+  <link href="css/oxford-footer.css?v=4efd9f7b" rel="stylesheet" type="text/css">
   <link href="images/favicon.svg" rel="icon" type="image/svg+xml">
   <link href="images/favicon.png" rel="icon" type="image/png" sizes="32x32" media="(prefers-color-scheme: light)">
   <link href="images/favicon-dark.png" rel="icon" type="image/png" sizes="32x32" media="(prefers-color-scheme: dark)">
@@ -25,13 +26,13 @@
        here for a search engine to index. -->
   <meta name="robots" content="noindex, follow">
   <!--  Link previews. See index.html for why these are absolute.  -->
-  <link href="https://cedarhollow.uk/availability.html" rel="canonical">
+  <link href="https://cedarhollow.uk/oxford-availability.html" rel="canonical">
   <meta content="Cedar Hollow" property="og:site_name">
   <meta content="website" property="og:type">
   <meta content="en_GB" property="og:locale">
-  <meta content="What’s free for your dates | Cedar Hollow" property="og:title">
+  <meta content="What’s free for your dates | Cedar Hollow Oxford" property="og:title">
   <meta content="Live availability for the Cedar Hollow Oxford retreats, for the dates you choose." property="og:description">
-  <meta content="https://cedarhollow.uk/availability.html" property="og:url">
+  <meta content="https://cedarhollow.uk/oxford-availability.html" property="og:url">
   <meta content="https://cedarhollow.uk/images/og-image.jpg" property="og:image">
   <meta content="1200" property="og:image:width">
   <meta content="630" property="og:image:height">
@@ -77,9 +78,7 @@
             @media (max-width:479px){.section-hero .heading-style-h1{font-size:9vw;}}
             /* Self-hosted alongside Crimson Pro and Inter. OFL; licence in fonts/. */
             @font-face{font-family:"Hedvig Letters Serif";src:url("fonts/HedvigLettersSerif_18pt-Regular.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap;}
-            /* 14px rather than the usual 20: the bar is 57px where the wordmark was 45,
-               and the nav stays at 85px by giving up the difference in padding. */
-            .ch-nav__bar{display:flex;align-items:center;justify-content:space-between;gap:1rem;width:100%;padding:15px 32px 15px 24px;position:relative;z-index:30;}
+            .ch-nav__bar{display:flex;align-items:center;justify-content:space-between;gap:1rem;width:100%;padding:20px 32px 20px 24px;position:relative;z-index:30;}
             .ch-nav__logo{display:inline-flex;align-items:center;gap:clamp(.5rem,.83vw,.75rem);text-decoration:none;color:#F1ECDB;}
             .ch-nav__owl{width:clamp(1.75rem,2.5vw,2.25rem);height:auto;flex:none;}
             .ch-nav__wordmark{font-family:"Hedvig Letters Serif",var(--font-family--heading,Crimsonpro),serif;font-size:clamp(1.5rem,2.78vw,2.5rem);font-weight:400;line-height:100%;letter-spacing:-.035em;}
@@ -108,45 +107,91 @@
               .ch-nav__menu a{font-size:1.75rem;padding:.6rem 0;text-shadow:none;}
               body.ch-nav-open{overflow:hidden;}
             }
-          </style>
+          </style><style>
+/* The Oxford navigation dropdown.
+
+   These three pages sit at the site root but belong to the Oxford sub-site, so
+   they carry Oxford's nav. They do not load oxford/css/site.css, where the
+   dropdown is styled, and the flat single-column rules above would otherwise
+   run the five groups together on one line. Written out here rather than
+   scraped from that stylesheet, so it is self-contained and readable. */
+/* :not([hidden]) matters. The page's own stylesheet hides the menu with
+   .ch-nav__menu[hidden]{display:none}, which has the same specificity as
+   .ch-nav__menu.is-dropdown -- so a bare display here wins on order alone and
+   the panel never closes, however correctly the toggle sets hidden. The
+   sub-site stylesheet guards it the same way. */
+.ch-nav__menu.is-dropdown:not([hidden]){
+  /* bottom:auto matters. The page's own mobile rule makes the flat menu a
+     full-screen overlay with position:fixed and inset:0, which sets bottom:0.
+     This rule puts position back to absolute and sets top:100% but said nothing
+     about bottom, so bottom:0 survived -- and an absolutely positioned box with
+     both top and bottom fixed takes its height from the containing block, which
+     is the 75px nav bar. 75 - 75 - 0 = zero, so the panel opened to nothing but
+     its own padding. */
+  position:absolute;top:100%;right:32px;bottom:auto;z-index:20;
+  /* auto-fit on the same track as the other twenty-seven Oxford pages, rather
+     than a fixed two. With four groups the fixed pair made this panel 563px
+     tall and two columns wide where every other Oxford page shows three. */
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(9.5rem,1fr));
+  gap:1.5rem 1.75rem;align-items:start;
+  width:max-content;min-width:0;max-width:min(44rem,calc(100vw - 48px));
+  padding:1.25rem 1.5rem 1.5rem;
+  text-align:left;
+  background:var(--accent,#3b4126);
+  border:1px solid rgba(241,236,219,.16);
+  border-radius:14px;
+  box-shadow:0 18px 40px rgba(0,0,0,.28);
+}
+.ch-nav__menu.is-dropdown .ch-navgroup{display:flex;flex-direction:column;min-width:0;}
+.ch-nav__menu.is-dropdown .ch-navgroup__title{
+  margin:0 0 .45rem;padding-bottom:.35rem;
+  border-bottom:1px solid rgba(241,236,219,.2);
+  font-family:var(--font-family--body,inherit);
+  font-size:.6875rem;font-weight:500;letter-spacing:.14em;
+  text-transform:uppercase;color:#f1ecdb85;
+}
+.ch-nav__menu.is-dropdown a{
+  display:block;padding:.3rem 0;
+  font-size:.9375rem;font-weight:400;line-height:1.35;
+  color:#f1ecdb;text-decoration:none;text-align:left;white-space:normal;
+}
+.ch-nav__menu.is-dropdown a:hover,
+.ch-nav__menu.is-dropdown a:focus-visible{color:#fff;text-decoration:underline;text-underline-offset:.18em;}
+.ch-nav__menu.is-dropdown a:focus-visible{outline:2px solid #f1ecdb;outline-offset:3px;border-radius:2px;}
+.ch-nav__menu.is-dropdown a[aria-current="page"]{color:#fff;font-weight:500;}
+.ch-nav__menu.is-dropdown a[aria-current="page"]::before{
+  content:"";display:inline-block;width:.3rem;height:.3rem;margin-right:.45rem;
+  vertical-align:.15em;border-radius:50%;background:currentColor;
+}
+/* On a phone the menu is the full-screen list every other Oxford page opens.
+   It was a card hung below the bar with left and right set, but width
+   max-content from the rule above outranks right, so it came out 280px wide
+   against the left edge, away from the burger it opens from; and its height
+   was capped at 100vh less the bar, which on a phone counts the browser's own
+   toolbar, so the last links sat below the bottom of the screen. Fixed to
+   the screen it scrolls inside itself to the last link, and the bar, which
+   sits above it, keeps the burger there to close it. */
+@media screen and (max-width:47.9375rem){
+  /* matched to the specificity of the rule above */
+  .ch-nav__menu.is-dropdown:not([hidden]){
+    position:fixed;inset:0;z-index:15;
+    display:block;width:auto;max-width:none;max-height:none;
+    overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
+    padding:5.5rem 1.75rem 3rem;
+    border:0;border-radius:0;box-shadow:none;
+  }
+  .ch-nav__menu.is-dropdown .ch-navgroup + .ch-navgroup{margin-top:1.5rem;}
+  .ch-nav__menu.is-dropdown a{padding:.45rem 0;font-size:1.0625rem;}
+  /* The stays page carries the search bar in the nav. It would sit over the
+     open menu, and on the narrowest phones it pushes the bar to two lines. */
+  body.ch-nav-open .ch-searchbar{display:none;}
+}
+</style>
           <nav class="ch-nav__bar" aria-label="Primary">
-            <div class="ch-nav__brand">
-              <!-- The owl alone: the wordmark beside it is what the bar replaced.
-                   Unlinked by choice, so it is a mark rather than a second way home. -->
-              <img src="images/cedar-hollow-owl.svg" loading="eager" alt="Cedar Hollow" class="ch-nav__owl" width="800" height="1000">
-              <!-- Figma 280:293. Script-only: without it the native bar further down the
-               page is the one that works, and this would be a trigger for a panel
-               that never gets built. -->
-            </div>
-            <div class="ch-nav__actions"><button class="ch-nav__toggle" type="button" aria-expanded="false" aria-controls="ch-nav-menu"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span><span class="ch-nav__sr">Menu</span></button></div>
+            <div class="ch-siteswitch"><a href="oxford.html" class="ch-nav__logo"><img src="images/cedar-hollow-owl.svg" loading="eager" alt="Cedar Hollow Oxford" class="ch-nav__owl" width="800" height="1000"><span class="ch-nav__wordmark">Oxford</span></a><button class="ch-siteswitch__caret" type="button" aria-expanded="false" aria-controls="ch-siteswitch-list"><span class="ch-nav__sr">Switch site</span><svg viewBox="0 0 12 8" width="12" height="8" fill="none" aria-hidden="true" focusable="false"><path d="M1 1.5 6 6.5l5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><ul class="ch-siteswitch__list" id="ch-siteswitch-list"><li><a href="dorset.html"><img src="images/cedar-hollow-owl.svg" alt="" aria-hidden="true" class="ch-nav__owl" width="800" height="1000"><span class="ch-nav__wordmark">Dorset</span></a></li><li><a href="index.html"><img src="images/cedar-hollow-owl.svg" alt="" aria-hidden="true" class="ch-nav__owl" width="800" height="1000"><span class="ch-nav__wordmark">Cedar Hollow</span></a></li></ul></div>
+            <button class="ch-nav__toggle" type="button" aria-expanded="false" aria-controls="ch-nav-menu"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span><span class="ch-nav__sr">Menu</span></button>
           </nav>
-          <div class="ch-nav__menu" id="ch-nav-menu" hidden>
-            <a href="search-results.html" class="ch-nav__book-cta">Book your Stay</a>
-            <div class="ch-navgroup"><p class="ch-navgroup__title">Cedar Hollow</p>
-              <a href="about.html">Our Story</a>
-              <a href="sustainability.html">Sustainability</a>
-              <a href="experiences.html">Experiences</a>
-              <a href="careers.html">Work with Us</a>
-              <a href="influencers.html">Influencers</a>
-              <a href="mailto:hello@cedarhollow.uk">Contact</a>
-            </div>
-            <div class="ch-navgroup"><p class="ch-navgroup__title">Oxfordshire</p>
-              <a href="oxford.html">Cedar Hollow Oxford</a>
-              <a href="oxford/facilities.html">Facilities</a>
-              <a href="oxford/wellness.html">Wellness</a>
-              <a href="oxford/dining.html">Dining</a>
-              <a href="oxford/todo.html">Things to Do</a>
-              <a href="oxford-reviews.html">Reviews</a>
-            </div>
-            <div class="ch-navgroup"><p class="ch-navgroup__title">Dorset</p>
-              <a href="dorset.html">Cedar Hollow Dorset</a>
-              <a href="dorset-woodsmans-treehouse.html">The Woodsman&rsquo;s</a>
-              <a href="dorset-dazzle-treehouse.html">Dazzle</a>
-              <a href="dorset-pinwheel-treehouse.html">Pinwheel</a>
-              <a href="dorset-compare.html">Compare them</a>
-              <a href="dorset-prices.html">Seasons &amp; Prices</a>
-            </div>
-          </div>
+          <div class="ch-nav__menu is-dropdown" id="ch-nav-menu" hidden><a href="oxford-stays.html" class="ch-nav__book-cta"><span>Book your Stay</span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 17 12" fill="none" class="button_icon" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.2443 5.03644L9.48927 1.21321L10.6935 0L16.5 5.91195L10.6783 11.55L9.50444 10.3067L13.17 6.75673H0V5.03644H13.2443Z" fill="currentColor"/></svg></a><div class="ch-navgroup"><p class="ch-navgroup__title">Our Rentals</p><a href="https://theoaks.checked.in/book/theoaks" target="_blank" rel="noopener">The Treehouse</a><a href="https://theoaks.checked.in/book/fauns-hideaway" target="_blank" rel="noopener">Faun&rsquo;s Hideaway</a><a href="https://theoaks.checked.in/book/beavers-den-1" target="_blank" rel="noopener">Beaver&rsquo;s Den</a></div><div class="ch-navgroup"><p class="ch-navgroup__title">Your Stay</p><a href="oxford/facilities.html">Facilities</a><a href="oxford/wellness.html">Wellness</a><a href="oxford/dining.html">Dining</a><a href="oxford/experiences.html">Experiences</a><a href="oxford/celebrations.html">Celebrations</a><a href="oxford/todo.html">On Our Doorstep</a></div><div class="ch-navgroup"><p class="ch-navgroup__title">About</p><a href="oxford/story.html">Our Story</a><a href="oxford/honey.html">Our Honey</a><a href="oxford-sustainability.html">Sustainability</a><a href="oxford/philanthropy.html">Philanthropy</a><a href="oxford-reviews.html">Reviews</a><a href="oxford-press.html">Press</a></div><div class="ch-navgroup"><p class="ch-navgroup__title">Work with us</p><a href="oxford/schoolgroups.html">School Groups</a></div></div>
           <script>
             (function(){
               var btn=document.querySelector(".ch-nav__toggle"),menu=document.getElementById("ch-nav-menu");
@@ -216,44 +261,14 @@
                     </li>
                   </ul>
                 </div>
-                <div class="footer_content-right">
-                  <div class="footer_link-col">
-                    <ul role="list" class="footer-link-list">
-                      <li>
-                        <a href="about.html" class="footer_link is-large">Our Story</a>
-                      </li>
-                      <li>
-                        <a href="search-results.html" class="footer_link is-large">Properties</a>
-                      </li>
-                      <li>
-                        <a href="sustainability.html" class="footer_link is-large">Sustainability</a>
-                      </li>
-                      <li>
-                        <a href="careers.html" class="footer_link is-large">Careers</a>
-                      </li>
-                    </ul>
-                  </div>
-                  <div class="footer_link-col">
-                    <ul role="list" class="footer-link-list">
-                      <li>
-                        <a href="experiences.html" class="footer_link is-large">Experiences</a>
-                      </li>
-                      <li>
-                        <a href="influencers.html" class="footer_link is-large">Influencers</a>
-                      </li>
-                      <li>
-                        <a href="mailto:hello@cedarhollow.uk" class="footer_link is-large">Contact</a>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
+                <div class="footer_content-right"><div class="footer_link-col"><p class="footer_col-title">Your Stay</p><ul role="list" class="footer-link-list"><li><a href="oxford/facilities.html" class="footer_link is-large">Facilities</a></li><li><a href="oxford/wellness.html" class="footer_link is-large">Wellness</a></li><li><a href="oxford/dining.html" class="footer_link is-large">Dining</a></li><li><a href="oxford/experiences.html" class="footer_link is-large">Experiences</a></li><li><a href="oxford/celebrations.html" class="footer_link is-large">Celebrations</a></li><li><a href="oxford/todo.html" class="footer_link is-large">On Our Doorstep</a></li></ul></div><div class="footer_link-col"><p class="footer_col-title">About</p><ul role="list" class="footer-link-list"><li><a href="oxford/story.html" class="footer_link is-large">Our Story</a></li><li><a href="oxford/honey.html" class="footer_link is-large">Our Honey</a></li><li><a href="oxford-sustainability.html" class="footer_link is-large">Sustainability</a></li><li><a href="oxford/philanthropy.html" class="footer_link is-large">Philanthropy</a></li><li><a href="oxford-reviews.html" class="footer_link is-large">Reviews</a></li><li><a href="oxford-press.html" class="footer_link is-large">Press</a></li></ul></div><div class="footer_link-col"><p class="footer_col-title">Work with us</p><ul role="list" class="footer-link-list"><li><a href="careers.html" class="footer_link is-large">Careers</a></li><li><a href="influencers.html" class="footer_link is-large">Influencers</a></li><li><a href="oxford/schoolgroups.html" class="footer_link is-large">School Groups</a></li></ul></div></div>
               </div>
             </div>
-            <div class="footer_legal">
-              <p class="legal-text">© 2026 Cedar Hollow. All rights reserved.</p>
+            <p class="footer_disclaimer">Cedar Hollow Oxford is a fan-inspired tribute to the works of C.S. Lewis. It is not affiliated or endorsed by the C.S Lewis Estate or the official Chronicles of Narnia franchise.</p><div class="footer_regs"><span>VAT Registration Number : 485 6565 40</span><span>AIM Membership 8369</span><span>Registered Charity (CAN) Number: 1176864</span><span>BBKA Membership 599.0.12274</span><span>Resident Magicians: <a href="https://wizardsofox.uk" target="_blank" rel="noopener">Wizards of Ox</a>, MMC 2853</span></div><div class="footer_legal">
+              <p class="legal-text">© 2026 Cedar Hollow Oxford. All rights reserved.</p>
               <div class="footer_content-right is-bottom">
-                <ul role="list" class="footer-link-list is-legal">
-                  <li>
+                <ul role="list" class="footer-link-list is-legal"><li><a href="oxford/faq.html" class="footer_link">Frequently Asked Questions</a></li><li><a href="oxford/accessibility.html" class="footer_link">Accessibility</a></li>
+                  <li class="footer_legal-break" aria-hidden="true"></li><li>
                     <a href="privacy-policy.html" class="footer_link">Privacy Policy</a>
                   </li>
                   <li>
@@ -275,5 +290,6 @@
   <script src="js/availability-page.js?v=20261002b" type="text/javascript"></script>
   <script src="js/analytics.js" type="text/javascript"></script>
 <script src="/js/tlg-beacon.js" defer></script>
+  <script src="js/siteswitch.js?v=20260929a" type="text/javascript"></script>
 </body>
 </html>

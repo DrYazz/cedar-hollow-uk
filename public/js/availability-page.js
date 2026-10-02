@@ -10,17 +10,27 @@
  * widget says "Add your dates to see what's free", which is a better empty
  * state than anything this page could write.
  *
- * Oxford only for now: account 4. js/search-bar.js sends a Dorset search to
- * search-results.html instead, so nothing arrives here expecting Dorset.
+ * Three pages share this script, one per set of chrome: availability.html in
+ * the core site's, oxford-availability.html in Oxford's, and
+ * dorset-availability.html in Dorset's, so a search started in Oxford stays
+ * in Oxford. Each names its own CheckedIn account on the slot, because the
+ * account is the only thing that differs between them.
+ *
+ * Dorset has no account id yet, so its page declares none and this renders no
+ * frame rather than Oxford's results under a Dorset header. js/search-bar.js
+ * still routes Dorset searches to the cards, so nobody reaches it by
+ * searching; it is here so that becomes one line when the id arrives.
  */
 (function () {
   "use strict";
 
-  var CIN_ACCOUNT_OXFORD = 4;
   var ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
   var slot = document.getElementById("av-frame");
   if (!slot) return;
+
+  var account = (slot.getAttribute("data-cin-account") || "").trim();
+  if (!/^\d+$/.test(account)) return;
 
   var params = new URLSearchParams(window.location.search);
 
@@ -37,8 +47,7 @@
   var from = (params.get("from") || "").trim();
   var to = (params.get("to") || "").trim();
 
-  var src = "https://checked.in/widget/results/" + CIN_ACCOUNT_OXFORD +
-    "?preset=cedarhollow";
+  var src = "https://checked.in/widget/results/" + account + "?preset=cedarhollow";
   // Half a date, or something that is not one, is no date: let the widget ask.
   if (ISO_DATE.test(from) && ISO_DATE.test(to)) {
     src += "&checkInDate=" + encodeURIComponent(from) +
