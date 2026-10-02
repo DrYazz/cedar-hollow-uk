@@ -390,11 +390,32 @@
   }
 
   form.addEventListener("submit", function () {
+    /* Where the search lands depends on what it asks.
+     *
+     * With both dates it is a question about availability, which only
+     * CheckedIn can answer, so it goes to availability.html and its frame.
+     * With a guest count and no dates there is nothing to ask CheckedIn, and
+     * search-results.html filtering the cards is still the right answer.
+     *
+     * Dorset has no CheckedIn results page yet, so a Dorset search carries on
+     * to the cards whatever dates it has. The hidden destination field travels
+     * either way. */
+    // destination is the page's own hidden input, not one of the fields this
+    // script builds, so it is read off the form rather than out of `fields`.
+    var dest = form.querySelector('input[name="destination"]');
+    var both = fields.from.value && fields.to.value;
+    var place = ((dest && dest.value) || "").trim().toLowerCase();
+    form.setAttribute("action",
+      both && place !== "dorset" ? "availability.html" : "search-results.html");
+
     // guests carries the headline number; the breakdown only earns its place
     // in the query string when there is something to break down.
     ["from", "to"].forEach(function (n) {
       if (!fields[n].value) fields[n].disabled = true;
     });
+    // An empty destination is not a destination; leaving it in put a bare
+    // "destination=" in every address searched from the combined page.
+    if (dest && !dest.value) dest.disabled = true;
     ["children", "infants", "pets"].forEach(function (n) {
       if (fields[n].value === "0") fields[n].disabled = true;
     });

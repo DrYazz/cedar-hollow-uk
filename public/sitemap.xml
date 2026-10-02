@@ -138,6 +138,14 @@
     <lastmod>2026-10-01</lastmod>
   </url>
   <url>
+    <!-- noindex in the page head: its content is a frame around CheckedIn's
+         results, so there is nothing here to index. Listed so the crawler
+         reaches it and reads that, rather than guessing. -->
+    <loc>https://cedarhollow.uk/availability.html</loc>
+    <lastmod>2026-10-02</lastmod>
+    <priority>0.3</priority>
+  </url>
+  <url>
     <loc>https://cedarhollow.uk/oxford-stays.html</loc>
     <lastmod>2026-10-01</lastmod>
   </url>
