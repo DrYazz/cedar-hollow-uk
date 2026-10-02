@@ -1,0 +1,20 @@
+# theoaks.uk -> cedarhollow.uk -- see index.js.
+#
+# A separate Worker from the site's own (../wrangler.toml), so deploying one
+# can never touch the other. It is not built from the repo: the live copy was
+# pasted into the Cloudflare dashboard, and a change is deployed the same way.
+# This file is here so it runs locally with
+#
+#   npx wrangler dev --local
+#
+# and so `npx wrangler deploy` from this folder reproduces the live setup,
+# should anyone log wrangler in and prefer that.
+
+name = "theoaks-redirect"
+main = "index.js"
+compatibility_date = "2026-09-02"
+
+routes = [
+  { pattern = "theoaks.uk", custom_domain = true },
+  { pattern = "www.theoaks.uk", custom_domain = true },
+]
