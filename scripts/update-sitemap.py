@@ -20,9 +20,18 @@ folded into another, and belongs in the sitemap no more than a redirect does.
 itself by carrying noindex.
 
 lastmod is the file's own last commit date, which is true by construction and
-does not need remembering. priority and changefreq are not emitted: Google has
-said for years that it ignores both, and a number nobody reads is a number
-that goes stale.
+does not need remembering. The one exception is a commit that touches every
+page without changing what any of them says -- a script tag added site-wide,
+say. Dating all 67 pages to that day would tell Google every page had changed
+when none had, and a lastmod that cries wolf is one Google learns to ignore.
+Such a commit carries the line
+
+    Sitemap-lastmod: unchanged
+
+in its message, and is passed over when a page is dated.
+
+priority and changefreq are not emitted: Google has said for years that it
+ignores both, and a number nobody reads is a number that goes stale.
 
 Usage:
     python scripts/update-sitemap.py            # write it
@@ -69,7 +78,8 @@ def rel_url(path):
 def last_commit(path):
     try:
         out = subprocess.run(
-            ["git", "log", "-1", "--format=%ad", "--date=short", "--", path],
+            ["git", "log", "-1", "--format=%ad", "--date=short", "--invert-grep",
+             "--grep=^Sitemap-lastmod: unchanged$", "--", path],
             cwd=ROOT, capture_output=True, text=True, check=True).stdout.strip()
         return out or None
     except Exception:
