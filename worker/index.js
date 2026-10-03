@@ -5,8 +5,8 @@
  *   - every static file, via the ASSETS binding (see wrangler.toml)
  *   - POST /api/contact, the homepage contact form
  *   - GET /api/instagram, the live Instagram grids
- *   - every Monday, an email of last week's visitors (see "Weekly visitor
- *     report" below)
+ *   - weekly, monthly and yearly emails about the site's visitors (see
+ *     "Visitor reports" below)
  *
  * This replaces the Express + nodemailer service in form-handler/. The request
  * and response shapes are identical, so js/form-submit.js only needed its
@@ -72,53 +72,72 @@ const IG_TOKENS = {
 };
 
 /*
- * Weekly visitor report.
+ * Visitor reports.
  *
- * Early every Monday an email of last week's Cloudflare Web Analytics figures
- * for cedarhollow.uk goes out: the websites visitors came from, each split by
- * computer, phone and tablet, with the week's totals and most-read pages, and
- * the full source-by-device breakdown attached as a spreadsheet.
+ * Emails of Cloudflare Web Analytics figures for cedarhollow.uk, sent by the
+ * cron in wrangler.toml:
+ *
+ *   - every Monday, the week just ended, Monday to Sunday;
+ *   - on the 1st of every month, the month just ended;
+ *   - on 1 January, the year just ended, with graphs of it month by month.
+ *
+ * Each shows the websites visitors came from, split by computer, phone and
+ * tablet, the totals against the period before, and the most-read pages, and
+ * attaches the full website-by-device breakdown as a spreadsheet.
  *
  * The figures come from Cloudflare's GraphQL Analytics API. It keeps them
  * exact for seven days and as a one-in-ten sample after that, and answers any
  * question spanning more than a week from the sample -- which, on a site this
  * size, can turn a website that sent two visitors into none, or ten. So the
- * cron runs every morning: it reads the day just ended, while it is exact,
- * and keeps it in KV (IG_KV, beside the Instagram tokens, under
- * visits:day:YYYY-MM-DD). Monday's report adds up seven of those days; a day
- * the cron missed is read from the API when the report needs it, as exactly
- * as the API still has it. The kept days are also the long-term record, since
- * the dashboard goes back only six months. Bots are left out throughout, as
- * the dashboard leaves them out by default.
+ * cron runs every morning and reads the day just ended while it is exact, and
+ * keeps it in KV (IG_KV, beside the Instagram tokens) twice over: whole, under
+ * visits:day:YYYY-MM-DD, for the week's report; and added to its month's
+ * running totals, under visits:month:YYYY-MM, which the month's and the year's
+ * reports read. A year is twelve small reads rather than 365, which matters:
+ * on the Workers free plan every KV read counts against fifty requests a run.
+ * A day the cron missed is read from the API when a week's report next needs
+ * it, as exactly as the API still has it. Kept figures last three years,
+ * outliving the dashboard's six months. Bots are left out throughout, as the
+ * dashboard leaves them out by default.
  *
  * The API needs a token with Account Analytics: Read. It is a secret, set once:
  *
  *   npx wrangler secret put ANALYTICS_API_TOKEN
  *
  * The account and the Web Analytics site are vars in wrangler.toml, as is
- * REPORT_TO, the address the report goes to.
+ * REPORT_TO, the address the reports go to.
  *
- * POST /api/weekly-report sends it on demand, for checking a change or
- * re-sending a week. It must carry that same token as a bearer token, so
+ * POST /api/visitor-report sends one on demand, for checking a change or
+ * re-sending a period. It must carry that same token as a bearer token, so
  * nobody without it can trigger mail.
  *
- *   ?week=2026-10-05   any day of the week to report (default: last week)
+ *   ?week=2026-10-05   the week containing that day
+ *   ?month=2026-10     that month
+ *   ?year=2026         that year
+ *                      (none of the three: last week)
  *   ?dry=1             answer with the email as JSON instead of sending it
  */
-const REPORT_PATH = "/api/weekly-report";
+const REPORT_PATH = "/api/visitor-report";
 const GRAPHQL_ENDPOINT = "https://api.cloudflare.com/client/v4/graphql";
 const REPORT_TZ = "Europe/London";
 const REPORT_TOP_SOURCES = 15;
 const REPORT_TOP_PAGES = 10;
+const CHART_SOURCES = 5;                  // websites named in the year's graph
 const DAY_KEY = "visits:day:";            // + YYYY-MM-DD, in IG_KV
-const DAY_KEEP = 3 * 365 * 86400;         // seconds a kept day lasts: three years
+const MONTH_KEY = "visits:month:";        // + YYYY-MM
+const YEAR_KEY = "visits:year:";          // + YYYY: the totals, kept by its report
+const KEEP = 3 * 365 * 86400;             // seconds kept figures last: three years
+const API_DAYS = 180;                     // how far back the API has anything
+const API_READS = 4;                      // API reads a cron run may add for missed days
 const DAY_PAGES = 100;                    // pages kept per day
+const MONTH_PAGES = 200;                  // and per month
 
-// Visits were not counted from the move to Workers static assets until the
-// beacon went back in (worker-served pages never got Cloudflare's injected
-// one). A week overlapping this is incomplete, and is not compared against.
-const UNCOUNTED_FROM = Date.UTC(2026, 9, 1);       // 1 Oct 2026
-const UNCOUNTED_UNTIL = Date.UTC(2026, 9, 2, 14); // 2 Oct 2026, mid-afternoon
+// Nothing was counted before 1 October 2026, and most visits went uncounted
+// until the afternoon of the 2nd, when the beacon went back in (pages served
+// from Workers static assets never got the one Cloudflare used to inject). A
+// period starting before then is incomplete, and is never compared against.
+const COUNTED_FROM = Date.UTC(2026, 8, 30, 23);  // midnight, 1 Oct 2026, London
+const COUNTED_FULLY = Date.UTC(2026, 9, 2, 14);  // 2 Oct 2026, mid-afternoon
 
 // Friendlier names for the websites that send most visitors. A host not
 // listed here is shown as itself, minus any leading www.
@@ -205,7 +224,7 @@ export default {
         mailConfigured: mailReady(env),
         instagram: sites,
         instagramRenewed: renewed,
-        weeklyReport: analyticsReady(env) && mailReady(env),
+        visitorReports: analyticsReady(env) && mailReady(env),
       });
     }
 
@@ -215,8 +234,8 @@ export default {
   },
 
   // The cron in wrangler.toml, early every morning: keep yesterday's visitor
-  // figures, and on Mondays also renew the Instagram tokens and email last
-  // week's report. Each job fails on its own.
+  // figures and send whichever visitor reports are due, and on Mondays also
+  // renew the Instagram tokens. Each job fails on its own.
   async scheduled(event, env, ctx) {
     const now = event.scheduledTime || Date.now();
     const monday = new Date(londonDate(now)).getUTCDay() === 1;
@@ -398,7 +417,7 @@ function igFail(error, status) {
 }
 
 /*
- * POST /api/weekly-report -- the report on demand. Answers {ok, subject} once
+ * POST /api/visitor-report -- a report on demand. Answers {ok, subject} once
  * sent, or with ?dry=1 the whole email ({subject, text, html, csv}) unsent.
  */
 async function handleReportRequest(request, url, env) {
@@ -409,28 +428,38 @@ async function handleReportRequest(request, url, env) {
     return json({ ok: false, error: "Unauthorized" }, 401);
   }
 
-  const dry = url.searchParams.get("dry") === "1";
-  const week = url.searchParams.get("week");
-  let day;
-  if (week) {
-    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(week);
+  const q = (name) => url.searchParams.get(name);
+  let p;
+  if (q("year")) {
+    if (!/^\d{4}$/.test(q("year"))) return json({ ok: false, error: "year must be YYYY" }, 400);
+    p = yearPeriod(+q("year"));
+  } else if (q("month")) {
+    const m = /^(\d{4})-(\d{2})$/.exec(q("month"));
+    if (!m || +m[2] < 1 || +m[2] > 12) return json({ ok: false, error: "month must be YYYY-MM" }, 400);
+    p = monthPeriod(+m[1], +m[2] - 1);
+  } else if (q("week")) {
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(q("week"));
     if (!m) return json({ ok: false, error: "week must be YYYY-MM-DD" }, 400);
-    day = Date.UTC(+m[1], +m[2] - 1, +m[3]);
+    p = weekPeriod(Date.UTC(+m[1], +m[2] - 1, +m[3]), true);
+  } else {
+    p = weekPeriod(Date.now(), false);
   }
 
-  const result = await sendWeeklyReport(env, { day, containing: Boolean(week), dry });
+  // A request makes one report, so it may read a whole week of missed days.
+  const dry = q("dry") === "1";
+  const result = await sendReport(env, p, { dry, store: !dry, fetches: 7 });
   return json(result, result.ok ? 200 : 502);
 }
 
 /*
- * Build the report and, unless this is a dry run, send it.
+ * Build a report and, unless this is a dry run, send it.
  *
  * When the figures cannot be fetched -- the token missing, expired or revoked
  * -- a short note saying so goes out in its place. A report that silently
  * stops arriving would look exactly like a quiet week.
  */
-async function sendWeeklyReport(env, { day = Date.now(), containing = false, dry = false } = {}) {
-  const week = reportWeek(day, containing);
+async function sendReport(env, p, opts) {
+  const label = periodLabel(p);
 
   if (!analyticsReady(env)) {
     console.error("[report] not configured: needs ANALYTICS_API_TOKEN, ANALYTICS_ACCOUNT and ANALYTICS_SITE");
@@ -439,22 +468,22 @@ async function sendWeeklyReport(env, { day = Date.now(), containing = false, dry
 
   let email;
   try {
-    email = renderReport(env, await fetchReport(env, week, !dry));
+    email = renderReport(p, await reportFigures(env, p, opts));
   } catch (err) {
     const reason = err && err.message ? err.message : String(err);
-    console.error(`[report] ${weekLabel(week)}: ${reason}`);
-    if (dry || !mailReady(env)) return { ok: false, error: reason };
+    console.error(`[report] ${label}: ${reason}`);
+    if (opts.dry || !mailReady(env)) return { ok: false, error: reason };
     email = {
-      subject: "Cedar Hollow website: last week's visitor report could not be built",
+      subject: `Cedar Hollow website: the visitor report for ${label} could not be built`,
       text:
-        `The visitor report for ${weekLabel(week)} could not be built.\n\n` +
+        `The visitor report for ${label} could not be built.\n\n` +
         `Reason: ${reason}\n\n` +
         "The usual cause is the ANALYTICS_API_TOKEN secret on the cedar-hollow-uk " +
         "Worker being missing, expired or revoked.",
     };
   }
 
-  if (dry) {
+  if (opts.dry) {
     const { attachments, ...rest } = email;
     return { ok: true, ...rest };
   }
@@ -466,7 +495,7 @@ async function sendWeeklyReport(env, { day = Date.now(), containing = false, dry
   try {
     const { csv, ...message } = email;
     await sendViaResend(env, { ...message, to: env.REPORT_TO || env.CONTACT_TO });
-    console.log(`[report] ${weekLabel(week)}: sent`);
+    console.log(`[report] ${label}: sent`);
     return { ok: true, subject: email.subject };
   } catch (err) {
     console.error("[report] send failed:", err && err.message ? err.message : err);
@@ -487,79 +516,168 @@ async function sameSecret(a, b) {
 }
 
 /*
- * The daily job: keep yesterday's figures while they are exact, then on a
- * Monday send the report, which finds all seven days kept.
+ * The daily job: keep yesterday's figures while they are exact, then send
+ * whichever reports fall due -- the week's on a Monday, the month's on the
+ * 1st, the year's on 1 January -- one after another, so a month is kept
+ * before the year reads it.
  */
 async function visitorCron(env, now, monday) {
   if (!analyticsReady(env)) {
     console.error("[report] not configured: needs ANALYTICS_API_TOKEN, ANALYTICS_ACCOUNT and ANALYTICS_SITE");
     return;
   }
+  // Yesterday's read, and a few more for days an earlier run missed: on the
+  // free plan a run may make fifty requests in all, KV reads included.
+  const opts = { dry: false, store: true, fetches: 1 + API_READS };
+  const today = londonDate(now);
   try {
-    await dayFigures(env, londonDate(now) - DAY, true);
+    await dayFigures(env, today - DAY, opts);
   } catch (err) {
     console.error("[report] could not keep yesterday:", err && err.message ? err.message : err);
   }
-  if (monday) await sendWeeklyReport(env, { day: now });
+
+  const date = new Date(today);
+  if (monday) await sendReport(env, weekPeriod(now, false), opts);
+  if (date.getUTCDate() === 1) {
+    await sendReport(env, monthPeriod(date.getUTCFullYear(), date.getUTCMonth() - 1), opts);
+    if (date.getUTCMonth() === 0) await sendReport(env, yearPeriod(date.getUTCFullYear() - 1), opts);
+  }
 }
 
 /*
- * The report's figures: the week's seven days added up, and the week
- * before's totals to compare them with.
+ * A report's figures: the period's own, and the period before's totals to
+ * compare them with -- unless that one started before counting did.
  */
-async function fetchReport(env, week, store) {
-  const seven = (monday) => Promise.all(
-    Array.from({ length: 7 }, (_, i) => dayFigures(env, monday + i * DAY, store))
-  );
-  const [days, before] = await Promise.all([seven(week.monday), seven(week.monday - 7 * DAY)]);
-  const total = (list, field) => list.reduce((n, d) => n + d[field], 0);
+async function reportFigures(env, p, opts) {
+  const compare = londonMidnight(p.prevStart) >= COUNTED_FULLY;
+  let figures;
+  let before = null;
 
-  const byRow = new Map();
-  const byPage = new Map();
-  for (const d of days) {
-    for (const [host, device, visits] of d.sources) {
-      const key = JSON.stringify([host, device]);
-      byRow.set(key, (byRow.get(key) || 0) + visits);
+  if (p.kind === "week") {
+    // One day at a time: keeping a day rewrites its month, and two kept at
+    // once would each overwrite the other's addition.
+    const days = [];
+    for (let d = p.start; d < p.end; d += DAY) days.push(await dayFigures(env, d, opts));
+    figures = combine(days);
+    if (compare) before = await dayTotals(env, p.prevStart, p.start);
+  } else if (p.kind === "month") {
+    const d = new Date(p.start);
+    const prev = new Date(p.prevStart);
+    figures = await monthFigures(env, d.getUTCFullYear(), d.getUTCMonth());
+    if (compare) before = await monthFigures(env, prev.getUTCFullYear(), prev.getUTCMonth());
+  } else {
+    const year = new Date(p.start).getUTCFullYear();
+    const twelve = (y) => Promise.all(Array.from({ length: 12 }, (_, m) => monthFigures(env, y, m)));
+    const months = await twelve(year);
+    figures = { ...combine(months), months };
+    if (compare) before = (await getKept(env, YEAR_KEY + (year - 1))) || combine(await twelve(year - 1));
+    if (opts.store && londonMidnight(p.end) <= Date.now()) {
+      await putKept(env, YEAR_KEY + year, { year, visits: figures.visits, views: figures.views });
     }
-    for (const [path, views] of d.pages) byPage.set(path, (byPage.get(path) || 0) + views);
   }
 
   return {
-    week,
     account: env.ANALYTICS_ACCOUNT,
     site: env.ANALYTICS_SITE,
-    visits: total(days, "visits"),
-    views: total(days, "views"),
-    before: { visits: total(before, "visits"), views: total(before, "views") },
-    rows: [...byRow].map(([key, visits]) => {
-      const [host, device] = JSON.parse(key);
-      return { host, source: sourceName(host), device: DEVICE_NAMES[device] || "Other", visits };
-    }),
-    pages: [...byPage]
-      .map(([path, views]) => ({ path, views }))
-      .sort((a, b) => b.views - a.views || a.path.localeCompare(b.path))
-      .slice(0, REPORT_TOP_PAGES),
+    visits: figures.visits,
+    views: figures.views,
+    before: before && { visits: before.visits, views: before.views },
+    rows: toRows(figures.sources),
+    pages: figures.pages.slice(0, REPORT_TOP_PAGES).map(([path, views]) => ({ path, views })),
+    months: figures.months,
   };
 }
 
 /*
- * One London day's figures: from KV if kept, otherwise from the API -- and,
- * with `store`, kept from then on. Never a day still under way, whose figures
- * are not final.
+ * One London day's figures: kept, or else read from the API -- and then,
+ * with opts.store, kept and added to its month. A day before counting began,
+ * not yet begun, or older than the API remembers has nothing to read; nor
+ * has any day once opts.fetches, the run's allowance of API reads, is spent.
  */
-async function dayFigures(env, date, store) {
-  const key = DAY_KEY + isoDate(date);
-  if (env.IG_KV) {
-    const kept = await env.IG_KV.get(key, "json").catch(() => null);
-    if (kept) return kept;
-  }
+async function dayFigures(env, date, opts) {
+  const from = londonMidnight(date);
+  const to = londonMidnight(date + DAY);
+  const now = Date.now();
+  if (to <= COUNTED_FROM || from >= now) return emptyDay(date);
+
+  const kept = await getKept(env, DAY_KEY + isoDate(date));
+  if (kept) return kept;
+  if (to < now - API_DAYS * DAY || opts.fetches <= 0) return emptyDay(date);
+
+  opts.fetches -= 1;
   const day = await fetchDay(env, date);
-  if (store && env.IG_KV && londonMidnight(date + DAY) <= Date.now()) {
-    await env.IG_KV.put(key, JSON.stringify(day), { expirationTtl: DAY_KEEP }).catch((err) =>
-      console.error(`[report] could not keep ${day.date}:`, err && err.message ? err.message : err)
-    );
-  }
+  if (opts.store && to <= now) await keepDay(env, day);
   return day;
+}
+
+// Keep a day, and add it to its month's running totals -- once only.
+async function keepDay(env, day) {
+  await putKept(env, DAY_KEY + day.date, day);
+  const key = MONTH_KEY + day.date.slice(0, 7);
+  const month = (await getKept(env, key)) || (await startMonth(env, day.date));
+  if (month.days[day.date]) return;
+  addDay(month, day);
+  await putKept(env, key, month);
+}
+
+/*
+ * A month's first record. Any of its days kept before it existed -- which
+ * happened only in October 2026, when months began to be kept -- go in first.
+ */
+async function startMonth(env, date) {
+  const month = emptyMonth(date.slice(0, 7));
+  for (let d = Date.UTC(+date.slice(0, 4), +date.slice(5, 7) - 1, 1); isoDate(d) < date; d += DAY) {
+    const kept = await getKept(env, DAY_KEY + isoDate(d));
+    if (kept) addDay(month, kept);
+  }
+  return month;
+}
+
+function addDay(month, day) {
+  month.days[day.date] = [day.visits, day.views];
+  month.visits += day.visits;
+  month.views += day.views;
+  month.sources = addRows(month.sources, day.sources, 2);
+  month.pages = addRows(month.pages, day.pages, 1).slice(0, MONTH_PAGES);
+}
+
+// A month's running totals, or nothing for a month with none kept.
+async function monthFigures(env, year, month) {
+  const label = isoDate(Date.UTC(year, month, 1)).slice(0, 7);
+  const from = londonMidnight(Date.UTC(year, month, 1));
+  const to = londonMidnight(Date.UTC(year, month + 1, 1));
+  if (to <= COUNTED_FROM || from >= Date.now()) return emptyMonth(label);
+  return (await getKept(env, MONTH_KEY + label)) || emptyMonth(label);
+}
+
+// Visits and page views for a run of days, read from their months' records.
+async function dayTotals(env, start, end) {
+  const months = new Map();
+  let visits = 0;
+  let views = 0;
+  for (let d = start; d < end; d += DAY) {
+    const date = isoDate(d);
+    const ym = date.slice(0, 7);
+    if (!months.has(ym)) months.set(ym, await monthFigures(env, +ym.slice(0, 4), +ym.slice(5) - 1));
+    const kept = months.get(ym).days[date];
+    if (kept) {
+      visits += kept[0];
+      views += kept[1];
+    }
+  }
+  return { visits, views };
+}
+
+async function getKept(env, key) {
+  if (!env.IG_KV) return null;
+  return env.IG_KV.get(key, "json").catch(() => null);
+}
+
+async function putKept(env, key, value) {
+  if (!env.IG_KV) return;
+  await env.IG_KV.put(key, JSON.stringify(value), { expirationTtl: KEEP }).catch((err) =>
+    console.error(`[report] could not keep ${key}:`, err && err.message ? err.message : err)
+  );
 }
 
 /*
@@ -626,6 +744,51 @@ async function fetchDay(env, date) {
   };
 }
 
+// Days or months added together.
+function combine(list) {
+  let visits = 0;
+  let views = 0;
+  let sources = [];
+  let pages = [];
+  for (const f of list) {
+    visits += f.visits;
+    views += f.views;
+    sources = addRows(sources, f.sources, 2);
+    pages = addRows(pages, f.pages, 1);
+  }
+  return { visits, views, sources, pages: pages.slice(0, MONTH_PAGES) };
+}
+
+// Two lists of [...key, count] rows added up by key, largest first.
+function addRows(a, b, keyLength) {
+  const totals = new Map();
+  for (const row of a.concat(b)) {
+    const key = JSON.stringify(row.slice(0, keyLength));
+    totals.set(key, (totals.get(key) || 0) + row[keyLength]);
+  }
+  return [...totals]
+    .map(([key, n]) => [...JSON.parse(key), n])
+    .sort((x, y) => y[keyLength] - x[keyLength] || String(x[0]).localeCompare(String(y[0])));
+}
+
+function emptyDay(date) {
+  return { date: isoDate(date), visits: 0, views: 0, sampleInterval: 1, sources: [], pages: [] };
+}
+
+function emptyMonth(label) {
+  return { month: label, days: {}, visits: 0, views: 0, sources: [], pages: [] };
+}
+
+// [host, device, visits] rows as the report reads them.
+function toRows(sources) {
+  return sources.map(([host, device, visits]) => ({
+    host,
+    source: sourceName(host),
+    device: DEVICE_NAMES[device] || "Other",
+    visits,
+  }));
+}
+
 // Bots left out, as the dashboard leaves them out by default.
 function rumFilter(env, from, to) {
   const time = (t) => JSON.stringify(new Date(t).toISOString().replace(/\.\d{3}Z$/, "Z"));
@@ -645,23 +808,75 @@ function sourceName(host) {
 }
 
 /*
- * The weeks run Monday to Sunday on London's clocks. Dates are held as
- * UTC-midnight timestamps -- plain calendar dates, safe to step a day at a
- * time -- and turned into instants only at the edges.
+ * Periods run on London's clocks: weeks Monday to Sunday, months and years
+ * as the calendar has them. Dates are held as UTC-midnight timestamps --
+ * plain calendar dates, safe to step a day at a time -- and turned into
+ * instants only at the edges. A period is [start, end), with prevStart the
+ * start of the one before.
  */
 const DAY = 86400000;
 
 // The week before the one containing `day`; or, with `containing`, that week.
-function reportWeek(day, containing) {
+function weekPeriod(day, containing) {
   const date = londonDate(day);
   let monday = date - ((new Date(date).getUTCDay() + 6) % 7) * DAY;
   if (!containing) monday -= 7 * DAY;
+  return { kind: "week", start: monday, end: monday + 7 * DAY, prevStart: monday - 7 * DAY };
+}
+
+// `month` counts from 0, and may run over: monthPeriod(2027, -1) is December 2026.
+function monthPeriod(year, month) {
   return {
-    monday,
-    before: londonMidnight(monday - 7 * DAY),
-    from: londonMidnight(monday),
-    to: londonMidnight(monday + 7 * DAY),
+    kind: "month",
+    start: Date.UTC(year, month, 1),
+    end: Date.UTC(year, month + 1, 1),
+    prevStart: Date.UTC(year, month - 1, 1),
   };
+}
+
+function yearPeriod(year) {
+  return { kind: "year", start: Date.UTC(year, 0, 1), end: Date.UTC(year + 1, 0, 1), prevStart: Date.UTC(year - 1, 0, 1) };
+}
+
+// "28 September – 4 October 2026", "October 2026" or "2026"; or with
+// `short`, "28 Sept – 4 Oct" or "Oct 2026", for a subject line.
+function periodLabel(p, short = false) {
+  const fmt = (d, opts) => new Intl.DateTimeFormat("en-GB", { timeZone: "UTC", ...opts }).format(new Date(d));
+  if (p.kind === "year") return String(new Date(p.start).getUTCFullYear());
+  if (p.kind === "month") return fmt(p.start, { month: short ? "short" : "long", year: "numeric" });
+
+  const first = new Date(p.start);
+  const last = new Date(p.start + 6 * DAY);
+  const month = short ? "short" : "long";
+  const sameYear = first.getUTCFullYear() === last.getUTCFullYear();
+  const sameMonth = sameYear && first.getUTCMonth() === last.getUTCMonth();
+  const start = sameMonth
+    ? fmt(first, { day: "numeric" })
+    : fmt(first, { day: "numeric", month, ...(sameYear || short ? {} : { year: "numeric" }) });
+  const end = fmt(last, { day: "numeric", month, ...(short ? {} : { year: "numeric" }) });
+  return `${start} – ${end}`;
+}
+
+// What the period before is called: "week before", "September", "2025".
+function beforeLabel(p) {
+  if (p.kind === "week") return "week before";
+  if (p.kind === "month") return new Intl.DateTimeFormat("en-GB", { timeZone: "UTC", month: "long" }).format(new Date(p.prevStart));
+  return String(new Date(p.prevStart).getUTCFullYear());
+}
+
+// A warning for a period whose figures are incomplete, or null.
+function periodNote(p) {
+  const from = londonMidnight(p.start);
+  if (from < COUNTED_FROM) {
+    return (
+      "Visits have only been counted since 1 October 2026 (most not until the afternoon of the 2nd), so " +
+      (p.kind === "year" ? "this year’s figures start then." : `this ${p.kind}’s figures are incomplete.`)
+    );
+  }
+  if (from < COUNTED_FULLY) {
+    return `Most visits went uncounted from 1 October until the afternoon of 2 October, so this ${p.kind}’s figures are incomplete.`;
+  }
+  return null;
 }
 
 // The calendar date London's clocks show at an instant.
@@ -679,40 +894,69 @@ function londonMidnight(date) {
   return date - offset;
 }
 
+// One formatter for every call: making one is far dearer than using it, and
+// a year's report asks the time in London hundreds of times.
+let londonFormat;
+
 function londonParts(ts) {
-  const parts = new Intl.DateTimeFormat("en-GB", {
-    timeZone: REPORT_TZ,
-    hourCycle: "h23",
-    year: "numeric",
-    month: "numeric",
-    day: "numeric",
-    hour: "numeric",
-    minute: "numeric",
-  }).formatToParts(new Date(ts));
+  londonFormat =
+    londonFormat ||
+    new Intl.DateTimeFormat("en-GB", {
+      timeZone: REPORT_TZ,
+      hourCycle: "h23",
+      year: "numeric",
+      month: "numeric",
+      day: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+    });
   const p = {};
-  for (const { type, value } of parts) p[type] = Number(value);
+  for (const { type, value } of londonFormat.formatToParts(new Date(ts))) p[type] = Number(value);
   return p;
 }
 
-// "28 September – 4 October 2026", or with `short`, "28 Sep – 4 Oct".
-function weekLabel(week, short = false) {
-  const first = new Date(week.monday);
-  const last = new Date(week.monday + 6 * DAY);
-  const month = short ? "short" : "long";
-  const fmt = (d, opts) => new Intl.DateTimeFormat("en-GB", { timeZone: "UTC", ...opts }).format(d);
-  const sameYear = first.getUTCFullYear() === last.getUTCFullYear();
-  const sameMonth = sameYear && first.getUTCMonth() === last.getUTCMonth();
-  const start = sameMonth
-    ? fmt(first, { day: "numeric" })
-    : fmt(first, { day: "numeric", month, ...(sameYear || short ? {} : { year: "numeric" }) });
-  const end = fmt(last, { day: "numeric", month, ...(short ? {} : { year: "numeric" }) });
-  return `${start} – ${end}`;
+/*
+ * Visits by source, largest first, each split by device; the visits by
+ * device overall; and the sources by name, for looking one up.
+ */
+function groupRows(rows) {
+  const bySource = new Map();
+  const devices = {};
+  for (const row of rows) {
+    let s = bySource.get(row.source);
+    if (!s) bySource.set(row.source, (s = { name: row.source, visits: 0, devices: {} }));
+    s.visits += row.visits;
+    s.devices[row.device] = (s.devices[row.device] || 0) + row.visits;
+    devices[row.device] = (devices[row.device] || 0) + row.visits;
+  }
+  const list = [...bySource.values()].sort((a, b) => b.visits - a.visits || a.name.localeCompare(b.name));
+  return { list, devices, bySource };
 }
 
-// Whether a span overlaps the days visits went uncounted.
-function uncounted(from, to) {
-  return from < UNCOUNTED_UNTIL && to > UNCOUNTED_FROM;
+// `total` shared out in proportion to `parts`, in whole numbers adding up to it.
+function splitParts(total, parts) {
+  const sum = parts.reduce((a, b) => a + b, 0);
+  if (!sum || !total) return parts.map(() => 0);
+  const exact = parts.map((n) => (total * n) / sum);
+  const out = exact.map(Math.floor);
+  let left = total - out.reduce((a, b) => a + b, 0);
+  exact
+    .map((x, i) => [x - out[i], i])
+    .sort((a, b) => b[0] - a[0])
+    .forEach(([, i]) => {
+      if (left > 0) {
+        out[i] += 1;
+        left -= 1;
+      }
+    });
+  return out;
 }
+
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const DEVICE_COLOURS = { Computer: "#8aa37c", Phone: "#2f4a33", Tablet: "#c9a227", Other: "#c9c4ab" };
+const SOURCE_COLOURS = ["#2f4a33", "#b5552b", "#c9a227", "#4f6d8a", "#8a5a83"];
+const OTHER_COLOUR = "#c9c4ab";
+const CHART_HEIGHT = 120; // px, the busiest month's column
 
 /*
  * The email itself: subject, plain text, HTML, and the spreadsheet.
@@ -720,25 +964,21 @@ function uncounted(from, to) {
  * Every value from the analytics -- a referring website above all, which any
  * visitor's browser can set to anything -- is escaped for HTML, and guarded
  * in the spreadsheet against being read as a formula.
+ *
+ * The year's graphs are made of tables and blocks of colour rather than
+ * images or SVG, which most mail clients block or strip; every figure in
+ * them is in a table beside them too.
  */
-function renderReport(env, r) {
-  const label = weekLabel(r.week);
-  const week = r.week;
+function renderReport(p, r) {
+  const label = periodLabel(p);
+  const year = new Date(p.start).getUTCFullYear();
 
-  // Sources, largest first, each with its visits split by device.
-  const bySource = new Map();
-  const devices = {};
-  for (const row of r.rows) {
-    let s = bySource.get(row.source);
-    if (!s) bySource.set(row.source, (s = { name: row.source, visits: 0, devices: {} }));
-    s.visits += row.visits;
-    s.devices[row.device] = (s.devices[row.device] || 0) + row.visits;
-    devices[row.device] = (devices[row.device] || 0) + row.visits;
-  }
-  let sources = [...bySource.values()].sort((a, b) => b.visits - a.visits || a.name.localeCompare(b.name));
+  const grouped = groupRows(r.rows);
+  const devices = grouped.devices;
+  let sources = grouped.list;
   if (sources.length > REPORT_TOP_SOURCES) {
     const rest = sources.slice(REPORT_TOP_SOURCES - 1);
-    const other = { name: `${rest.length} other websites`, visits: 0, devices: {} };
+    const other = { name: `${rest.length} other websites`, visits: 0, devices: {}, other: true };
     for (const s of rest) {
       other.visits += s.visits;
       for (const [d, n] of Object.entries(s.devices)) other.devices[d] = (other.devices[d] || 0) + n;
@@ -748,25 +988,42 @@ function renderReport(env, r) {
   const counted = sources.reduce((n, s) => n + s.visits, 0);
   const deviceRows = DEVICE_ORDER.filter((d) => devices[d]).map((d) => ({ name: d, visits: devices[d] }));
 
+  // The year's months, from the first one anything was counted in.
+  const months = (r.months || [])
+    .map((m, index) => {
+      const rows = toRows(m.sources);
+      return { index, visits: m.visits, views: m.views, rows, ...groupRows(rows) };
+    })
+    .filter((m) => londonMidnight(Date.UTC(year, m.index + 1, 1)) > COUNTED_FROM);
+
   const num = (n) => Number(n || 0).toLocaleString("en-GB");
+  const compact = (n) =>
+    n >= 10000 ? `${Math.round(n / 1000)}k` : n >= 1000 ? `${(n / 1000).toFixed(1).replace(/\.0$/, "")}k` : String(n);
   const share = (n) => {
     if (!counted || !n) return "0%";
     const pct = (100 * n) / counted;
     return pct < 0.5 ? "<1%" : `${Math.round(pct)}%`;
   };
-  const compare = !uncounted(week.before, week.from) && r.before.visits > 0;
-  const incomplete = uncounted(week.from, week.to);
+  const split = (byDevice, joiner, lower) =>
+    DEVICE_ORDER.filter((d) => byDevice[d])
+      .map((d) => `${lower ? d.toLowerCase() : d} ${num(byDevice[d])}`)
+      .join(joiner);
+  const before = r.before && r.before.visits > 0 ? `${beforeLabel(p)}: ${num(r.before.visits)}` : "";
+  const note = periodNote(p);
   const dashboard = `https://dash.cloudflare.com/${r.account}/web-analytics/overview?siteTag~in=${r.site}`;
   const pageUrl = (path) => `https://cedarhollow.uk${path}`;
 
-  const subject = `Cedar Hollow website: ${num(r.visits)} visits, ${weekLabel(week, true)}`;
+  const subject = {
+    week: `Cedar Hollow website: ${num(r.visits)} visits, ${periodLabel(p, true)}`,
+    month: `Cedar Hollow website: ${num(r.visits)} visits in ${label}`,
+    year: `Cedar Hollow website: ${num(r.visits)} visits in ${label}, month by month`,
+  }[p.kind];
+  const kicker = { week: "weekly visitors", month: "monthly visitors", year: "the year in visitors" }[p.kind];
+  const sourcesTitle = p.kind === "year" ? `Where visitors came from in ${label}` : "Where visitors came from";
 
   const directNote =
     "“Direct” means the visitor’s browser didn’t say where they came from: " +
     "the address typed in, a bookmark, or a link in WhatsApp, an email or another app.";
-  const incompleteNote =
-    "Most visits went uncounted from 1 October until the afternoon of 2 October, " +
-    "so this week’s figures are incomplete.";
 
   // ---- plain text ---------------------------------------------------------
   const pad = (s, n) => String(s).padEnd(n);
@@ -775,24 +1032,30 @@ function renderReport(env, r) {
   const text = [
     `Cedar Hollow website: visitors, ${label}`,
     "",
-    `Visits: ${num(r.visits)}${compare ? ` (the week before: ${num(r.before.visits)})` : ""}`,
+    `Visits: ${num(r.visits)}${before ? ` (${before})` : ""}`,
     `Page views: ${num(r.views)}`,
-    ...(incomplete ? ["", incompleteNote] : []),
+    ...(note ? ["", note] : []),
+    ...(months.length
+      ? [
+          "",
+          "MONTH BY MONTH",
+          ...months.map(
+            (m) =>
+              `${pad(MONTHS[m.index], 4)} ${lpad(num(m.visits), 7)} visits ${lpad(num(m.views), 8)} page views   ${split(m.devices, ", ", true)}`
+          ),
+        ]
+      : []),
     "",
-    "WHERE VISITORS CAME FROM",
-    ...sources.map((s) => {
-      const split = DEVICE_ORDER
-        .filter((d) => s.devices[d])
-        .map((d) => `${d.toLowerCase()} ${num(s.devices[d])}`)
-        .join(", ");
-      return `${pad(clip(s.name, 34), 34)} ${lpad(num(s.visits), 6)}  ${lpad(share(s.visits), 4)}   ${split}`;
-    }),
+    sourcesTitle.toUpperCase(),
+    ...sources.map(
+      (s) => `${pad(clip(s.name, 34), 34)} ${lpad(num(s.visits), 6)}  ${lpad(share(s.visits), 4)}   ${split(s.devices, ", ", true)}`
+    ),
     "",
     "COMPUTER, PHONE OR TABLET",
     ...deviceRows.map((d) => `${pad(d.name, 10)} ${lpad(num(d.visits), 6)}  ${lpad(share(d.visits), 4)}`),
     "",
     "MOST-READ PAGES (page views)",
-    ...r.pages.map((p) => `${pad(pageUrl(p.path), 52)} ${lpad(num(p.views), 6)}`),
+    ...r.pages.map((pg) => `${pad(pageUrl(pg.path), 52)} ${lpad(num(pg.views), 6)}`),
     "",
     directNote,
     "The full breakdown by website and device is attached as a spreadsheet.",
@@ -808,26 +1071,37 @@ function renderReport(env, r) {
   const thLeft = th.replace("text-align:right", "text-align:left");
   const td = `style="text-align:right;padding:7px 8px;border-bottom:1px solid ${rule};white-space:nowrap;"`;
   const tdLeft = `style="text-align:left;padding:7px 8px;border-bottom:1px solid ${rule};"`;
+  // The month table has seven columns, so it packs tighter to fit a phone.
+  const thTight = th.replace("padding:6px 8px", "padding:6px 4px");
+  const thTightLeft = thLeft.replace("padding:6px 8px", "padding:6px 4px");
+  const tdTight = td.replace("padding:7px 8px", "padding:6px 4px");
+  const tdTightLeft = tdLeft.replace("padding:7px 8px", "padding:6px 4px");
   const h2 = `style="font-family:Georgia,serif;font-weight:normal;font-size:20px;color:${green};margin:32px 0 8px;"`;
   const bar = (n) => {
     const pct = counted ? Math.max(1, Math.round((100 * n) / counted)) : 0;
     return `<div style="background:${rule};width:120px;height:8px;border-radius:4px;"><div style="background:${green};width:${pct}%;height:8px;border-radius:4px;"></div></div>`;
   };
+  const legend = (items) =>
+    `<p style="margin:10px 0 0;">` +
+    items
+      .map(
+        ([name, colour]) =>
+          `<span style="display:inline-block;margin:0 14px 6px 0;font-size:12px;color:${soft};white-space:nowrap;">` +
+          `<span style="display:inline-block;width:10px;height:10px;background:${colour};margin-right:5px;"></span>${esc(name)}</span>`
+      )
+      .join("") +
+    "</p>";
 
   // Each website's device split sits under its name rather than in columns
   // of its own: seven columns do not fit a phone, and the full grid is in the
   // spreadsheet. A long host may break after any dot, and nowhere else.
   const sourceRows = sources
-    .map((s) => {
-      const split = DEVICE_ORDER.filter((d) => s.devices[d])
-        .map((d) => `${d} ${num(s.devices[d])}`)
-        .join(" &middot; ");
-      return (
+    .map(
+      (s) =>
         `<tr><td ${tdLeft}>${esc(s.name).replace(/\./g, ".<wbr>")}` +
-        `<br><span style="font-size:13px;color:${soft};">${split}</span></td>` +
+        `<br><span style="font-size:13px;color:${soft};">${split(s.devices, " &middot; ")}</span></td>` +
         `<td ${td}><strong>${num(s.visits)}</strong></td><td ${td}>${share(s.visits)}</td></tr>`
-      );
-    })
+    )
     .join("");
   const deviceHtml = deviceRows
     .map(
@@ -837,23 +1111,109 @@ function renderReport(env, r) {
     .join("");
   const pageHtml = r.pages
     .map(
-      (p) =>
-        `<tr><td ${tdLeft}><a href="${esc(pageUrl(p.path))}" style="color:${green};">${esc(p.path)}</a></td><td ${td}>${num(p.views)}</td></tr>`
+      (pg) =>
+        `<tr><td ${tdLeft}><a href="${esc(pageUrl(pg.path))}" style="color:${green};">${esc(pg.path)}</a></td><td ${td}>${num(pg.views)}</td></tr>`
     )
     .join("");
+
+  // ---- the year's graphs --------------------------------------------------
+  let yearHtml = "";
+  if (months.length) {
+    const busiest = Math.max(1, ...months.map((m) => m.visits));
+
+    // Visits each month, a column per month, stacked by device.
+    const columns = months
+      .map((m) => {
+        const height = m.visits ? Math.max(2, Math.round((CHART_HEIGHT * m.visits) / busiest)) : 0;
+        const parts = splitParts(height, DEVICE_ORDER.map((d) => m.devices[d] || 0));
+        const stack = DEVICE_ORDER.map((d, i) => [d, parts[i]])
+          .filter(([, h]) => h > 0)
+          .reverse()
+          .map(([d, h]) => `<div style="height:${h}px;background:${DEVICE_COLOURS[d]};font-size:0;line-height:0;"></div>`)
+          .join("");
+        return (
+          `<td style="vertical-align:bottom;text-align:center;padding:0 2px;">` +
+          `<div style="font-size:10px;line-height:14px;color:${soft};white-space:nowrap;">${m.visits ? compact(m.visits) : ""}</div>` +
+          `<div style="width:70%;margin:0 auto;">${stack}</div></td>`
+        );
+      })
+      .join("");
+    const columnLabels = months
+      .map(
+        (m) =>
+          `<td style="text-align:center;font-size:11px;color:${soft};padding:4px 0 0;border-top:1px solid ${rule};">${MONTHS[m.index]}</td>`
+      )
+      .join("");
+    // A short year (2026 began in October) keeps the columns a year's width.
+    const chartWidth = Math.max(30, Math.round((100 * months.length) / 12));
+
+    const extra = months.some((m) => m.devices.Other) ? ["Other"] : [];
+    const columnsShown = ["Computer", "Phone", "Tablet", ...extra];
+    const monthTable =
+      `<table style="border-collapse:collapse;width:100%;font-size:13px;margin-top:20px;">` +
+      `<tr><th ${thTightLeft}>Month</th><th ${thTight}>Visits</th><th ${thTight}>Page views</th>` +
+      columnsShown.map((c) => `<th ${thTight}>${c}</th>`).join("") +
+      "</tr>" +
+      months
+        .map(
+          (m) =>
+            `<tr><td ${tdTightLeft}>${MONTHS[m.index]}</td><td ${tdTight}><strong>${num(m.visits)}</strong></td><td ${tdTight}>${num(m.views)}</td>` +
+            columnsShown.map((c) => `<td ${tdTight}>${m.devices[c] ? num(m.devices[c]) : "&ndash;"}</td>`).join("") +
+            "</tr>"
+        )
+        .join("") +
+      `<tr><td ${tdTightLeft}><strong>Total</strong></td><td ${tdTight}><strong>${num(r.visits)}</strong></td><td ${tdTight}><strong>${num(r.views)}</strong></td>` +
+      columnsShown.map((c) => `<td ${tdTight}><strong>${devices[c] ? num(devices[c]) : "&ndash;"}</strong></td>`).join("") +
+      "</tr></table>";
+
+    // Where each month's visitors came from: a bar per month, as long as its
+    // visits, divided between the year's biggest websites and the rest.
+    const named = sources.filter((s) => !s.other).slice(0, CHART_SOURCES);
+    const colours = [...SOURCE_COLOURS.slice(0, named.length), OTHER_COLOUR];
+    let anyOther = false;
+    const bars = months
+      .map((m) => {
+        const parts = named.map((s) => (m.bySource.get(s.name) || { visits: 0 }).visits);
+        const rest = Math.max(0, m.list.reduce((n, s) => n + s.visits, 0) - parts.reduce((a, b) => a + b, 0));
+        if (rest) anyOther = true;
+        const shares = splitParts(100, [...parts, rest]);
+        const width = m.visits ? Math.max(2, Math.round((100 * m.visits) / busiest)) : 0;
+        const cells = shares
+          .map((pct, i) =>
+            pct ? `<td style="width:${pct}%;height:14px;padding:0;background:${colours[i]};font-size:0;line-height:0;">&nbsp;</td>` : ""
+          )
+          .join("");
+        return (
+          `<tr><td style="width:34px;font-size:12px;color:${soft};padding:3px 6px 3px 0;">${MONTHS[m.index]}</td>` +
+          `<td style="padding:3px 0;">${width && cells ? `<table role="presentation" style="border-collapse:collapse;width:${width}%;"><tr>${cells}</tr></table>` : ""}</td>` +
+          `<td style="width:48px;text-align:right;font-size:12px;padding:3px 0 3px 6px;white-space:nowrap;">${m.visits ? num(m.visits) : "&ndash;"}</td></tr>`
+        );
+      })
+      .join("");
+
+    yearHtml =
+      `<h2 ${h2}>Month by month</h2>` +
+      `<table role="presentation" style="border-collapse:collapse;width:${chartWidth}%;table-layout:fixed;"><tr>${columns}</tr><tr>${columnLabels}</tr></table>` +
+      legend(DEVICE_ORDER.filter((d) => devices[d]).map((d) => [d, DEVICE_COLOURS[d]])) +
+      monthTable +
+      `<h2 ${h2}>Where visitors came from, month by month</h2>` +
+      legend([...named.map((s, i) => [s.name, SOURCE_COLOURS[i]]), ...(anyOther ? [["Other websites", OTHER_COLOUR]] : [])]) +
+      `<table role="presentation" style="border-collapse:collapse;width:100%;margin-top:4px;">${bars}</table>`;
+  }
 
   const html = `<!doctype html>
 <html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(subject)}</title></head>
 <body style="margin:0;padding:0;background:#f7f5e1;">
 <div style="max-width:640px;margin:0 auto;padding:24px 16px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.5;color:${ink};">
-<p style="margin:0;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:${soft};">Cedar Hollow website &middot; weekly visitors</p>
+<p style="margin:0;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:${soft};">Cedar Hollow website &middot; ${kicker}</p>
 <h1 style="font-family:Georgia,serif;font-weight:normal;font-size:26px;color:${green};margin:4px 0 20px;">${esc(label)}</h1>
 <table role="presentation" style="border-collapse:collapse;"><tr>
-<td style="padding:0 32px 0 0;vertical-align:top;"><div style="font-size:34px;font-family:Georgia,serif;color:${ink};">${num(r.visits)}</div><div style="color:${soft};">visits${compare ? ` <span style="white-space:nowrap;">(week before: ${num(r.before.visits)})</span>` : ""}</div></td>
+<td style="padding:0 32px 0 0;vertical-align:top;"><div style="font-size:34px;font-family:Georgia,serif;color:${ink};">${num(r.visits)}</div><div style="color:${soft};">visits${before ? ` <span style="white-space:nowrap;">(${esc(before)})</span>` : ""}</div></td>
 <td style="padding:0;vertical-align:top;"><div style="font-size:34px;font-family:Georgia,serif;color:${ink};">${num(r.views)}</div><div style="color:${soft};">page views</div></td>
 </tr></table>
-${incomplete ? `<p style="margin:16px 0 0;padding:10px 12px;background:#fff8e1;border-left:3px solid #c9a227;font-size:14px;">${esc(incompleteNote)}</p>` : ""}
-<h2 ${h2}>Where visitors came from</h2>
+${note ? `<p style="margin:16px 0 0;padding:10px 12px;background:#fff8e1;border-left:3px solid #c9a227;font-size:14px;">${esc(note)}</p>` : ""}
+${yearHtml}
+<h2 ${h2}>${esc(sourcesTitle)}</h2>
 <table style="border-collapse:collapse;width:100%;font-size:14px;">
 <tr><th ${thLeft}>Website</th><th ${th}>Visits</th><th ${th}>Share</th></tr>
 ${sourceRows || `<tr><td ${tdLeft} colspan="3">No visits recorded.</td></tr>`}
@@ -873,16 +1233,24 @@ ${pageHtml}
 </div></body></html>`;
 
   // ---- spreadsheet --------------------------------------------------------
-  const weekStart = isoDate(week.monday);
-  const csvRows = [...r.rows].sort(
-    (a, b) =>
-      (bySource.get(b.source).visits - bySource.get(a.source).visits) ||
-      a.source.localeCompare(b.source) ||
-      b.visits - a.visits
-  );
+  // Largest source first, then by device; for a year, month by month.
+  const ordered = (rows) => {
+    const totals = groupRows(rows).bySource;
+    return [...rows].sort(
+      (a, b) =>
+        totals.get(b.source).visits - totals.get(a.source).visits ||
+        a.source.localeCompare(b.source) ||
+        b.visits - a.visits
+    );
+  };
+  const line = (key, x) => [key, x.source, x.host || "(none)", x.device, x.visits];
+  const stamp = p.kind === "week" ? isoDate(p.start) : p.kind === "month" ? isoDate(p.start).slice(0, 7) : String(year);
+  const body =
+    p.kind === "year"
+      ? months.flatMap((m) => ordered(m.rows).map((x) => line(`${year}-${String(m.index + 1).padStart(2, "0")}`, x)))
+      : ordered(r.rows).map((x) => line(stamp, x));
   const csv =
-    [["Week starting", "Source", "Website", "Device", "Visits"]]
-      .concat(csvRows.map((x) => [weekStart, x.source, x.host || "(none)", x.device, x.visits]))
+    [[p.kind === "week" ? "Week starting" : "Month", "Source", "Website", "Device", "Visits"], ...body]
       .map((cells) => cells.map(csvCell).join(","))
       .join("\r\n") + "\r\n";
 
@@ -891,7 +1259,8 @@ ${pageHtml}
     text,
     html,
     csv,
-    attachments: [{ filename: `cedar-hollow-visitors-${weekStart}.csv`, content: base64("﻿" + csv) }],
+    // A byte-order mark first, so Excel reads the file as UTF-8.
+    attachments: [{ filename: `cedar-hollow-visitors-${stamp}.csv`, content: base64(String.fromCharCode(0xfeff) + csv) }],
   };
 }
 
