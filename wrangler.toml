@@ -55,6 +55,17 @@ CONTACT_TO = "hello@thelabgroup.com"
 CONTACT_FROM = "website@send.cedarhollow.uk"
 CONTACT_FROM_NAME = "Cedar Hollow website"
 
+# Weekly visitor report (see worker/index.js): where it goes, and which
+# account and Web Analytics site it reads. Neither ID is a secret -- both
+# appear in every dashboard address. The API token it reads with is one:
+#
+#   npx wrangler secret put ANALYTICS_API_TOKEN
+#
+# It needs Account Analytics: Read on this account, and nothing else.
+REPORT_TO = "hello@thelabgroup.com"
+ANALYTICS_ACCOUNT = "8a9f8097ba4ff03c5a70f8b811c2902e"
+ANALYTICS_SITE = "ae885004b4b34ac2a39e3b5dc349a8eb"   # cedarhollow.uk
+
 # --- Instagram ---------------------------------------------------------------
 # GET /api/instagram?site=oxford|dorset returns the four most recent posts for
 # that woodland, which js/instagram-live.js paints into the grid on the two
@@ -81,13 +92,19 @@ CONTACT_FROM_NAME = "Cedar Hollow website"
 # since a Worker cannot rewrite its own secrets. /health shows the last
 # renewal per site; if a token lapses anyway, set a new secret and it takes
 # over at once.
+#
+# The cron runs every day at 04:17 UTC, not just Mondays: each morning it
+# keeps the previous day's visitor figures while they are still exact (see
+# "Weekly visitor report" in worker/index.js), and on Mondays it also renews
+# the Instagram tokens and emails the visitor report for the Monday to Sunday
+# just ended.
 
 [[kv_namespaces]]
 binding = "IG_KV"
 id = "8d6bb0fe7112447ca233e6cd03e8d8b8"   # cedar-hollow-instagram
 
 [triggers]
-crons = ["17 4 * * 1"]
+crons = ["17 4 * * *"]
 
 # --- Previews ----------------------------------------------------------------
 # Every branch other than main is built with `npx wrangler preview`, which gets

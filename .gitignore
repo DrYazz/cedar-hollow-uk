@@ -19,3 +19,8 @@ The Oaks Full Movie.MP4
 # Playwright MCP scratch output: screenshots, snapshots and console logs.
 .playwright-mcp/
 __pycache__/
+
+# Local secrets for `wrangler dev` (e.g. ANALYTICS_API_TOKEN). Never committed;
+# the live values are Worker secrets set in the Cloudflare dashboard.
+.dev.vars
+.dev.vars.*
