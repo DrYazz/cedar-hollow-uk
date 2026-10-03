@@ -501,7 +501,7 @@ async function sendReport(env, p, opts) {
 
   let email;
   try {
-    email = renderReport(p, await reportFigures(env, p, opts));
+    email = await renderReport(p, await reportFigures(env, p, opts));
   } catch (err) {
     const reason = err && err.message ? err.message : String(err);
     console.error(`[report] ${label}: ${reason}`);
@@ -526,7 +526,7 @@ async function sendReport(env, p, opts) {
   }
 
   try {
-    const { csv, ...message } = email;
+    const { csv, images, ...message } = email;
     await sendViaResend(env, { ...message, to: env.REPORT_TO || env.CONTACT_TO });
     console.log(`[report] ${label}: sent`);
     return { ok: true, subject: email.subject };
@@ -1108,14 +1108,15 @@ function compactNum(n) {
 }
 
 /*
- * The email itself: subject, plain text, HTML, and the spreadsheet. Its
- * three parts, in PARTS order, each come from renderPart.
+ * The email itself: subject, plain text, HTML, the spreadsheet, and a pie
+ * chart of each part's visits by device. Its three parts, in PARTS order,
+ * each come from renderPart.
  *
  * Every value from the analytics -- a referring website above all, which any
  * visitor's browser can set to anything -- is escaped for HTML, and guarded
  * in the spreadsheet against being read as a formula.
  */
-function renderReport(p, r) {
+async function renderReport(p, r) {
   const label = periodLabel(p);
   const year = new Date(p.start).getUTCFullYear();
   const note = periodNote(p);
@@ -1133,10 +1134,27 @@ function renderReport(p, r) {
     "the address typed in, a bookmark, or a link in WhatsApp, an email or another app.";
   const attached = "The full breakdown by part of the site, website and device is attached as a spreadsheet.";
 
+  // The pies go in as pictures attached to the email and shown in its body
+  // ("cid:" images): mail clients strip SVG and drawn charts, and many block
+  // pictures fetched from the web, but show the ones an email carries.
+  const pies = {};
+  for (const [part] of PARTS) {
+    const devices = groupRows(r.parts[part].rows).devices;
+    const values = DEVICE_ORDER.map((d) => devices[d] || 0);
+    if (!values.some((v) => v > 0)) continue;
+    try {
+      const png = await piePng(values, DEVICE_ORDER.map((d) => DEVICE_COLOURS[d]));
+      pies[part] = { cid: `devices-${part}`, content: base64Bytes(png) };
+    } catch (err) {
+      // The key beside it carries the same figures, so the email goes without.
+      console.error(`[report] no pie for ${part}:`, err && err.message ? err.message : err);
+    }
+  }
+
   const text = [`Cedar Hollow website: visitors, ${label}`, ...(note ? ["", note] : [])];
   let parts = "";
   for (const [part, title] of PARTS) {
-    const section = renderPart(p, r, part, title);
+    const section = renderPart(p, r, part, title, pies[part]);
     text.push("", "", `== ${title.toUpperCase()} ==`, ...section.text);
     parts += section.html;
   }
@@ -1185,20 +1203,31 @@ ${parts}
     text: text.join("\n"),
     html,
     csv,
-    // A byte-order mark first, so Excel reads the file as UTF-8.
-    attachments: [{ filename: `cedar-hollow-visitors-${stamp}.csv`, content: base64(String.fromCharCode(0xfeff) + csv) }],
+    // For a dry run, which shows the email without its attachments.
+    images: Object.fromEntries(Object.values(pies).map((pie) => [pie.cid, pie.content])),
+    attachments: [
+      // A byte-order mark first, so Excel reads the file as UTF-8.
+      { filename: `cedar-hollow-visitors-${stamp}.csv`, content: base64(String.fromCharCode(0xfeff) + csv) },
+      ...Object.values(pies).map((pie) => ({
+        filename: `${pie.cid}.png`,
+        content: pie.content,
+        content_type: "image/png",
+        content_id: pie.cid,
+      })),
+    ],
   };
 }
 
 /*
  * One part of a report -- the whole website, or one woodland -- as plain
- * text lines and HTML. The year's report adds its graphs, month by month.
+ * text lines and HTML, with `pie` the picture of its visits by device. The
+ * year's report adds its graphs, month by month.
  *
  * The year's graphs are made of tables and blocks of colour rather than
  * images or SVG, which most mail clients block or strip; every figure in
  * them is in a table beside them too.
  */
-function renderPart(p, r, part, title) {
+function renderPart(p, r, part, title, pie) {
   const S = r.parts[part];
   const year = new Date(p.start).getUTCFullYear();
   const num = fmtNum;
@@ -1421,14 +1450,27 @@ function renderPart(p, r, part, title) {
       .join("") || `<tr><td class="l" colspan="3">No visits recorded.</td></tr>`) +
     "</table>" +
     (withinNote ? `<p class="s" style="margin:8px 0 0;">${esc(withinNote)}</p>` : "") +
-    `<h2 class="h2">Computer, phone or tablet</h2><table class="t" style="width:auto;"><tr><th class="hl">Device</th><th class="hn">Visits</th><th class="hn">Share</th><th class="hn"></th></tr>` +
-    deviceRows
-      .map(
-        (d) =>
-          `<tr><td class="l">${esc(d.name)}</td><td class="n"><strong>${num(d.visits)}</strong></td><td class="n">${esc(share(d.visits))}</td><td class="n">${bar(d.visits, counted)}</td></tr>`
-      )
-      .join("") +
-    "</table>" +
+    // The pie, and beside it the key: each slice's colour, visits and share,
+    // which is also everything the pie says for a reader whose mail app
+    // hides pictures.
+    `<h2 class="h2">Computer, phone or tablet</h2>` +
+    (deviceRows.length
+      ? `<table role="presentation" style="border-collapse:collapse;"><tr>` +
+        (pie
+          ? `<td style="vertical-align:middle;padding:0 12px 0 0;"><img src="cid:${pie.cid}" width="110" height="110" alt="${esc(
+              `Pie chart of visits by device: ${deviceRows.map((d) => `${d.name} ${share(d.visits)}`).join(", ")}`
+            )}" style="display:block;width:110px;height:110px;border:0;"></td>`
+          : "") +
+        `<td style="vertical-align:middle;"><table class="t" style="width:auto;"><tr><th class="hl">Device</th><th class="hn">Visits</th><th class="hn">Share</th></tr>` +
+        deviceRows
+          .map(
+            (d) =>
+              `<tr><td class="l" style="white-space:nowrap;"><span style="display:inline-block;width:10px;height:10px;background:${DEVICE_COLOURS[d.name]};margin-right:6px;"></span>${esc(d.name)}</td>` +
+              `<td class="n"><strong>${num(d.visits)}</strong></td><td class="n">${esc(share(d.visits))}</td></tr>`
+          )
+          .join("") +
+        "</table></td></tr></table>"
+      : `<p class="s">No visits recorded.</p>`) +
     `<h2 class="h2">Most-read pages</h2><table class="t"><tr><th class="hl">Page</th><th class="hn">Page views</th></tr>` +
     (S.pages
       .map(
@@ -1452,12 +1494,177 @@ function csvCell(value) {
 }
 
 function base64(text) {
-  const bytes = new TextEncoder().encode(text);
+  return base64Bytes(new TextEncoder().encode(text));
+}
+
+function base64Bytes(bytes) {
   let binary = "";
   for (let i = 0; i < bytes.length; i += 0x8000) {
     binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
   }
   return btoa(binary);
+}
+
+/*
+ * A pie chart as a PNG, drawn here: no canvas in a Worker, and no chart
+ * service to hand the figures to. `values` go clockwise from twelve o'clock
+ * in `colours`, on a clear ground that suits any background, each slice
+ * parted from the next by a thin gap. A pixel on the rim or by a gap is
+ * sampled 3 x 3 times and blended, so the edges come out smooth; the rest
+ * are sampled once, and written whole. Drawn at 180px to show at 110, so
+ * sharp on a high-density screen.
+ *
+ * Kept quick, since a report draws three and a run can send three reports.
+ * No trigonometry per pixel: a gap is found by a point's distance from the
+ * line of a cut, and a slice by its "diamond angle" -- a cheap stand-in for
+ * the true angle that rises and falls with it, compared against the cuts'
+ * own.
+ */
+async function piePng(values, colours, size = 180) {
+  const total = values.reduce((a, b) => a + b, 0);
+  const rgb = colours.map((h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16)));
+  // A whole opaque pixel as one little-endian word, for the fast path.
+  const word = rgb.map(([r, g, b]) => ((255 << 24) | (b << 16) | (g << 8) | r) >>> 0);
+  const c = size / 2;
+  const R = c - 1;
+  const TURN = 2 * Math.PI;
+  const GAP = 1; // half the gap between slices, in pixels
+  const SUB = 3; // samples a side for an edge pixel
+
+  // Clockwise from twelve o'clock, 0 to 4: the diamond angle of east-north
+  // coordinates (dx, -dy).
+  const diamond = (dx, dy) => {
+    const e = dx;
+    const n = -dy;
+    if (e >= 0) return n >= 0 ? e / (n + e) : 1 + -n / (e - n);
+    return n < 0 ? 2 + -e / (-n - e) : 3 + n / (n - e);
+  };
+
+  const angles = [];
+  let run = 0;
+  for (const v of values) angles.push(((run += v) / total) * TURN);
+  // Where each slice ends, as a diamond angle; a slice ending at the full
+  // turn ends at 4, not back at 0.
+  const ends = angles.map((a) => (a >= TURN - 1e-9 ? 4 : diamond(Math.sin(a), -Math.cos(a))));
+  // Where one slice meets the next, as unit vectors from the centre; a
+  // single slice is a whole circle, with no cuts.
+  const cutAngles = values.filter((v) => v > 0).length > 1 ? [0, ...angles.filter((a, i) => values[i] > 0 && a < TURN - 1e-9)] : [];
+  const cx = cutAngles.map((a) => Math.sin(a));
+  const cy = cutAngles.map((a) => -Math.cos(a));
+  const cuts = cutAngles.length;
+
+  // How close (dx, dy) comes to any cut: its distance from the cut's line,
+  // counted only on the cut's own side of the centre.
+  const cutDistance = (dx, dy) => {
+    let best = Infinity;
+    for (let k = 0; k < cuts; k++) {
+      if (dx * cx[k] + dy * cy[k] <= 0) continue;
+      const d = Math.abs(dx * cy[k] - dy * cx[k]);
+      if (d < best) best = d;
+    }
+    return best;
+  };
+  const sliceAt = (dx, dy) => {
+    const a = diamond(dx, dy);
+    let i = 0;
+    while (i < ends.length - 1 && a >= ends[i]) i++;
+    return i;
+  };
+
+  const px = new Uint8Array(size * size * 4);
+  const px32 = new Uint32Array(px.buffer);
+  if (total > 0) {
+    const outer = (R + 1) * (R + 1);
+    const inner = (R - 1) * (R - 1);
+    const rim = R * R;
+    for (let y = 0; y < size; y++) {
+      const dy = y + 0.5 - c;
+      for (let x = 0; x < size; x++) {
+        const dx = x + 0.5 - c;
+        const r2 = dx * dx + dy * dy;
+        if (r2 > outer) continue;
+        if (r2 < inner && cutDistance(dx, dy) > GAP + 1) {
+          px32[y * size + x] = word[sliceAt(dx, dy)];
+          continue;
+        }
+        let red = 0;
+        let green = 0;
+        let blue = 0;
+        let covered = 0;
+        for (let sy = 0; sy < SUB; sy++) {
+          const ey = y + (sy + 0.5) / SUB - c;
+          for (let sx = 0; sx < SUB; sx++) {
+            const ex = x + (sx + 0.5) / SUB - c;
+            if (ex * ex + ey * ey > rim || cutDistance(ex, ey) < GAP) continue;
+            const i = sliceAt(ex, ey);
+            red += rgb[i][0];
+            green += rgb[i][1];
+            blue += rgb[i][2];
+            covered += 1;
+          }
+        }
+        if (!covered) continue;
+        const o = (y * size + x) * 4;
+        px[o] = Math.round(red / covered);
+        px[o + 1] = Math.round(green / covered);
+        px[o + 2] = Math.round(blue / covered);
+        px[o + 3] = Math.round((255 * covered) / (SUB * SUB));
+      }
+    }
+  }
+  return encodePng(size, size, px);
+}
+
+const PNG_SIGNATURE = new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10]);
+
+// RGBA pixels as a PNG file. The "deflate" CompressionStream writes zlib,
+// which is what a PNG's IDAT holds.
+async function encodePng(width, height, rgba) {
+  const stride = width * 4;
+  const raw = new Uint8Array((stride + 1) * height); // each row: filter 0, then its pixels
+  for (let y = 0; y < height; y++) raw.set(rgba.subarray(y * stride, (y + 1) * stride), y * (stride + 1) + 1);
+  const idat = new Uint8Array(
+    await new Response(new Blob([raw]).stream().pipeThrough(new CompressionStream("deflate"))).arrayBuffer()
+  );
+  const ihdr = new Uint8Array(13);
+  const v = new DataView(ihdr.buffer);
+  v.setUint32(0, width);
+  v.setUint32(4, height);
+  ihdr.set([8, 6, 0, 0, 0], 8); // 8 bits a channel, RGBA, deflate, standard filters, no interlace
+  const chunks = [PNG_SIGNATURE, pngChunk("IHDR", ihdr), pngChunk("IDAT", idat), pngChunk("IEND", new Uint8Array(0))];
+  const out = new Uint8Array(chunks.reduce((n, chunk) => n + chunk.length, 0));
+  let at = 0;
+  for (const chunk of chunks) {
+    out.set(chunk, at);
+    at += chunk.length;
+  }
+  return out;
+}
+
+function pngChunk(type, data) {
+  const out = new Uint8Array(data.length + 12);
+  const v = new DataView(out.buffer);
+  v.setUint32(0, data.length);
+  for (let i = 0; i < 4; i++) out[4 + i] = type.charCodeAt(i);
+  out.set(data, 8);
+  v.setUint32(data.length + 8, crc32(out.subarray(4, data.length + 8)));
+  return out;
+}
+
+let crcTable;
+
+function crc32(bytes) {
+  if (!crcTable) {
+    crcTable = new Uint32Array(256);
+    for (let n = 0; n < 256; n++) {
+      let k = n;
+      for (let bit = 0; bit < 8; bit++) k = k & 1 ? 0xedb88320 ^ (k >>> 1) : k >>> 1;
+      crcTable[n] = k >>> 0;
+    }
+  }
+  let crc = 0xffffffff;
+  for (let i = 0; i < bytes.length; i++) crc = crcTable[(crc ^ bytes[i]) & 0xff] ^ (crc >>> 8);
+  return (crc ^ 0xffffffff) >>> 0;
 }
 
 function mailReady(env) {
