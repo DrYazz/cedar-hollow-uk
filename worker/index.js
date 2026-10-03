@@ -5,8 +5,8 @@
  *   - every static file, via the ASSETS binding (see wrangler.toml)
  *   - POST /api/contact, the homepage contact form
  *   - GET /api/instagram, the live Instagram grids
- *   - every Monday, an email of last week's visitors (see "Weekly visitor
- *     report" below)
+ *   - weekly, monthly and yearly emails about the site's visitors (see
+ *     "Visitor reports" below)
  *
  * This replaces the Express + nodemailer service in form-handler/. The request
  * and response shapes are identical, so js/form-submit.js only needed its
@@ -72,53 +72,92 @@ const IG_TOKENS = {
 };
 
 /*
- * Weekly visitor report.
+ * Visitor reports.
  *
- * Early every Monday an email of last week's Cloudflare Web Analytics figures
- * for cedarhollow.uk goes out: the websites visitors came from, each split by
- * computer, phone and tablet, with the week's totals and most-read pages, and
- * the full source-by-device breakdown attached as a spreadsheet.
+ * Emails of Cloudflare Web Analytics figures for cedarhollow.uk, sent by the
+ * cron in wrangler.toml:
+ *
+ *   - every Monday, the week just ended, Monday to Sunday;
+ *   - on the 1st of every month, the month just ended;
+ *   - on 1 January, the year just ended, with graphs of it month by month.
+ *
+ * Each comes in three parts -- the whole website, then Cedar Hollow Oxford,
+ * then Cedar Hollow Dorset -- and each part has the same figures: the
+ * websites visitors came from, split by computer, phone and tablet; the
+ * totals against the period before; and the most-read pages. A woodland's
+ * part counts the visits that began on its own pages, the addresses
+ * starting /oxford or /dorset, and every view of them. Visits that began on
+ * the shared pages -- the home page, About, Careers and the like -- count in
+ * the whole website alone. The full breakdown, by part of the site, website
+ * and device, comes attached as a spreadsheet.
  *
  * The figures come from Cloudflare's GraphQL Analytics API. It keeps them
  * exact for seven days and as a one-in-ten sample after that, and answers any
  * question spanning more than a week from the sample -- which, on a site this
  * size, can turn a website that sent two visitors into none, or ten. So the
- * cron runs every morning: it reads the day just ended, while it is exact,
- * and keeps it in KV (IG_KV, beside the Instagram tokens, under
- * visits:day:YYYY-MM-DD). Monday's report adds up seven of those days; a day
- * the cron missed is read from the API when the report needs it, as exactly
- * as the API still has it. The kept days are also the long-term record, since
- * the dashboard goes back only six months. Bots are left out throughout, as
- * the dashboard leaves them out by default.
+ * cron runs every morning and reads the day just ended while it is exact, and
+ * keeps it in KV (IG_KV, beside the Instagram tokens) twice over: whole, under
+ * visits:d:YYYY-MM-DD, for the week's report; and added to its month's
+ * running totals, under visits:m:YYYY-MM, which the month's and the year's
+ * reports read. A year is twelve small reads rather than 365, which matters:
+ * on the Workers free plan every KV read counts against fifty requests a run.
+ * A day the cron missed is read from the API when a week's report next needs
+ * it, as exactly as the API still has it. Kept figures last three years,
+ * outliving the dashboard's six months. Bots are left out throughout, as the
+ * dashboard leaves them out by default. (The records under visits:day: are
+ * from before the reports were split by woodland, and are left to expire.)
  *
  * The API needs a token with Account Analytics: Read. It is a secret, set once:
  *
  *   npx wrangler secret put ANALYTICS_API_TOKEN
  *
  * The account and the Web Analytics site are vars in wrangler.toml, as is
- * REPORT_TO, the address the report goes to.
+ * REPORT_TO, the address the reports go to.
  *
- * POST /api/weekly-report sends it on demand, for checking a change or
- * re-sending a week. It must carry that same token as a bearer token, so
+ * POST /api/visitor-report sends one on demand, for checking a change or
+ * re-sending a period. It must carry that same token as a bearer token, so
  * nobody without it can trigger mail.
  *
- *   ?week=2026-10-05   any day of the week to report (default: last week)
+ *   ?week=2026-10-05   the week containing that day
+ *   ?month=2026-10     that month
+ *   ?year=2026         that year
+ *                      (none of the three: last week)
  *   ?dry=1             answer with the email as JSON instead of sending it
  */
-const REPORT_PATH = "/api/weekly-report";
+const REPORT_PATH = "/api/visitor-report";
 const GRAPHQL_ENDPOINT = "https://api.cloudflare.com/client/v4/graphql";
 const REPORT_TZ = "Europe/London";
 const REPORT_TOP_SOURCES = 15;
 const REPORT_TOP_PAGES = 10;
-const DAY_KEY = "visits:day:";            // + YYYY-MM-DD, in IG_KV
-const DAY_KEEP = 3 * 365 * 86400;         // seconds a kept day lasts: three years
-const DAY_PAGES = 100;                    // pages kept per day
+const CHART_SOURCES = 5;                  // websites named in the year's graph
+const DAY_KEY = "visits:d:";              // + YYYY-MM-DD, in IG_KV
+const MONTH_KEY = "visits:m:";            // + YYYY-MM
+const YEAR_KEY = "visits:y:";             // + YYYY: the totals, kept by its report
+const KEEP = 3 * 365 * 86400;             // seconds kept figures last: three years
+const API_DAYS = 180;                     // how far back the API has anything
+const API_READS = 4;                      // API reads a cron run may add for missed days
+const DAY_PAGES = 500;                    // pages kept per day -- all of them, in practice,
+const MONTH_PAGES = 500;                  // so each woodland's page views add up
 
-// Visits were not counted from the move to Workers static assets until the
-// beacon went back in (worker-served pages never got Cloudflare's injected
-// one). A week overlapping this is incomplete, and is not compared against.
-const UNCOUNTED_FROM = Date.UTC(2026, 9, 1);       // 1 Oct 2026
-const UNCOUNTED_UNTIL = Date.UTC(2026, 9, 2, 14); // 2 Oct 2026, mid-afternoon
+// The parts of every report, in order. The shared pages have no part of
+// their own: their visits count in the whole website's.
+const PARTS = [
+  ["all", "The whole website"],
+  ["oxford", "Cedar Hollow Oxford"],
+  ["dorset", "Cedar Hollow Dorset"],
+];
+const BEGAN = [
+  ["oxford", "Oxford pages"],
+  ["dorset", "Dorset pages"],
+  ["main", "Shared pages (home, About, Careers…)"],
+];
+
+// Nothing was counted before 1 October 2026, and most visits went uncounted
+// until the afternoon of the 2nd, when the beacon went back in (pages served
+// from Workers static assets never got the one Cloudflare used to inject). A
+// period starting before then is incomplete, and is never compared against.
+const COUNTED_FROM = Date.UTC(2026, 8, 30, 23);  // midnight, 1 Oct 2026, London
+const COUNTED_FULLY = Date.UTC(2026, 9, 2, 14);  // 2 Oct 2026, mid-afternoon
 
 // Friendlier names for the websites that send most visitors. A host not
 // listed here is shown as itself, minus any leading www.
@@ -205,7 +244,7 @@ export default {
         mailConfigured: mailReady(env),
         instagram: sites,
         instagramRenewed: renewed,
-        weeklyReport: analyticsReady(env) && mailReady(env),
+        visitorReports: analyticsReady(env) && mailReady(env),
       });
     }
 
@@ -215,8 +254,8 @@ export default {
   },
 
   // The cron in wrangler.toml, early every morning: keep yesterday's visitor
-  // figures, and on Mondays also renew the Instagram tokens and email last
-  // week's report. Each job fails on its own.
+  // figures and send whichever visitor reports are due, and on Mondays also
+  // renew the Instagram tokens. Each job fails on its own.
   async scheduled(event, env, ctx) {
     const now = event.scheduledTime || Date.now();
     const monday = new Date(londonDate(now)).getUTCDay() === 1;
@@ -398,7 +437,7 @@ function igFail(error, status) {
 }
 
 /*
- * POST /api/weekly-report -- the report on demand. Answers {ok, subject} once
+ * POST /api/visitor-report -- a report on demand. Answers {ok, subject} once
  * sent, or with ?dry=1 the whole email ({subject, text, html, csv}) unsent.
  */
 async function handleReportRequest(request, url, env) {
@@ -409,28 +448,38 @@ async function handleReportRequest(request, url, env) {
     return json({ ok: false, error: "Unauthorized" }, 401);
   }
 
-  const dry = url.searchParams.get("dry") === "1";
-  const week = url.searchParams.get("week");
-  let day;
-  if (week) {
-    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(week);
+  const q = (name) => url.searchParams.get(name);
+  let p;
+  if (q("year")) {
+    if (!/^\d{4}$/.test(q("year"))) return json({ ok: false, error: "year must be YYYY" }, 400);
+    p = yearPeriod(+q("year"));
+  } else if (q("month")) {
+    const m = /^(\d{4})-(\d{2})$/.exec(q("month"));
+    if (!m || +m[2] < 1 || +m[2] > 12) return json({ ok: false, error: "month must be YYYY-MM" }, 400);
+    p = monthPeriod(+m[1], +m[2] - 1);
+  } else if (q("week")) {
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(q("week"));
     if (!m) return json({ ok: false, error: "week must be YYYY-MM-DD" }, 400);
-    day = Date.UTC(+m[1], +m[2] - 1, +m[3]);
+    p = weekPeriod(Date.UTC(+m[1], +m[2] - 1, +m[3]), true);
+  } else {
+    p = weekPeriod(Date.now(), false);
   }
 
-  const result = await sendWeeklyReport(env, { day, containing: Boolean(week), dry });
+  // A request makes one report, so it may read a whole week of missed days.
+  const dry = q("dry") === "1";
+  const result = await sendReport(env, p, { dry, store: !dry, fetches: 7 });
   return json(result, result.ok ? 200 : 502);
 }
 
 /*
- * Build the report and, unless this is a dry run, send it.
+ * Build a report and, unless this is a dry run, send it.
  *
  * When the figures cannot be fetched -- the token missing, expired or revoked
  * -- a short note saying so goes out in its place. A report that silently
  * stops arriving would look exactly like a quiet week.
  */
-async function sendWeeklyReport(env, { day = Date.now(), containing = false, dry = false } = {}) {
-  const week = reportWeek(day, containing);
+async function sendReport(env, p, opts) {
+  const label = periodLabel(p);
 
   if (!analyticsReady(env)) {
     console.error("[report] not configured: needs ANALYTICS_API_TOKEN, ANALYTICS_ACCOUNT and ANALYTICS_SITE");
@@ -439,22 +488,22 @@ async function sendWeeklyReport(env, { day = Date.now(), containing = false, dry
 
   let email;
   try {
-    email = renderReport(env, await fetchReport(env, week, !dry));
+    email = renderReport(p, await reportFigures(env, p, opts));
   } catch (err) {
     const reason = err && err.message ? err.message : String(err);
-    console.error(`[report] ${weekLabel(week)}: ${reason}`);
-    if (dry || !mailReady(env)) return { ok: false, error: reason };
+    console.error(`[report] ${label}: ${reason}`);
+    if (opts.dry || !mailReady(env)) return { ok: false, error: reason };
     email = {
-      subject: "Cedar Hollow website: last week's visitor report could not be built",
+      subject: `Cedar Hollow website: the visitor report for ${label} could not be built`,
       text:
-        `The visitor report for ${weekLabel(week)} could not be built.\n\n` +
+        `The visitor report for ${label} could not be built.\n\n` +
         `Reason: ${reason}\n\n` +
         "The usual cause is the ANALYTICS_API_TOKEN secret on the cedar-hollow-uk " +
         "Worker being missing, expired or revoked.",
     };
   }
 
-  if (dry) {
+  if (opts.dry) {
     const { attachments, ...rest } = email;
     return { ok: true, ...rest };
   }
@@ -466,7 +515,7 @@ async function sendWeeklyReport(env, { day = Date.now(), containing = false, dry
   try {
     const { csv, ...message } = email;
     await sendViaResend(env, { ...message, to: env.REPORT_TO || env.CONTACT_TO });
-    console.log(`[report] ${weekLabel(week)}: sent`);
+    console.log(`[report] ${label}: sent`);
     return { ok: true, subject: email.subject };
   } catch (err) {
     console.error("[report] send failed:", err && err.message ? err.message : err);
@@ -487,84 +536,192 @@ async function sameSecret(a, b) {
 }
 
 /*
- * The daily job: keep yesterday's figures while they are exact, then on a
- * Monday send the report, which finds all seven days kept.
+ * The daily job: keep yesterday's figures while they are exact, then send
+ * whichever reports fall due -- the week's on a Monday, the month's on the
+ * 1st, the year's on 1 January -- one after another, so a month is kept
+ * before the year reads it.
  */
 async function visitorCron(env, now, monday) {
   if (!analyticsReady(env)) {
     console.error("[report] not configured: needs ANALYTICS_API_TOKEN, ANALYTICS_ACCOUNT and ANALYTICS_SITE");
     return;
   }
+  // Yesterday's read, and a few more for days an earlier run missed: on the
+  // free plan a run may make fifty requests in all, KV reads included.
+  const opts = { dry: false, store: true, fetches: 1 + API_READS };
+  const today = londonDate(now);
   try {
-    await dayFigures(env, londonDate(now) - DAY, true);
+    await dayFigures(env, today - DAY, opts);
   } catch (err) {
     console.error("[report] could not keep yesterday:", err && err.message ? err.message : err);
   }
-  if (monday) await sendWeeklyReport(env, { day: now });
+
+  const date = new Date(today);
+  if (monday) await sendReport(env, weekPeriod(now, false), opts);
+  if (date.getUTCDate() === 1) {
+    await sendReport(env, monthPeriod(date.getUTCFullYear(), date.getUTCMonth() - 1), opts);
+    if (date.getUTCMonth() === 0) await sendReport(env, yearPeriod(date.getUTCFullYear() - 1), opts);
+  }
 }
 
 /*
- * The report's figures: the week's seven days added up, and the week
- * before's totals to compare them with.
+ * A report's figures, part by part: the period's own, and the period
+ * before's totals to compare them with -- unless that one started before
+ * counting did.
  */
-async function fetchReport(env, week, store) {
-  const seven = (monday) => Promise.all(
-    Array.from({ length: 7 }, (_, i) => dayFigures(env, monday + i * DAY, store))
-  );
-  const [days, before] = await Promise.all([seven(week.monday), seven(week.monday - 7 * DAY)]);
-  const total = (list, field) => list.reduce((n, d) => n + d[field], 0);
+async function reportFigures(env, p, opts) {
+  const compare = londonMidnight(p.prevStart) >= COUNTED_FULLY;
+  let figures;
+  let before = null;
 
-  const byRow = new Map();
-  const byPage = new Map();
-  for (const d of days) {
-    for (const [host, device, visits] of d.sources) {
-      const key = JSON.stringify([host, device]);
-      byRow.set(key, (byRow.get(key) || 0) + visits);
+  if (p.kind === "week") {
+    // One day at a time: keeping a day rewrites its month, and two kept at
+    // once would each overwrite the other's addition.
+    const days = [];
+    for (let d = p.start; d < p.end; d += DAY) days.push(await dayFigures(env, d, opts));
+    figures = combine(days);
+    if (compare) before = await dayTotals(env, p.prevStart, p.start);
+  } else if (p.kind === "month") {
+    const d = new Date(p.start);
+    const prev = new Date(p.prevStart);
+    figures = await monthFigures(env, d.getUTCFullYear(), d.getUTCMonth());
+    if (compare) before = partTotals(await monthFigures(env, prev.getUTCFullYear(), prev.getUTCMonth()));
+  } else {
+    const year = new Date(p.start).getUTCFullYear();
+    const twelve = (y) => Promise.all(Array.from({ length: 12 }, (_, m) => monthFigures(env, y, m)));
+    const months = await twelve(year);
+    figures = { ...combine(months), months };
+    if (compare) {
+      const kept = await getKept(env, YEAR_KEY + (year - 1));
+      before = kept ? kept.parts : partTotals(combine(await twelve(year - 1)));
     }
-    for (const [path, views] of d.pages) byPage.set(path, (byPage.get(path) || 0) + views);
+    if (opts.store && londonMidnight(p.end) <= Date.now()) {
+      await putKept(env, YEAR_KEY + year, { year, parts: partTotals(figures) });
+    }
+  }
+
+  const totals = partTotals(figures);
+  const parts = {};
+  for (const [part] of PARTS) {
+    parts[part] = {
+      ...totals[part],
+      before: before && before[part],
+      rows: toRows(inPart(figures.sources, part)),
+      pages: figures.pages
+        .filter(([path]) => part === "all" || partOf(path) === part)
+        .slice(0, REPORT_TOP_PAGES)
+        .map(([path, views]) => ({ path, views })),
+    };
   }
 
   return {
-    week,
     account: env.ANALYTICS_ACCOUNT,
     site: env.ANALYTICS_SITE,
-    visits: total(days, "visits"),
-    views: total(days, "views"),
-    before: { visits: total(before, "visits"), views: total(before, "views") },
-    rows: [...byRow].map(([key, visits]) => {
-      const [host, device] = JSON.parse(key);
-      return { host, source: sourceName(host), device: DEVICE_NAMES[device] || "Other", visits };
-    }),
-    pages: [...byPage]
-      .map(([path, views]) => ({ path, views }))
-      .sort((a, b) => b.views - a.views || a.path.localeCompare(b.path))
-      .slice(0, REPORT_TOP_PAGES),
+    parts,
+    rows: toRows(figures.sources),
+    months: figures.months,
   };
 }
 
 /*
- * One London day's figures: from KV if kept, otherwise from the API -- and,
- * with `store`, kept from then on. Never a day still under way, whose figures
- * are not final.
+ * One London day's figures: kept, or else read from the API -- and then,
+ * with opts.store, kept and added to its month. A day before counting began,
+ * not yet begun, or older than the API remembers has nothing to read; nor
+ * has any day once opts.fetches, the run's allowance of API reads, is spent.
  */
-async function dayFigures(env, date, store) {
-  const key = DAY_KEY + isoDate(date);
-  if (env.IG_KV) {
-    const kept = await env.IG_KV.get(key, "json").catch(() => null);
-    if (kept) return kept;
-  }
+async function dayFigures(env, date, opts) {
+  const from = londonMidnight(date);
+  const to = londonMidnight(date + DAY);
+  const now = Date.now();
+  if (to <= COUNTED_FROM || from >= now) return emptyDay(date);
+
+  const kept = await getKept(env, DAY_KEY + isoDate(date));
+  if (kept) return kept;
+  if (to < now - API_DAYS * DAY || opts.fetches <= 0) return emptyDay(date);
+
+  opts.fetches -= 1;
   const day = await fetchDay(env, date);
-  if (store && env.IG_KV && londonMidnight(date + DAY) <= Date.now()) {
-    await env.IG_KV.put(key, JSON.stringify(day), { expirationTtl: DAY_KEEP }).catch((err) =>
-      console.error(`[report] could not keep ${day.date}:`, err && err.message ? err.message : err)
-    );
-  }
+  if (opts.store && to <= now) await keepDay(env, day);
   return day;
 }
 
+// Keep a day, and add it to its month's running totals -- once only.
+async function keepDay(env, day) {
+  await putKept(env, DAY_KEY + day.date, day);
+  const key = MONTH_KEY + day.date.slice(0, 7);
+  const month = (await getKept(env, key)) || (await startMonth(env, day.date));
+  if (month.days[day.date]) return;
+  addDay(month, day);
+  await putKept(env, key, month);
+}
+
 /*
- * One day from the GraphQL API, in one request: totals, visits by website
- * and device, and the most-viewed pages. The API scales sampled figures up
+ * A month's first record. Any of its days kept before it existed -- which
+ * happened only in October 2026, when months began to be kept -- go in first.
+ */
+async function startMonth(env, date) {
+  const month = emptyMonth(date.slice(0, 7));
+  for (let d = Date.UTC(+date.slice(0, 4), +date.slice(5, 7) - 1, 1); isoDate(d) < date; d += DAY) {
+    const kept = await getKept(env, DAY_KEY + isoDate(d));
+    if (kept) addDay(month, kept);
+  }
+  return month;
+}
+
+// A day's totals go into its month as [visits, views] for the whole site,
+// then Oxford, then Dorset, so a week can be totted up from its months.
+function addDay(month, day) {
+  const t = partTotals(day);
+  month.days[day.date] = [t.all.visits, t.all.views, t.oxford.visits, t.oxford.views, t.dorset.visits, t.dorset.views];
+  month.visits += day.visits;
+  month.views += day.views;
+  month.sources = addRows(month.sources, day.sources, 3);
+  month.pages = addRows(month.pages, day.pages, 1).slice(0, MONTH_PAGES);
+}
+
+// A month's running totals, or nothing for a month with none kept.
+async function monthFigures(env, year, month) {
+  const label = isoDate(Date.UTC(year, month, 1)).slice(0, 7);
+  const from = londonMidnight(Date.UTC(year, month, 1));
+  const to = londonMidnight(Date.UTC(year, month + 1, 1));
+  if (to <= COUNTED_FROM || from >= Date.now()) return emptyMonth(label);
+  return (await getKept(env, MONTH_KEY + label)) || emptyMonth(label);
+}
+
+// Each part's visits and page views for a run of days, read from their
+// months' records.
+async function dayTotals(env, start, end) {
+  const months = new Map();
+  const sums = [0, 0, 0, 0, 0, 0];
+  for (let d = start; d < end; d += DAY) {
+    const date = isoDate(d);
+    const ym = date.slice(0, 7);
+    if (!months.has(ym)) months.set(ym, await monthFigures(env, +ym.slice(0, 4), +ym.slice(5) - 1));
+    const kept = months.get(ym).days[date];
+    if (kept) kept.forEach((n, i) => (sums[i] += n));
+  }
+  return {
+    all: { visits: sums[0], views: sums[1] },
+    oxford: { visits: sums[2], views: sums[3] },
+    dorset: { visits: sums[4], views: sums[5] },
+  };
+}
+
+async function getKept(env, key) {
+  if (!env.IG_KV) return null;
+  return env.IG_KV.get(key, "json").catch(() => null);
+}
+
+async function putKept(env, key, value) {
+  if (!env.IG_KV) return;
+  await env.IG_KV.put(key, JSON.stringify(value), { expirationTtl: KEEP }).catch((err) =>
+    console.error(`[report] could not keep ${key}:`, err && err.message ? err.message : err)
+  );
+}
+
+/*
+ * One day from the GraphQL API, in one request: totals; visits by website,
+ * device and the page they began on; and views of every page. The API scales sampled figures up
  * itself, so they are used as given.
  */
 async function fetchDay(env, date) {
@@ -579,7 +736,7 @@ async function fetchDay(env, date) {
         }
         sources: rumPageloadEventsAdaptiveGroups(filter: ${filter}, limit: 5000, orderBy: [sum_visits_DESC]) {
           sum { visits }
-          dimensions { refererHost deviceType }
+          dimensions { refererHost deviceType requestPath }
         }
         pages: rumPageloadEventsAdaptiveGroups(filter: ${filter}, limit: ${DAY_PAGES}, orderBy: [count_DESC]) {
           count
@@ -616,14 +773,95 @@ async function fetchDay(env, date) {
     views: whole(t.count),
     // 1 while the day is exact; about 10 once Cloudflare has thinned it.
     sampleInterval: Number((t.avg && t.avg.sampleInterval) || 1),
-    // [website, device, visits]. A page view from inside the site carries no
-    // visit, so rows without one are the site linking to itself, and go.
-    sources: (account.sources || [])
-      .map((g) => [String(dim(g).refererHost || "").toLowerCase(), String(dim(g).deviceType || ""), whole(g.sum && g.sum.visits)])
-      .filter((row) => row[2] > 0),
+    // [website, device, part of the site the visit began on, visits]. A page
+    // view from inside the site carries no visit, so rows without one are the
+    // site linking to itself, and go.
+    sources: addRows(
+      [],
+      (account.sources || [])
+        .map((g) => [
+          String(dim(g).refererHost || "").toLowerCase(),
+          String(dim(g).deviceType || ""),
+          partOf(String(dim(g).requestPath || "/")),
+          whole(g.sum && g.sum.visits),
+        ])
+        .filter((row) => row[3] > 0),
+      3
+    ),
     // [path, page views]
     pages: (account.pages || []).map((g) => [String(dim(g).requestPath || "/"), whole(g.count)]),
   };
+}
+
+// Days or months added together.
+function combine(list) {
+  let visits = 0;
+  let views = 0;
+  let sources = [];
+  let pages = [];
+  for (const f of list) {
+    visits += f.visits;
+    views += f.views;
+    sources = addRows(sources, f.sources, 3);
+    pages = addRows(pages, f.pages, 1);
+  }
+  return { visits, views, sources, pages: pages.slice(0, MONTH_PAGES) };
+}
+
+// Two lists of [...key, count] rows added up by key, largest first.
+function addRows(a, b, keyLength) {
+  const totals = new Map();
+  for (const row of a.concat(b)) {
+    const key = JSON.stringify(row.slice(0, keyLength));
+    totals.set(key, (totals.get(key) || 0) + row[keyLength]);
+  }
+  return [...totals]
+    .map(([key, n]) => [...JSON.parse(key), n])
+    .sort((x, y) => y[keyLength] - x[keyLength] || String(x[0]).localeCompare(String(y[0])));
+}
+
+function emptyDay(date) {
+  return { date: isoDate(date), visits: 0, views: 0, sampleInterval: 1, sources: [], pages: [] };
+}
+
+function emptyMonth(label) {
+  return { month: label, days: {}, visits: 0, views: 0, sources: [], pages: [] };
+}
+
+// [host, device, part, visits] rows as the report reads them.
+function toRows(sources) {
+  return sources.map(([host, device, part, visits]) => ({
+    host,
+    source: sourceName(host),
+    device: DEVICE_NAMES[device] || "Other",
+    part,
+    visits,
+  }));
+}
+
+// Which part of the site a page is in: a woodland's own, or the shared pages.
+function partOf(path) {
+  const p = path.toLowerCase();
+  if (/^\/oxford([./-]|$)/.test(p)) return "oxford";
+  if (/^\/dorset([./-]|$)/.test(p)) return "dorset";
+  return "main";
+}
+
+// One part's [host, device, part, visits] rows; for "all", every row.
+function inPart(sources, part) {
+  return part === "all" ? sources : sources.filter((row) => row[2] === part);
+}
+
+// Visits and page views for the whole site and each woodland: a woodland's
+// visits are those that began on its pages, its page views every view of them.
+function partTotals(f) {
+  const t = { all: { visits: f.visits, views: f.views }, oxford: { visits: 0, views: 0 }, dorset: { visits: 0, views: 0 } };
+  for (const [, , part, visits] of f.sources) if (t[part] && part !== "all") t[part].visits += visits;
+  for (const [path, views] of f.pages) {
+    const part = partOf(path);
+    if (t[part]) t[part].views += views;
+  }
+  return t;
 }
 
 // Bots left out, as the dashboard leaves them out by default.
@@ -645,23 +883,75 @@ function sourceName(host) {
 }
 
 /*
- * The weeks run Monday to Sunday on London's clocks. Dates are held as
- * UTC-midnight timestamps -- plain calendar dates, safe to step a day at a
- * time -- and turned into instants only at the edges.
+ * Periods run on London's clocks: weeks Monday to Sunday, months and years
+ * as the calendar has them. Dates are held as UTC-midnight timestamps --
+ * plain calendar dates, safe to step a day at a time -- and turned into
+ * instants only at the edges. A period is [start, end), with prevStart the
+ * start of the one before.
  */
 const DAY = 86400000;
 
 // The week before the one containing `day`; or, with `containing`, that week.
-function reportWeek(day, containing) {
+function weekPeriod(day, containing) {
   const date = londonDate(day);
   let monday = date - ((new Date(date).getUTCDay() + 6) % 7) * DAY;
   if (!containing) monday -= 7 * DAY;
+  return { kind: "week", start: monday, end: monday + 7 * DAY, prevStart: monday - 7 * DAY };
+}
+
+// `month` counts from 0, and may run over: monthPeriod(2027, -1) is December 2026.
+function monthPeriod(year, month) {
   return {
-    monday,
-    before: londonMidnight(monday - 7 * DAY),
-    from: londonMidnight(monday),
-    to: londonMidnight(monday + 7 * DAY),
+    kind: "month",
+    start: Date.UTC(year, month, 1),
+    end: Date.UTC(year, month + 1, 1),
+    prevStart: Date.UTC(year, month - 1, 1),
   };
+}
+
+function yearPeriod(year) {
+  return { kind: "year", start: Date.UTC(year, 0, 1), end: Date.UTC(year + 1, 0, 1), prevStart: Date.UTC(year - 1, 0, 1) };
+}
+
+// "28 September – 4 October 2026", "October 2026" or "2026"; or with
+// `short`, "28 Sept – 4 Oct" or "Oct 2026", for a subject line.
+function periodLabel(p, short = false) {
+  const fmt = (d, opts) => new Intl.DateTimeFormat("en-GB", { timeZone: "UTC", ...opts }).format(new Date(d));
+  if (p.kind === "year") return String(new Date(p.start).getUTCFullYear());
+  if (p.kind === "month") return fmt(p.start, { month: short ? "short" : "long", year: "numeric" });
+
+  const first = new Date(p.start);
+  const last = new Date(p.start + 6 * DAY);
+  const month = short ? "short" : "long";
+  const sameYear = first.getUTCFullYear() === last.getUTCFullYear();
+  const sameMonth = sameYear && first.getUTCMonth() === last.getUTCMonth();
+  const start = sameMonth
+    ? fmt(first, { day: "numeric" })
+    : fmt(first, { day: "numeric", month, ...(sameYear || short ? {} : { year: "numeric" }) });
+  const end = fmt(last, { day: "numeric", month, ...(short ? {} : { year: "numeric" }) });
+  return `${start} – ${end}`;
+}
+
+// What the period before is called: "week before", "September", "2025".
+function beforeLabel(p) {
+  if (p.kind === "week") return "week before";
+  if (p.kind === "month") return new Intl.DateTimeFormat("en-GB", { timeZone: "UTC", month: "long" }).format(new Date(p.prevStart));
+  return String(new Date(p.prevStart).getUTCFullYear());
+}
+
+// A warning for a period whose figures are incomplete, or null.
+function periodNote(p) {
+  const from = londonMidnight(p.start);
+  if (from < COUNTED_FROM) {
+    return (
+      "Visits have only been counted since 1 October 2026 (most not until the afternoon of the 2nd), so " +
+      (p.kind === "year" ? "this year’s figures start then." : `this ${p.kind}’s figures are incomplete.`)
+    );
+  }
+  if (from < COUNTED_FULLY) {
+    return `Most visits went uncounted from 1 October until the afternoon of 2 October, so this ${p.kind}’s figures are incomplete.`;
+  }
+  return null;
 }
 
 // The calendar date London's clocks show at an instant.
@@ -679,66 +969,203 @@ function londonMidnight(date) {
   return date - offset;
 }
 
+// One formatter for every call: making one is far dearer than using it, and
+// a year's report asks the time in London hundreds of times.
+let londonFormat;
+
 function londonParts(ts) {
-  const parts = new Intl.DateTimeFormat("en-GB", {
-    timeZone: REPORT_TZ,
-    hourCycle: "h23",
-    year: "numeric",
-    month: "numeric",
-    day: "numeric",
-    hour: "numeric",
-    minute: "numeric",
-  }).formatToParts(new Date(ts));
+  londonFormat =
+    londonFormat ||
+    new Intl.DateTimeFormat("en-GB", {
+      timeZone: REPORT_TZ,
+      hourCycle: "h23",
+      year: "numeric",
+      month: "numeric",
+      day: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+    });
   const p = {};
-  for (const { type, value } of parts) p[type] = Number(value);
+  for (const { type, value } of londonFormat.formatToParts(new Date(ts))) p[type] = Number(value);
   return p;
 }
 
-// "28 September – 4 October 2026", or with `short`, "28 Sep – 4 Oct".
-function weekLabel(week, short = false) {
-  const first = new Date(week.monday);
-  const last = new Date(week.monday + 6 * DAY);
-  const month = short ? "short" : "long";
-  const fmt = (d, opts) => new Intl.DateTimeFormat("en-GB", { timeZone: "UTC", ...opts }).format(d);
-  const sameYear = first.getUTCFullYear() === last.getUTCFullYear();
-  const sameMonth = sameYear && first.getUTCMonth() === last.getUTCMonth();
-  const start = sameMonth
-    ? fmt(first, { day: "numeric" })
-    : fmt(first, { day: "numeric", month, ...(sameYear || short ? {} : { year: "numeric" }) });
-  const end = fmt(last, { day: "numeric", month, ...(short ? {} : { year: "numeric" }) });
-  return `${start} – ${end}`;
-}
-
-// Whether a span overlaps the days visits went uncounted.
-function uncounted(from, to) {
-  return from < UNCOUNTED_UNTIL && to > UNCOUNTED_FROM;
-}
-
 /*
- * The email itself: subject, plain text, HTML, and the spreadsheet.
- *
- * Every value from the analytics -- a referring website above all, which any
- * visitor's browser can set to anything -- is escaped for HTML, and guarded
- * in the spreadsheet against being read as a formula.
+ * Visits by source, largest first, each split by device; the visits by
+ * device overall; and the sources by name, for looking one up.
  */
-function renderReport(env, r) {
-  const label = weekLabel(r.week);
-  const week = r.week;
-
-  // Sources, largest first, each with its visits split by device.
+function groupRows(rows) {
   const bySource = new Map();
   const devices = {};
-  for (const row of r.rows) {
+  for (const row of rows) {
     let s = bySource.get(row.source);
     if (!s) bySource.set(row.source, (s = { name: row.source, visits: 0, devices: {} }));
     s.visits += row.visits;
     s.devices[row.device] = (s.devices[row.device] || 0) + row.visits;
     devices[row.device] = (devices[row.device] || 0) + row.visits;
   }
-  let sources = [...bySource.values()].sort((a, b) => b.visits - a.visits || a.name.localeCompare(b.name));
+  const list = [...bySource.values()].sort((a, b) => b.visits - a.visits || a.name.localeCompare(b.name));
+  return { list, devices, bySource };
+}
+
+// `total` shared out in proportion to `parts`, in whole numbers adding up to it.
+function splitParts(total, parts) {
+  const sum = parts.reduce((a, b) => a + b, 0);
+  if (!sum || !total) return parts.map(() => 0);
+  const exact = parts.map((n) => (total * n) / sum);
+  const out = exact.map(Math.floor);
+  let left = total - out.reduce((a, b) => a + b, 0);
+  exact
+    .map((x, i) => [x - out[i], i])
+    .sort((a, b) => b[0] - a[0])
+    .forEach(([, i]) => {
+      if (left > 0) {
+        out[i] += 1;
+        left -= 1;
+      }
+    });
+  return out;
+}
+
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const DEVICE_COLOURS = { Computer: "#8aa37c", Phone: "#2f4a33", Tablet: "#c9a227", Other: "#c9c4ab" };
+const SOURCE_COLOURS = ["#2f4a33", "#b5552b", "#c9a227", "#4f6d8a", "#8a5a83"];
+const OTHER_COLOUR = "#c9c4ab";
+const CHART_HEIGHT = 120; // px, the busiest month's column
+const PART_LABELS = { oxford: "Oxford pages", dorset: "Dorset pages", main: "Shared pages" };
+
+// The email's look, in one place, so three parts of tables stay well under
+// the size at which Gmail clips a message. A client that drops <style> still
+// shows the same tables, plainer.
+const REPORT_CSS = [
+  "body{margin:0;padding:0;background:#f7f5e1}",
+  ".w{max-width:640px;margin:0 auto;padding:24px 16px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.5;color:#2b2b22}",
+  ".k{margin:0;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#6b6a5c}",
+  ".h1{font-family:Georgia,serif;font-weight:normal;font-size:26px;color:#2f4a33;margin:4px 0 8px}",
+  ".part{font-family:Georgia,serif;font-weight:normal;font-size:24px;color:#2f4a33;margin:44px 0 2px;padding-top:14px;border-top:3px solid #2f4a33}",
+  ".h2{font-family:Georgia,serif;font-weight:normal;font-size:19px;color:#2f4a33;margin:28px 0 8px}",
+  ".big{font-family:Georgia,serif;font-size:32px;line-height:1.25;color:#2b2b22}",
+  ".s{font-size:13px;color:#6b6a5c}",
+  ".t{border-collapse:collapse;width:100%;font-size:14px}",
+  ".hl,.hn,.hl2,.hn2{border-bottom:2px solid #e4e0c8;font-weight:600;font-size:13px;color:#6b6a5c}",
+  ".l,.n,.l2,.n2{border-bottom:1px solid #e4e0c8}",
+  ".hl,.hn{padding:6px 8px}.l,.n{padding:7px 8px}.hl2,.hn2,.l2,.n2{padding:6px 4px}",
+  ".hl,.hl2,.l,.l2{text-align:left}.hn,.hn2,.n,.n2{text-align:right;white-space:nowrap}",
+  ".note{margin:16px 0 0;padding:10px 12px;background:#fff8e1;border-left:3px solid #c9a227;font-size:14px}",
+  "a{color:#2f4a33}",
+].join("");
+
+function fmtNum(n) {
+  return Number(n || 0).toLocaleString("en-GB");
+}
+
+function compactNum(n) {
+  if (n >= 10000) return `${Math.round(n / 1000)}k`;
+  if (n >= 1000) return `${(n / 1000).toFixed(1).replace(/\.0$/, "")}k`;
+  return String(n);
+}
+
+/*
+ * The email itself: subject, plain text, HTML, and the spreadsheet. Its
+ * three parts, in PARTS order, each come from renderPart.
+ *
+ * Every value from the analytics -- a referring website above all, which any
+ * visitor's browser can set to anything -- is escaped for HTML, and guarded
+ * in the spreadsheet against being read as a formula.
+ */
+function renderReport(p, r) {
+  const label = periodLabel(p);
+  const year = new Date(p.start).getUTCFullYear();
+  const note = periodNote(p);
+  const dashboard = `https://dash.cloudflare.com/${r.account}/web-analytics/overview?siteTag~in=${r.site}`;
+  const visits = fmtNum(r.parts.all.visits);
+
+  const subject = {
+    week: `Cedar Hollow website: ${visits} visits, ${periodLabel(p, true)}`,
+    month: `Cedar Hollow website: ${visits} visits in ${label}`,
+    year: `Cedar Hollow website: ${visits} visits in ${label}, month by month`,
+  }[p.kind];
+  const kicker = { week: "weekly visitors", month: "monthly visitors", year: "the year in visitors" }[p.kind];
+  const directNote =
+    "“Direct” means the visitor’s browser didn’t say where they came from: " +
+    "the address typed in, a bookmark, or a link in WhatsApp, an email or another app.";
+  const attached = "The full breakdown by part of the site, website and device is attached as a spreadsheet.";
+
+  const text = [`Cedar Hollow website: visitors, ${label}`, ...(note ? ["", note] : [])];
+  let parts = "";
+  for (const [part, title] of PARTS) {
+    const section = renderPart(p, r, part, title);
+    text.push("", "", `== ${title.toUpperCase()} ==`, ...section.text);
+    parts += section.html;
+  }
+  text.push("", directNote, attached, `Cloudflare dashboard: ${dashboard}`);
+
+  const html = `<!doctype html>
+<html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(subject)}</title><style>${REPORT_CSS}</style></head>
+<body style="margin:0;padding:0;background:#f7f5e1;">
+<div class="w" style="max-width:640px;margin:0 auto;padding:24px 16px;font-family:Arial,Helvetica,sans-serif;">
+<p class="k">Cedar Hollow website &middot; ${kicker}</p>
+<h1 class="h1">${esc(label)}</h1>
+${note ? `<p class="note">${esc(note)}</p>` : ""}
+${parts}
+<p class="s" style="margin-top:36px;">${esc(directNote)} ${esc(attached)} More detail is on the <a href="${esc(dashboard)}">Cloudflare dashboard</a>.</p>
+</div></body></html>`;
+
+  // ---- spreadsheet --------------------------------------------------------
+  // Oxford, Dorset, then the shared pages; within each, largest source first,
+  // then by device; for a year, month by month.
+  const order = { oxford: 0, dorset: 1, main: 2 };
+  const ordered = (rows) => {
+    const totals = new Map();
+    for (const x of rows) totals.set(`${x.part} ${x.source}`, (totals.get(`${x.part} ${x.source}`) || 0) + x.visits);
+    return [...rows].sort(
+      (a, b) =>
+        order[a.part] - order[b.part] ||
+        totals.get(`${b.part} ${b.source}`) - totals.get(`${a.part} ${a.source}`) ||
+        a.source.localeCompare(b.source) ||
+        b.visits - a.visits
+    );
+  };
+  const line = (key, x) => [key, PART_LABELS[x.part] || x.part, x.source, x.host || "(none)", x.device, x.visits];
+  const stamp = p.kind === "week" ? isoDate(p.start) : p.kind === "month" ? isoDate(p.start).slice(0, 7) : String(year);
+  const body =
+    p.kind === "year"
+      ? (r.months || []).flatMap((m, i) => ordered(toRows(m.sources)).map((x) => line(`${year}-${String(i + 1).padStart(2, "0")}`, x)))
+      : ordered(r.rows).map((x) => line(stamp, x));
+  const csv =
+    [[p.kind === "week" ? "Week starting" : "Month", "Part of site", "Source", "Website", "Device", "Visits"], ...body]
+      .map((cells) => cells.map(csvCell).join(","))
+      .join("\r\n") + "\r\n";
+
+  return {
+    subject,
+    text: text.join("\n"),
+    html,
+    csv,
+    // A byte-order mark first, so Excel reads the file as UTF-8.
+    attachments: [{ filename: `cedar-hollow-visitors-${stamp}.csv`, content: base64(String.fromCharCode(0xfeff) + csv) }],
+  };
+}
+
+/*
+ * One part of a report -- the whole website, or one woodland -- as plain
+ * text lines and HTML. The year's report adds its graphs, month by month.
+ *
+ * The year's graphs are made of tables and blocks of colour rather than
+ * images or SVG, which most mail clients block or strip; every figure in
+ * them is in a table beside them too.
+ */
+function renderPart(p, r, part, title) {
+  const S = r.parts[part];
+  const year = new Date(p.start).getUTCFullYear();
+  const num = fmtNum;
+
+  const grouped = groupRows(S.rows);
+  const devices = grouped.devices;
+  let sources = grouped.list;
   if (sources.length > REPORT_TOP_SOURCES) {
     const rest = sources.slice(REPORT_TOP_SOURCES - 1);
-    const other = { name: `${rest.length} other websites`, visits: 0, devices: {} };
+    const other = { name: `${rest.length} other websites`, visits: 0, devices: {}, other: true };
     for (const s of rest) {
       other.visits += s.visits;
       for (const [d, n] of Object.entries(s.devices)) other.devices[d] = (other.devices[d] || 0) + n;
@@ -748,151 +1175,218 @@ function renderReport(env, r) {
   const counted = sources.reduce((n, s) => n + s.visits, 0);
   const deviceRows = DEVICE_ORDER.filter((d) => devices[d]).map((d) => ({ name: d, visits: devices[d] }));
 
-  const num = (n) => Number(n || 0).toLocaleString("en-GB");
-  const share = (n) => {
-    if (!counted || !n) return "0%";
-    const pct = (100 * n) / counted;
+  const share = (n, of = counted) => {
+    if (!of || !n) return "0%";
+    const pct = (100 * n) / of;
     return pct < 0.5 ? "<1%" : `${Math.round(pct)}%`;
   };
-  const compare = !uncounted(week.before, week.from) && r.before.visits > 0;
-  const incomplete = uncounted(week.from, week.to);
-  const dashboard = `https://dash.cloudflare.com/${r.account}/web-analytics/overview?siteTag~in=${r.site}`;
+  const split = (byDevice, joiner, lower) =>
+    DEVICE_ORDER.filter((d) => byDevice[d])
+      .map((d) => `${lower ? d.toLowerCase() : d} ${num(byDevice[d])}`)
+      .join(joiner);
+  const before = S.before && S.before.visits > 0 ? `${beforeLabel(p)}: ${num(S.before.visits)}` : "";
   const pageUrl = (path) => `https://cedarhollow.uk${path}`;
+  const sourcesTitle = p.kind === "year" ? `Where visitors came from in ${periodLabel(p)}` : "Where visitors came from";
+  const scope = part === "all" ? "" : `Visits that began on ${part === "oxford" ? "Oxford" : "Dorset"} pages, and every view of them.`;
 
-  const subject = `Cedar Hollow website: ${num(r.visits)} visits, ${weekLabel(week, true)}`;
+  // The whole website's part says where its visits began.
+  const began =
+    part === "all"
+      ? BEGAN.map(([key, name]) => ({ name, visits: r.rows.reduce((n, x) => n + (x.part === key ? x.visits : 0), 0) }))
+      : [];
+  const beganTotal = began.reduce((n, b) => n + b.visits, 0);
 
-  const directNote =
-    "“Direct” means the visitor’s browser didn’t say where they came from: " +
-    "the address typed in, a bookmark, or a link in WhatsApp, an email or another app.";
-  const incompleteNote =
-    "Most visits went uncounted from 1 October until the afternoon of 2 October, " +
-    "so this week’s figures are incomplete.";
+  // The year's months, from the first one anything was counted in.
+  const months = (r.months || [])
+    .map((m, index) => {
+      const rows = toRows(inPart(m.sources, part));
+      const visits = part === "all" ? m.visits : rows.reduce((n, x) => n + x.visits, 0);
+      const views = part === "all" ? m.views : m.pages.reduce((n, [path, v]) => n + (partOf(path) === part ? v : 0), 0);
+      return { index, visits, views, rows, ...groupRows(rows) };
+    })
+    .filter((m) => londonMidnight(Date.UTC(year, m.index + 1, 1)) > COUNTED_FROM);
 
   // ---- plain text ---------------------------------------------------------
   const pad = (s, n) => String(s).padEnd(n);
   const clip = (s, n) => (s.length > n ? s.slice(0, n - 1) + "…" : s);
   const lpad = (s, n) => String(s).padStart(n);
   const text = [
-    `Cedar Hollow website: visitors, ${label}`,
+    ...(scope ? [scope] : []),
+    `Visits: ${num(S.visits)}${before ? ` (${before})` : ""}`,
+    `Page views: ${num(S.views)}`,
+    ...(began.length
+      ? ["", "WHERE VISITS BEGAN", ...began.map((b) => `${pad(b.name, 38)} ${lpad(num(b.visits), 6)}  ${lpad(share(b.visits, beganTotal), 4)}`)]
+      : []),
+    ...(months.length
+      ? [
+          "",
+          "MONTH BY MONTH",
+          ...months.map(
+            (m) =>
+              `${pad(MONTHS[m.index], 4)} ${lpad(num(m.visits), 7)} visits ${lpad(num(m.views), 8)} page views   ${split(m.devices, ", ", true)}`
+          ),
+        ]
+      : []),
     "",
-    `Visits: ${num(r.visits)}${compare ? ` (the week before: ${num(r.before.visits)})` : ""}`,
-    `Page views: ${num(r.views)}`,
-    ...(incomplete ? ["", incompleteNote] : []),
-    "",
-    "WHERE VISITORS CAME FROM",
-    ...sources.map((s) => {
-      const split = DEVICE_ORDER
-        .filter((d) => s.devices[d])
-        .map((d) => `${d.toLowerCase()} ${num(s.devices[d])}`)
-        .join(", ");
-      return `${pad(clip(s.name, 34), 34)} ${lpad(num(s.visits), 6)}  ${lpad(share(s.visits), 4)}   ${split}`;
-    }),
+    sourcesTitle.toUpperCase(),
+    ...(sources.length
+      ? sources.map(
+          (s) => `${pad(clip(s.name, 34), 34)} ${lpad(num(s.visits), 6)}  ${lpad(share(s.visits), 4)}   ${split(s.devices, ", ", true)}`
+        )
+      : ["No visits recorded."]),
     "",
     "COMPUTER, PHONE OR TABLET",
     ...deviceRows.map((d) => `${pad(d.name, 10)} ${lpad(num(d.visits), 6)}  ${lpad(share(d.visits), 4)}`),
     "",
     "MOST-READ PAGES (page views)",
-    ...r.pages.map((p) => `${pad(pageUrl(p.path), 52)} ${lpad(num(p.views), 6)}`),
-    "",
-    directNote,
-    "The full breakdown by website and device is attached as a spreadsheet.",
-    `Cloudflare dashboard: ${dashboard}`,
-  ].join("\n");
+    ...S.pages.map((pg) => `${pad(pageUrl(pg.path), 52)} ${lpad(num(pg.views), 6)}`),
+  ];
 
   // ---- HTML ---------------------------------------------------------------
-  const ink = "#2b2b22";
-  const soft = "#6b6a5c";
-  const rule = "#e4e0c8";
-  const green = "#2f4a33";
-  const th = `style="text-align:right;padding:6px 8px;border-bottom:2px solid ${rule};font-weight:600;font-size:13px;color:${soft};"`;
-  const thLeft = th.replace("text-align:right", "text-align:left");
-  const td = `style="text-align:right;padding:7px 8px;border-bottom:1px solid ${rule};white-space:nowrap;"`;
-  const tdLeft = `style="text-align:left;padding:7px 8px;border-bottom:1px solid ${rule};"`;
-  const h2 = `style="font-family:Georgia,serif;font-weight:normal;font-size:20px;color:${green};margin:32px 0 8px;"`;
-  const bar = (n) => {
-    const pct = counted ? Math.max(1, Math.round((100 * n) / counted)) : 0;
-    return `<div style="background:${rule};width:120px;height:8px;border-radius:4px;"><div style="background:${green};width:${pct}%;height:8px;border-radius:4px;"></div></div>`;
+  const bar = (n, of) => {
+    const pct = of ? Math.max(1, Math.round((100 * n) / of)) : 0;
+    return `<div style="background:#e4e0c8;width:110px;height:8px;border-radius:4px;"><div style="background:#2f4a33;width:${pct}%;height:8px;border-radius:4px;"></div></div>`;
   };
+  const legend = (items) =>
+    `<p style="margin:10px 0 0;">` +
+    items
+      .map(
+        ([name, colour]) =>
+          `<span class="s" style="display:inline-block;margin:0 14px 6px 0;white-space:nowrap;">` +
+          `<span style="display:inline-block;width:10px;height:10px;background:${colour};margin-right:5px;"></span>${esc(name)}</span>`
+      )
+      .join("") +
+    "</p>";
+
+  let html =
+    `<p class="part">${esc(title)}</p>` +
+    (scope ? `<p class="s" style="margin:0;">${esc(scope)}</p>` : "") +
+    `<table role="presentation" style="border-collapse:collapse;margin-top:14px;"><tr>` +
+    `<td style="padding:0 30px 0 0;vertical-align:top;"><div class="big">${num(S.visits)}</div><div class="s">visits${before ? ` <span style="white-space:nowrap;">(${esc(before)})</span>` : ""}</div></td>` +
+    `<td style="padding:0;vertical-align:top;"><div class="big">${num(S.views)}</div><div class="s">page views</div></td>` +
+    `</tr></table>`;
+
+  if (began.length) {
+    html +=
+      `<h2 class="h2">Where visits began</h2><table class="t"><tr><th class="hl">Pages</th><th class="hn">Visits</th><th class="hn">Share</th><th class="hn"></th></tr>` +
+      began
+        .map(
+          (b) =>
+            `<tr><td class="l">${esc(b.name)}</td><td class="n"><strong>${num(b.visits)}</strong></td><td class="n">${share(b.visits, beganTotal)}</td><td class="n">${bar(b.visits, beganTotal)}</td></tr>`
+        )
+        .join("") +
+      "</table>";
+  }
+
+  if (months.length) {
+    const busiest = Math.max(1, ...months.map((m) => m.visits));
+
+    // Visits each month, a column per month, stacked by device.
+    const columns = months
+      .map((m) => {
+        const height = m.visits ? Math.max(2, Math.round((CHART_HEIGHT * m.visits) / busiest)) : 0;
+        const pieces = splitParts(height, DEVICE_ORDER.map((d) => m.devices[d] || 0));
+        const stack = DEVICE_ORDER.map((d, i) => [d, pieces[i]])
+          .filter(([, h]) => h > 0)
+          .reverse()
+          .map(([d, h]) => `<div style="height:${h}px;background:${DEVICE_COLOURS[d]};font-size:0;line-height:0;"></div>`)
+          .join("");
+        return (
+          `<td style="vertical-align:bottom;text-align:center;padding:0 2px;">` +
+          `<div class="s" style="font-size:10px;line-height:14px;white-space:nowrap;">${m.visits ? compactNum(m.visits) : ""}</div>` +
+          `<div style="width:70%;margin:0 auto;">${stack}</div></td>`
+        );
+      })
+      .join("");
+    const columnLabels = months
+      .map((m) => `<td class="s" style="text-align:center;font-size:11px;padding:4px 0 0;border-top:1px solid #e4e0c8;">${MONTHS[m.index]}</td>`)
+      .join("");
+    // A short year (2026 began in October) keeps the columns a year's width.
+    const chartWidth = Math.max(30, Math.round((100 * months.length) / 12));
+
+    const columnsShown = ["Computer", "Phone", "Tablet", ...(months.some((m) => m.devices.Other) ? ["Other"] : [])];
+    const monthTable =
+      `<table class="t" style="font-size:13px;margin-top:20px;"><tr><th class="hl2">Month</th><th class="hn2">Visits</th><th class="hn2">Page views</th>` +
+      columnsShown.map((c) => `<th class="hn2">${c}</th>`).join("") +
+      "</tr>" +
+      months
+        .map(
+          (m) =>
+            `<tr><td class="l2">${MONTHS[m.index]}</td><td class="n2"><strong>${num(m.visits)}</strong></td><td class="n2">${num(m.views)}</td>` +
+            columnsShown.map((c) => `<td class="n2">${m.devices[c] ? num(m.devices[c]) : "&ndash;"}</td>`).join("") +
+            "</tr>"
+        )
+        .join("") +
+      `<tr><td class="l2"><strong>Total</strong></td><td class="n2"><strong>${num(S.visits)}</strong></td><td class="n2"><strong>${num(S.views)}</strong></td>` +
+      columnsShown.map((c) => `<td class="n2"><strong>${devices[c] ? num(devices[c]) : "&ndash;"}</strong></td>`).join("") +
+      "</tr></table>";
+
+    // Where each month's visitors came from: a bar per month, as long as its
+    // visits, divided between the year's biggest websites and the rest.
+    const named = sources.filter((s) => !s.other).slice(0, CHART_SOURCES);
+    const colours = [...SOURCE_COLOURS.slice(0, named.length), OTHER_COLOUR];
+    let anyOther = false;
+    const bars = months
+      .map((m) => {
+        const pieces = named.map((s) => (m.bySource.get(s.name) || { visits: 0 }).visits);
+        const rest = Math.max(0, m.list.reduce((n, s) => n + s.visits, 0) - pieces.reduce((a, b) => a + b, 0));
+        if (rest) anyOther = true;
+        const shares = splitParts(100, [...pieces, rest]);
+        const width = m.visits ? Math.max(2, Math.round((100 * m.visits) / busiest)) : 0;
+        const cells = shares
+          .map((pct, i) =>
+            pct ? `<td style="width:${pct}%;height:14px;padding:0;background:${colours[i]};font-size:0;line-height:0;">&nbsp;</td>` : ""
+          )
+          .join("");
+        return (
+          `<tr><td class="s" style="width:34px;padding:3px 6px 3px 0;">${MONTHS[m.index]}</td>` +
+          `<td style="padding:3px 0;">${width && cells ? `<table role="presentation" style="border-collapse:collapse;width:${width}%;"><tr>${cells}</tr></table>` : ""}</td>` +
+          `<td style="width:48px;text-align:right;font-size:12px;padding:3px 0 3px 6px;white-space:nowrap;">${m.visits ? num(m.visits) : "&ndash;"}</td></tr>`
+        );
+      })
+      .join("");
+
+    html +=
+      `<h2 class="h2">Month by month</h2>` +
+      `<table role="presentation" style="border-collapse:collapse;width:${chartWidth}%;table-layout:fixed;"><tr>${columns}</tr><tr>${columnLabels}</tr></table>` +
+      legend(DEVICE_ORDER.filter((d) => devices[d]).map((d) => [d, DEVICE_COLOURS[d]])) +
+      monthTable +
+      `<h2 class="h2">Where visitors came from, month by month</h2>` +
+      legend([...named.map((s, i) => [s.name, SOURCE_COLOURS[i]]), ...(anyOther ? [["Other websites", OTHER_COLOUR]] : [])]) +
+      `<table role="presentation" style="border-collapse:collapse;width:100%;margin-top:4px;">${bars}</table>`;
+  }
 
   // Each website's device split sits under its name rather than in columns
   // of its own: seven columns do not fit a phone, and the full grid is in the
   // spreadsheet. A long host may break after any dot, and nowhere else.
-  const sourceRows = sources
-    .map((s) => {
-      const split = DEVICE_ORDER.filter((d) => s.devices[d])
-        .map((d) => `${d} ${num(s.devices[d])}`)
-        .join(" &middot; ");
-      return (
-        `<tr><td ${tdLeft}>${esc(s.name).replace(/\./g, ".<wbr>")}` +
-        `<br><span style="font-size:13px;color:${soft};">${split}</span></td>` +
-        `<td ${td}><strong>${num(s.visits)}</strong></td><td ${td}>${share(s.visits)}</td></tr>`
-      );
-    })
-    .join("");
-  const deviceHtml = deviceRows
-    .map(
-      (d) =>
-        `<tr><td ${tdLeft}>${esc(d.name)}</td><td ${td}><strong>${num(d.visits)}</strong></td><td ${td}>${share(d.visits)}</td><td ${td}>${bar(d.visits)}</td></tr>`
-    )
-    .join("");
-  const pageHtml = r.pages
-    .map(
-      (p) =>
-        `<tr><td ${tdLeft}><a href="${esc(pageUrl(p.path))}" style="color:${green};">${esc(p.path)}</a></td><td ${td}>${num(p.views)}</td></tr>`
-    )
-    .join("");
+  html +=
+    `<h2 class="h2">${esc(sourcesTitle)}</h2><table class="t"><tr><th class="hl">Website</th><th class="hn">Visits</th><th class="hn">Share</th></tr>` +
+    (sources
+      .map(
+        (s) =>
+          `<tr><td class="l">${esc(s.name).replace(/\./g, ".<wbr>")}<br><span class="s">${split(s.devices, " &middot; ")}</span></td>` +
+          `<td class="n"><strong>${num(s.visits)}</strong></td><td class="n">${share(s.visits)}</td></tr>`
+      )
+      .join("") || `<tr><td class="l" colspan="3">No visits recorded.</td></tr>`) +
+    "</table>" +
+    `<h2 class="h2">Computer, phone or tablet</h2><table class="t" style="width:auto;"><tr><th class="hl">Device</th><th class="hn">Visits</th><th class="hn">Share</th><th class="hn"></th></tr>` +
+    deviceRows
+      .map(
+        (d) =>
+          `<tr><td class="l">${esc(d.name)}</td><td class="n"><strong>${num(d.visits)}</strong></td><td class="n">${share(d.visits)}</td><td class="n">${bar(d.visits, counted)}</td></tr>`
+      )
+      .join("") +
+    "</table>" +
+    `<h2 class="h2">Most-read pages</h2><table class="t"><tr><th class="hl">Page</th><th class="hn">Page views</th></tr>` +
+    (S.pages
+      .map(
+        (pg) =>
+          `<tr><td class="l"><a href="${esc(pageUrl(pg.path))}">${esc(pg.path)}</a></td><td class="n">${num(pg.views)}</td></tr>`
+      )
+      .join("") || `<tr><td class="l" colspan="2">No page views recorded.</td></tr>`) +
+    "</table>";
 
-  const html = `<!doctype html>
-<html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(subject)}</title></head>
-<body style="margin:0;padding:0;background:#f7f5e1;">
-<div style="max-width:640px;margin:0 auto;padding:24px 16px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.5;color:${ink};">
-<p style="margin:0;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:${soft};">Cedar Hollow website &middot; weekly visitors</p>
-<h1 style="font-family:Georgia,serif;font-weight:normal;font-size:26px;color:${green};margin:4px 0 20px;">${esc(label)}</h1>
-<table role="presentation" style="border-collapse:collapse;"><tr>
-<td style="padding:0 32px 0 0;vertical-align:top;"><div style="font-size:34px;font-family:Georgia,serif;color:${ink};">${num(r.visits)}</div><div style="color:${soft};">visits${compare ? ` <span style="white-space:nowrap;">(week before: ${num(r.before.visits)})</span>` : ""}</div></td>
-<td style="padding:0;vertical-align:top;"><div style="font-size:34px;font-family:Georgia,serif;color:${ink};">${num(r.views)}</div><div style="color:${soft};">page views</div></td>
-</tr></table>
-${incomplete ? `<p style="margin:16px 0 0;padding:10px 12px;background:#fff8e1;border-left:3px solid #c9a227;font-size:14px;">${esc(incompleteNote)}</p>` : ""}
-<h2 ${h2}>Where visitors came from</h2>
-<table style="border-collapse:collapse;width:100%;font-size:14px;">
-<tr><th ${thLeft}>Website</th><th ${th}>Visits</th><th ${th}>Share</th></tr>
-${sourceRows || `<tr><td ${tdLeft} colspan="3">No visits recorded.</td></tr>`}
-</table>
-<p style="margin:8px 0 0;font-size:13px;color:${soft};">${esc(directNote)}</p>
-<h2 ${h2}>Computer, phone or tablet</h2>
-<table style="border-collapse:collapse;font-size:14px;">
-<tr><th ${thLeft}>Device</th><th ${th}>Visits</th><th ${th}>Share</th><th ${th}></th></tr>
-${deviceHtml}
-</table>
-<h2 ${h2}>Most-read pages</h2>
-<table style="border-collapse:collapse;width:100%;font-size:14px;">
-<tr><th ${thLeft}>Page</th><th ${th}>Page views</th></tr>
-${pageHtml}
-</table>
-<p style="margin:32px 0 0;font-size:13px;color:${soft};">The full breakdown by website and device is attached as a spreadsheet. More detail is on the <a href="${esc(dashboard)}" style="color:${green};">Cloudflare dashboard</a>.</p>
-</div></body></html>`;
-
-  // ---- spreadsheet --------------------------------------------------------
-  const weekStart = isoDate(week.monday);
-  const csvRows = [...r.rows].sort(
-    (a, b) =>
-      (bySource.get(b.source).visits - bySource.get(a.source).visits) ||
-      a.source.localeCompare(b.source) ||
-      b.visits - a.visits
-  );
-  const csv =
-    [["Week starting", "Source", "Website", "Device", "Visits"]]
-      .concat(csvRows.map((x) => [weekStart, x.source, x.host || "(none)", x.device, x.visits]))
-      .map((cells) => cells.map(csvCell).join(","))
-      .join("\r\n") + "\r\n";
-
-  return {
-    subject,
-    text,
-    html,
-    csv,
-    attachments: [{ filename: `cedar-hollow-visitors-${weekStart}.csv`, content: base64("﻿" + csv) }],
-  };
+  return { text, html };
 }
 
 function esc(value) {

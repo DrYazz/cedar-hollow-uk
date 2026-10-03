@@ -55,7 +55,7 @@ CONTACT_TO = "hello@thelabgroup.com"
 CONTACT_FROM = "website@send.cedarhollow.uk"
 CONTACT_FROM_NAME = "Cedar Hollow website"
 
-# Weekly visitor report (see worker/index.js): where it goes, and which
+# Visitor reports (see worker/index.js): where they go, and which
 # account and Web Analytics site it reads. Neither ID is a secret -- both
 # appear in every dashboard address. The API token it reads with is one:
 #
@@ -95,9 +95,10 @@ ANALYTICS_SITE = "ae885004b4b34ac2a39e3b5dc349a8eb"   # cedarhollow.uk
 #
 # The cron runs every day at 04:17 UTC, not just Mondays: each morning it
 # keeps the previous day's visitor figures while they are still exact (see
-# "Weekly visitor report" in worker/index.js), and on Mondays it also renews
-# the Instagram tokens and emails the visitor report for the Monday to Sunday
-# just ended.
+# "Visitor reports" in worker/index.js). On Mondays it also renews the
+# Instagram tokens and emails the visitor report for the Monday to Sunday just
+# ended; on the 1st of each month, the report for the month just ended; and on
+# 1 January, the report for the year, with its graphs.
 
 [[kv_namespaces]]
 binding = "IG_KV"
