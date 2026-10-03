@@ -86,10 +86,14 @@ const IG_TOKENS = {
  * websites visitors came from, split by computer, phone and tablet; the
  * totals against the period before; and the most-read pages. A woodland's
  * part counts the visits that began on its own pages, the addresses
- * starting /oxford or /dorset, and every view of them. Visits that began on
- * the shared pages -- the home page, About, Careers and the like -- count in
- * the whole website alone. The full breakdown, by part of the site, website
- * and device, comes attached as a spreadsheet.
+ * starting /oxford or /dorset, or moved onto them from elsewhere on the site
+ * -- from the home page, say -- and every view of those pages. A visit that
+ * reaches both woodlands counts in each, and once in the whole website's.
+ * Analytics without cookies cannot follow one person from page to page; what
+ * Cloudflare does record is the page each page view came from, and a move
+ * onto a woodland's pages from outside them is what is counted. The full
+ * breakdown, by part of the site, website and device, comes attached as a
+ * spreadsheet.
  *
  * The figures come from Cloudflare's GraphQL Analytics API. It keeps them
  * exact for seven days and as a one-in-ten sample after that, and answers any
@@ -97,15 +101,16 @@ const IG_TOKENS = {
  * size, can turn a website that sent two visitors into none, or ten. So the
  * cron runs every morning and reads the day just ended while it is exact, and
  * keeps it in KV (IG_KV, beside the Instagram tokens) twice over: whole, under
- * visits:d:YYYY-MM-DD, for the week's report; and added to its month's
- * running totals, under visits:m:YYYY-MM, which the month's and the year's
+ * visits:3:d:YYYY-MM-DD, for the week's report; and added to its month's
+ * running totals, under visits:3:m:YYYY-MM, which the month's and the year's
  * reports read. A year is twelve small reads rather than 365, which matters:
  * on the Workers free plan every KV read counts against fifty requests a run.
  * A day the cron missed is read from the API when a week's report next needs
  * it, as exactly as the API still has it. Kept figures last three years,
  * outliving the dashboard's six months. Bots are left out throughout, as the
- * dashboard leaves them out by default. (The records under visits:day: are
- * from before the reports were split by woodland, and are left to expire.)
+ * dashboard leaves them out by default. (Records under visits:day: and
+ * visits:d: hold days in earlier shapes -- before the split by woodland, and
+ * before moves between parts were counted -- and are left to expire.)
  *
  * The API needs a token with Account Analytics: Read. It is a secret, set once:
  *
@@ -130,9 +135,10 @@ const REPORT_TZ = "Europe/London";
 const REPORT_TOP_SOURCES = 15;
 const REPORT_TOP_PAGES = 10;
 const CHART_SOURCES = 5;                  // websites named in the year's graph
-const DAY_KEY = "visits:d:";              // + YYYY-MM-DD, in IG_KV
-const MONTH_KEY = "visits:m:";            // + YYYY-MM
-const YEAR_KEY = "visits:y:";             // + YYYY: the totals, kept by its report
+const DAY_KEY = "visits:3:d:";            // + YYYY-MM-DD, in IG_KV; 3 is the shape
+const MONTH_KEY = "visits:3:m:";          // + YYYY-MM
+const YEAR_KEY = "visits:3:y:";           // + YYYY: the totals, kept by its report
+const SITE_HOST = "cedarhollow.uk";       // a page view referred from here moved within the site
 const KEEP = 3 * 365 * 86400;             // seconds kept figures last: three years
 const API_DAYS = 180;                     // how far back the API has anything
 const API_READS = 4;                      // API reads a cron run may add for missed days
@@ -177,6 +183,13 @@ const SOURCE_NAMES = [
   [/(^|\.)theoaks\.uk$/, "theoaks.uk (the old site)"],
 ];
 const DIRECT = "Direct";
+const WITHIN = {
+  "@home": "Cedar Hollow home page",
+  "@search": "Cedar Hollow search results",
+  "@oxford": "Oxford pages",
+  "@dorset": "Dorset pages",
+  "@site": "Other Cedar Hollow pages",
+};
 
 const DEVICE_NAMES = { desktop: "Computer", mobile: "Phone", tablet: "Tablet" };
 const DEVICE_ORDER = ["Computer", "Phone", "Tablet", "Other"];
@@ -721,11 +734,18 @@ async function putKept(env, key, value) {
 
 /*
  * One day from the GraphQL API, in one request: totals; visits by website,
- * device and the page they began on; and views of every page. The API scales sampled figures up
- * itself, so they are used as given.
+ * device and the page they began on; moves from page to page within the
+ * site; and views of every page. The API scales sampled figures up itself,
+ * so they are used as given.
  */
 async function fetchDay(env, date) {
   const filter = rumFilter(env, londonMidnight(date), londonMidnight(date + DAY));
+  // Clicks from one page of the site to another. Reloads and the back and
+  // forward buttons are left out: each would count the same move again.
+  const moves = rumFilter(env, londonMidnight(date), londonMidnight(date + DAY), {
+    refererHost: SITE_HOST,
+    navigationType: "navigate",
+  });
   const query = `{
     viewer {
       accounts(filter: { accountTag: ${JSON.stringify(env.ANALYTICS_ACCOUNT)} }) {
@@ -737,6 +757,10 @@ async function fetchDay(env, date) {
         sources: rumPageloadEventsAdaptiveGroups(filter: ${filter}, limit: 5000, orderBy: [sum_visits_DESC]) {
           sum { visits }
           dimensions { refererHost deviceType requestPath }
+        }
+        moves: rumPageloadEventsAdaptiveGroups(filter: ${moves}, limit: 5000, orderBy: [count_DESC]) {
+          count
+          dimensions { refererPath requestPath deviceType }
         }
         pages: rumPageloadEventsAdaptiveGroups(filter: ${filter}, limit: ${DAY_PAGES}, orderBy: [count_DESC]) {
           count
@@ -773,11 +797,12 @@ async function fetchDay(env, date) {
     views: whole(t.count),
     // 1 while the day is exact; about 10 once Cloudflare has thinned it.
     sampleInterval: Number((t.avg && t.avg.sampleInterval) || 1),
-    // [website, device, part of the site the visit began on, visits]. A page
-    // view from inside the site carries no visit, so rows without one are the
-    // site linking to itself, and go.
+    // [website, device, part, visits]. For a visit from outside, the part is
+    // the one it began in; a page view from inside the site carries no visit,
+    // so those rows go. A move onto a woodland's pages from another part of
+    // the site is a visit to that woodland too, from an "@" source: the home
+    // page, the search results, the other woodland, or another shared page.
     sources: addRows(
-      [],
       (account.sources || [])
         .map((g) => [
           String(dim(g).refererHost || "").toLowerCase(),
@@ -786,6 +811,16 @@ async function fetchDay(env, date) {
           whole(g.sum && g.sum.visits),
         ])
         .filter((row) => row[3] > 0),
+      (account.moves || [])
+        .map((g) => {
+          const to = partOf(String(dim(g).requestPath || "/"));
+          const fromPath = String(dim(g).refererPath || "/").toLowerCase();
+          const from = partOf(fromPath);
+          if (to === "main" || from === to) return null;
+          const where = from !== "main" ? `@${from}` : /^\/(index\.html)?$/.test(fromPath) ? "@home" : fromPath.startsWith("/search-results") ? "@search" : "@site";
+          return [where, String(dim(g).deviceType || ""), to, whole(g.count)];
+        })
+        .filter((row) => row && row[3] > 0),
       3
     ),
     // [path, page views]
@@ -847,13 +882,15 @@ function partOf(path) {
   return "main";
 }
 
-// One part's [host, device, part, visits] rows; for "all", every row.
+// One part's [host, device, part, visits] rows. The whole website's are the
+// visits from outside -- every one of them once -- and not the moves within.
 function inPart(sources, part) {
-  return part === "all" ? sources : sources.filter((row) => row[2] === part);
+  return part === "all" ? sources.filter((row) => !row[0].startsWith("@")) : sources.filter((row) => row[2] === part);
 }
 
 // Visits and page views for the whole site and each woodland: a woodland's
-// visits are those that began on its pages, its page views every view of them.
+// visits are those that began on its pages or moved onto them, its page
+// views every view of them.
 function partTotals(f) {
   const t = { all: { visits: f.visits, views: f.views }, oxford: { visits: 0, views: 0 }, dorset: { visits: 0, views: 0 } };
   for (const [, , part, visits] of f.sources) if (t[part] && part !== "all") t[part].visits += visits;
@@ -864,10 +901,12 @@ function partTotals(f) {
   return t;
 }
 
-// Bots left out, as the dashboard leaves them out by default.
-function rumFilter(env, from, to) {
+// Bots left out, as the dashboard leaves them out by default. `extra` adds
+// fields that must match exactly.
+function rumFilter(env, from, to, extra = {}) {
   const time = (t) => JSON.stringify(new Date(t).toISOString().replace(/\.\d{3}Z$/, "Z"));
-  return `{ siteTag: ${JSON.stringify(env.ANALYTICS_SITE)}, datetime_geq: ${time(from)}, datetime_lt: ${time(to)}, bot: 0 }`;
+  const more = Object.entries(extra).map(([k, v]) => `, ${k}: ${JSON.stringify(v)}`).join("");
+  return `{ siteTag: ${JSON.stringify(env.ANALYTICS_SITE)}, datetime_geq: ${time(from)}, datetime_lt: ${time(to)}, bot: 0${more} }`;
 }
 
 function isoDate(date) {
@@ -876,6 +915,7 @@ function isoDate(date) {
 
 function sourceName(host) {
   if (!host) return DIRECT;
+  if (WITHIN[host]) return WITHIN[host];
   for (const [pattern, name] of SOURCE_NAMES) {
     if (pattern.test(host)) return name;
   }
@@ -1052,6 +1092,8 @@ const REPORT_CSS = [
   ".hl,.hn{padding:6px 8px}.l,.n{padding:7px 8px}.hl2,.hn2,.l2,.n2{padding:6px 4px}",
   ".hl,.hl2,.l,.l2{text-align:left}.hn,.hn2,.n,.n2{text-align:right;white-space:nowrap}",
   ".note{margin:16px 0 0;padding:10px 12px;background:#fff8e1;border-left:3px solid #c9a227;font-size:14px}",
+  // A bar in the year's graph; without this a client still shows it, a little taller.
+  ".b{height:14px;padding:0;font-size:0;line-height:0}",
   "a{color:#2f4a33}",
 ].join("");
 
@@ -1126,7 +1168,8 @@ ${parts}
         b.visits - a.visits
     );
   };
-  const line = (key, x) => [key, PART_LABELS[x.part] || x.part, x.source, x.host || "(none)", x.device, x.visits];
+  const site = (host) => (host.startsWith("@") ? "(within this site)" : host || "(none)");
+  const line = (key, x) => [key, PART_LABELS[x.part] || x.part, x.source, site(x.host), x.device, x.visits];
   const stamp = p.kind === "week" ? isoDate(p.start) : p.kind === "month" ? isoDate(p.start).slice(0, 7) : String(year);
   const body =
     p.kind === "year"
@@ -1174,6 +1217,9 @@ function renderPart(p, r, part, title) {
   }
   const counted = sources.reduce((n, s) => n + s.visits, 0);
   const deviceRows = DEVICE_ORDER.filter((d) => devices[d]).map((d) => ({ name: d, visits: devices[d] }));
+  const withinNote = S.rows.some((x) => x.host.startsWith("@"))
+    ? `“Cedar Hollow home page” and the like are visitors who came here from another page of this website.`
+    : "";
 
   const share = (n, of = counted) => {
     if (!of || !n) return "0%";
@@ -1187,12 +1233,16 @@ function renderPart(p, r, part, title) {
   const before = S.before && S.before.visits > 0 ? `${beforeLabel(p)}: ${num(S.before.visits)}` : "";
   const pageUrl = (path) => `https://cedarhollow.uk${path}`;
   const sourcesTitle = p.kind === "year" ? `Where visitors came from in ${periodLabel(p)}` : "Where visitors came from";
-  const scope = part === "all" ? "" : `Visits that began on ${part === "oxford" ? "Oxford" : "Dorset"} pages, and every view of them.`;
+  const woodland = part === "oxford" ? "Oxford" : "Dorset";
+  const scope =
+    part === "all"
+      ? ""
+      : `Visits that began on ${woodland} pages or moved onto them from elsewhere on the site, and every view of ${woodland} pages. A visit that reaches both woodlands counts in each.`;
 
   // The whole website's part says where its visits began.
   const began =
     part === "all"
-      ? BEGAN.map(([key, name]) => ({ name, visits: r.rows.reduce((n, x) => n + (x.part === key ? x.visits : 0), 0) }))
+      ? BEGAN.map(([key, name]) => ({ name, visits: S.rows.reduce((n, x) => n + (x.part === key ? x.visits : 0), 0) }))
       : [];
   const beganTotal = began.reduce((n, b) => n + b.visits, 0);
 
@@ -1234,6 +1284,7 @@ function renderPart(p, r, part, title) {
           (s) => `${pad(clip(s.name, 34), 34)} ${lpad(num(s.visits), 6)}  ${lpad(share(s.visits), 4)}   ${split(s.devices, ", ", true)}`
         )
       : ["No visits recorded."]),
+    ...(withinNote ? [withinNote] : []),
     "",
     "COMPUTER, PHONE OR TABLET",
     ...deviceRows.map((d) => `${pad(d.name, 10)} ${lpad(num(d.visits), 6)}  ${lpad(share(d.visits), 4)}`),
@@ -1272,7 +1323,7 @@ function renderPart(p, r, part, title) {
       began
         .map(
           (b) =>
-            `<tr><td class="l">${esc(b.name)}</td><td class="n"><strong>${num(b.visits)}</strong></td><td class="n">${share(b.visits, beganTotal)}</td><td class="n">${bar(b.visits, beganTotal)}</td></tr>`
+            `<tr><td class="l">${esc(b.name)}</td><td class="n"><strong>${num(b.visits)}</strong></td><td class="n">${esc(share(b.visits, beganTotal))}</td><td class="n">${bar(b.visits, beganTotal)}</td></tr>`
         )
         .join("") +
       "</table>";
@@ -1289,7 +1340,7 @@ function renderPart(p, r, part, title) {
         const stack = DEVICE_ORDER.map((d, i) => [d, pieces[i]])
           .filter(([, h]) => h > 0)
           .reverse()
-          .map(([d, h]) => `<div style="height:${h}px;background:${DEVICE_COLOURS[d]};font-size:0;line-height:0;"></div>`)
+          .map(([d, h]) => `<div style="height:${h}px;background:${DEVICE_COLOURS[d]};"></div>`)
           .join("");
         return (
           `<td style="vertical-align:bottom;text-align:center;padding:0 2px;">` +
@@ -1335,7 +1386,7 @@ function renderPart(p, r, part, title) {
         const width = m.visits ? Math.max(2, Math.round((100 * m.visits) / busiest)) : 0;
         const cells = shares
           .map((pct, i) =>
-            pct ? `<td style="width:${pct}%;height:14px;padding:0;background:${colours[i]};font-size:0;line-height:0;">&nbsp;</td>` : ""
+            pct ? `<td class="b" style="width:${pct}%;background:${colours[i]};">&nbsp;</td>` : ""
           )
           .join("");
         return (
@@ -1365,15 +1416,16 @@ function renderPart(p, r, part, title) {
       .map(
         (s) =>
           `<tr><td class="l">${esc(s.name).replace(/\./g, ".<wbr>")}<br><span class="s">${split(s.devices, " &middot; ")}</span></td>` +
-          `<td class="n"><strong>${num(s.visits)}</strong></td><td class="n">${share(s.visits)}</td></tr>`
+          `<td class="n"><strong>${num(s.visits)}</strong></td><td class="n">${esc(share(s.visits))}</td></tr>`
       )
       .join("") || `<tr><td class="l" colspan="3">No visits recorded.</td></tr>`) +
     "</table>" +
+    (withinNote ? `<p class="s" style="margin:8px 0 0;">${esc(withinNote)}</p>` : "") +
     `<h2 class="h2">Computer, phone or tablet</h2><table class="t" style="width:auto;"><tr><th class="hl">Device</th><th class="hn">Visits</th><th class="hn">Share</th><th class="hn"></th></tr>` +
     deviceRows
       .map(
         (d) =>
-          `<tr><td class="l">${esc(d.name)}</td><td class="n"><strong>${num(d.visits)}</strong></td><td class="n">${share(d.visits)}</td><td class="n">${bar(d.visits, counted)}</td></tr>`
+          `<tr><td class="l">${esc(d.name)}</td><td class="n"><strong>${num(d.visits)}</strong></td><td class="n">${esc(share(d.visits))}</td><td class="n">${bar(d.visits, counted)}</td></tr>`
       )
       .join("") +
     "</table>" +
