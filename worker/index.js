@@ -1030,6 +1030,44 @@ function londonParts(ts) {
   return p;
 }
 
+// A part's months of the year, from the first one anything was counted in:
+// each month's visits, page views and rows, grouped by source and device.
+function partMonths(r, part, year) {
+  return (r.months || [])
+    .map((m, index) => {
+      const rows = toRows(inPart(m.sources, part));
+      const visits = part === "all" ? m.visits : rows.reduce((n, x) => n + x.visits, 0);
+      const views = part === "all" ? m.views : m.pages.reduce((n, [path, v]) => n + (partOf(path) === part ? v : 0), 0);
+      return { index, visits, views, rows, ...groupRows(rows) };
+    })
+    .filter((m) => londonMidnight(Date.UTC(year, m.index + 1, 1)) > COUNTED_FROM);
+}
+
+// The websites a part's year-graph names: its biggest, by visits.
+function topNames(S) {
+  return groupRows(S.rows).list.slice(0, CHART_SOURCES).map((s) => s.name);
+}
+
+/*
+ * Twelve slots, one per month (empty before counting began), and for each
+ * the two charts' stacks: visits by device, and by the named websites with
+ * everything else last.
+ */
+function monthStacks(months, named) {
+  const byIndex = new Map(months.map((m) => [m.index, m]));
+  const slots = MONTHS.map((_, i) => byIndex.get(i));
+  return {
+    slots,
+    devices: slots.map((m) => DEVICE_ORDER.map((d) => (m ? m.devices[d] || 0 : 0))),
+    sources: slots.map((m) => {
+      if (!m) return [...named.map(() => 0), 0];
+      const pieces = named.map((name) => (m.bySource.get(name) || { visits: 0 }).visits);
+      const rest = Math.max(0, m.list.reduce((n, x) => n + x.visits, 0) - pieces.reduce((a, b) => a + b, 0));
+      return [...pieces, rest];
+    }),
+  };
+}
+
 /*
  * Visits by source, largest first, each split by device; the visits by
  * device overall; and the sources by name, for looking one up.
@@ -1071,7 +1109,6 @@ const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "
 const DEVICE_COLOURS = { Computer: "#8aa37c", Phone: "#2f4a33", Tablet: "#c9a227", Other: "#c9c4ab" };
 const SOURCE_COLOURS = ["#2f4a33", "#b5552b", "#c9a227", "#4f6d8a", "#8a5a83"];
 const OTHER_COLOUR = "#c9c4ab";
-const CHART_HEIGHT = 120; // px, the busiest month's column
 const PART_LABELS = { oxford: "Oxford pages", dorset: "Dorset pages", main: "Shared pages" };
 
 // The email's look, in one place, so three parts of tables stay well under
@@ -1089,11 +1126,9 @@ const REPORT_CSS = [
   ".t{border-collapse:collapse;width:100%;font-size:14px}",
   ".hl,.hn,.hl2,.hn2{border-bottom:2px solid #e4e0c8;font-weight:600;font-size:13px;color:#6b6a5c}",
   ".l,.n,.l2,.n2{border-bottom:1px solid #e4e0c8}",
-  ".hl,.hn{padding:6px 8px}.l,.n{padding:7px 8px}.hl2,.hn2,.l2,.n2{padding:6px 4px}",
+  ".hl,.hn{padding:6px 8px}.l,.n{padding:7px 8px}.hl2,.hn2,.l2,.n2{padding:5px 3px}.hl2,.hn2{font-size:11px}",
   ".hl,.hl2,.l,.l2{text-align:left}.hn,.hn2,.n,.n2{text-align:right;white-space:nowrap}",
   ".note{margin:16px 0 0;padding:10px 12px;background:#fff8e1;border-left:3px solid #c9a227;font-size:14px}",
-  // A bar in the year's graph; without this a client still shows it, a little taller.
-  ".b{height:14px;padding:0;font-size:0;line-height:0}",
   "a{color:#2f4a33}",
 ].join("");
 
@@ -1151,10 +1186,33 @@ async function renderReport(p, r) {
     }
   }
 
+  // The year's two month-by-month charts, the same way: visits by device,
+  // and by where they came from, each a column per month.
+  const charts = {};
+  if (p.kind === "year") {
+    for (const [part] of PARTS) {
+      const months = partMonths(r, part, year);
+      if (!months.length) continue;
+      const named = topNames(r.parts[part]);
+      const stacks = monthStacks(months, named);
+      try {
+        const devices = await columnsPng(stacks.devices, DEVICE_ORDER.map((d) => DEVICE_COLOURS[d]));
+        const sources = await columnsPng(stacks.sources, [...SOURCE_COLOURS.slice(0, named.length), OTHER_COLOUR]);
+        charts[part] = {
+          devices: { cid: `months-${part}`, content: base64Bytes(devices) },
+          sources: { cid: `sources-${part}`, content: base64Bytes(sources) },
+        };
+      } catch (err) {
+        console.error(`[report] no month charts for ${part}:`, err && err.message ? err.message : err);
+      }
+    }
+  }
+  const pictures = [...Object.values(pies), ...Object.values(charts).flatMap((c) => [c.devices, c.sources])];
+
   const text = [`Cedar Hollow website: visitors, ${label}`, ...(note ? ["", note] : [])];
   let parts = "";
   for (const [part, title] of PARTS) {
-    const section = renderPart(p, r, part, title, pies[part]);
+    const section = renderPart(p, r, part, title, pies[part], charts[part]);
     text.push("", "", `== ${title.toUpperCase()} ==`, ...section.text);
     parts += section.html;
   }
@@ -1204,15 +1262,15 @@ ${parts}
     html,
     csv,
     // For a dry run, which shows the email without its attachments.
-    images: Object.fromEntries(Object.values(pies).map((pie) => [pie.cid, pie.content])),
+    images: Object.fromEntries(pictures.map((picture) => [picture.cid, picture.content])),
     attachments: [
       // A byte-order mark first, so Excel reads the file as UTF-8.
       { filename: `cedar-hollow-visitors-${stamp}.csv`, content: base64(String.fromCharCode(0xfeff) + csv) },
-      ...Object.values(pies).map((pie) => ({
-        filename: `${pie.cid}.png`,
-        content: pie.content,
+      ...pictures.map((picture) => ({
+        filename: `${picture.cid}.png`,
+        content: picture.content,
         content_type: "image/png",
-        content_id: pie.cid,
+        content_id: picture.cid,
       })),
     ],
   };
@@ -1221,13 +1279,10 @@ ${parts}
 /*
  * One part of a report -- the whole website, or one woodland -- as plain
  * text lines and HTML, with `pie` the picture of its visits by device. The
- * year's report adds its graphs, month by month.
- *
- * The year's graphs are made of tables and blocks of colour rather than
- * images or SVG, which most mail clients block or strip; every figure in
- * them is in a table beside them too.
+ * year's report adds its month-by-month bar charts, `chart`; every figure
+ * in them is in a table beside them too.
  */
-function renderPart(p, r, part, title, pie) {
+function renderPart(p, r, part, title, pie, chart) {
   const S = r.parts[part];
   const year = new Date(p.start).getUTCFullYear();
   const num = fmtNum;
@@ -1275,15 +1330,7 @@ function renderPart(p, r, part, title, pie) {
       : [];
   const beganTotal = began.reduce((n, b) => n + b.visits, 0);
 
-  // The year's months, from the first one anything was counted in.
-  const months = (r.months || [])
-    .map((m, index) => {
-      const rows = toRows(inPart(m.sources, part));
-      const visits = part === "all" ? m.visits : rows.reduce((n, x) => n + x.visits, 0);
-      const views = part === "all" ? m.views : m.pages.reduce((n, [path, v]) => n + (partOf(path) === part ? v : 0), 0);
-      return { index, visits, views, rows, ...groupRows(rows) };
-    })
-    .filter((m) => londonMidnight(Date.UTC(year, m.index + 1, 1)) > COUNTED_FROM);
+  const months = partMonths(r, part, year);
 
   // ---- plain text ---------------------------------------------------------
   const pad = (s, n) => String(s).padEnd(n);
@@ -1359,34 +1406,28 @@ function renderPart(p, r, part, title, pie) {
   }
 
   if (months.length) {
-    const busiest = Math.max(1, ...months.map((m) => m.visits));
-
-    // Visits each month, a column per month, stacked by device.
-    const columns = months
-      .map((m) => {
-        const height = m.visits ? Math.max(2, Math.round((CHART_HEIGHT * m.visits) / busiest)) : 0;
-        const pieces = splitParts(height, DEVICE_ORDER.map((d) => m.devices[d] || 0));
-        const stack = DEVICE_ORDER.map((d, i) => [d, pieces[i]])
-          .filter(([, h]) => h > 0)
-          .reverse()
-          .map(([d, h]) => `<div style="height:${h}px;background:${DEVICE_COLOURS[d]};"></div>`)
-          .join("");
-        return (
-          `<td style="vertical-align:bottom;text-align:center;padding:0 2px;">` +
-          `<div class="s" style="font-size:10px;line-height:14px;white-space:nowrap;">${m.visits ? compactNum(m.visits) : ""}</div>` +
-          `<div style="width:70%;margin:0 auto;">${stack}</div></td>`
-        );
-      })
-      .join("");
-    const columnLabels = months
-      .map((m) => `<td class="s" style="text-align:center;font-size:11px;padding:4px 0 0;border-top:1px solid #e4e0c8;">${MONTHS[m.index]}</td>`)
-      .join("");
-    // A short year (2026 began in October) keeps the columns a year's width.
-    const chartWidth = Math.max(30, Math.round((100 * months.length) / 12));
+    // Each chart is a picture of twelve equal columns, with the month totals
+    // above it and the month names below as the email's own text, in twelve
+    // equal cells that line up with the columns at any width.
+    const named = topNames(S);
+    const stacks = monthStacks(months, named);
+    const strip = (cells, style) =>
+      `<table role="presentation" style="border-collapse:collapse;width:100%;table-layout:fixed;"><tr>` +
+      cells.map((cell) => `<td class="s" style="text-align:center;${style}">${cell}</td>`).join("") +
+      "</tr></table>";
+    const totals = strip(
+      stacks.slots.map((m) => (m && m.visits ? compactNum(m.visits) : "")),
+      "font-size:10px;padding:0 0 2px;white-space:nowrap;"
+    );
+    const labels = strip(MONTHS, "font-size:11px;padding:4px 0 0;");
+    const picture = (img, alt) =>
+      `<img src="cid:${img.cid}" width="600" height="180" alt="${esc(alt)}" style="display:block;width:100%;height:auto;border:0;">`;
+    const byMonth = months.map((m) => `${MONTHS[m.index]} ${num(m.visits)}`).join(", ");
+    const anyOther = stacks.sources.some((stack) => stack[stack.length - 1] > 0);
 
     const columnsShown = ["Computer", "Phone", "Tablet", ...(months.some((m) => m.devices.Other) ? ["Other"] : [])];
     const monthTable =
-      `<table class="t" style="font-size:13px;margin-top:20px;"><tr><th class="hl2">Month</th><th class="hn2">Visits</th><th class="hn2">Page views</th>` +
+      `<table class="t" style="font-size:12px;margin-top:20px;"><tr><th class="hl2">Month</th><th class="hn2">Visits</th><th class="hn2">Page views</th>` +
       columnsShown.map((c) => `<th class="hn2">${c}</th>`).join("") +
       "</tr>" +
       months
@@ -1401,39 +1442,25 @@ function renderPart(p, r, part, title, pie) {
       columnsShown.map((c) => `<td class="n2"><strong>${devices[c] ? num(devices[c]) : "&ndash;"}</strong></td>`).join("") +
       "</tr></table>";
 
-    // Where each month's visitors came from: a bar per month, as long as its
-    // visits, divided between the year's biggest websites and the rest.
-    const named = sources.filter((s) => !s.other).slice(0, CHART_SOURCES);
-    const colours = [...SOURCE_COLOURS.slice(0, named.length), OTHER_COLOUR];
-    let anyOther = false;
-    const bars = months
-      .map((m) => {
-        const pieces = named.map((s) => (m.bySource.get(s.name) || { visits: 0 }).visits);
-        const rest = Math.max(0, m.list.reduce((n, s) => n + s.visits, 0) - pieces.reduce((a, b) => a + b, 0));
-        if (rest) anyOther = true;
-        const shares = splitParts(100, [...pieces, rest]);
-        const width = m.visits ? Math.max(2, Math.round((100 * m.visits) / busiest)) : 0;
-        const cells = shares
-          .map((pct, i) =>
-            pct ? `<td class="b" style="width:${pct}%;background:${colours[i]};">&nbsp;</td>` : ""
-          )
-          .join("");
-        return (
-          `<tr><td class="s" style="width:34px;padding:3px 6px 3px 0;">${MONTHS[m.index]}</td>` +
-          `<td style="padding:3px 0;">${width && cells ? `<table role="presentation" style="border-collapse:collapse;width:${width}%;"><tr>${cells}</tr></table>` : ""}</td>` +
-          `<td style="width:48px;text-align:right;font-size:12px;padding:3px 0 3px 6px;white-space:nowrap;">${m.visits ? num(m.visits) : "&ndash;"}</td></tr>`
-        );
-      })
-      .join("");
-
     html +=
       `<h2 class="h2">Month by month</h2>` +
-      `<table role="presentation" style="border-collapse:collapse;width:${chartWidth}%;table-layout:fixed;"><tr>${columns}</tr><tr>${columnLabels}</tr></table>` +
-      legend(DEVICE_ORDER.filter((d) => devices[d]).map((d) => [d, DEVICE_COLOURS[d]])) +
+      (chart
+        ? totals +
+          picture(chart.devices, `Bar chart of visits each month, by computer, phone and tablet: ${byMonth}`) +
+          labels +
+          legend(DEVICE_ORDER.filter((d) => devices[d]).map((d) => [d, DEVICE_COLOURS[d]]))
+        : "") +
       monthTable +
-      `<h2 class="h2">Where visitors came from, month by month</h2>` +
-      legend([...named.map((s, i) => [s.name, SOURCE_COLOURS[i]]), ...(anyOther ? [["Other websites", OTHER_COLOUR]] : [])]) +
-      `<table role="presentation" style="border-collapse:collapse;width:100%;margin-top:4px;">${bars}</table>`;
+      (chart
+        ? `<h2 class="h2">Where visitors came from, month by month</h2>` +
+          legend([...named.map((name, i) => [name, SOURCE_COLOURS[i]]), ...(anyOther ? [["Other websites", OTHER_COLOUR]] : [])]) +
+          totals +
+          picture(
+            chart.sources,
+            `Bar chart of visits each month, split between ${[...named, ...(anyOther ? ["other websites"] : [])].join(", ")}: ${byMonth}`
+          ) +
+          labels
+        : "");
   }
 
   // Each website's device split sits under its name rather than in columns
@@ -1510,9 +1537,11 @@ function base64Bytes(bytes) {
  * service to hand the figures to. `values` go clockwise from twelve o'clock
  * in `colours`, on a clear ground that suits any background, each slice
  * parted from the next by a thin gap. A pixel on the rim or by a gap is
- * sampled 3 x 3 times and blended, so the edges come out smooth; the rest
- * are sampled once, and written whole. Drawn at 180px to show at 110, so
- * sharp on a high-density screen.
+ * sampled 3 x 3 times, and takes its slice's colour as many ninths opaque
+ * as samples fell inside, so the edges come out smooth; the rest are
+ * sampled once. That makes ten shades of each colour at most, so the pie
+ * goes as a palette PNG, a quarter the bytes of full colour. Drawn at
+ * 180px to show at 110, so sharp on a high-density screen.
  *
  * Kept quick, since a report draws three and a run can send three reports.
  * No trigonometry per pixel: a gap is found by a point's distance from the
@@ -1522,14 +1551,23 @@ function base64Bytes(bytes) {
  */
 async function piePng(values, colours, size = 180) {
   const total = values.reduce((a, b) => a + b, 0);
-  const rgb = colours.map((h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16)));
-  // A whole opaque pixel as one little-endian word, for the fast path.
-  const word = rgb.map(([r, g, b]) => ((255 << 24) | (b << 16) | (g << 8) | r) >>> 0);
+  const rgb = colours.map(hexRgb);
+  const SUB = 3; // samples a side for an edge pixel
+  const SHADES = SUB * SUB;
+  // Palette: 0 is the clear ground; then each colour at 1..9 ninths opaque.
+  const palette = [[255, 255, 255]];
+  const opacity = [0];
+  for (const colour of rgb) {
+    for (let k = 1; k <= SHADES; k++) {
+      palette.push(colour);
+      opacity.push(Math.round((255 * k) / SHADES));
+    }
+  }
+  const shade = (slice, covered) => 1 + slice * SHADES + covered - 1;
   const c = size / 2;
   const R = c - 1;
   const TURN = 2 * Math.PI;
   const GAP = 1; // half the gap between slices, in pixels
-  const SUB = 3; // samples a side for an edge pixel
 
   // Clockwise from twelve o'clock, 0 to 4: the diamond angle of east-north
   // coordinates (dx, -dy).
@@ -1571,8 +1609,7 @@ async function piePng(values, colours, size = 180) {
     return i;
   };
 
-  const px = new Uint8Array(size * size * 4);
-  const px32 = new Uint32Array(px.buffer);
+  const px = new Uint8Array(size * size);
   if (total > 0) {
     const outer = (R + 1) * (R + 1);
     const inner = (R - 1) * (R - 1);
@@ -1584,45 +1621,86 @@ async function piePng(values, colours, size = 180) {
         const r2 = dx * dx + dy * dy;
         if (r2 > outer) continue;
         if (r2 < inner && cutDistance(dx, dy) > GAP + 1) {
-          px32[y * size + x] = word[sliceAt(dx, dy)];
+          px[y * size + x] = shade(sliceAt(dx, dy), SHADES);
           continue;
         }
-        let red = 0;
-        let green = 0;
-        let blue = 0;
+        // An edge pixel: count the samples inside each slice, and take the
+        // slice most of them fell in. Two slices never share a pixel except
+        // at the very centre, where the gaps meet.
+        const hits = [0, 0, 0, 0, 0, 0, 0, 0];
         let covered = 0;
         for (let sy = 0; sy < SUB; sy++) {
           const ey = y + (sy + 0.5) / SUB - c;
           for (let sx = 0; sx < SUB; sx++) {
             const ex = x + (sx + 0.5) / SUB - c;
             if (ex * ex + ey * ey > rim || cutDistance(ex, ey) < GAP) continue;
-            const i = sliceAt(ex, ey);
-            red += rgb[i][0];
-            green += rgb[i][1];
-            blue += rgb[i][2];
+            hits[sliceAt(ex, ey)] += 1;
             covered += 1;
           }
         }
         if (!covered) continue;
-        const o = (y * size + x) * 4;
-        px[o] = Math.round(red / covered);
-        px[o + 1] = Math.round(green / covered);
-        px[o + 2] = Math.round(blue / covered);
-        px[o + 3] = Math.round((255 * covered) / (SUB * SUB));
+        let slice = 0;
+        for (let i = 1; i < rgb.length; i++) if (hits[i] > hits[slice]) slice = i;
+        px[y * size + x] = shade(slice, covered);
       }
     }
   }
-  return encodePng(size, size, px);
+  return encodePng(size, size, px, { palette, opacity });
+}
+
+/*
+ * A stacked column chart as a PNG: a column for each of `stacks` (twelve,
+ * one a month), its values stacked from the bottom in `colours`, on a clear
+ * ground with faint guide lines at quarters of the tallest. Only shapes: the
+ * totals and month names are the email's own text, which stays readable
+ * when a phone shrinks the picture. Drawn at 800 x 240 to show at up to
+ * 600 x 180. Every edge falls on a whole pixel, so the picture is a handful
+ * of flat colours, and goes as an 8-bit palette PNG: a quarter of the bytes
+ * of full colour, and quicker to pack.
+ */
+async function columnsPng(stacks, colours, width = 800, height = 240) {
+  const palette = [[255, 255, 255], hexRgb("#e4e0c8"), ...colours.map(hexRgb)];
+  const opacity = [0, 255, ...colours.map(() => 255)]; // 0: the clear ground
+  const px = new Uint8Array(width * height);
+  const floor = height - 2; // the baseline is the bottom two rows
+  const room = floor - 6; // headroom above the tallest column
+  const tallest = Math.max(1, ...stacks.map((s) => s.reduce((a, b) => a + b, 0)));
+  for (let g = 1; g <= 4; g++) {
+    const y = Math.round(floor - (room * g) / 4);
+    px.fill(1, y * width, (y + 1) * width);
+  }
+  px.fill(1, floor * width, height * width);
+
+  const slot = width / stacks.length;
+  const bar = Math.round(slot * 0.62);
+  stacks.forEach((values, i) => {
+    const sum = values.reduce((a, b) => a + b, 0);
+    if (!sum) return;
+    const x0 = Math.round(i * slot + (slot - bar) / 2);
+    let y = floor;
+    splitParts(Math.max(2, Math.round((room * sum) / tallest)), values).forEach((h, k) => {
+      for (let row = y - h; row < y; row++) px.fill(2 + k, row * width + x0, row * width + x0 + bar);
+      y -= h;
+    });
+  });
+  return encodePng(width, height, px, { palette, opacity });
+}
+
+function hexRgb(hex) {
+  return [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
 }
 
 const PNG_SIGNATURE = new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10]);
 
-// RGBA pixels as a PNG file. The "deflate" CompressionStream writes zlib,
-// which is what a PNG's IDAT holds.
-async function encodePng(width, height, rgba) {
-  const stride = width * 4;
+/*
+ * Pixels as a PNG file: RGBA, four bytes a pixel; or, given a palette (and
+ * each entry's opacity), one palette index a pixel. The "deflate"
+ * CompressionStream writes zlib, which is what a PNG's IDAT holds.
+ */
+async function encodePng(width, height, data, indexed) {
+  const stride = width * (indexed ? 1 : 4);
   const raw = new Uint8Array((stride + 1) * height); // each row: filter 0, then its pixels
-  for (let y = 0; y < height; y++) raw.set(rgba.subarray(y * stride, (y + 1) * stride), y * (stride + 1) + 1);
+  for (let y = 0; y < height; y++) raw.set(data.subarray(y * stride, (y + 1) * stride), y * (stride + 1) + 1);
   const idat = new Uint8Array(
     await new Response(new Blob([raw]).stream().pipeThrough(new CompressionStream("deflate"))).arrayBuffer()
   );
@@ -1630,8 +1708,14 @@ async function encodePng(width, height, rgba) {
   const v = new DataView(ihdr.buffer);
   v.setUint32(0, width);
   v.setUint32(4, height);
-  ihdr.set([8, 6, 0, 0, 0], 8); // 8 bits a channel, RGBA, deflate, standard filters, no interlace
-  const chunks = [PNG_SIGNATURE, pngChunk("IHDR", ihdr), pngChunk("IDAT", idat), pngChunk("IEND", new Uint8Array(0))];
+  // 8 bits a channel (or index), palette or RGBA, deflate, standard filters, no interlace
+  ihdr.set([8, indexed ? 3 : 6, 0, 0, 0], 8);
+  const chunks = [PNG_SIGNATURE, pngChunk("IHDR", ihdr)];
+  if (indexed) {
+    chunks.push(pngChunk("PLTE", Uint8Array.from(indexed.palette.flat())));
+    chunks.push(pngChunk("tRNS", Uint8Array.from(indexed.opacity)));
+  }
+  chunks.push(pngChunk("IDAT", idat), pngChunk("IEND", new Uint8Array(0)));
   const out = new Uint8Array(chunks.reduce((n, chunk) => n + chunk.length, 0));
   let at = 0;
   for (const chunk of chunks) {
