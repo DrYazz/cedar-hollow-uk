@@ -416,7 +416,12 @@ function byteRange(body, start, end) {
  * POST /api/booking -- a booking, from Checked.in (see BOOKING_KEY):
  *
  *   { id, status: "confirmed" | "cancelled", property, created, arrival,
- *     departure, guests, total (in pence), currency, ref, src }
+ *     departure, guests, total (in pence), currency, ref, src, channel }
+ *
+ * channel is where it was booked: "direct" -- on Checked.in itself, and the
+ * default -- or the site Checked.in learnt of it from through that site's
+ * calendar: "airbnb", "booking.com" and so on. Those calendars carry no
+ * price and no visit, and "created" is when Checked.in first saw it.
  *
  * Answers 200 once it is kept, so Checked.in knows to try again otherwise.
  */
@@ -445,6 +450,8 @@ async function handleBooking(request, env) {
   const arrival = day(b.arrival);
   const departure = day(b.departure);
   const src = String(b.src || "").toLowerCase();
+  const channel = String(b.channel || "direct").toLowerCase();
+  const direct = !/^[a-z0-9.-]{1,30}$/.test(channel) || channel === "direct";
   const booking = {
     id,
     status,
@@ -461,6 +468,7 @@ async function handleBooking(request, env) {
     currency: /^[A-Z]{3}$/.test(String(b.currency || "")) ? String(b.currency) : "",
     ref: /^[a-z0-9]{8,40}$/.test(String(b.ref || "")) ? String(b.ref) : "",
     src: /^[a-z0-9.-]{1,100}$/.test(src) ? src : "",
+    channel: direct ? "direct" : channel,
     received: new Date().toISOString(),
   };
   try {
@@ -474,6 +482,8 @@ async function handleBooking(request, env) {
         h: booking.src,
         t: booking.total,
         c: booking.currency,
+        n: booking.nights,
+        k: booking.channel,
       },
     });
   } catch (err) {
@@ -1083,9 +1093,9 @@ async function monthFigures(env, year, month) {
 
 /*
  * The confirmed bookings made in a period, by the London day they were made
- * on, as { retreat, via, src, total, currency } -- via if it followed a click
- * from this site -- and whether Checked.in has reported any booking yet:
- * until it has, the reports leave bookings out.
+ * on, as { retreat, channel, via, src, total, currency, nights } -- via if it
+ * was booked direct after a click from this site -- and whether Checked.in
+ * has reported any booking yet: until it has, the reports leave bookings out.
  */
 async function periodBookings(env, p) {
   const all = await allBookings(env);
@@ -1096,7 +1106,18 @@ async function periodBookings(env, p) {
     live: true,
     list: all
       .filter((m) => m.s === "confirmed" && m.d >= from && m.d < to)
-      .map((m) => ({ retreat: RETREATS[m.r] ? m.r : "oxford", via: Boolean(m.f), src: m.h || "", total: m.t, currency: m.c || "" })),
+      .map((m) => {
+        const channel = m.k || "direct";
+        return {
+          retreat: RETREATS[m.r] ? m.r : "oxford",
+          channel,
+          via: Boolean(m.f) && channel === "direct",
+          src: m.h || "",
+          total: m.t,
+          currency: m.c || "",
+          nights: m.n || 0,
+        };
+      }),
   };
 }
 
@@ -2066,16 +2087,64 @@ function renderPart(p, r, part, title, pie, chart, day) {
           .filter((x) => x.clicks > 0 || x.booked > 0)
           .sort((a, b) => b.booked - a.booked || b.clicks - a.clicks)
       : [];
-  const pounds = booked.reduce((n, b) => n + (b.currency === "GBP" && b.total ? b.total : 0), 0);
+  const gbp = (list) => list.reduce((n, b) => n + (b.currency === "GBP" && b.total ? b.total : 0), 0);
+  const money = (pence) => `£${Math.round(pence / 100).toLocaleString("en-GB")}`;
   const plural = (n, word) => `${num(n)} ${word}${n === 1 ? "" : "s"}`;
+  const listed = (items) => (items.length > 1 ? `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}` : items[0] || "");
+  // Every booking Checked.in knows of, by where it was made: direct, on
+  // Checked.in -- some after a click from this site -- or through a channel
+  // whose calendar it reads.
+  const CHANNEL_NAMES = { airbnb: "Airbnb", "booking.com": "Booking.com", vrbo: "Vrbo", expedia: "Expedia" };
+  const channelName = (c) => CHANNEL_NAMES[c] || c;
+  const madeDirect = showBookings ? bookings.filter((b) => b.channel === "direct") : [];
+  const byChannel = new Map();
+  for (const b of showBookings ? bookings : []) if (b.channel !== "direct") byChannel.set(b.channel, (byChannel.get(b.channel) || 0) + 1);
   const bookingsLine = showBookings
-    ? `Checked.in took ${plural(bookings.length, "booking")} made this ${p.kind}` +
+    ? `${plural(bookings.length, "booking")} ${bookings.length === 1 ? "was" : "were"} made this ${p.kind}` +
       (bookings.length
-        ? `; ${num(booked.length)} followed a click from this website` +
-          (pounds ? `, worth £${Math.round(pounds / 100).toLocaleString("en-GB")}` : "") +
-          "."
+        ? `: ${listed([
+            ...(madeDirect.length ? [`${num(madeDirect.length)} direct on Checked.in`] : []),
+            ...[...byChannel].sort((a, b) => b[1] - a[1]).map(([c, n]) => `${num(n)} through ${channelName(c)}`),
+          ])}.` +
+          (madeDirect.length
+            ? ` ${num(booked.length)} of the direct ${madeDirect.length === 1 ? "one" : "ones"} followed a click from this website` +
+              (gbp(booked) ? `, worth ${money(gbp(booked))}` : "") +
+              "."
+            : "")
         : ".")
     : "";
+  // A woodland's bookings retreat by retreat: how many, the nights, what the
+  // direct ones were worth, and where they came from -- the website and the
+  // site that sent the visit, direct on Checked.in some other way, or a channel.
+  const retreatBookings =
+    showBookings && part !== "all"
+      ? Object.keys(RETREATS)
+          .filter((key) => RETREATS[key][0] === part)
+          .map((key) => {
+            const list = bookings.filter((b) => b.retreat === key);
+            const fromSite = new Map();
+            for (const b of list) if (b.via) fromSite.set(sourceName(b.src), (fromSite.get(sourceName(b.src)) || 0) + 1);
+            const other = list.filter((b) => b.channel === "direct" && !b.via).length;
+            const channels = new Map();
+            for (const b of list) if (b.channel !== "direct") channels.set(b.channel, (channels.get(b.channel) || 0) + 1);
+            const site = [...fromSite].sort((a, b) => b[1] - a[1]);
+            const siteTotal = site.reduce((n, [, c]) => n + c, 0);
+            // A number never wraps away from what it counts.
+            const nb = "\u00a0";
+            const from = [
+              ...(siteTotal ? [`Website${nb}${num(siteTotal)} (${site.map(([name, c]) => `${name}${nb}${num(c)}`).join(", ")})`] : []),
+              ...(other ? [`Checked.in direct${nb}${num(other)}`] : []),
+              ...[...channels].sort((a, b) => b[1] - a[1]).map(([c, n]) => `${channelName(c)}${nb}${num(n)}`),
+            ];
+            return { name: RETREATS[key][1], count: list.length, nights: list.reduce((n, b) => n + b.nights, 0), pence: gbp(list), from };
+          })
+          .filter((x) => x.count > 0)
+          .sort((a, b) => b.count - a.count)
+      : [];
+  const retreatNote =
+    "Website means booked on Checked.in after a click from this site, with the site the visit came from; " +
+    "Checked.in direct, booked there some other way." +
+    (byChannel.size ? " Value counts direct bookings only, and a channel’s bookings count from when Checked.in first saw them: their calendars carry no price." : "");
   const woodlands = (c) =>
     [c.oxford ? `Oxford ${num(c.oxford)}` : "", c.dorset ? `Dorset ${num(c.dorset)}` : ""].filter(Boolean);
   const clicksNote =
@@ -2169,6 +2238,17 @@ function renderPart(p, r, part, title, pie, chart, day) {
           ...(clickRetreats.length
             ? clickRetreats.map((x) => `${pad(x.name, 34)} ${lpad(plural(x.clicks, "click"), 10)}${showBookings ? `  booked ${lpad(num(x.booked), 3)}` : ""}`)
             : ["No clicks to book recorded."]),
+        ]
+      : []),
+    ...(retreatBookings.length
+      ? [
+          "",
+          "BOOKINGS BY RETREAT",
+          ...retreatBookings.flatMap((x) => [
+            `${pad(x.name, 34)} ${lpad(plural(x.count, "booking"), 12)} ${lpad(plural(x.nights, "night"), 10)} ${lpad(x.pence ? money(x.pence) : "", 8)}`,
+            `   ${x.from.join("; ")}`,
+          ]),
+          retreatNote,
         ]
       : []),
     ...(G
@@ -2392,6 +2472,28 @@ function renderPart(p, r, part, title, pie, chart, day) {
         : `<p class="s">No clicks to book recorded.</p>`);
   }
 
+  // Bookings by retreat, each with where its bookings came from beneath it.
+  let bookingsHtml = "";
+  if (retreatBookings.length) {
+    const sum = (key) => retreatBookings.reduce((n, x) => n + x[key], 0);
+    bookingsHtml =
+      `<h2 class="h2">Bookings by retreat</h2>` +
+      `<table class="t"><tr><th class="hl">Retreat</th><th class="hn">Bookings</th><th class="hn">Nights</th><th class="hn">Value</th></tr>` +
+      retreatBookings
+        .map(
+          (x) =>
+            `<tr><td class="l">${esc(x.name)}<br><span class="s">${esc(x.from.join(" · "))}</span></td>` +
+            `<td class="n"><strong>${num(x.count)}</strong></td><td class="n">${num(x.nights)}</td><td class="n">${x.pence ? esc(money(x.pence)) : "&ndash;"}</td></tr>`
+        )
+        .join("") +
+      (retreatBookings.length > 1
+        ? `<tr><td class="l"><strong>All</strong></td><td class="n"><strong>${num(sum("count"))}</strong></td><td class="n">${num(sum("nights"))}</td>` +
+          `<td class="n">${sum("pence") ? esc(money(sum("pence"))) : "&ndash;"}</td></tr>`
+        : "") +
+      "</table>" +
+      `<p class="s" style="margin:8px 0 0;">${esc(retreatNote)}</p>`;
+  }
+
   // Searches on Google: the totals in a sentence, then the searches.
   let searchHtml = "";
   if (G) {
@@ -2428,6 +2530,7 @@ function renderPart(p, r, part, title, pie, chart, day) {
     "</table>" +
     (withinNote ? `<p class="s" style="margin:8px 0 0;">${esc(withinNote)}</p>` : "") +
     clicksHtml +
+    bookingsHtml +
     searchHtml +
     // The pie, and beside it the key: each slice's colour, visits and share,
     // which is also everything the pie says for a reader whose mail app
