@@ -95,6 +95,11 @@ ANALYTICS_SITE = "ae885004b4b34ac2a39e3b5dc349a8eb"   # cedarhollow.uk
 #   npx wrangler secret put GSC_KEY      (the JSON file, as downloaded)
 #
 # Without it the reports simply leave the section out.
+#
+# Bookings reach the reports from Checked.in, which POSTs each one to
+# /api/booking with a password both sides know, also a secret:
+#
+#   npx wrangler secret put BOOKING_SECRET
 GSC_SITE = "sc-domain:cedarhollow.uk"
 GSC_OLD_SITE = "sc-domain:theoaks.uk"
 
