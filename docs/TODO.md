@@ -62,6 +62,40 @@ review, or a decision) — none are blocked on further build work.
   (`PROVIDER = "none"`, honours Do Not Track). Flip to `"plausible"` or `"ga4"`;
   **update `cookies.html` first** (and add a consent banner if using GA4).
 
+## Hosting & deploys — open items (as of 2026-10-04)
+
+The site deploys from GitHub through Cloudflare Workers Builds, and a health
+check (`.github/workflows/site-health.yml`) retries failed deploys and opens a
+`site-health` issue when something breaks. See `docs/PAGES_UPLOAD.md`.
+
+- [ ] **Generate the two Instagram tokens.** The Oxford and Dorset grids are
+  built to show each account's latest posts, but no token has ever been set, so
+  both still show the four posts written into the HTML on 16 Sep. In the Meta
+  developer dashboard, create an app with the **Manage messaging & content on
+  Instagram** use case, then under **API setup with Instagram login → Generate
+  access tokens** add @cedarhollowoxford and @mallinsonswoodlandretreat and
+  generate a token for each (shown once). Set them as **Secret** variables
+  `IG_TOKEN_OXFORD` and `IG_TOKEN_DORSET` under **Workers & Pages →
+  cedar-hollow-uk → Settings → Variables and Secrets**. No deploy needed, and
+  the Worker renews them every Monday after that.
+- [ ] **Decommission Railway.** It still builds `main` as a fallback copy, but
+  nothing points at it. Once a few real enquiries have arrived through the
+  Worker's form:
+  - remove the `cedarhollow.uk` / `www` custom domains from the Railway
+    `cedar-hollow-uk` service, then delete that service and `form-handler`
+    (or the whole project);
+  - **revoke the Gmail app password** for `hello@thelabgroup.com`; it sits in
+    plain text in the form-handler's Railway variables (`SMTP_PASS`);
+  - delete `form-handler/` and `docs/DNS_SETUP.md` from the repo, and the
+    `*.railway.app` branches in `public/js/form-submit.js` and
+    `public/js/instagram-live.js`.
+- [ ] **Give the site its own Cloudflare build token.** Workers Builds deploys
+  with one named **"cool-escapes build token"**, apparently shared with another
+  project. If it is deleted or narrowed while tidying that project, every
+  deploy of this site fails. Create a dedicated one under **Workers & Pages →
+  cedar-hollow-uk → Settings → Builds → Build token**. (The health check would
+  catch the failure within the hour, but not prevent it.)
+
 ## Email & mail authentication — open items (as of 2026-10-04)
 
 Mail for cedarhollow.uk was sorted on 30 Sep. `hello@cedarhollow.uk` had been a
