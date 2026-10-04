@@ -2094,7 +2094,16 @@ function renderPart(p, r, part, title, pie, chart, day) {
   // Every booking Checked.in knows of, by where it was made: direct, on
   // Checked.in -- some after a click from this site -- or through a channel
   // whose calendar it reads.
-  const CHANNEL_NAMES = { airbnb: "Airbnb", "booking.com": "Booking.com", vrbo: "Vrbo", expedia: "Expedia" };
+  // As Checked.in names them; it learns of these through Hospitable, and sends
+  // Hospitable's own bookings -- its site, or keyed in by hand -- as "hospitable".
+  const CHANNEL_NAMES = {
+    airbnb: "Airbnb",
+    "booking.com": "Booking.com",
+    vrbo: "Vrbo",
+    expedia: "Expedia",
+    agoda: "Agoda",
+    hospitable: "Hospitable",
+  };
   const channelName = (c) => CHANNEL_NAMES[c] || c;
   const madeDirect = showBookings ? bookings.filter((b) => b.channel === "direct") : [];
   const byChannel = new Map();
