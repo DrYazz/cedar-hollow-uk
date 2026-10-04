@@ -36,7 +36,21 @@ html_handling = "none"
 # with the whole file, and Safari -- every browser on an iPhone -- will not
 # play a video from a server that does that until the file happens to be in
 # its cache, so the hero sat on its still image until a reload.
-run_worker_first = ["/images/*.mp4", "/videos/*", "/oxford/videos/*"]
+# A list here also decides what reaches the Worker at all: with a list, a
+# request matching none of it goes to the asset server alone, which answers
+# a POST with 405 and any unknown address with the 404 page. So every address
+# the Worker answers itself is on it -- the API, /health and the two
+# directory spellings in PAGE_ALIASES -- as well as the videos. A new Worker
+# route needs adding here too, or it will never be reached.
+run_worker_first = [
+  "/api/*",
+  "/health",
+  "/oxford/",
+  "/dorset/",
+  "/images/*.mp4",
+  "/videos/*",
+  "/oxford/videos/*",
+]
 
 # --- Contact form ------------------------------------------------------------
 # Mail goes through Resend's HTTP API. Cloudflare's own send_email binding was
