@@ -24,3 +24,6 @@ __pycache__/
 # the live values are Worker secrets set in the Cloudflare dashboard.
 .dev.vars
 .dev.vars.*
+
+# Generated before every deploy by scripts/stamp-build.mjs.
+public/build.json
