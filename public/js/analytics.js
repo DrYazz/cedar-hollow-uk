@@ -106,7 +106,10 @@
  * this changes.
  *
  * A visit begins where Cloudflare's does: on any page reached from anywhere
- * but this site, the address typed in included.
+ * but this site, the address typed in included. A link tagged with
+ * ?utm_source= -- Coolstays' listing, an Instagram bio -- names where it
+ * came from better than any referrer can, so its tag ("coolstays") becomes
+ * the visit's source, and a new tag begins a new visit.
  *
  * The Oxford calendars on the stay pages are Checked.in's own frames, which
  * open the booking themselves; they say so with a { cinBookingOpened }
@@ -126,14 +129,23 @@
   var visit;
   try {
     var from = "";
+    var campaign = "";
     try {
       from = document.referrer ? new URL(document.referrer).hostname.toLowerCase() : "";
+      // In the shape a host name has, so it travels the same way: lower
+      // case, anything else a hyphen, no hyphen at either end.
+      campaign = (new URL(location.href).searchParams.get("utm_source") || "")
+        .toLowerCase()
+        .replace(/[^a-z0-9.-]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+        .slice(0, 100)
+        .replace(/-+$/, "");
     } catch (e) {}
     visit = JSON.parse(sessionStorage.getItem(KEY) || "null");
-    if (!visit || !ours(from)) {
+    if (campaign ? !visit || visit.from !== campaign : !visit || !ours(from)) {
       visit = {
         id: Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2),
-        from: ours(from) ? "" : from,
+        from: campaign || (ours(from) ? "" : from),
         landed: location.pathname,
         sent: {},
       };
