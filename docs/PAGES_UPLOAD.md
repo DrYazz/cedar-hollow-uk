@@ -266,13 +266,14 @@ The push deploys it, and from then on `main` and production agree again.
 | Setting | Value |
 | - | - |
 | Production branch | `main` |
-| Build command | *(empty: there is nothing to build)* |
+| Build command | *(empty: `[build]` in `wrangler.toml` writes `public/build.json` during the deploy)* |
 | Deploy command | `npx wrangler deploy` |
 | Non-production branch deploy command | `npx wrangler preview` (needs the `[previews]` block in `wrangler.toml`) |
 | Root directory | `/` |
 
-There is no token in the repo or in GitHub's secrets; Cloudflare manages the
-build's credentials itself. `wrangler.toml` is still the config: change the
+Cloudflare manages the build's credentials itself; nothing in the repo holds a
+Cloudflare token. The one related secret is GitHub's `CF_DEPLOY_HOOK_URL`, used
+by the health check below. `wrangler.toml` is still the config: change the
 Worker's name there and builds start failing, because the name must match the
 Worker the repo is connected to.
 
@@ -282,3 +283,43 @@ alone.
 
 Secrets (`RESEND_API_KEY`, `IG_TOKEN_OXFORD`, `IG_TOKEN_DORSET`) live on the
 Worker, not in the build settings, and survive every deploy.
+
+## Automatic health checks
+
+[`.github/workflows/site-health.yml`](../.github/workflows/site-health.yml)
+runs [`scripts/site-health.mjs`](../scripts/site-health.mjs) every 15 minutes,
+and immediately whenever a Cloudflare build of `main` fails. Nobody has to
+watch builds or press **Retry build**.
+
+**What it checks:** the homepage is served by Cloudflare; `www` redirects to
+`cedarhollow.uk`; the main pages, sitemap and robots load; `/api/contact`
+reaches the Worker (the contact form broke on 4 October when it did not); the
+Worker has its mail key; the map tiles serve; the Instagram tokens are still
+being renewed. It never submits the form, so it sends no email.
+
+**What it fixes:** every deploy writes `/build.json` naming its commit. If
+that is not the latest commit on `main` (a build failed to start, which
+Cloudflare's build machines do now and then), it calls the deploy hook to
+build `main` again: at once after a failed build, otherwise once the push is
+15 minutes old, and again every 15 minutes until the site catches up.
+
+**How it tells you:** anything still wrong a minute later, or a site still
+behind `main` after an hour, opens a GitHub issue labelled `site-health`.
+GitHub emails it to the repo's watchers. The issue gets a comment only when the
+list of problems changes, and closes itself with a "Recovered" comment when
+everything passes. The workflow's own run only fails if the check itself
+breaks, so an outage does not mean an email every 15 minutes.
+
+**Setup (once):** in Cloudflare, **Workers & Pages → cedar-hollow-uk →
+Settings → Builds → Deploy Hooks**, create a hook for branch `main` and copy
+its URL. In GitHub, **Settings → Secrets and variables → Actions → New
+repository secret**, name `CF_DEPLOY_HOOK_URL`. Anyone holding that URL can
+start builds, so it lives only there; if it leaks, delete the hook and make a
+new one.
+
+To run the checks now: **Actions → Site health → Run workflow**, or
+`node scripts/site-health.mjs` locally (read-only: without the secret and a
+GitHub token it only prints).
+
+The `www` to `cedarhollow.uk` redirect is a Cloudflare **Redirect Rule** on the
+zone, not part of the Worker or this repo.

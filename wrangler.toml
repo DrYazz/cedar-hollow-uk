@@ -12,6 +12,19 @@ name = "cedar-hollow-uk"
 main = "worker/index.js"
 compatibility_date = "2026-09-02"
 
+# --- Build stamp -------------------------------------------------------------
+# Before every deploy, write public/build.json naming the commit being
+# deployed, so the site can say which commit is live. The health check in
+# .github/workflows/site-health.yml relies on it to spot a build that never
+# deployed, and starts another. Needs only Node, which the build image has.
+#
+# watch_dir is set so that `wrangler dev` does not rebuild every time it sees
+# build.json change, which it would if it watched the whole repo.
+
+[build]
+command = "node scripts/stamp-build.mjs"
+watch_dir = "scripts"
+
 # --- Static site -------------------------------------------------------------
 # The site lives in public/, which holds the site and nothing else. Anything
 # outside that directory cannot be published by accident, so public/.assetsignore

@@ -1,0 +1,55 @@
+# Keeps cedarhollow.uk healthy without anyone watching it.
+#
+# Every 15 minutes, and straight after any Cloudflare build of main fails,
+# scripts/site-health.mjs checks the live site and compares the commit it is
+# running (/build.json) with main. A deploy that never happened is retried
+# through the Workers Builds deploy hook; anything still wrong opens a
+# "site-health" issue, which closes itself on recovery. See the script for the
+# details and docs/PAGES_UPLOAD.md for the setup.
+#
+# Needs one repository secret, CF_DEPLOY_HOOK_URL: the URL of a deploy hook for
+# main, from Workers & Pages -> cedar-hollow-uk -> Settings -> Builds -> Deploy
+# Hooks. It is a credential: anyone holding it can start builds.
+
+name: Site health
+
+on:
+  schedule:
+    - cron: "7,22,37,52 * * * *"
+  workflow_dispatch:
+  check_run:
+    types: [completed]
+
+permissions:
+  contents: read
+  checks: read
+  issues: write
+
+concurrency:
+  group: site-health
+  cancel-in-progress: false
+
+jobs:
+  check:
+    # A check_run event fires for every check on every branch; act only on a
+    # failed Cloudflare build of main.
+    if: >-
+      github.event_name != 'check_run' ||
+      (startsWith(github.event.check_run.name, 'Workers Builds') &&
+       github.event.check_run.conclusion == 'failure' &&
+       github.event.check_run.check_suite.head_branch == 'main')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts/site-health.mjs
+          sparse-checkout-cone-mode: false
+
+      - name: Check the site and the deploy pipeline
+        run: node scripts/site-health.mjs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          DEPLOY_HOOK_URL: ${{ secrets.CF_DEPLOY_HOOK_URL }}
+          FAILED_SHA: ${{ github.event.check_run.head_sha }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
