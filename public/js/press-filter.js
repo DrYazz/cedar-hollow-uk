@@ -6,9 +6,10 @@
  * awards too. Anything carrying data-location is in scope, so the markup
  * decides what is filterable and this file does not need to know about grids.
  *
- * Kind (Everything / In the press / On screen / Awards & Accreditations)
- * hides a whole section, heading and all, so the sections carry data-kind and
- * the bar sits above all of them -- a control cannot hide itself.
+ * Kind (Everything / In the press / On screen / Awards & Accreditations, and
+ * on the combined page Our team) hides a whole section, heading and all, so
+ * the sections carry data-kind and the bar sits above all of them -- a
+ * control cannot hide itself. The site menu's Our Team link is ?k=team.
  *
  * A woodland page renders the kind control on its own: which woodland is
  * already settled by which page you are on. So neither control is assumed --
@@ -42,8 +43,9 @@
   var hideable = document.querySelectorAll("[data-location]");
   /* Every entry, counted. The memberships carry no data-location -- they
      are held by neither woodland -- so they are never hidden by that
-     choice and belong in whichever count it shows. */
-  var items = document.querySelectorAll(".ch-press__grid > li, .ch-vid-grid > li, .ch-awards__grid > li");
+     choice and belong in whichever count it shows; nor do the team's
+     people, the prints in .ch-album. */
+  var items = document.querySelectorAll(".ch-press__grid > li, .ch-vid-grid > li, .ch-awards__grid > li, .ch-album > li");
   var sections = document.querySelectorAll("[data-kind]");
   if (!items.length || !sections.length) return;
 
