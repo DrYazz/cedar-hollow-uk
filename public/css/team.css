@@ -1,0 +1,30 @@
+/*
+ * The team, as prints on a table: the careers page's "The people behind it
+ * all", and the same list copied onto the press page (scripts/update-press.py).
+ * Shared here so the two cannot drift. (reviews-wall.css has its own .ch-album
+ * for the reviews wall; the two are never on one page.)
+ */
+/* ---- The people behind it all --------------------------------------
+   Prints on a table rather than a grid of avatars: each one sits at a
+   slight angle, the angle alternating so the row does not lean, and
+   straightens when you point at it. The caption is part of the print,
+   under the picture where a name would be written. */
+.ch-album{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));
+  gap:1.25rem 1rem;list-style:none;margin:2.25rem 0 0;padding:0;}
+.ch-album__print{background:#fff;padding:.5rem .5rem .75rem;
+  border-radius:2px;box-shadow:0 6px 16px rgba(59,65,38,.13);
+  transform:rotate(-1.4deg);transition:transform .25s ease,box-shadow .25s ease;}
+.ch-album__print:nth-child(even){transform:rotate(1.4deg);}
+.ch-album__print:hover{transform:rotate(0);box-shadow:0 10px 22px rgba(59,65,38,.2);}
+.ch-album__print img{display:block;width:100%;aspect-ratio:3/4;object-fit:cover;}
+.ch-album__link{display:block;color:inherit;text-decoration:none;}
+.ch-album__caption{display:block;text-align:center;padding:.55rem .25rem 0;}
+.ch-album__name{display:block;font-family:var(--font-family--heading);
+  font-size:1.0625rem;font-weight:400;line-height:1.2;color:var(--accent);}
+.ch-album__note{display:block;margin-top:.15rem;font-size:.8125rem;
+  line-height:1.35;color:var(--color-text);opacity:.75;}
+@media (max-width:991px){.ch-album{grid-template-columns:repeat(4,minmax(0,1fr));}}
+@media (max-width:640px){.ch-album{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media (prefers-reduced-motion:reduce){
+  .ch-album__print,.ch-album__print:hover{transition:none;transform:none;}
+}

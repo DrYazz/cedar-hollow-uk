@@ -45,6 +45,12 @@ SCREEN_RE = re.compile(r"(<!-- ch:press-screen ?([\w:, -]*?) -->)(.*?)(<!-- /ch:
 FEED_RE = re.compile(r"(<!-- ch:press-feed ?([\w-]*) -->)(.*?)(<!-- /ch:press-feed -->)", re.S)
 FILTER_RE = re.compile(r"(<!-- ch:press-filter(?: ([\w-]+))? -->)(.*?)(<!-- /ch:press-filter -->)", re.S)
 AWARDS_RE = re.compile(r"(<!-- ch:press-awards(?: ([\w-]+))? -->)(.*?)(<!-- /ch:press-awards -->)", re.S)
+# The team is written once, on the careers page, between ch:team markers; a
+# ch:press-team block on a press page is a copy of it, so the people behind
+# Cedar Hollow are never listed in two places that can disagree.
+TEAM_SOURCE = ROOT / "public" / "careers.html"
+TEAM_SOURCE_RE = re.compile(r"<!-- ch:team -->(.*?)<!-- /ch:team -->", re.S)
+TEAM_RE = re.compile(r"(<!-- ch:press-team -->)(.*?)(<!-- /ch:press-team -->)", re.S)
 
 LOCATIONS = {"oxford": "Oxfordshire", "dorset": "Dorset"}
 
@@ -455,20 +461,31 @@ def video_year(v):
     return (v.get("aired") or v.get("date", ""))[:4]
 
 
-def kind_counts(sections, memberships=()):
-    """What the kind buttons count: articles, films and recognitions.
+def kind_counts(sections, memberships=(), team=None):
+    """What the kind buttons count: articles, films and recognitions -- and
+    the team's people, on a page that shows them (team is their number).
 
     Memberships count as recognitions, and they count wherever they are
     shown -- they belong to no woodland, so no choice of woodland hides
-    them.
+    them. Nor does the team.
     """
     counts = {}
     for key, field in (("press", "items"), ("screen", "screen"),
                        ("awards", "awards")):
         counts[key] = sum(len(sec.get(field) or []) for sec in sections.values())
     counts["awards"] += len(memberships)
+    if team is not None:
+        counts["team"] = team
     counts["all"] = sum(counts.values())
     return counts
+
+
+def team_block():
+    """The careers page's team -- the list itself -- and how many it has."""
+    found = TEAM_SOURCE_RE.search(TEAM_SOURCE.read_text(encoding="utf-8"))
+    if not found:
+        sys.exit("%s: no ch:team markers around the team" % TEAM_SOURCE.name)
+    return found.group(1), found.group(1).count('class="ch-album__print"')
 
 
 def filter_btn(group, value, label, count, on):
@@ -478,7 +495,7 @@ def filter_btn(group, value, label, count, on):
             % (group, value, "true" if on else "false", label, count))
 
 
-def filters(data, indent, scope=None):
+def filters(data, indent, scope=None, team=None):
     """The controls above the coverage: which woodland, and which kind.
 
     They sit above both sections rather than inside either. The woodland
@@ -496,21 +513,23 @@ def filters(data, indent, scope=None):
     """
     sections = data["sections"]
     members = data.get("memberships") or []
+    # "Our team" is offered only where the page shows the team.
     kinds = ("kind", "Type",
              (("all", "All"), ("press", "Press"), ("screen", "TV"),
-              ("awards", "Awards")))
+              ("awards", "Awards")) + ((("team", "Our team"),) if team is not None else ()))
     if scope:
-        groups = [(kinds, kind_counts({scope: sections[scope]}, members))]
+        groups = [(kinds, kind_counts({scope: sections[scope]}, members, team))]
     else:
         where = both(sections, "items")["counts"]
-        # A membership shows under every woodland, so it is in every count.
+        # A membership shows under every woodland, so it is in every count;
+        # so does everyone on the team.
         for key in where:
-            where[key] += len(members)
+            where[key] += len(members) + (team or 0)
         groups = [
             (("location", "Location",
               (("all", "All"), ("oxford", "Oxford"), ("dorset", "Dorset"))),
              where),
-            (kinds, kind_counts(sections, members)),
+            (kinds, kind_counts(sections, members, team)),
         ]
     lines = ['<div class="ch-press__filters">']
     for (group, label, options), counts in groups:
@@ -760,6 +779,7 @@ def main():
     check = "--check" in sys.argv
     data = json.loads(DATA.read_text(encoding="utf-8"))
     sections = data["sections"]
+    team_html, team_count = team_block()
     changed = []
     total = 0
 
@@ -865,8 +885,13 @@ def main():
             if scope and scope not in sections:
                 sys.exit("%s: unknown filter scope '%s'" % (page.name, scope))
             seen.append((scope or "combined", 0, "filter"))
-            body = filters(data, marker_indent(match), scope)
+            body = filters(data, marker_indent(match), scope,
+                           team_count if TEAM_RE.search(text) else None)
             return match.group(1) + body + match.group(4)
+
+        def replace_team(match):
+            seen.append(("combined", team_count, "team"))
+            return match.group(1) + team_html + match.group(3)
 
         updated = FILTER_RE.sub(replace_filter, text)
         updated = BLOCK_RE.sub(replace, updated)
@@ -887,6 +912,7 @@ def main():
         updated = SCREEN_RE.sub(replace_screen, updated)
         updated = AWARDS_RE.sub(replace_awards, updated)
         updated = FEED_RE.sub(replace_feed, updated)
+        updated = TEAM_RE.sub(replace_team, updated)
         if not seen:
             sys.exit("%s: no ch:press markers found" % page.name)
 
@@ -900,6 +926,8 @@ def main():
                 state = "%d videos" % count
             elif kind == "awards":
                 state = "%d awards" % count
+            elif kind == "team":
+                state = "%d people, from %s" % (count, TEAM_SOURCE.name)
             elif not count:
                 state = "skipped (no items yet)"
             else:
