@@ -827,6 +827,7 @@ async function reportFigures(env, p, opts) {
     parts,
     rows: toRows(figures.sources),
     months: figures.months,
+    search: await searchFigures(env, p),
     // Whether any of the period had its clicks to book counted, and all of it.
     clicks: p.end > Date.parse(INTENTS_FROM),
     clicksAll: p.start >= Date.parse(INTENTS_FROM),
@@ -1234,6 +1235,161 @@ function rumFilter(env, from, to, extra = {}) {
   const time = (t) => JSON.stringify(new Date(t).toISOString().replace(/\.\d{3}Z$/, "Z"));
   const more = Object.entries(extra).map(([k, v]) => `, ${k}: ${JSON.stringify(v)}`).join("");
   return `{ siteTag: ${JSON.stringify(env.ANALYTICS_SITE)}, datetime_geq: ${time(from)}, datetime_lt: ${time(to)}, bot: 0${more} }`;
+}
+
+/*
+ * Searches on Google: what people searched for when Google listed the site,
+ * from the Search Console API. It is read with a service account's key --
+ * the GSC_KEY secret, the JSON file Google Cloud downloads -- whose address
+ * the Search Console property lists as a Restricted user. GSC_SITE names the
+ * property ("sc-domain:cedarhollow.uk" for a domain property), and
+ * GSC_OLD_SITE, if set, theoaks.uk's, to show what Google still sends to the
+ * old address while it moves over.
+ *
+ * Google keeps sixteen months of these figures, so nothing is kept here:
+ * each report asks for its own period as it is sent. Google's days run on
+ * US Pacific time; its last two or three days are still filling in; and it
+ * holds back searches made by very few people, so the searches listed add up
+ * to less than the totals.
+ */
+const GSC_ENDPOINT = "https://searchconsole.googleapis.com/webmasters/v3/sites/";
+const GSC_TOP = 10; // searches listed in each part
+let gscAccess; // { token, until }: one sign-in serves every report in a run
+
+function searchReady(env) {
+  return Boolean(env.GSC_KEY && env.GSC_SITE);
+}
+
+// A Google access token, from a JWT signed with the service account's key.
+async function gscToken(env) {
+  if (gscAccess && gscAccess.until > Date.now() + 60000) return gscAccess.token;
+  const key = JSON.parse(env.GSC_KEY);
+  const now = Math.floor(Date.now() / 1000);
+  const part = (o) => base64Url(new TextEncoder().encode(JSON.stringify(o)));
+  const unsigned =
+    part({ alg: "RS256", typ: "JWT" }) +
+    "." +
+    part({
+      iss: key.client_email,
+      scope: "https://www.googleapis.com/auth/webmasters.readonly",
+      aud: "https://oauth2.googleapis.com/token",
+      iat: now,
+      exp: now + 3600,
+    });
+  const der = Uint8Array.from(atob(key.private_key.replace(/-----[^-]+-----|\s/g, "")), (c) => c.charCodeAt(0));
+  const signer = await crypto.subtle.importKey("pkcs8", der, { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" }, false, ["sign"]);
+  const signature = new Uint8Array(await crypto.subtle.sign("RSASSA-PKCS1-v1_5", signer, new TextEncoder().encode(unsigned)));
+  const res = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST",
+    headers: { "content-type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
+      assertion: `${unsigned}.${base64Url(signature)}`,
+    }),
+  });
+  const body = await res.json().catch(() => ({}));
+  if (!body.access_token) throw new Error(`Google sign-in: ${body.error_description || body.error || `HTTP ${res.status}`}`);
+  gscAccess = { token: body.access_token, until: Date.now() + (body.expires_in || 3600) * 1000 };
+  return gscAccess.token;
+}
+
+function base64Url(bytes) {
+  return base64Bytes(bytes).replace(/=+$/, "").replace(/\+/g, "-").replace(/\//g, "_");
+}
+
+// One Search Console question about a period: its rows, each with keys in
+// the order of `dimensions`, clicks, impressions and average position.
+async function gscQuery(env, token, site, p, dimensions, rowLimit) {
+  const res = await fetch(`${GSC_ENDPOINT}${encodeURIComponent(site)}/searchAnalytics/query`, {
+    method: "POST",
+    headers: { authorization: `Bearer ${token}`, "content-type": "application/json" },
+    body: JSON.stringify({
+      startDate: isoDate(p.start),
+      endDate: isoDate(p.end - DAY),
+      dimensions,
+      rowLimit,
+      type: "web",
+      dataState: "all",
+    }),
+  });
+  const body = await res.json().catch(() => null);
+  if (!res.ok || !body) throw new Error(`Search Console: ${(body && body.error && body.error.message) || `HTTP ${res.status}`}`);
+  return body.rows || [];
+}
+
+/*
+ * A period's searches on Google, part by part: how often Google listed the
+ * site, how many clicked, the average position, and the top searches. The
+ * whole website's come straight from Google; a woodland's are its own pages'
+ * added up, so a search that listed two of its pages counts twice. Null when
+ * Search Console is not set up; { error } when it could not be read.
+ */
+async function searchFigures(env, p) {
+  if (!searchReady(env)) return null;
+  try {
+    const token = await gscToken(env);
+    const ask = (dimensions, rowLimit, site = env.GSC_SITE) => gscQuery(env, token, site, p, dimensions, rowLimit);
+    const [totals, queries, pairs, pages] = await Promise.all([
+      ask([], 1),
+      ask(["query"], 250),
+      ask(["query", "page"], 2000),
+      ask(["page"], 1000),
+    ]);
+    const woodland = (row) => {
+      try {
+        return partOf(new URL(row.keys[row.keys.length - 1]).pathname);
+      } catch (err) {
+        return "main";
+      }
+    };
+    const top = (list) =>
+      list
+        .sort((a, b) => b.clicks - a.clicks || b.impressions - a.impressions || a.query.localeCompare(b.query))
+        .slice(0, GSC_TOP);
+    const t = totals[0] || { clicks: 0, impressions: 0, position: 0 };
+    const out = {
+      all: {
+        clicks: t.clicks,
+        impressions: t.impressions,
+        position: t.position,
+        queries: top(queries.map((r) => ({ query: r.keys[0], clicks: r.clicks, impressions: r.impressions }))),
+      },
+      // Google's newest days are still filling in.
+      fresh: londonMidnight(p.end) > Date.now() - 3 * DAY,
+    };
+    for (const part of ["oxford", "dorset"]) {
+      let clicks = 0;
+      let impressions = 0;
+      let weighted = 0;
+      for (const r of pages) {
+        if (woodland(r) !== part) continue;
+        clicks += r.clicks;
+        impressions += r.impressions;
+        weighted += r.position * r.impressions;
+      }
+      const byQuery = new Map();
+      for (const r of pairs) {
+        if (woodland(r) !== part) continue;
+        const q = byQuery.get(r.keys[0]) || { query: r.keys[0], clicks: 0, impressions: 0 };
+        q.clicks += r.clicks;
+        q.impressions += r.impressions;
+        byQuery.set(r.keys[0], q);
+      }
+      out[part] = { clicks, impressions, position: impressions ? weighted / impressions : 0, queries: top([...byQuery.values()]) };
+    }
+    if (env.GSC_OLD_SITE) {
+      try {
+        const [old] = await ask([], 1, env.GSC_OLD_SITE);
+        out.old = { clicks: old ? old.clicks : 0, impressions: old ? old.impressions : 0 };
+      } catch (err) {
+        console.error("[report] theoaks.uk searches:", err && err.message ? err.message : err);
+      }
+    }
+    return out;
+  } catch (err) {
+    console.error("[report] searches on Google:", err && err.message ? err.message : err);
+    return { error: err && err.message ? err.message : String(err) };
+  }
 }
 
 function isoDate(date) {
@@ -1750,6 +1906,32 @@ function renderPart(p, r, part, title, pie, chart, day) {
     "counts once Checked.in reports it." +
     (r.clicksAll ? "" : " Clicks have only been counted since 4 October 2026.");
 
+  // Its searches on Google, when Search Console is set up: how often Google
+  // listed its pages, how many clicked, and the searches that did it.
+  const G = r.search && !r.search.error ? r.search[part] : null;
+  const times = (n) => (n === 1 ? "once" : `${num(n)} times`);
+  const what = part === "all" ? "the site" : `${woodland} pages`;
+  const searchLine = !G
+    ? ""
+    : G.impressions
+      ? `Google showed ${what} in its search results ${times(G.impressions)}, ` +
+        (G.clicks
+          ? `and people clicked through ${times(G.clicks)} (${rate(G.clicks, G.impressions)}). `
+          : "but nobody clicked through. ") +
+        `On average ${part === "all" ? "it" : "they"} appeared at ` +
+        `position ${G.position.toFixed(1).replace(/\.0$/, "")}, where 1 is the top of the page.`
+      : `Google did not show ${what} in its search results.`;
+  const old = part === "all" && r.search && r.search.old;
+  const oldLine =
+    old && old.impressions
+      ? `Google also showed the old theoaks.uk address ${times(old.impressions)}, and people clicked it ${times(old.clicks)}; ` +
+        "the old site sends them on here. This falls away as Google finishes moving it over."
+      : "";
+  const searchNote =
+    "Google keeps searches made by very few people private, so those listed are the commoner ones." +
+    (r.search && r.search.fresh ? " Its figures for the last two or three days are still coming in." : "");
+  const searchFailed = part === "all" && r.search && r.search.error ? "Google’s search figures could not be read this time." : "";
+
   // ---- plain text ---------------------------------------------------------
   const pad = (s, n) => String(s).padEnd(n);
   const clip = (s, n) => (s.length > n ? s.slice(0, n - 1) + "…" : s);
@@ -1803,6 +1985,22 @@ function renderPart(p, r, part, title, pie, chart, day) {
           ...(clickRetreats.length ? clickRetreats.map((x) => `${pad(x.name, 34)} ${lpad(num(x.clicks), 4)}`) : ["No clicks to book recorded."]),
         ]
       : []),
+    ...(G
+      ? [
+          "",
+          "SEARCHES ON GOOGLE",
+          searchLine,
+          ...(oldLine ? [oldLine] : []),
+          ...(G.queries.length
+            ? [
+                `${pad("Search", 40)} ${lpad("Shown", 7)} ${lpad("Clicks", 7)}`,
+                ...G.queries.map((q) => `${pad(clip(q.query, 40), 40)} ${lpad(num(q.impressions), 7)} ${lpad(num(q.clicks), 7)}`),
+              ]
+            : []),
+          ...(G.queries.length ? [searchNote] : []),
+        ]
+      : []),
+    ...(searchFailed ? ["", searchFailed] : []),
     "",
     "COMPUTER, PHONE OR TABLET",
     ...deviceRows.map((d) => `${pad(d.name, 10)} ${lpad(num(d.visits), 6)}  ${lpad(share(d.visits), 4)}`),
@@ -1992,6 +2190,27 @@ function renderPart(p, r, part, title, pie, chart, day) {
         : `<p class="s">No clicks to book recorded.</p>`);
   }
 
+  // Searches on Google: the totals in a sentence, then the searches.
+  let searchHtml = "";
+  if (G) {
+    searchHtml =
+      `<h2 class="h2">Searches on Google</h2><p style="margin:0 0 8px;">${esc(searchLine)}</p>` +
+      (oldLine ? `<p class="s" style="margin:0 0 8px;">${esc(oldLine)}</p>` : "") +
+      (G.queries.length
+        ? `<table class="t"><tr><th class="hl">Search</th><th class="hn">Shown</th><th class="hn">Clicks</th></tr>` +
+          G.queries
+            .map(
+              (q) =>
+                `<tr><td class="l">${esc(q.query)}</td><td class="n">${num(q.impressions)}</td><td class="n"><strong>${num(q.clicks)}</strong></td></tr>`
+            )
+            .join("") +
+          "</table>" +
+          `<p class="s" style="margin:8px 0 0;">${esc(searchNote)}</p>`
+        : "");
+  } else if (searchFailed) {
+    searchHtml = `<h2 class="h2">Searches on Google</h2><p class="s">${esc(searchFailed)}</p>`;
+  }
+
   // Each website's device split sits under its name rather than in columns
   // of its own: seven columns do not fit a phone, and the full grid is in the
   // spreadsheet. A long host may break after any dot, and nowhere else.
@@ -2007,6 +2226,7 @@ function renderPart(p, r, part, title, pie, chart, day) {
     "</table>" +
     (withinNote ? `<p class="s" style="margin:8px 0 0;">${esc(withinNote)}</p>` : "") +
     clicksHtml +
+    searchHtml +
     // The pie, and beside it the key: each slice's colour, visits and share,
     // which is also everything the pie says for a reader whose mail app
     // hides pictures.
