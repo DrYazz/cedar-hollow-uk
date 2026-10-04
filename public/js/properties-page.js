@@ -125,8 +125,13 @@
     // tallest month and then follows the widget.
     var layout = window.matchMedia("(max-width: 640px)").matches ? "portrait" : "landscape";
     var startHeight = layout === "portrait" ? 690 : 520;
+    // The visit's reference rides along, so a booking made in the calendar can
+    // be matched to it (js/analytics.js, which is absent when the visitor has
+    // asked not to be measured).
+    var calendarUrl = hasCal ? item.calendarUrl + "&layout=" + layout : "";
+    if (hasCal && window.cinTag) calendarUrl = window.cinTag(calendarUrl);
     var calendar = hasCal
-      ? '<iframe class="pp-book__cal" src="' + esc(item.calendarUrl) + "&layout=" + layout +
+      ? '<iframe class="pp-book__cal" src="' + esc(calendarUrl) +
         '" height="' + startHeight + '" allowtransparency="true" scrolling="no"' +
         ' title="Availability calendar for ' + esc(item.name) + '" loading="lazy"></iframe>'
       : "";

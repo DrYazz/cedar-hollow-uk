@@ -223,6 +223,20 @@ const RETREATS = {
 const CHECKED_IN = { theoaks: "cedar-hollow-treehouse", "fauns-hideaway": "fauns-hideaway", "beavers-den-1": "beavers-den" };
 
 /*
+ * Bookings, as Checked.in -- Cedar Hollow's own booking system -- reports
+ * them: POST /api/booking, with the BOOKING_SECRET secret as a bearer token,
+ * for every direct booking once it is confirmed, and again should it be
+ * cancelled. One that followed a click from this site carries that visit's
+ * id and the website the visit came from (ref and src: the cin_ref and
+ * cin_src js/analytics.js adds to every link to Checked.in). Each is kept as
+ * booking:1:<id> in IG_KV -- a repeat, or the cancellation, overwrites it --
+ * with what the reports need in the key's metadata, so all of them are one
+ * list call to read. No guest's name or contact details are sent or kept.
+ */
+const BOOKING_PATH = "/api/booking";
+const BOOKING_KEY = "booking:1:";
+
+/*
  * Directory-style spellings of the two woodland pages.
  *
  * /oxford/ matched nothing: there is a real public/oxford/ directory holding
@@ -273,6 +287,13 @@ export default {
         return json({ ok: false, error: "Method not allowed" }, 405);
       }
       return handleReportRequest(request, url, env);
+    }
+
+    if (url.pathname === BOOKING_PATH) {
+      if (request.method !== "POST") {
+        return json({ ok: false, error: "Method not allowed" }, 405);
+      }
+      return handleBooking(request, env);
     }
 
     if (url.pathname === INTENT_PATH) {
@@ -387,6 +408,96 @@ function byteRange(body, start, end) {
   );
   // Of known length, so it goes with its Content-Length rather than chunked.
   return typeof FixedLengthStream === "function" ? part.pipeThrough(new FixedLengthStream(end - start + 1)) : part;
+}
+
+/*
+ * POST /api/booking -- a booking, from Checked.in (see BOOKING_KEY):
+ *
+ *   { id, status: "confirmed" | "cancelled", property, created, arrival,
+ *     departure, guests, total (in pence), currency, ref, src }
+ *
+ * Answers 200 once it is kept, so Checked.in knows to try again otherwise.
+ */
+async function handleBooking(request, env) {
+  if (!env.BOOKING_SECRET || !env.IG_KV) return json({ ok: false, error: "Not configured" }, 503);
+  const given = (request.headers.get("authorization") || "").replace(/^Bearer\s+/i, "").trim();
+  if (!given || !(await sameSecret(given, env.BOOKING_SECRET))) {
+    return json({ ok: false, error: "Unauthorized" }, 401);
+  }
+  const text = await request.text().catch(() => "");
+  if (text.length > 4000) return json({ ok: false, error: "Too large" }, 413);
+  let b = null;
+  try {
+    b = JSON.parse(text);
+  } catch (err) {}
+  if (!b || typeof b !== "object") return json({ ok: false, error: "Not JSON" }, 400);
+
+  const id = String(b.id || "");
+  const status = String(b.status || "");
+  const created = Date.parse(String(b.created || ""));
+  if (!/^[\w.:-]{1,100}$/.test(id) || !["confirmed", "cancelled"].includes(status) || !created) {
+    return json({ ok: false, error: "Needs an id, a status of confirmed or cancelled, and when it was created" }, 400);
+  }
+  const day = (v) => (/^\d{4}-\d{2}-\d{2}$/.test(String(v || "")) ? String(v) : "");
+  const whole = (v) => (v !== null && v !== "" && Number.isFinite(Number(v)) && Number(v) >= 0 ? Math.round(Number(v)) : null);
+  const arrival = day(b.arrival);
+  const departure = day(b.departure);
+  const src = String(b.src || "").toLowerCase();
+  const booking = {
+    id,
+    status,
+    property: String(b.property || "").slice(0, 60),
+    retreat: CHECKED_IN[String(b.property || "")] || "oxford",
+    created: new Date(created).toISOString(),
+    // The London day it was made on: the day the reports count it in.
+    date: isoDate(londonDate(created)),
+    arrival,
+    departure,
+    nights: arrival && departure ? Math.max(0, Math.round((Date.parse(departure) - Date.parse(arrival)) / DAY)) : null,
+    guests: whole(b.guests),
+    total: whole(b.total),
+    currency: /^[A-Z]{3}$/.test(String(b.currency || "")) ? String(b.currency) : "",
+    ref: /^[a-z0-9]{8,40}$/.test(String(b.ref || "")) ? String(b.ref) : "",
+    src: /^[a-z0-9.-]{1,100}$/.test(src) ? src : "",
+    received: new Date().toISOString(),
+  };
+  try {
+    await env.IG_KV.put(BOOKING_KEY + id, JSON.stringify(booking), {
+      expirationTtl: KEEP,
+      metadata: {
+        d: booking.date,
+        s: status,
+        r: booking.retreat,
+        f: booking.ref ? 1 : 0,
+        h: booking.src,
+        t: booking.total,
+        c: booking.currency,
+      },
+    });
+  } catch (err) {
+    console.error("[booking] could not keep:", err && err.message ? err.message : err);
+    return json({ ok: false, error: "Could not keep it; try again" }, 500);
+  }
+  return json({ ok: true });
+}
+
+// Every booking kept, from its key's metadata, or null if they could not be
+// read.
+async function allBookings(env) {
+  if (!env.IG_KV) return [];
+  try {
+    const list = [];
+    let cursor;
+    do {
+      const page = await env.IG_KV.list({ prefix: BOOKING_KEY, cursor });
+      for (const { metadata: m } of page.keys) if (m && m.d) list.push(m);
+      cursor = page.list_complete ? null : page.cursor;
+    } while (cursor);
+    return list;
+  } catch (err) {
+    console.error("[report] could not read bookings:", err && err.message ? err.message : err);
+    return null;
+  }
 }
 
 /*
@@ -831,6 +942,7 @@ async function reportFigures(env, p, opts) {
     // Whether any of the period had its clicks to book counted, and all of it.
     clicks: p.end > Date.parse(INTENTS_FROM),
     clicksAll: p.start >= Date.parse(INTENTS_FROM),
+    bookings: await periodBookings(env, p),
   };
 }
 
@@ -962,6 +1074,25 @@ async function monthFigures(env, year, month) {
   const to = londonMidnight(Date.UTC(year, month + 1, 1));
   if (to <= COUNTED_FROM || from >= Date.now()) return emptyMonth(label);
   return (await getKept(env, MONTH_KEY + label)) || emptyMonth(label);
+}
+
+/*
+ * The confirmed bookings made in a period, by the London day they were made
+ * on, as { retreat, via, src, total, currency } -- via if it followed a click
+ * from this site -- and whether Checked.in has reported any booking yet:
+ * until it has, the reports leave bookings out.
+ */
+async function periodBookings(env, p) {
+  const all = await allBookings(env);
+  if (!all || !all.length) return { live: false, list: [] };
+  const from = isoDate(p.start);
+  const to = isoDate(p.end);
+  return {
+    live: true,
+    list: all
+      .filter((m) => m.s === "confirmed" && m.d >= from && m.d < to)
+      .map((m) => ({ retreat: RETREATS[m.r] ? m.r : "oxford", via: Boolean(m.f), src: m.h || "", total: m.t, currency: m.c || "" })),
+  };
 }
 
 // A month's days as [date, totals row, hours], for its average day.
@@ -1873,31 +2004,55 @@ function renderPart(p, r, part, title, pie, chart, day) {
   const weekdayValue = (i) => (A.weekdays[i] === null ? "–" : fmtAvg(A.weekdays[i]));
 
   // Its clicks to book: for the whole website, by where the visits came from,
-  // against how many visits each sent; for a woodland, by retreat.
+  // against how many visits each sent; for a woodland, by retreat. Once
+  // Checked.in reports bookings, the bookings that followed a click go
+  // beside them ("booked"), and how many it took in all.
   const clicks = S.intents.reduce((n, row) => n + row[3], 0);
   const rate = (n, of) => (of ? `${((100 * n) / of).toFixed(1).replace(/\.0$/, "")}%` : "–");
+  const bookings =
+    r.bookings && r.bookings.live ? r.bookings.list.filter((b) => part === "all" || RETREATS[b.retreat][0] === part) : null;
+  const showBookings = Boolean(bookings) && (part !== "dorset" || bookings.length > 0);
+  const booked = showBookings ? bookings.filter((b) => b.via) : [];
   const bySource = new Map();
   if (r.clicks && part === "all") {
     const visitsFrom = groupRows(S.rows).bySource;
-    for (const [host, , retreat, n] of S.intents) {
-      const name = sourceName(host);
+    const entry = (name) => {
       let c = bySource.get(name);
-      if (!c) bySource.set(name, (c = { name, clicks: 0, oxford: 0, dorset: 0, visits: (visitsFrom.get(name) || { visits: 0 }).visits }));
+      if (!c) bySource.set(name, (c = { name, clicks: 0, booked: 0, oxford: 0, dorset: 0, visits: (visitsFrom.get(name) || { visits: 0 }).visits }));
+      return c;
+    };
+    for (const [host, , retreat, n] of S.intents) {
+      const c = entry(sourceName(host));
       c.clicks += n;
       c[RETREATS[retreat][0]] += n;
     }
+    for (const b of booked) entry(sourceName(b.src)).booked += 1;
   }
   const clickSources = [...bySource.values()].sort(
-    (a, b) => b.clicks - a.clicks || b.visits - a.visits || a.name.localeCompare(b.name)
+    (a, b) => b.booked - a.booked || b.clicks - a.clicks || b.visits - a.visits || a.name.localeCompare(b.name)
   );
   const clickRetreats =
     r.clicks && part !== "all"
       ? Object.keys(RETREATS)
           .filter((key) => RETREATS[key][0] === part)
-          .map((key) => ({ name: RETREATS[key][1], clicks: S.intents.reduce((n, row) => n + (row[2] === key ? row[3] : 0), 0) }))
-          .filter((x) => x.clicks > 0)
-          .sort((a, b) => b.clicks - a.clicks)
+          .map((key) => ({
+            name: RETREATS[key][1],
+            clicks: S.intents.reduce((n, row) => n + (row[2] === key ? row[3] : 0), 0),
+            booked: booked.filter((b) => b.retreat === key).length,
+          }))
+          .filter((x) => x.clicks > 0 || x.booked > 0)
+          .sort((a, b) => b.booked - a.booked || b.clicks - a.clicks)
       : [];
+  const pounds = booked.reduce((n, b) => n + (b.currency === "GBP" && b.total ? b.total : 0), 0);
+  const plural = (n, word) => `${num(n)} ${word}${n === 1 ? "" : "s"}`;
+  const bookingsLine = showBookings
+    ? `Checked.in took ${plural(bookings.length, "booking")} made this ${p.kind}` +
+      (bookings.length
+        ? `; ${num(booked.length)} followed a click from this website` +
+          (pounds ? `, worth £${Math.round(pounds / 100).toLocaleString("en-GB")}` : "") +
+          "."
+        : ".")
+    : "";
   const woodlands = (c) =>
     [c.oxford ? `Oxford ${num(c.oxford)}` : "", c.dorset ? `Dorset ${num(c.dorset)}` : ""].filter(Boolean);
   const clicksNote =
@@ -1941,6 +2096,7 @@ function renderPart(p, r, part, title, pie, chart, day) {
     `Visits: ${num(S.visits)}${before ? ` (${before})` : ""}`,
     `Page views: ${num(S.views)}`,
     ...(r.clicks ? [`Clicks to book: ${num(clicks)}`] : []),
+    ...(showBookings ? [`Bookings: ${num(bookings.length)}`] : []),
     ...(began.length
       ? ["", "WHERE VISITS BEGAN", ...began.map((b) => `${pad(b.name, 38)} ${lpad(num(b.visits), 6)}  ${lpad(share(b.visits, beganTotal), 4)}`)]
       : []),
@@ -1967,13 +2123,16 @@ function renderPart(p, r, part, title, pie, chart, day) {
           "",
           "CLICKS TO BOOK",
           clicksNote,
+          ...(bookingsLine ? [bookingsLine] : []),
           ...(clickSources.length
             ? [
                 ...clickSources.map(
                   (c) =>
-                    `${pad(clip(c.name, 34), 34)} ${lpad(num(c.clicks), 4)} of ${lpad(num(c.visits), 6)} visits  ${lpad(rate(c.clicks, c.visits), 6)}   ${woodlands(c).join(", ")}`
+                    `${pad(clip(c.name, 34), 34)} ${lpad(num(c.clicks), 4)} of ${lpad(num(c.visits), 6)} visits  ${lpad(rate(c.clicks, c.visits), 6)}` +
+                    `${showBookings ? `  booked ${lpad(num(c.booked), 3)}` : ""}   ${woodlands(c).join(", ")}`
                 ),
-                `${pad("All visits", 34)} ${lpad(num(clicks), 4)} of ${lpad(num(S.visits), 6)} visits  ${lpad(rate(clicks, S.visits), 6)}`,
+                `${pad("All visits", 34)} ${lpad(num(clicks), 4)} of ${lpad(num(S.visits), 6)} visits  ${lpad(rate(clicks, S.visits), 6)}` +
+                  (showBookings ? `  booked ${lpad(num(booked.length), 3)}` : ""),
               ]
             : ["No clicks to book recorded."]),
         ]
@@ -1982,7 +2141,10 @@ function renderPart(p, r, part, title, pie, chart, day) {
       ? [
           "",
           "CLICKS TO BOOK, BY RETREAT",
-          ...(clickRetreats.length ? clickRetreats.map((x) => `${pad(x.name, 34)} ${lpad(num(x.clicks), 4)}`) : ["No clicks to book recorded."]),
+          ...(bookingsLine ? [bookingsLine] : []),
+          ...(clickRetreats.length
+            ? clickRetreats.map((x) => `${pad(x.name, 34)} ${lpad(plural(x.clicks, "click"), 10)}${showBookings ? `  booked ${lpad(num(x.booked), 3)}` : ""}`)
+            : ["No clicks to book recorded."]),
         ]
       : []),
     ...(G
@@ -2059,6 +2221,7 @@ function renderPart(p, r, part, title, pie, chart, day) {
     stat(num(S.visits), `visits${before ? ` <span style="white-space:nowrap;">(${esc(before)})</span>` : ""}`) +
     stat(num(S.views), "page views") +
     (r.clicks ? stat(num(clicks), "clicks to book") : "") +
+    (showBookings ? stat(num(bookings.length), bookings.length === 1 ? "booking" : "bookings") : "") +
     `</div>`;
 
   if (began.length) {
@@ -2169,23 +2332,38 @@ function renderPart(p, r, part, title, pie, chart, day) {
   if (r.clicks && part === "all") {
     clicksHtml =
       `<h2 class="h2">Clicks to book</h2><p class="s" style="margin:0 0 8px;">${esc(clicksNote)}</p>` +
+      (bookingsLine ? `<p style="margin:0 0 8px;">${esc(bookingsLine)}</p>` : "") +
       (clickSources.length
-        ? `<table class="t"><tr><th class="hl">Website</th><th class="hn">Visits</th><th class="hn">Clicks</th><th class="hn">Rate</th></tr>` +
+        ? `<table class="t"><tr><th class="hl">Website</th><th class="hn">Visits</th><th class="hn">Clicks</th><th class="hn">Rate</th>` +
+          (showBookings ? `<th class="hn">Booked</th>` : "") +
+          "</tr>" +
           clickSources
             .map(
               (c) =>
                 `<tr><td class="l">${esc(c.name).replace(/\./g, ".<wbr>")}<br><span class="s">${esc(woodlands(c).join(" · "))}</span></td>` +
-                `<td class="n">${num(c.visits)}</td><td class="n"><strong>${num(c.clicks)}</strong></td><td class="n">${esc(rate(c.clicks, c.visits))}</td></tr>`
+                `<td class="n">${num(c.visits)}</td><td class="n"><strong>${num(c.clicks)}</strong></td><td class="n">${esc(rate(c.clicks, c.visits))}</td>` +
+                (showBookings ? `<td class="n"><strong>${num(c.booked)}</strong></td>` : "") +
+                "</tr>"
             )
             .join("") +
-          `<tr><td class="l"><strong>All visits</strong></td><td class="n">${num(S.visits)}</td><td class="n"><strong>${num(clicks)}</strong></td><td class="n">${esc(rate(clicks, S.visits))}</td></tr></table>`
+          `<tr><td class="l"><strong>All visits</strong></td><td class="n">${num(S.visits)}</td><td class="n"><strong>${num(clicks)}</strong></td><td class="n">${esc(rate(clicks, S.visits))}</td>` +
+          (showBookings ? `<td class="n"><strong>${num(booked.length)}</strong></td>` : "") +
+          "</tr></table>"
         : `<p class="s">No clicks to book recorded.</p>`);
   } else if (r.clicks) {
     clicksHtml =
       `<h2 class="h2">Clicks to book, by retreat</h2>` +
+      (bookingsLine ? `<p style="margin:0 0 8px;">${esc(bookingsLine)}</p>` : "") +
       (clickRetreats.length
-        ? `<table class="t"><tr><th class="hl">Retreat</th><th class="hn">Clicks</th></tr>` +
-          clickRetreats.map((x) => `<tr><td class="l">${esc(x.name)}</td><td class="n"><strong>${num(x.clicks)}</strong></td></tr>`).join("") +
+        ? `<table class="t"><tr><th class="hl">Retreat</th><th class="hn">Clicks</th>${showBookings ? `<th class="hn">Booked</th>` : ""}</tr>` +
+          clickRetreats
+            .map(
+              (x) =>
+                `<tr><td class="l">${esc(x.name)}</td><td class="n"><strong>${num(x.clicks)}</strong></td>` +
+                (showBookings ? `<td class="n"><strong>${num(x.booked)}</strong></td>` : "") +
+                "</tr>"
+            )
+            .join("") +
           "</table>"
         : `<p class="s">No clicks to book recorded.</p>`);
   }

@@ -100,6 +100,8 @@
  * visit came from: a random id, the website that sent it and the page it
  * landed on, gone when the tab closes. A click through to a booking site
  * sends that, with the retreat, to /api/intent; once per retreat a visit.
+ * Links to Checked.in also take the id and the website along (see tag), so
+ * that Checked.in can report a booking back with them (/api/booking).
  * The Cookies Policy and Privacy Policy describe it; change them first if
  * this changes.
  *
@@ -141,6 +143,24 @@
     return; // private mode or storage off: nothing to attribute a click to
   }
 
+  // Checked.in is Cedar Hollow's own booking system, so the links to it and
+  // the calendars from it carry the visit's id and the website it came from
+  // (cin_ref, cin_src), and a booking made there can be matched to them.
+  // js/properties-page.js tags its calendars with this as it draws them.
+  var CHECKED_IN = /(^|\.)checked\.in$/;
+  function tag(href) {
+    try {
+      var url = new URL(href, location.href);
+      if (!CHECKED_IN.test(url.hostname)) return href;
+      url.searchParams.set("cin_ref", visit.id);
+      url.searchParams.set("cin_src", visit.from);
+      return url.href;
+    } catch (e) {
+      return href;
+    }
+  }
+  window.cinTag = tag;
+
   function send(href, retreat) {
     var once = href.split(/[?#]/)[0] + " " + (retreat || "");
     if (visit.sent[once]) return;
@@ -174,7 +194,11 @@
       } catch (err) {
         return;
       }
-      if (BOOKING.test(url.hostname)) send(url.href, a.getAttribute("data-retreat"));
+      if (!BOOKING.test(url.hostname)) return;
+      // Retagged as it is followed: the link takes the address it has once
+      // the click is over.
+      if (CHECKED_IN.test(url.hostname)) a.href = tag(a.href);
+      send(url.href, a.getAttribute("data-retreat"));
     },
     true
   );
