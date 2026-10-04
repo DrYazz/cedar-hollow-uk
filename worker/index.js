@@ -167,13 +167,18 @@ const COUNTED_FROM = Date.UTC(2026, 8, 30, 23);  // midnight, 1 Oct 2026, London
 const COUNTED_FULLY = Date.UTC(2026, 9, 2, 14);  // 2 Oct 2026, mid-afternoon
 
 // Friendlier names for the websites that send most visitors. A host not
-// listed here is shown as itself, minus any leading www.
+// listed here is shown as itself, minus any leading www. A source with no
+// dot in it is a link's ?utm_source= tag rather than a host (js/analytics.js
+// keeps it as the visit's source): the common ones share their site's name,
+// so a tagged visit and an untagged one from the same place add up together,
+// and any other is shown as words ("spring-sale" is "Spring Sale").
 const SOURCE_NAMES = [
-  [/(^|\.)google\.[a-z.]+$|^com\.google\./, "Google"],
-  [/(^|\.)instagram\.com$/, "Instagram"],
-  [/(^|\.)facebook\.com$|^fb\.me$/, "Facebook"],
-  [/(^|\.)tiktok\.com$/, "TikTok"],
-  [/(^|\.)youtube\.com$|^youtu\.be$/, "YouTube"],
+  [/(^|\.)google\.[a-z.]+$|^com\.google\.|^google$/, "Google"],
+  [/(^|\.)instagram\.com$|^(instagram|ig)$/, "Instagram"],
+  [/(^|\.)facebook\.com$|^fb\.me$|^(facebook|fb)$/, "Facebook"],
+  [/(^|\.)tiktok\.com$|^tiktok$/, "TikTok"],
+  [/(^|\.)youtube\.com$|^youtu\.be$|^youtube$/, "YouTube"],
+  [/(^|\.)coolstays\.com$|^coolstays$/, "Coolstays"],
   [/^t\.co$|(^|\.)(x|twitter)\.com$/, "X (Twitter)"],
   [/(^|\.)bing\.com$/, "Bing"],
   [/(^|\.)duckduckgo\.com$/, "DuckDuckGo"],
@@ -1576,6 +1581,9 @@ function sourceName(host) {
   if (WITHIN[host]) return WITHIN[host];
   for (const [pattern, name] of SOURCE_NAMES) {
     if (pattern.test(host)) return name;
+  }
+  if (!host.includes(".")) {
+    return host.split("-").filter(Boolean).map((w) => w[0].toUpperCase() + w.slice(1)).join(" ");
   }
   return host.replace(/^www\./, "");
 }
