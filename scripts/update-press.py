@@ -51,6 +51,9 @@ AWARDS_RE = re.compile(r"(<!-- ch:press-awards(?: ([\w-]+))? -->)(.*?)(<!-- /ch:
 TEAM_SOURCE = ROOT / "public" / "careers.html"
 TEAM_SOURCE_RE = re.compile(r"<!-- ch:team -->(.*?)<!-- /ch:team -->", re.S)
 TEAM_RE = re.compile(r"(<!-- ch:press-team -->)(.*?)(<!-- /ch:press-team -->)", re.S)
+# The social accounts are written on the page itself, in a section marked
+# data-kind="social"; the filter only needs to know how many there are.
+SOCIAL_RE = re.compile(r'<section[^>]*data-kind="social"[^>]*>(.*?)</section>', re.S)
 
 LOCATIONS = {"oxford": "Oxfordshire", "dorset": "Dorset"}
 
@@ -461,21 +464,22 @@ def video_year(v):
     return (v.get("aired") or v.get("date", ""))[:4]
 
 
-def kind_counts(sections, memberships=(), team=None):
-    """What the kind buttons count: articles, films and recognitions -- and
-    the team's people, on a page that shows them (team is their number).
+def kind_counts(sections, memberships=(), extras=()):
+    """What the kind buttons count: articles, films and recognitions -- and,
+    on a page that shows them, the extra sections, each (key, label, count):
+    the team's people and the social accounts.
 
     Memberships count as recognitions, and they count wherever they are
     shown -- they belong to no woodland, so no choice of woodland hides
-    them. Nor does the team.
+    them. Nor do the extras.
     """
     counts = {}
     for key, field in (("press", "items"), ("screen", "screen"),
                        ("awards", "awards")):
         counts[key] = sum(len(sec.get(field) or []) for sec in sections.values())
     counts["awards"] += len(memberships)
-    if team is not None:
-        counts["team"] = team
+    for key, _label, count in extras:
+        counts[key] = count
     counts["all"] = sum(counts.values())
     return counts
 
@@ -495,7 +499,7 @@ def filter_btn(group, value, label, count, on):
             % (group, value, "true" if on else "false", label, count))
 
 
-def filters(data, indent, scope=None, team=None):
+def filters(data, indent, scope=None, extras=()):
     """The controls above the coverage: which woodland, and which kind.
 
     They sit above both sections rather than inside either. The woodland
@@ -513,23 +517,23 @@ def filters(data, indent, scope=None, team=None):
     """
     sections = data["sections"]
     members = data.get("memberships") or []
-    # "Our team" is offered only where the page shows the team.
+    # "Our team" and "Social Media" are offered only where the page shows them.
     kinds = ("kind", "Type",
              (("all", "All"), ("press", "Press"), ("screen", "TV"),
-              ("awards", "Awards")) + ((("team", "Our team"),) if team is not None else ()))
+              ("awards", "Awards")) + tuple((key, label) for key, label, _n in extras))
     if scope:
-        groups = [(kinds, kind_counts({scope: sections[scope]}, members, team))]
+        groups = [(kinds, kind_counts({scope: sections[scope]}, members, extras))]
     else:
         where = both(sections, "items")["counts"]
         # A membership shows under every woodland, so it is in every count;
-        # so does everyone on the team.
+        # so does everyone on the team, and every social account.
         for key in where:
-            where[key] += len(members) + (team or 0)
+            where[key] += len(members) + sum(n for _key, _label, n in extras)
         groups = [
             (("location", "Location",
               (("all", "All"), ("oxford", "Oxford"), ("dorset", "Dorset"))),
              where),
-            (kinds, kind_counts(sections, members, team)),
+            (kinds, kind_counts(sections, members, extras)),
         ]
     lines = ['<div class="ch-press__filters">']
     for (group, label, options), counts in groups:
@@ -885,8 +889,13 @@ def main():
             if scope and scope not in sections:
                 sys.exit("%s: unknown filter scope '%s'" % (page.name, scope))
             seen.append((scope or "combined", 0, "filter"))
-            body = filters(data, marker_indent(match), scope,
-                           team_count if TEAM_RE.search(text) else None)
+            extras = []
+            if TEAM_RE.search(text):
+                extras.append(("team", "Our team", team_count))
+            social = SOCIAL_RE.search(text)
+            if social:
+                extras.append(("social", "Social Media", social.group(1).count('class="ch-social"')))
+            body = filters(data, marker_indent(match), scope, extras)
             return match.group(1) + body + match.group(4)
 
         def replace_team(match):
