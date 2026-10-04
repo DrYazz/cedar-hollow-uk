@@ -31,6 +31,12 @@ not_found_handling = "404-page"   # serves /404.html once one exists
 # bounced, and each click cost a round trip. The short forms people may
 # already have shared are sent on permanently by public/_redirects.
 html_handling = "none"
+# Videos go through the Worker, which answers a request for part of one with
+# that part (see serveVideo). The asset server answers every Range request
+# with the whole file, and Safari -- every browser on an iPhone -- will not
+# play a video from a server that does that until the file happens to be in
+# its cache, so the hero sat on its still image until a reload.
+run_worker_first = ["/images/*.mp4", "/videos/*", "/oxford/videos/*"]
 
 # --- Contact form ------------------------------------------------------------
 # Mail goes through Resend's HTTP API. Cloudflare's own send_email binding was

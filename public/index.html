@@ -770,19 +770,22 @@ animation:marquee-scroll 70s linear infinite;
           document.addEventListener("visibilitychange", function () {
             if (!document.hidden && v.paused) attempt();
           });
+          // Coming back with the Back button restores the page as it was left,
+          // video paused, and Safari does not always count that as being seen.
+          window.addEventListener("pageshow", function (e) {
+            if (e.persisted && v.paused) attempt();
+          });
           // iOS Low Power Mode (and some Android battery savers) refuse autoplay
-          // entirely until the user interacts. One retry on the first touch or
-          // scroll covers that without ever fighting a deliberate pause.
-          var kicked = false;
+          // entirely until the user interacts. One retry on the first scroll,
+          // and one on the first tap, cover that without ever fighting a
+          // deliberate pause. The tap counts at its touchend: browsers let a
+          // touch start video only once it ends, and a swipe scrolls before
+          // then, so the two are retried apart.
           function kick() {
-            if (kicked) return;
-            kicked = true;
             if (v.paused) attempt();
-            window.removeEventListener("touchstart", kick);
-            window.removeEventListener("scroll", kick);
           }
-          window.addEventListener("touchstart", kick, { passive: true, once: true });
           window.addEventListener("scroll", kick, { passive: true, once: true });
+          window.addEventListener("touchend", kick, { passive: true, once: true });
         })();
       </script>
     </div>
