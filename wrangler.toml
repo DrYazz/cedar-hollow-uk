@@ -86,6 +86,18 @@ REPORT_TO = "hello@thelabgroup.com"
 ANALYTICS_ACCOUNT = "8a9f8097ba4ff03c5a70f8b811c2902e"
 ANALYTICS_SITE = "ae885004b4b34ac2a39e3b5dc349a8eb"   # cedarhollow.uk
 
+# Searches on Google in the same reports: the Search Console property they
+# read, and theoaks.uk's while Google moves it over. They read it as the
+# service account cedar-hollow-website@cedar-hollow-reports.iam.gserviceaccount.com
+# (Google Cloud project "Cedar Hollow Reports"), a Restricted user of each
+# property, whose key is a secret:
+#
+#   npx wrangler secret put GSC_KEY      (the JSON file, as downloaded)
+#
+# Without it the reports simply leave the section out.
+GSC_SITE = "sc-domain:cedarhollow.uk"
+GSC_OLD_SITE = "sc-domain:theoaks.uk"
+
 # --- Instagram ---------------------------------------------------------------
 # GET /api/instagram?site=oxford|dorset returns the four most recent posts for
 # that woodland, which js/instagram-live.js paints into the grid on the two
