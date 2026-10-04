@@ -222,6 +222,11 @@ export default {
       return Response.redirect(new URL(alias, url).toString(), 301);
     }
 
+    // Sent here first by run_worker_first in wrangler.toml.
+    if (url.pathname.endsWith(".mp4")) {
+      return serveVideo(request, env);
+    }
+
     if (url.pathname === CONTACT_PATH) {
       if (request.method !== "POST") {
         return json({ ok: false, error: "Method not allowed" }, 405);
@@ -277,6 +282,78 @@ export default {
     ctx.waitUntil(visitorCron(env, now, monday));
   },
 };
+
+/*
+ * A video, with a request for part of it answered with that part.
+ *
+ * Browsers fetch video in pieces, and Safari -- every browser on an iPhone
+ * -- asks first for bytes 0-1 and plays only if it gets just those back, as
+ * 206 Partial Content. The asset server ignores Range and sends the whole
+ * file every time, so a video played on an iPhone only once the browser
+ * happened to have it cached: the home page's hero sat on its still until a
+ * reload. So the whole file is asked for here, and the part wanted cut out
+ * of it as it streams past; the rest is never read. One range only: a
+ * request for several gets the whole file, which the standard allows.
+ */
+async function serveVideo(request, env) {
+  const asked = /^bytes=(\d*)-(\d*)$/.exec((request.headers.get("range") || "").trim());
+  const ifRange = request.headers.get("if-range");
+  const headers = new Headers(request.headers);
+  headers.delete("range");
+  headers.delete("if-range");
+  const res = await env.ASSETS.fetch(new Request(request.url, { method: request.method, headers }));
+
+  const out = new Headers(res.headers);
+  out.set("accept-ranges", "bytes");
+  // Anything but a plain range -- a HEAD, a 304, or a range of a copy that
+  // has since changed (If-Range) -- gets the asset server's own answer.
+  if (res.status !== 200 || !res.body || !asked || (!asked[1] && !asked[2]) || (ifRange && ifRange !== res.headers.get("etag"))) {
+    return new Response(res.body, { status: res.status, statusText: res.statusText, headers: out });
+  }
+
+  // The asset binding does not always say how long a file is, and a part
+  // must; then the file is read whole and the part cut from that.
+  let size = Number(res.headers.get("content-length"));
+  const whole = size ? null : new Uint8Array(await res.arrayBuffer());
+  if (whole) size = whole.byteLength;
+
+  // "bytes=500-999", "bytes=500-", or the last N, "bytes=-500".
+  const start = asked[1] ? Number(asked[1]) : Math.max(0, size - Number(asked[2]));
+  const end = asked[1] && asked[2] ? Math.min(Number(asked[2]), size - 1) : size - 1;
+  if (start > end) {
+    if (!whole) await res.body.cancel();
+    out.delete("content-length");
+    out.set("content-range", `bytes */${size}`);
+    return new Response(null, { status: 416, headers: out });
+  }
+
+  out.set("content-range", `bytes ${start}-${end}/${size}`);
+  out.set("content-length", String(end - start + 1));
+  const part = whole
+    ? whole.subarray(start, end + 1)
+    : start === 0 && end === size - 1
+      ? res.body
+      : byteRange(res.body, start, end);
+  return new Response(part, { status: 206, headers: out });
+}
+
+// Bytes start to end, inclusive, of a stream, which is cancelled after them.
+function byteRange(body, start, end) {
+  let at = 0;
+  const part = body.pipeThrough(
+    new TransformStream({
+      transform(chunk, controller) {
+        const from = Math.max(start - at, 0);
+        const to = Math.min(end + 1 - at, chunk.byteLength);
+        at += chunk.byteLength;
+        if (from < to) controller.enqueue(chunk.subarray(from, to));
+        if (at > end) controller.terminate();
+      },
+    })
+  );
+  // Of known length, so it goes with its Content-Length rather than chunked.
+  return typeof FixedLengthStream === "function" ? part.pipeThrough(new FixedLengthStream(end - start + 1)) : part;
+}
 
 /*
  * GET /api/instagram?site=oxford|dorset
