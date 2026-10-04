@@ -7,7 +7,7 @@
  * decides what is filterable and this file does not need to know about grids.
  *
  * Kind (Everything / In the press / On screen / Awards & Accreditations, and
- * on the combined page Our team) hides a whole section, heading and all, so
+ * on the combined page Our team and Social Media) hides a whole section, heading and all, so
  * the sections carry data-kind and the bar sits above all of them -- a
  * control cannot hide itself. The site menu's Our Team link is ?k=team.
  *
@@ -44,8 +44,8 @@
   /* Every entry, counted. The memberships carry no data-location -- they
      are held by neither woodland -- so they are never hidden by that
      choice and belong in whichever count it shows; nor do the team's
-     people, the prints in .ch-album. */
-  var items = document.querySelectorAll(".ch-press__grid > li, .ch-vid-grid > li, .ch-awards__grid > li, .ch-album > li");
+     people, the prints in .ch-album, or the social accounts. */
+  var items = document.querySelectorAll(".ch-press__grid > li, .ch-vid-grid > li, .ch-awards__grid > li, .ch-album > li, .ch-socials > li");
   var sections = document.querySelectorAll("[data-kind]");
   if (!items.length || !sections.length) return;
 
