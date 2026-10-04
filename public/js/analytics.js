@@ -90,3 +90,99 @@
     gtag("config", MEASUREMENT_ID, { anonymize_ip: true });
   }
 })();
+
+/*
+ * Clicks to book: which ways of finding the site lead people on to book.
+ *
+ * Booking happens on other sites -- Checked.in for Oxford, Mallinson's for
+ * Dorset -- and Cloudflare's analytics cannot follow anyone there, or even
+ * from page to page. So the tab remembers, in session storage, where its
+ * visit came from: a random id, the website that sent it and the page it
+ * landed on, gone when the tab closes. A click through to a booking site
+ * sends that, with the retreat, to /api/intent; once per retreat a visit.
+ * The Cookies Policy and Privacy Policy describe it; change them first if
+ * this changes.
+ *
+ * A visit begins where Cloudflare's does: on any page reached from anywhere
+ * but this site, the address typed in included.
+ *
+ * The Oxford calendars on the stay pages are Checked.in's own frames, which
+ * open the booking themselves; they say so with a { cinBookingOpened }
+ * message, and that counts as a click too.
+ */
+(function () {
+  "use strict";
+
+  if (navigator.doNotTrack === "1" || window.doNotTrack === "1") return;
+  if (navigator.globalPrivacyControl) return;
+  if (window.top !== window.self) return;
+
+  var KEY = "ch_visit";
+  function ours(host) {
+    return host === location.hostname || /(^|\.)cedarhollow\.uk$/.test(host);
+  }
+  var visit;
+  try {
+    var from = "";
+    try {
+      from = document.referrer ? new URL(document.referrer).hostname.toLowerCase() : "";
+    } catch (e) {}
+    visit = JSON.parse(sessionStorage.getItem(KEY) || "null");
+    if (!visit || !ours(from)) {
+      visit = {
+        id: Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2),
+        from: ours(from) ? "" : from,
+        landed: location.pathname,
+        sent: {},
+      };
+      sessionStorage.setItem(KEY, JSON.stringify(visit));
+    }
+  } catch (e) {
+    return; // private mode or storage off: nothing to attribute a click to
+  }
+
+  function send(href, retreat) {
+    var once = href.split(/[?#]/)[0] + " " + (retreat || "");
+    if (visit.sent[once]) return;
+    visit.sent[once] = 1;
+    try {
+      sessionStorage.setItem(KEY, JSON.stringify(visit));
+    } catch (e) {}
+    var body = JSON.stringify({
+      v: visit.id,
+      s: visit.from,
+      l: visit.landed,
+      p: location.pathname,
+      h: href,
+      r: retreat || "",
+    });
+    // A beacon outlives the page, should the click take the tab with it.
+    if (!(navigator.sendBeacon && navigator.sendBeacon("/api/intent", body))) {
+      fetch("/api/intent", { method: "POST", body: body, keepalive: true }).catch(function () {});
+    }
+  }
+
+  var BOOKING = /(^|\.)(checked\.in|mallinson\.co\.uk)$/;
+  document.addEventListener(
+    "click",
+    function (e) {
+      var a = e.target && e.target.closest && e.target.closest("a[href]");
+      if (!a) return;
+      var url;
+      try {
+        url = new URL(a.href, location.href);
+      } catch (err) {
+        return;
+      }
+      if (BOOKING.test(url.hostname)) send(url.href, a.getAttribute("data-retreat"));
+    },
+    true
+  );
+
+  window.addEventListener("message", function (e) {
+    var opened = e.data && e.data.cinBookingOpened;
+    if (!opened || !/^https:\/\/([a-z0-9-]+\.)*checked\.in$/.test(e.origin)) return;
+    var slug = String(opened.property || "").replace(/[^a-z0-9-]/g, "");
+    send("https://app.checked.in/widget/calendar2/" + slug, "");
+  });
+})();

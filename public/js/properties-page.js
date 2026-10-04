@@ -136,6 +136,9 @@
     var book = hasCal
       ? ""
       : '<a class="button w-inline-block" href="' + esc(item.bookingUrl) +
+        // Which retreat, for counting clicks to book (js/analytics.js): the
+        // three Dorset buttons all go to the same Mallinson page.
+        '" data-retreat="' + esc(item.id) +
         '" target="_blank" rel="noopener"><span>Check availability</span>' + ARROW + "</a>";
 
 

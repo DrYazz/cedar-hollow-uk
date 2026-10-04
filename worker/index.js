@@ -196,6 +196,33 @@ const DEVICE_NAMES = { desktop: "Computer", mobile: "Phone", tablet: "Tablet" };
 const DEVICE_ORDER = ["Computer", "Phone", "Tablet", "Other"];
 
 /*
+ * Clicks to book: a visit that went on to a booking site, sent by
+ * js/analytics.js to /api/intent. Each is kept in IG_KV as a key of its own,
+ * intent:1:YYYY-MM-DD:<visit>:<retreat>, with what is known about it in the
+ * key's metadata -- so a click sent twice is kept once, and a day's clicks
+ * are one list call to read -- and is added into its day's figures when the
+ * day is kept.
+ */
+const INTENT_PATH = "/api/intent";
+const INTENT_KEY = "intent:1:";
+const INTENTS_FROM = "2026-10-04";        // the first day clicks to book were counted
+const INTENT_DAYS = 90;                   // how long each click is kept on its own
+// Every retreat a click can be for: its woodland and name. Oxford's and
+// Dorset's own entries are clicks that named no retreat.
+const RETREATS = {
+  "cedar-hollow-treehouse": ["oxford", "Cedar Hollow Treehouse"],
+  "fauns-hideaway": ["oxford", "Faun’s Hideaway"],
+  "beavers-den": ["oxford", "Beaver’s Den"],
+  oxford: ["oxford", "Oxford, retreat not chosen"],
+  "woodsmans-treehouse": ["dorset", "The Woodsman’s Treehouse"],
+  "dazzle-treehouse": ["dorset", "Dazzle Treehouse"],
+  "pinwheel-treehouse": ["dorset", "Pinwheel Treehouse"],
+  dorset: ["dorset", "Dorset, retreat not chosen"],
+};
+// Checked.in's names for the Oxford three, as its addresses spell them.
+const CHECKED_IN = { theoaks: "cedar-hollow-treehouse", "fauns-hideaway": "fauns-hideaway", "beavers-den-1": "beavers-den" };
+
+/*
  * Directory-style spellings of the two woodland pages.
  *
  * /oxford/ matched nothing: there is a real public/oxford/ directory holding
@@ -246,6 +273,13 @@ export default {
         return json({ ok: false, error: "Method not allowed" }, 405);
       }
       return handleReportRequest(request, url, env);
+    }
+
+    if (url.pathname === INTENT_PATH) {
+      if (request.method !== "POST") {
+        return json({ ok: false, error: "Method not allowed" }, 405);
+      }
+      return handleIntent(request, url, env, ctx);
     }
 
     // Kept from the old service so the migration can be smoke-tested the same way.
@@ -353,6 +387,78 @@ function byteRange(body, start, end) {
   );
   // Of known length, so it goes with its Content-Length rather than chunked.
   return typeof FixedLengthStream === "function" ? part.pipeThrough(new FixedLengthStream(end - start + 1)) : part;
+}
+
+/*
+ * POST /api/intent -- a click to book, from js/analytics.js:
+ *
+ *   { v: visit id, s: website the visit came from, l: page it landed on,
+ *     p: page the click was on, h: booking address, r: retreat, if known }
+ *
+ * Kept as one key per visit and retreat (see INTENT_KEY), with the website,
+ * the device, the retreat and the parts of the site it landed and clicked
+ * on. Only this site's own pages send these, and anything not a booking
+ * address is turned away. Answers 204, the keeping done after.
+ */
+async function handleIntent(request, url, env, ctx) {
+  const origin = request.headers.get("origin") || (request.headers.get("referer") || "").replace(/^(https?:\/\/[^/]+).*$/, "$1");
+  if (origin !== url.origin) return new Response(null, { status: 403 });
+  const text = await request.text().catch(() => "");
+  if (text.length > 2000) return new Response(null, { status: 413 });
+  let b;
+  try {
+    b = JSON.parse(text);
+  } catch (err) {
+    return new Response(null, { status: 400 });
+  }
+  if (!b || typeof b !== "object") return new Response(null, { status: 400 });
+  const visit = String(b.v || "");
+  const retreat = retreatOf(String(b.h || ""), String(b.r || ""));
+  if (!/^[a-z0-9]{8,40}$/.test(visit) || !retreat) return new Response(null, { status: 400 });
+
+  const host = String(b.s || "").toLowerCase();
+  const path = (p) => (typeof p === "string" && /^\/\S{0,300}$/.test(p) ? p : "/");
+  const metadata = {
+    s: /^[a-z0-9.-]{1,100}$/.test(host) ? host : "",
+    d: deviceOf(request.headers.get("user-agent") || ""),
+    r: retreat,
+    l: partOf(path(b.l)),
+    p: partOf(path(b.p)),
+  };
+  const key = `${INTENT_KEY}${isoDate(londonDate(Date.now()))}:${visit}:${retreat}`;
+  if (env.IG_KV) {
+    ctx.waitUntil(
+      env.IG_KV.put(key, "", { metadata, expirationTtl: INTENT_DAYS * 86400 }).catch((err) =>
+        console.error("[intent] could not keep:", err && err.message ? err.message : err)
+      )
+    );
+  }
+  return new Response(null, { status: 204 });
+}
+
+// The retreat a booking address is for: Checked.in's names the Oxford three;
+// Mallinson's one page serves all of Dorset, so the button says which. A gift
+// card is not a stay, and anywhere else is not booking at all.
+function retreatOf(href, given) {
+  let u;
+  try {
+    u = new URL(href);
+  } catch (err) {
+    return null;
+  }
+  const host = u.hostname.toLowerCase();
+  const named = (woodland) => (RETREATS[given] && RETREATS[given][0] === woodland ? given : woodland);
+  if (/(^|\.)mallinson\.co\.uk$/.test(host)) return named("dorset");
+  if (!/(^|\.)checked\.in$/.test(host) || /gift-card/.test(u.pathname)) return null;
+  const slug = (/\/(?:book|calendar2|booking-calendar)\/([a-z0-9-]+)\/?$/.exec(u.pathname) || [])[1];
+  return CHECKED_IN[slug] || named("oxford");
+}
+
+// A device as Cloudflare's analytics names them: tablet, mobile or desktop.
+function deviceOf(agent) {
+  if (/iPad|Tablet|PlayBook|Silk|Android(?!.*Mobi)/i.test(agent)) return "tablet";
+  if (/Mobi|iPhone|iPod|Android|BlackBerry|IEMobile|Opera Mini/i.test(agent)) return "mobile";
+  return "desktop";
 }
 
 /*
@@ -697,12 +803,16 @@ async function reportFigures(env, p, opts) {
 
   const totals = partTotals(figures);
   const average = averageDay(days);
+  // A month's record holds its clicks day by day; weeks and years are
+  // already added up.
+  const intents = p.kind === "month" ? combine([figures]).intents : figures.intents;
   const parts = {};
   for (const [part] of PARTS) {
     parts[part] = {
       ...totals[part],
       before: before && before[part],
       average: average[part],
+      intents: intents.filter(([, , retreat]) => part === "all" || (RETREATS[retreat] || [])[0] === part),
       rows: toRows(inPart(figures.sources, part)),
       pages: figures.pages
         .filter(([path]) => part === "all" || partOf(path) === part)
@@ -717,6 +827,9 @@ async function reportFigures(env, p, opts) {
     parts,
     rows: toRows(figures.sources),
     months: figures.months,
+    // Whether any of the period had its clicks to book counted, and all of it.
+    clicks: p.end > Date.parse(INTENTS_FROM),
+    clicksAll: p.start >= Date.parse(INTENTS_FROM),
   };
 }
 
@@ -728,7 +841,8 @@ async function reportFigures(env, p, opts) {
  *
  * A day kept before visits were counted by the hour -- in early October
  * 2026 -- gets its hours read while the API still has them, if it was
- * counted fully; the rest of it stays as kept.
+ * counted fully; and one kept before its clicks to book were added up gets
+ * those. The rest of it stays as kept.
  */
 async function dayFigures(env, date, opts) {
   const from = londonMidnight(date);
@@ -736,32 +850,73 @@ async function dayFigures(env, date, opts) {
   const now = Date.now();
   if (to <= COUNTED_FROM || from >= now) return emptyDay(date);
 
-  const kept = await getKept(env, DAY_KEY + isoDate(date));
+  const iso = isoDate(date);
+  const kept = await getKept(env, DAY_KEY + iso);
   const readable = to >= now - API_DAYS * DAY && opts.fetches > 0;
-  if (kept && (kept.hours || from < COUNTED_FULLY || !readable)) return kept;
+  if (kept) {
+    let changed = false;
+    if (!kept.hours && from >= COUNTED_FULLY && readable) {
+      opts.fetches -= 1;
+      kept.hours = (await fetchDay(env, date)).hours;
+      changed = true;
+    }
+    if (!kept.intents && iso >= INTENTS_FROM) {
+      const intents = await dayIntents(env, iso);
+      if (intents) {
+        kept.intents = intents;
+        changed = true;
+      }
+    }
+    if (changed && opts.store) await keepDay(env, kept);
+    return kept;
+  }
   if (!readable) return emptyDay(date);
 
   opts.fetches -= 1;
   const day = await fetchDay(env, date);
-  if (kept) {
-    kept.hours = day.hours;
-    if (opts.store) await keepDay(env, kept);
-    return kept;
+  if (iso >= INTENTS_FROM) {
+    const intents = await dayIntents(env, iso);
+    if (intents) day.intents = intents;
   }
   if (opts.store && to <= now) await keepDay(env, day);
   return day;
 }
 
+// A day's clicks to book, from their keys: [website, device, retreat,
+// visits]. Null if they could not be read, so the day is tried again.
+async function dayIntents(env, iso) {
+  if (!env.IG_KV) return null;
+  try {
+    const rows = [];
+    let cursor;
+    do {
+      const page = await env.IG_KV.list({ prefix: `${INTENT_KEY}${iso}:`, cursor });
+      for (const { metadata: m } of page.keys) {
+        if (m && RETREATS[m.r]) rows.push([String(m.s || ""), String(m.d || ""), m.r, 1]);
+      }
+      cursor = page.list_complete ? null : page.cursor;
+    } while (cursor);
+    return addRows(rows, [], 3);
+  } catch (err) {
+    console.error(`[report] could not read clicks to book for ${iso}:`, err && err.message ? err.message : err);
+    return null;
+  }
+}
+
 // Keep a day, and add it to its month's running totals -- once only, though
-// a day kept again with the hours it lacked adds those.
+// a day kept again with the hours or the clicks it lacked adds those.
 async function keepDay(env, day) {
   await putKept(env, DAY_KEY + day.date, day);
   const key = MONTH_KEY + day.date.slice(0, 7);
   const month = (await getKept(env, key)) || (await startMonth(env, day.date));
   month.hours = month.hours || {};
+  month.intents = month.intents || {};
   if (month.days[day.date]) {
-    if (month.hours[day.date] || !day.hours) return;
-    month.hours[day.date] = day.hours;
+    const hours = day.hours && !month.hours[day.date];
+    const intents = day.intents && !month.intents[day.date];
+    if (!hours && !intents) return;
+    if (hours) month.hours[day.date] = day.hours;
+    if (intents) month.intents[day.date] = day.intents;
   } else {
     addDay(month, day);
   }
@@ -783,10 +938,11 @@ async function startMonth(env, date) {
 
 // A day's totals go into its month as [visits, views] for the whole site,
 // then Oxford, then Dorset, so a week can be totted up from its months; and
-// its hours, for the month's and the year's average day.
+// its hours, for the month's and the year's average day; and its clicks to book.
 function addDay(month, day) {
   month.days[day.date] = dayRow(day);
   if (day.hours) (month.hours = month.hours || {})[day.date] = day.hours;
+  if (day.intents) (month.intents = month.intents || {})[day.date] = day.intents;
   month.visits += day.visits;
   month.views += day.views;
   month.sources = addRows(month.sources, day.sources, 3);
@@ -995,19 +1151,23 @@ function dayHours(visits) {
   return hours;
 }
 
-// Days or months added together.
+// Days or months added together, their clicks to book included.
 function combine(list) {
   let visits = 0;
   let views = 0;
   let sources = [];
   let pages = [];
+  let intents = [];
   for (const f of list) {
     visits += f.visits;
     views += f.views;
     sources = addRows(sources, f.sources, 3);
     pages = addRows(pages, f.pages, 1);
+    // A day holds its clicks as rows; a month, as rows for each of its days.
+    const rows = Array.isArray(f.intents) ? [f.intents] : Object.values(f.intents || {});
+    for (const r of rows) intents = addRows(intents, r, 3);
   }
-  return { visits, views, sources, pages: pages.slice(0, MONTH_PAGES) };
+  return { visits, views, sources, pages: pages.slice(0, MONTH_PAGES), intents };
 }
 
 // Two lists of [...key, count] rows added up by key, largest first.
@@ -1027,7 +1187,7 @@ function emptyDay(date) {
 }
 
 function emptyMonth(label) {
-  return { month: label, days: {}, hours: {}, visits: 0, views: 0, sources: [], pages: [] };
+  return { month: label, days: {}, hours: {}, intents: {}, visits: 0, views: 0, sources: [], pages: [] };
 }
 
 // [host, device, part, visits] rows as the report reads them.
@@ -1556,6 +1716,40 @@ function renderPart(p, r, part, title, pie, chart, day) {
     : "";
   const weekdayValue = (i) => (A.weekdays[i] === null ? "–" : fmtAvg(A.weekdays[i]));
 
+  // Its clicks to book: for the whole website, by where the visits came from,
+  // against how many visits each sent; for a woodland, by retreat.
+  const clicks = S.intents.reduce((n, row) => n + row[3], 0);
+  const rate = (n, of) => (of ? `${((100 * n) / of).toFixed(1).replace(/\.0$/, "")}%` : "–");
+  const bySource = new Map();
+  if (r.clicks && part === "all") {
+    const visitsFrom = groupRows(S.rows).bySource;
+    for (const [host, , retreat, n] of S.intents) {
+      const name = sourceName(host);
+      let c = bySource.get(name);
+      if (!c) bySource.set(name, (c = { name, clicks: 0, oxford: 0, dorset: 0, visits: (visitsFrom.get(name) || { visits: 0 }).visits }));
+      c.clicks += n;
+      c[RETREATS[retreat][0]] += n;
+    }
+  }
+  const clickSources = [...bySource.values()].sort(
+    (a, b) => b.clicks - a.clicks || b.visits - a.visits || a.name.localeCompare(b.name)
+  );
+  const clickRetreats =
+    r.clicks && part !== "all"
+      ? Object.keys(RETREATS)
+          .filter((key) => RETREATS[key][0] === part)
+          .map((key) => ({ name: RETREATS[key][1], clicks: S.intents.reduce((n, row) => n + (row[2] === key ? row[3] : 0), 0) }))
+          .filter((x) => x.clicks > 0)
+          .sort((a, b) => b.clicks - a.clicks)
+      : [];
+  const woodlands = (c) =>
+    [c.oxford ? `Oxford ${num(c.oxford)}` : "", c.dorset ? `Dorset ${num(c.dorset)}` : ""].filter(Boolean);
+  const clicksNote =
+    "A click to book is a visit that went on to a booking site, Checked.in for Oxford or Mallinson’s for " +
+    "Dorset, counted once for each retreat. Booking straight from the calendars on the Oxford stay pages " +
+    "counts once Checked.in reports it." +
+    (r.clicksAll ? "" : " Clicks have only been counted since 4 October 2026.");
+
   // ---- plain text ---------------------------------------------------------
   const pad = (s, n) => String(s).padEnd(n);
   const clip = (s, n) => (s.length > n ? s.slice(0, n - 1) + "…" : s);
@@ -1564,6 +1758,7 @@ function renderPart(p, r, part, title, pie, chart, day) {
     ...(scope ? [scope] : []),
     `Visits: ${num(S.visits)}${before ? ` (${before})` : ""}`,
     `Page views: ${num(S.views)}`,
+    ...(r.clicks ? [`Clicks to book: ${num(clicks)}`] : []),
     ...(began.length
       ? ["", "WHERE VISITS BEGAN", ...began.map((b) => `${pad(b.name, 38)} ${lpad(num(b.visits), 6)}  ${lpad(share(b.visits, beganTotal), 4)}`)]
       : []),
@@ -1585,6 +1780,29 @@ function renderPart(p, r, part, title, pie, chart, day) {
         )
       : ["No visits recorded."]),
     ...(withinNote ? [withinNote] : []),
+    ...(r.clicks && part === "all"
+      ? [
+          "",
+          "CLICKS TO BOOK",
+          clicksNote,
+          ...(clickSources.length
+            ? [
+                ...clickSources.map(
+                  (c) =>
+                    `${pad(clip(c.name, 34), 34)} ${lpad(num(c.clicks), 4)} of ${lpad(num(c.visits), 6)} visits  ${lpad(rate(c.clicks, c.visits), 6)}   ${woodlands(c).join(", ")}`
+                ),
+                `${pad("All visits", 34)} ${lpad(num(clicks), 4)} of ${lpad(num(S.visits), 6)} visits  ${lpad(rate(clicks, S.visits), 6)}`,
+              ]
+            : ["No clicks to book recorded."]),
+        ]
+      : []),
+    ...(r.clicks && part !== "all"
+      ? [
+          "",
+          "CLICKS TO BOOK, BY RETREAT",
+          ...(clickRetreats.length ? clickRetreats.map((x) => `${pad(x.name, 34)} ${lpad(num(x.clicks), 4)}`) : ["No clicks to book recorded."]),
+        ]
+      : []),
     "",
     "COMPUTER, PHONE OR TABLET",
     ...deviceRows.map((d) => `${pad(d.name, 10)} ${lpad(num(d.visits), 6)}  ${lpad(share(d.visits), 4)}`),
@@ -1632,13 +1850,18 @@ function renderPart(p, r, part, title, pie, chart, day) {
   const picture = (img, alt) =>
     `<img src="cid:${img.cid}" width="600" height="180" alt="${esc(alt)}" style="display:block;width:100%;height:auto;border:0;">`;
 
+  // The headline figures sit side by side, and wrap on a phone rather than
+  // run off its edge.
+  const stat = (value, label) =>
+    `<div style="display:inline-block;vertical-align:top;margin:0 30px 8px 0;"><div class="big">${value}</div><div class="s">${label}</div></div>`;
   let html =
     `<p class="part">${esc(title)}</p>` +
     (scope ? `<p class="s" style="margin:0;">${esc(scope)}</p>` : "") +
-    `<table role="presentation" style="border-collapse:collapse;margin-top:14px;"><tr>` +
-    `<td style="padding:0 30px 0 0;vertical-align:top;"><div class="big">${num(S.visits)}</div><div class="s">visits${before ? ` <span style="white-space:nowrap;">(${esc(before)})</span>` : ""}</div></td>` +
-    `<td style="padding:0;vertical-align:top;"><div class="big">${num(S.views)}</div><div class="s">page views</div></td>` +
-    `</tr></table>`;
+    `<div style="margin-top:14px;">` +
+    stat(num(S.visits), `visits${before ? ` <span style="white-space:nowrap;">(${esc(before)})</span>` : ""}`) +
+    stat(num(S.views), "page views") +
+    (r.clicks ? stat(num(clicks), "clicks to book") : "") +
+    `</div>`;
 
   if (began.length) {
     html +=
@@ -1741,6 +1964,34 @@ function renderPart(p, r, part, title, pie, chart, day) {
         : "");
   }
 
+  // Clicks to book: for the whole website, each website's clicks against
+  // the visits it sent, with the woodlands they were for under its name; for
+  // a woodland, its clicks by retreat.
+  let clicksHtml = "";
+  if (r.clicks && part === "all") {
+    clicksHtml =
+      `<h2 class="h2">Clicks to book</h2><p class="s" style="margin:0 0 8px;">${esc(clicksNote)}</p>` +
+      (clickSources.length
+        ? `<table class="t"><tr><th class="hl">Website</th><th class="hn">Visits</th><th class="hn">Clicks</th><th class="hn">Rate</th></tr>` +
+          clickSources
+            .map(
+              (c) =>
+                `<tr><td class="l">${esc(c.name).replace(/\./g, ".<wbr>")}<br><span class="s">${esc(woodlands(c).join(" · "))}</span></td>` +
+                `<td class="n">${num(c.visits)}</td><td class="n"><strong>${num(c.clicks)}</strong></td><td class="n">${esc(rate(c.clicks, c.visits))}</td></tr>`
+            )
+            .join("") +
+          `<tr><td class="l"><strong>All visits</strong></td><td class="n">${num(S.visits)}</td><td class="n"><strong>${num(clicks)}</strong></td><td class="n">${esc(rate(clicks, S.visits))}</td></tr></table>`
+        : `<p class="s">No clicks to book recorded.</p>`);
+  } else if (r.clicks) {
+    clicksHtml =
+      `<h2 class="h2">Clicks to book, by retreat</h2>` +
+      (clickRetreats.length
+        ? `<table class="t"><tr><th class="hl">Retreat</th><th class="hn">Clicks</th></tr>` +
+          clickRetreats.map((x) => `<tr><td class="l">${esc(x.name)}</td><td class="n"><strong>${num(x.clicks)}</strong></td></tr>`).join("") +
+          "</table>"
+        : `<p class="s">No clicks to book recorded.</p>`);
+  }
+
   // Each website's device split sits under its name rather than in columns
   // of its own: seven columns do not fit a phone, and the full grid is in the
   // spreadsheet. A long host may break after any dot, and nowhere else.
@@ -1755,6 +2006,7 @@ function renderPart(p, r, part, title, pie, chart, day) {
       .join("") || `<tr><td class="l" colspan="3">No visits recorded.</td></tr>`) +
     "</table>" +
     (withinNote ? `<p class="s" style="margin:8px 0 0;">${esc(withinNote)}</p>` : "") +
+    clicksHtml +
     // The pie, and beside it the key: each slice's colour, visits and share,
     // which is also everything the pie says for a reader whose mail app
     // hides pictures.
