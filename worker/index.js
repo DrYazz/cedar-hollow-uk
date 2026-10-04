@@ -84,7 +84,8 @@ const IG_TOKENS = {
  * Each comes in three parts -- the whole website, then Cedar Hollow Oxford,
  * then Cedar Hollow Dorset -- and each part has the same figures: the
  * websites visitors came from, split by computer, phone and tablet; the
- * totals against the period before; and the most-read pages. A woodland's
+ * totals against the period before; the visits on each day of the week and
+ * in each hour of the day; and the most-read pages. A woodland's
  * part counts the visits that began on its own pages, the addresses
  * starting /oxford or /dorset, or moved onto them from elsewhere on the site
  * -- from the home page, say -- and every view of those pages. A visit that
@@ -586,24 +587,28 @@ async function reportFigures(env, p, opts) {
   const compare = londonMidnight(p.prevStart) >= COUNTED_FULLY;
   let figures;
   let before = null;
+  let days; // [date, totals row, hours], for the average day
 
   if (p.kind === "week") {
     // One day at a time: keeping a day rewrites its month, and two kept at
     // once would each overwrite the other's addition.
-    const days = [];
-    for (let d = p.start; d < p.end; d += DAY) days.push(await dayFigures(env, d, opts));
-    figures = combine(days);
+    const list = [];
+    for (let d = p.start; d < p.end; d += DAY) list.push(await dayFigures(env, d, opts));
+    figures = combine(list);
+    days = list.map((day) => [day.date, dayRow(day), day.hours]);
     if (compare) before = await dayTotals(env, p.prevStart, p.start);
   } else if (p.kind === "month") {
     const d = new Date(p.start);
     const prev = new Date(p.prevStart);
     figures = await monthFigures(env, d.getUTCFullYear(), d.getUTCMonth());
+    days = monthDays(figures);
     if (compare) before = partTotals(await monthFigures(env, prev.getUTCFullYear(), prev.getUTCMonth()));
   } else {
     const year = new Date(p.start).getUTCFullYear();
     const twelve = (y) => Promise.all(Array.from({ length: 12 }, (_, m) => monthFigures(env, y, m)));
     const months = await twelve(year);
     figures = { ...combine(months), months };
+    days = months.flatMap(monthDays);
     if (compare) {
       const kept = await getKept(env, YEAR_KEY + (year - 1));
       before = kept ? kept.parts : partTotals(combine(await twelve(year - 1)));
@@ -614,11 +619,13 @@ async function reportFigures(env, p, opts) {
   }
 
   const totals = partTotals(figures);
+  const average = averageDay(days);
   const parts = {};
   for (const [part] of PARTS) {
     parts[part] = {
       ...totals[part],
       before: before && before[part],
+      average: average[part],
       rows: toRows(inPart(figures.sources, part)),
       pages: figures.pages
         .filter(([path]) => part === "all" || partOf(path) === part)
@@ -641,6 +648,10 @@ async function reportFigures(env, p, opts) {
  * with opts.store, kept and added to its month. A day before counting began,
  * not yet begun, or older than the API remembers has nothing to read; nor
  * has any day once opts.fetches, the run's allowance of API reads, is spent.
+ *
+ * A day kept before visits were counted by the hour -- in early October
+ * 2026 -- gets its hours read while the API still has them, if it was
+ * counted fully; the rest of it stays as kept.
  */
 async function dayFigures(env, date, opts) {
   const from = londonMidnight(date);
@@ -649,22 +660,34 @@ async function dayFigures(env, date, opts) {
   if (to <= COUNTED_FROM || from >= now) return emptyDay(date);
 
   const kept = await getKept(env, DAY_KEY + isoDate(date));
-  if (kept) return kept;
-  if (to < now - API_DAYS * DAY || opts.fetches <= 0) return emptyDay(date);
+  const readable = to >= now - API_DAYS * DAY && opts.fetches > 0;
+  if (kept && (kept.hours || from < COUNTED_FULLY || !readable)) return kept;
+  if (!readable) return emptyDay(date);
 
   opts.fetches -= 1;
   const day = await fetchDay(env, date);
+  if (kept) {
+    kept.hours = day.hours;
+    if (opts.store) await keepDay(env, kept);
+    return kept;
+  }
   if (opts.store && to <= now) await keepDay(env, day);
   return day;
 }
 
-// Keep a day, and add it to its month's running totals -- once only.
+// Keep a day, and add it to its month's running totals -- once only, though
+// a day kept again with the hours it lacked adds those.
 async function keepDay(env, day) {
   await putKept(env, DAY_KEY + day.date, day);
   const key = MONTH_KEY + day.date.slice(0, 7);
   const month = (await getKept(env, key)) || (await startMonth(env, day.date));
-  if (month.days[day.date]) return;
-  addDay(month, day);
+  month.hours = month.hours || {};
+  if (month.days[day.date]) {
+    if (month.hours[day.date] || !day.hours) return;
+    month.hours[day.date] = day.hours;
+  } else {
+    addDay(month, day);
+  }
   await putKept(env, key, month);
 }
 
@@ -682,14 +705,20 @@ async function startMonth(env, date) {
 }
 
 // A day's totals go into its month as [visits, views] for the whole site,
-// then Oxford, then Dorset, so a week can be totted up from its months.
+// then Oxford, then Dorset, so a week can be totted up from its months; and
+// its hours, for the month's and the year's average day.
 function addDay(month, day) {
-  const t = partTotals(day);
-  month.days[day.date] = [t.all.visits, t.all.views, t.oxford.visits, t.oxford.views, t.dorset.visits, t.dorset.views];
+  month.days[day.date] = dayRow(day);
+  if (day.hours) (month.hours = month.hours || {})[day.date] = day.hours;
   month.visits += day.visits;
   month.views += day.views;
   month.sources = addRows(month.sources, day.sources, 3);
   month.pages = addRows(month.pages, day.pages, 1).slice(0, MONTH_PAGES);
+}
+
+function dayRow(day) {
+  const t = partTotals(day);
+  return [t.all.visits, t.all.views, t.oxford.visits, t.oxford.views, t.dorset.visits, t.dorset.views];
 }
 
 // A month's running totals, or nothing for a month with none kept.
@@ -699,6 +728,48 @@ async function monthFigures(env, year, month) {
   const to = londonMidnight(Date.UTC(year, month + 1, 1));
   if (to <= COUNTED_FROM || from >= Date.now()) return emptyMonth(label);
   return (await getKept(env, MONTH_KEY + label)) || emptyMonth(label);
+}
+
+// A month's days as [date, totals row, hours], for its average day.
+function monthDays(month) {
+  return Object.entries(month.days).map(([date, row]) => [date, row, (month.hours || {})[date]]);
+}
+
+/*
+ * Each part's average day over a period's [date, totals row, hours]: its
+ * visits on each day of the week, Monday first, and in each hour by London's
+ * clocks. Only days over and fully counted are averaged -- in October 2026,
+ * from the 3rd -- and the hours only over the days kept with them. A day of
+ * the week with no such day is null.
+ */
+function averageDay(list) {
+  const now = Date.now();
+  const days = list.filter(([date]) => {
+    const d = Date.parse(date);
+    return londonMidnight(d) >= COUNTED_FULLY && londonMidnight(d + DAY) <= now;
+  });
+  const average = {};
+  PARTS.forEach(([part], i) => {
+    const weekdays = WEEKDAYS.map(() => ({ visits: 0, days: 0 }));
+    const hours = new Array(24).fill(0);
+    let hourDays = 0;
+    for (const [date, row, h] of days) {
+      const w = weekdays[(new Date(date).getUTCDay() + 6) % 7];
+      w.visits += row[2 * i];
+      w.days += 1;
+      if (h && h[part]) {
+        h[part].forEach((n, k) => (hours[k] += n));
+        hourDays += 1;
+      }
+    }
+    average[part] = {
+      days: days.length,
+      weekdays: weekdays.map((w) => (w.days ? w.visits / w.days : null)),
+      hours: hourDays ? hours.map((n) => n / hourDays) : null,
+      hourDays,
+    };
+  });
+  return average;
 }
 
 // Each part's visits and page views for a run of days, read from their
@@ -734,9 +805,9 @@ async function putKept(env, key, value) {
 
 /*
  * One day from the GraphQL API, in one request: totals; visits by website,
- * device and the page they began on; moves from page to page within the
- * site; and views of every page. The API scales sampled figures up itself,
- * so they are used as given.
+ * device, the page they began on and the hour; moves from page to page
+ * within the site; and views of every page. The API scales sampled figures
+ * up itself, so they are used as given.
  */
 async function fetchDay(env, date) {
   const filter = rumFilter(env, londonMidnight(date), londonMidnight(date + DAY));
@@ -756,11 +827,11 @@ async function fetchDay(env, date) {
         }
         sources: rumPageloadEventsAdaptiveGroups(filter: ${filter}, limit: 5000, orderBy: [sum_visits_DESC]) {
           sum { visits }
-          dimensions { refererHost deviceType requestPath }
+          dimensions { refererHost deviceType requestPath datetimeHour }
         }
         moves: rumPageloadEventsAdaptiveGroups(filter: ${moves}, limit: 5000, orderBy: [count_DESC]) {
           count
-          dimensions { refererPath requestPath deviceType }
+          dimensions { refererPath requestPath deviceType datetimeHour }
         }
         pages: rumPageloadEventsAdaptiveGroups(filter: ${filter}, limit: ${DAY_PAGES}, orderBy: [count_DESC]) {
           count
@@ -791,41 +862,60 @@ async function fetchDay(env, date) {
   const whole = (n) => Math.round(Number(n) || 0);
   const t = (account.total || [])[0] || {};
   const dim = (g) => g.dimensions || {};
+  // The API's hours are UTC's; London's clocks are a whole hour off, if any.
+  const hour = (g) => londonParts(Date.parse(dim(g).datetimeHour) || londonMidnight(date)).hour;
+  // [website, device, part, visits, hour]. For a visit from outside, the part
+  // is the one it began in; a page view from inside the site carries no
+  // visit, so those rows go. A move onto a woodland's pages from another part
+  // of the site is a visit to that woodland too, from an "@" source: the home
+  // page, the search results, the other woodland, or another shared page.
+  const visits = [
+    ...(account.sources || [])
+      .map((g) => [
+        String(dim(g).refererHost || "").toLowerCase(),
+        String(dim(g).deviceType || ""),
+        partOf(String(dim(g).requestPath || "/")),
+        whole(g.sum && g.sum.visits),
+        hour(g),
+      ])
+      .filter((row) => row[3] > 0),
+    ...(account.moves || [])
+      .map((g) => {
+        const to = partOf(String(dim(g).requestPath || "/"));
+        const fromPath = String(dim(g).refererPath || "/").toLowerCase();
+        const from = partOf(fromPath);
+        if (to === "main" || from === to) return null;
+        const where = from !== "main" ? `@${from}` : /^\/(index\.html)?$/.test(fromPath) ? "@home" : fromPath.startsWith("/search-results") ? "@search" : "@site";
+        return [where, String(dim(g).deviceType || ""), to, whole(g.count), hour(g)];
+      })
+      .filter((row) => row && row[3] > 0),
+  ];
   return {
     date: isoDate(date),
     visits: whole(t.sum && t.sum.visits),
     views: whole(t.count),
     // 1 while the day is exact; about 10 once Cloudflare has thinned it.
     sampleInterval: Number((t.avg && t.avg.sampleInterval) || 1),
-    // [website, device, part, visits]. For a visit from outside, the part is
-    // the one it began in; a page view from inside the site carries no visit,
-    // so those rows go. A move onto a woodland's pages from another part of
-    // the site is a visit to that woodland too, from an "@" source: the home
-    // page, the search results, the other woodland, or another shared page.
-    sources: addRows(
-      (account.sources || [])
-        .map((g) => [
-          String(dim(g).refererHost || "").toLowerCase(),
-          String(dim(g).deviceType || ""),
-          partOf(String(dim(g).requestPath || "/")),
-          whole(g.sum && g.sum.visits),
-        ])
-        .filter((row) => row[3] > 0),
-      (account.moves || [])
-        .map((g) => {
-          const to = partOf(String(dim(g).requestPath || "/"));
-          const fromPath = String(dim(g).refererPath || "/").toLowerCase();
-          const from = partOf(fromPath);
-          if (to === "main" || from === to) return null;
-          const where = from !== "main" ? `@${from}` : /^\/(index\.html)?$/.test(fromPath) ? "@home" : fromPath.startsWith("/search-results") ? "@search" : "@site";
-          return [where, String(dim(g).deviceType || ""), to, whole(g.count)];
-        })
-        .filter((row) => row && row[3] > 0),
-      3
-    ),
+    // [website, device, part, visits]
+    sources: addRows(visits.map((row) => row.slice(0, 4)), [], 3),
+    hours: dayHours(visits),
     // [path, page views]
     pages: (account.pages || []).map((g) => [String(dim(g).requestPath || "/"), whole(g.count)]),
   };
+}
+
+/*
+ * Each part's visits in each hour of the day by London's clocks, from
+ * [website, device, part, visits, hour] rows: the whole website's are the
+ * visits from outside, a woodland's every visit to it, as in partTotals.
+ */
+function dayHours(visits) {
+  const hours = Object.fromEntries(PARTS.map(([part]) => [part, new Array(24).fill(0)]));
+  for (const [host, , part, n, hour] of visits) {
+    if (!host.startsWith("@")) hours.all[hour] += n;
+    if (part !== "all" && hours[part]) hours[part][hour] += n;
+  }
+  return hours;
 }
 
 // Days or months added together.
@@ -860,7 +950,7 @@ function emptyDay(date) {
 }
 
 function emptyMonth(label) {
-  return { month: label, days: {}, visits: 0, views: 0, sources: [], pages: [] };
+  return { month: label, days: {}, hours: {}, visits: 0, views: 0, sources: [], pages: [] };
 }
 
 // [host, device, part, visits] rows as the report reads them.
@@ -1109,6 +1199,8 @@ const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "
 const DEVICE_COLOURS = { Computer: "#8aa37c", Phone: "#2f4a33", Tablet: "#c9a227", Other: "#c9c4ab" };
 const SOURCE_COLOURS = ["#2f4a33", "#b5552b", "#c9a227", "#4f6d8a", "#8a5a83"];
 const OTHER_COLOUR = "#c9c4ab";
+const DAY_COLOUR = "#2f4a33";
+const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const PART_LABELS = { oxford: "Oxford pages", dorset: "Dorset pages", main: "Shared pages" };
 
 // The email's look, in one place, so three parts of tables stay well under
@@ -1142,10 +1234,22 @@ function compactNum(n) {
   return String(n);
 }
 
+// An average: to a tenth below ten, else whole. 4.3, 3, 12.
+function fmtAvg(n) {
+  return fmtNum(n >= 10 ? Math.round(n) : Math.round(n * 10) / 10);
+}
+
+// An hour of the clock as a span: "8–9pm", "11am–12pm", "12–1am".
+function hourSpan(h) {
+  const name = (x) => `${x % 12 || 12}${x % 24 < 12 ? "am" : "pm"}`;
+  const end = name(h + 1);
+  return name(h).slice(-2) === end.slice(-2) ? `${h % 12 || 12}–${end}` : `${name(h)}–${end}`;
+}
+
 /*
- * The email itself: subject, plain text, HTML, the spreadsheet, and a pie
- * chart of each part's visits by device. Its three parts, in PARTS order,
- * each come from renderPart.
+ * The email itself: subject, plain text, HTML, the spreadsheet, a pie chart
+ * of each part's visits by device, and bar charts of its average day. Its
+ * three parts, in PARTS order, each come from renderPart.
  *
  * Every value from the analytics -- a referring website above all, which any
  * visitor's browser can set to anything -- is escaped for HTML, and guarded
@@ -1207,12 +1311,31 @@ async function renderReport(p, r) {
       }
     }
   }
-  const pictures = [...Object.values(pies), ...Object.values(charts).flatMap((c) => [c.devices, c.sources])];
+  // Each part's average day, the same way: a column for each day of the
+  // week, and one for each hour.
+  const days = {};
+  for (const [part] of PARTS) {
+    const average = r.parts[part].average;
+    if (!average.weekdays.some((v) => v > 0)) continue;
+    try {
+      days[part] = { weekdays: { cid: `weekdays-${part}`, content: base64Bytes(await columnsPng(average.weekdays.map((v) => [v || 0]), [DAY_COLOUR])) } };
+      if (average.hours && average.hours.some((v) => v > 0)) {
+        days[part].hours = { cid: `hours-${part}`, content: base64Bytes(await columnsPng(average.hours.map((v) => [v]), [DAY_COLOUR])) };
+      }
+    } catch (err) {
+      console.error(`[report] no average-day charts for ${part}:`, err && err.message ? err.message : err);
+    }
+  }
+  const pictures = [
+    ...Object.values(pies),
+    ...Object.values(charts).flatMap((c) => [c.devices, c.sources]),
+    ...Object.values(days).flatMap((d) => [d.weekdays, d.hours].filter(Boolean)),
+  ];
 
   const text = [`Cedar Hollow website: visitors, ${label}`, ...(note ? ["", note] : [])];
   let parts = "";
   for (const [part, title] of PARTS) {
-    const section = renderPart(p, r, part, title, pies[part], charts[part]);
+    const section = renderPart(p, r, part, title, pies[part], charts[part], days[part]);
     text.push("", "", `== ${title.toUpperCase()} ==`, ...section.text);
     parts += section.html;
   }
@@ -1278,11 +1401,12 @@ ${parts}
 
 /*
  * One part of a report -- the whole website, or one woodland -- as plain
- * text lines and HTML, with `pie` the picture of its visits by device. The
- * year's report adds its month-by-month bar charts, `chart`; every figure
- * in them is in a table beside them too.
+ * text lines and HTML, with `pie` the picture of its visits by device, and
+ * `day` the bar charts of its average day. The year's report adds its
+ * month-by-month bar charts, `chart`; every figure in them is in a table
+ * beside them too.
  */
-function renderPart(p, r, part, title, pie, chart) {
+function renderPart(p, r, part, title, pie, chart, day) {
   const S = r.parts[part];
   const year = new Date(p.start).getUTCFullYear();
   const num = fmtNum;
@@ -1332,6 +1456,29 @@ function renderPart(p, r, part, title, pie, chart) {
 
   const months = partMonths(r, part, year);
 
+  // Its average day: the visits on each day of the week, and in each hour.
+  const A = S.average;
+  const anyDays = A.weekdays.some((v) => v > 0);
+  const anyHours = Boolean(A.hours) && A.hours.some((v) => v > 0);
+  const overDays = (n) => `over ${num(n)} day${n === 1 ? "" : "s"}`;
+  const weekdaysNote =
+    p.kind === "week"
+      ? `Visits each day.${A.weekdays.includes(null) ? " Days not fully counted are left blank." : ""}`
+      : `Average visits on each day of the week, ${overDays(A.days)}.`;
+  const busiest = anyHours
+    ? A.hours
+        .map((v, h) => [v, h])
+        .filter(([v]) => v > 0)
+        .sort((a, b) => b[0] - a[0] || a[1] - b[1])
+        .slice(0, 3)
+        .map(([v, h], i) => `${hourSpan(h)} (${fmtAvg(v)}${i ? "" : " visits"})`)
+    : [];
+  const hoursNote = anyHours
+    ? `Average visits in each hour of the day, UK time, ${overDays(A.hourDays)}. ` +
+      `Busiest: ${busiest.length > 1 ? `${busiest.slice(0, -1).join(", ")} and ${busiest[busiest.length - 1]}` : busiest[0]}.`
+    : "";
+  const weekdayValue = (i) => (A.weekdays[i] === null ? "–" : fmtAvg(A.weekdays[i]));
+
   // ---- plain text ---------------------------------------------------------
   const pad = (s, n) => String(s).padEnd(n);
   const clip = (s, n) => (s.length > n ? s.slice(0, n - 1) + "…" : s);
@@ -1364,6 +1511,20 @@ function renderPart(p, r, part, title, pie, chart) {
     "",
     "COMPUTER, PHONE OR TABLET",
     ...deviceRows.map((d) => `${pad(d.name, 10)} ${lpad(num(d.visits), 6)}  ${lpad(share(d.visits), 4)}`),
+    ...(anyDays ? ["", "DAY OF THE WEEK", weekdaysNote, WEEKDAYS.map((d, i) => `${d} ${weekdayValue(i)}`).join("   ")] : []),
+    ...(anyHours
+      ? [
+          "",
+          "TIME OF DAY",
+          hoursNote,
+          ...[0, 4, 8, 12, 16, 20].map((h0) =>
+            A.hours
+              .slice(h0, h0 + 4)
+              .map((v, k) => `${pad(hourSpan(h0 + k), 9)} ${lpad(fmtAvg(v), 4)}`)
+              .join("     ")
+          ),
+        ]
+      : []),
     "",
     "MOST-READ PAGES (page views)",
     ...S.pages.map((pg) => `${pad(pageUrl(pg.path), 52)} ${lpad(num(pg.views), 6)}`),
@@ -1384,6 +1545,15 @@ function renderPart(p, r, part, title, pie, chart) {
       )
       .join("") +
     "</p>";
+  // A bar chart is a picture of equal columns, with any figures above it and
+  // the names below as the email's own text, in equal cells that line up
+  // with the columns at any width.
+  const strip = (cells, style) =>
+    `<table role="presentation" style="border-collapse:collapse;width:100%;table-layout:fixed;"><tr>` +
+    cells.map((cell) => `<td class="s" style="text-align:center;${style}">${cell}</td>`).join("") +
+    "</tr></table>";
+  const picture = (img, alt) =>
+    `<img src="cid:${img.cid}" width="600" height="180" alt="${esc(alt)}" style="display:block;width:100%;height:auto;border:0;">`;
 
   let html =
     `<p class="part">${esc(title)}</p>` +
@@ -1406,22 +1576,14 @@ function renderPart(p, r, part, title, pie, chart) {
   }
 
   if (months.length) {
-    // Each chart is a picture of twelve equal columns, with the month totals
-    // above it and the month names below as the email's own text, in twelve
-    // equal cells that line up with the columns at any width.
+    // Twelve columns, with the month totals above and the month names below.
     const named = topNames(S);
     const stacks = monthStacks(months, named);
-    const strip = (cells, style) =>
-      `<table role="presentation" style="border-collapse:collapse;width:100%;table-layout:fixed;"><tr>` +
-      cells.map((cell) => `<td class="s" style="text-align:center;${style}">${cell}</td>`).join("") +
-      "</tr></table>";
     const totals = strip(
       stacks.slots.map((m) => (m && m.visits ? compactNum(m.visits) : "")),
       "font-size:10px;padding:0 0 2px;white-space:nowrap;"
     );
     const labels = strip(MONTHS, "font-size:11px;padding:4px 0 0;");
-    const picture = (img, alt) =>
-      `<img src="cid:${img.cid}" width="600" height="180" alt="${esc(alt)}" style="display:block;width:100%;height:auto;border:0;">`;
     const byMonth = months.map((m) => `${MONTHS[m.index]} ${num(m.visits)}`).join(", ");
     const anyOther = stacks.sources.some((stack) => stack[stack.length - 1] > 0);
 
@@ -1463,6 +1625,45 @@ function renderPart(p, r, part, title, pie, chart) {
         : "");
   }
 
+  // The average day: a column a day of the week, with its figure above it
+  // and its name below, so the figures show even with the picture hidden;
+  // then a column an hour, too many to label each, with every third hour
+  // named below and the busiest hours in the line above.
+  let averageHtml = "";
+  if (anyDays) {
+    averageHtml +=
+      `<h2 class="h2">Day of the week</h2><p class="s" style="margin:0 0 10px;">${esc(weekdaysNote)}</p>` +
+      strip(WEEKDAYS.map((_, i) => esc(weekdayValue(i))), "font-size:11px;padding:0 0 2px;white-space:nowrap;") +
+      (day && day.weekdays
+        ? picture(
+            day.weekdays,
+            `Bar chart of ${p.kind === "week" ? "visits each day" : "average visits on each day of the week"}: ${WEEKDAYS.map((d, i) => `${d} ${weekdayValue(i)}`).join(", ")}`
+          )
+        : "") +
+      strip(WEEKDAYS, "font-size:11px;padding:4px 0 0;");
+  }
+  if (anyHours) {
+    averageHtml +=
+      `<h2 class="h2">Time of day</h2><p class="s" style="margin:0 0 10px;">${esc(hoursNote).replace(
+        /\d+(am|pm)?–\d+(am|pm)( \(\d[\d.,]*( visits)?\))?/g,
+        '<span style="white-space:nowrap;">$&</span>'
+      )}</p>` +
+      (day && day.hours
+        ? picture(
+            day.hours,
+            `Bar chart of average visits in each hour of the day, UK time: ${A.hours.map((v, h) => `${hourSpan(h)} ${fmtAvg(v)}`).join(", ")}`
+          ) +
+          strip(
+            A.hours.map((_, h) => (h % 3 ? "" : String(h % 12 || 12))),
+            "font-size:10px;padding:4px 0 0;white-space:nowrap;"
+          ) +
+          strip(
+            ["am", "pm"].map((half) => `<div style="border-top:1px solid #c9c4ab;margin:3px 3px 0;padding-top:1px;">${half}</div>`),
+            "font-size:11px;padding:0;"
+          )
+        : "");
+  }
+
   // Each website's device split sits under its name rather than in columns
   // of its own: seven columns do not fit a phone, and the full grid is in the
   // spreadsheet. A long host may break after any dot, and nowhere else.
@@ -1498,6 +1699,7 @@ function renderPart(p, r, part, title, pie, chart) {
           .join("") +
         "</table></td></tr></table>"
       : `<p class="s">No visits recorded.</p>`) +
+    averageHtml +
     `<h2 class="h2">Most-read pages</h2><table class="t"><tr><th class="hl">Page</th><th class="hn">Page views</th></tr>` +
     (S.pages
       .map(
@@ -1650,7 +1852,8 @@ async function piePng(values, colours, size = 180) {
 
 /*
  * A stacked column chart as a PNG: a column for each of `stacks` (twelve,
- * one a month), its values stacked from the bottom in `colours`, on a clear
+ * one a month; or one a day of the week, or an hour), its values stacked
+ * from the bottom in `colours`, on a clear
  * ground with faint guide lines at quarters of the tallest. Only shapes: the
  * totals and month names are the email's own text, which stays readable
  * when a phone shrinks the picture. Drawn at 800 x 240 to show at up to
@@ -1664,7 +1867,8 @@ async function columnsPng(stacks, colours, width = 800, height = 240) {
   const px = new Uint8Array(width * height);
   const floor = height - 2; // the baseline is the bottom two rows
   const room = floor - 6; // headroom above the tallest column
-  const tallest = Math.max(1, ...stacks.map((s) => s.reduce((a, b) => a + b, 0)));
+  // Averages may all be below one, so the tallest sets the scale, whatever it is.
+  const tallest = Math.max(0, ...stacks.map((s) => s.reduce((a, b) => a + b, 0))) || 1;
   for (let g = 1; g <= 4; g++) {
     const y = Math.round(floor - (room * g) / 4);
     px.fill(1, y * width, (y + 1) * width);
