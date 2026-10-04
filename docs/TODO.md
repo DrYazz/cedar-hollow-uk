@@ -24,15 +24,13 @@ review, or a decision) — none are blocked on further build work.
   `www.cedarhollow.uk` both serve the site over HTTPS. `ALLOWED_ORIGINS` is set
   on the form-handler. Mail for the domain is handled by Google Workspace, so
   `hello@cedarhollow.uk` has a real mailbox behind it.
-- [ ] **Migrate off Railway to Cloudflare Workers.** Phase 1 is deployed and
-  verified; see [`CLOUDFLARE_MIGRATION.md`](CLOUDFLARE_MIGRATION.md). Remaining
-  work is dashboard-side: turn on email sending, then cut the domain over.
-  Takes the hosting bill to £0 and closes the exposure below.
-  - [ ] **`docs/` and `form-handler/` are publicly served on Railway today.**
-    `https://cedarhollow.uk/docs/TODO.md` returns 200 — this audit, including
-    "the booking path is fake", is readable by anyone. Fixed at cutover.
-  - [ ] Pick one canonical host (root or `www`) and redirect the other.
-    Do it as a Cloudflare Redirect Rule during Phase 3.
+- [x] **Migrated to Cloudflare Workers.** The site is served by the Worker
+  (`Server: cloudflare`) and the contact form posts same-origin to
+  `/api/contact`. Verified 2026-10-04.
+  - [x] **The `docs/` exposure is closed.** `/docs/TODO.md`,
+    `/form-handler/server.js` and `/wrangler.toml` all return 404 — only
+    `public/` is published.
+  - [x] Canonical host picked: `www` 301s to the root domain.
 - [ ] **Check the Repuso plan covers cedarhollow.uk.** The review wall and the
   live figures both read the owner's Repuso feed, which is configured against
   theoaks.uk. The endpoint is public and unauthenticated so nothing blocks us
@@ -63,6 +61,48 @@ review, or a decision) — none are blocked on further build work.
 - [ ] **Turn on analytics when ready.** `js/analytics.js` is disabled by default
   (`PROVIDER = "none"`, honours Do Not Track). Flip to `"plausible"` or `"ga4"`;
   **update `cookies.html` first** (and add a consent banner if using GA4).
+
+## Email & mail authentication — open items (as of 2026-10-04)
+
+Mail for cedarhollow.uk was sorted on 30 Sep. `hello@cedarhollow.uk` had been a
+**separate, never-opened mailbox since April**; it is now an alias on
+`hello@theoaks.uk`, which is an inbox someone actually reads.
+
+- [ ] **Answer four enquiries nobody ever saw.** They sit in
+  `cedarhollow-archive@theoaks.uk`, the renamed original mailbox:
+  **Sarah Weston** (29 Sep, still live), **Josie Maling** (5 Jun, "Booking change
+  required URGENT" — wrong dates booked on the Faun's room), **Olivia Collins**
+  (18 Jun), **benmarriott96** (7 May, booking extension). Check the May and June
+  ones against booking records: someone may have arrived on the wrong date or be
+  owed money.
+- [ ] **Delete `cedarhollow-archive@theoaks.uk`** once those are handled — it
+  still consumes a licence. Change its password first; it was shared in plain
+  text over WhatsApp.
+- [ ] **Point the website contact form at Cedar Hollow.** `CONTACT_TO` in
+  `wrangler.toml` is still `hello@thelabgroup.com`, so form submissions reach
+  neither Cedar Hollow address. One line plus a deploy.
+- [ ] **Add two Gmail filters** on `hello@theoaks.uk`: label anything sent
+  `to:hello@cedarhollow.uk`, and file the DMARC XML reports out of the inbox.
+  That mailbox has ~8,700 unread, so enquiries will otherwise be invisible —
+  a quieter version of the problem just fixed.
+- [ ] **theoaks.uk has no SPF, DKIM or DMARC** and sends unauthenticated mail.
+  Its DNS moved from Wix to Cloudflare in early October, so this is now a
+  Cloudflare job rather than a Wix one. Lower priority if that address is
+  genuinely being retired.
+- [ ] **Decision for the owner — rename the account?** `hello@cedarhollow.uk`
+  receives mail and sends as Cedar Hollow, but **sign-in, Calendar and Drive
+  still show `hello@theoaks.uk`**, because an alias cannot be a sign-in address.
+  Renaming the primary address fixes that, and is possible today because
+  cedarhollow.uk is a Secondary Domain — a user alias domain could not hold a
+  primary address. `hello@theoaks.uk` is retained as an alias automatically, so
+  nothing sent to it is lost.
+
+Done 30 Sep, for reference: cedarhollow.uk has SPF, Google DKIM (authenticating)
+and DMARC at `p=none`. **MX was already correct and was never changed** — the
+delivery path had worked since before the domain was connected; the mailbox
+simply was not being read. `hello@` and `enquiries@cedarhollow.uk` are aliases
+on `hello@theoaks.uk`, and Gmail is set to reply from whichever address received
+the message.
 
 ### Resolved since the audit below (2026-07-22 → 26)
 
