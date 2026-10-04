@@ -232,6 +232,8 @@ const CHECKED_IN = { theoaks: "cedar-hollow-treehouse", "fauns-hideaway": "fauns
  * booking:1:<id> in IG_KV -- a repeat, or the cancellation, overwrites it --
  * with what the reports need in the key's metadata, so all of them are one
  * list call to read. No guest's name or contact details are sent or kept.
+ * Ids beginning "test-" are kept but left out of the reports, so Checked.in
+ * can try the link against the live site.
  */
 const BOOKING_PATH = "/api/booking";
 const BOOKING_KEY = "booking:1:";
@@ -490,7 +492,10 @@ async function allBookings(env) {
     let cursor;
     do {
       const page = await env.IG_KV.list({ prefix: BOOKING_KEY, cursor });
-      for (const { metadata: m } of page.keys) if (m && m.d) list.push(m);
+      // Bookings whose id begins "test-" are Checked.in trying the link out.
+      for (const { name, metadata: m } of page.keys) {
+        if (m && m.d && !/^test-/i.test(name.slice(BOOKING_KEY.length))) list.push(m);
+      }
       cursor = page.list_complete ? null : page.cursor;
     } while (cursor);
     return list;
@@ -1374,8 +1379,8 @@ function rumFilter(env, from, to, extra = {}) {
  * the GSC_KEY secret, the JSON file Google Cloud downloads -- whose address
  * the Search Console property lists as a Restricted user. GSC_SITE names the
  * property ("sc-domain:cedarhollow.uk" for a domain property), and
- * GSC_OLD_SITE, if set, theoaks.uk's, to show what Google still sends to the
- * old address while it moves over.
+ * GSC_OLD_SITE, if set, theoaks.uk's: the old Oxford site, whose searches
+ * count with the new address's while Google moves it over.
  *
  * Google keeps sixteen months of these figures, so nothing is kept here:
  * each report asks for its own period as it is sent. Google's days run on
@@ -1477,14 +1482,10 @@ async function searchFigures(env, p) {
       list
         .sort((a, b) => b.clicks - a.clicks || b.impressions - a.impressions || a.query.localeCompare(b.query))
         .slice(0, GSC_TOP);
+    const searches = (rows) => rows.map((r) => ({ query: r.keys[0], clicks: r.clicks, impressions: r.impressions }));
     const t = totals[0] || { clicks: 0, impressions: 0, position: 0 };
     const out = {
-      all: {
-        clicks: t.clicks,
-        impressions: t.impressions,
-        position: t.position,
-        queries: top(queries.map((r) => ({ query: r.keys[0], clicks: r.clicks, impressions: r.impressions }))),
-      },
+      all: { clicks: t.clicks, impressions: t.impressions, position: t.position, queries: searches(queries) },
       // Google's newest days are still filling in.
       fresh: londonMidnight(p.end) > Date.now() - 3 * DAY,
     };
@@ -1506,16 +1507,38 @@ async function searchFigures(env, p) {
         q.impressions += r.impressions;
         byQuery.set(r.keys[0], q);
       }
-      out[part] = { clicks, impressions, position: impressions ? weighted / impressions : 0, queries: top([...byQuery.values()]) };
+      out[part] = { clicks, impressions, position: impressions ? weighted / impressions : 0, queries: [...byQuery.values()] };
     }
+    // theoaks.uk was the Oxford site, and while Google moves it over most
+    // searches still find it there. Its figures count in the whole website's
+    // and in Oxford's -- a search that showed both addresses, twice -- and
+    // what it had on its own is kept to say so.
     if (env.GSC_OLD_SITE) {
       try {
-        const [old] = await ask([], 1, env.GSC_OLD_SITE);
-        out.old = { clicks: old ? old.clicks : 0, impressions: old ? old.impressions : 0 };
+        const [oldTotals, oldQueries] = await Promise.all([ask([], 1, env.GSC_OLD_SITE), ask(["query"], 250, env.GSC_OLD_SITE)]);
+        const o = oldTotals[0] || { clicks: 0, impressions: 0, position: 0 };
+        out.old = { clicks: o.clicks, impressions: o.impressions };
+        for (const part of ["all", "oxford"]) {
+          const f = out[part];
+          const impressions = f.impressions + o.impressions;
+          f.position = impressions ? (f.position * f.impressions + o.position * o.impressions) / impressions : 0;
+          f.impressions = impressions;
+          f.clicks += o.clicks;
+          f.withOld = true;
+          const byQuery = new Map(f.queries.map((q) => [q.query, { ...q }]));
+          for (const q of searches(oldQueries)) {
+            const was = byQuery.get(q.query) || { query: q.query, clicks: 0, impressions: 0 };
+            was.clicks += q.clicks;
+            was.impressions += q.impressions;
+            byQuery.set(q.query, was);
+          }
+          f.queries = [...byQuery.values()];
+        }
       } catch (err) {
         console.error("[report] theoaks.uk searches:", err && err.message ? err.message : err);
       }
     }
+    for (const part of ["all", "oxford", "dorset"]) out[part].queries = top(out[part].queries);
     return out;
   } catch (err) {
     console.error("[report] searches on Google:", err && err.message ? err.message : err);
@@ -2065,7 +2088,7 @@ function renderPart(p, r, part, title, pie, chart, day) {
   // listed its pages, how many clicked, and the searches that did it.
   const G = r.search && !r.search.error ? r.search[part] : null;
   const times = (n) => (n === 1 ? "once" : `${num(n)} times`);
-  const what = part === "all" ? "the site" : `${woodland} pages`;
+  const what = (part === "all" ? "the site" : `${woodland} pages`) + (G && G.withOld ? ", at either address," : "");
   const searchLine = !G
     ? ""
     : G.impressions
@@ -2079,11 +2102,12 @@ function renderPart(p, r, part, title, pie, chart, day) {
   const old = part === "all" && r.search && r.search.old;
   const oldLine =
     old && old.impressions
-      ? `Google also showed the old theoaks.uk address ${times(old.impressions)}, and people clicked it ${times(old.clicks)}; ` +
-        "the old site sends them on here. This falls away as Google finishes moving it over."
+      ? `Of those, the old theoaks.uk address was shown ${times(old.impressions)} and clicked ${times(old.clicks)}; ` +
+        "it sends people on here, and its share falls as Google finishes moving it over to cedarhollow.uk."
       : "";
   const searchNote =
     "Google keeps searches made by very few people private, so those listed are the commoner ones." +
+    (G && G.withOld ? " They include searches that found the old theoaks.uk address." : "") +
     (r.search && r.search.fresh ? " Its figures for the last two or three days are still coming in." : "");
   const searchFailed = part === "all" && r.search && r.search.error ? "Google’s search figures could not be read this time." : "";
 
