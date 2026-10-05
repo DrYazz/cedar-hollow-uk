@@ -1191,15 +1191,17 @@ async function reportFigures(env, p, opts) {
   } else {
     const year = new Date(p.start).getUTCFullYear();
     const twelve = (y) => Promise.all(Array.from({ length: 12 }, (_, m) => monthFigures(env, y, m)));
-    const months = await twelve(year);
+    // The year before too, month by month, for the chart of one against the
+    // other. Months before counting began cost no read.
+    const [months, lastYear] = await Promise.all([twelve(year), twelve(year - 1)]);
     if (opts.live) await addUnkept(env, (d) => months[new Date(d).getUTCMonth()], p.start, upTo, opts);
-    figures = { ...combine(months), months };
+    figures = { ...combine(months), months, lastYear };
     days = months.flatMap(monthDays);
     if (compare && p.soFar) {
       before = await sameDays();
     } else if (compare) {
       const kept = await getKept(env, YEAR_KEY + (year - 1));
-      before = kept ? kept.parts : partTotals(combine(await twelve(year - 1)));
+      before = kept ? kept.parts : partTotals(combine(lastYear));
     }
     if (opts.store && londonMidnight(p.end) <= Date.now()) {
       await putKept(env, YEAR_KEY + year, { year, parts: partTotals(figures) });
@@ -1232,6 +1234,7 @@ async function reportFigures(env, p, opts) {
     parts,
     rows: toRows(figures.sources),
     months: figures.months,
+    lastYear: figures.lastYear,
     // Google is asked only up to today.
     search: await searchFigures(env, { ...p, end: upTo }),
     // Whether any of the period had its clicks to book counted, and all of it.
@@ -2030,6 +2033,20 @@ function bookingMonths(r, part) {
   return { groups, months, total: list.length, channels: list.some((b) => b.channel !== "direct") };
 }
 
+/*
+ * A part's visits in each month of a year, from its months' records, as the
+ * month-by-month table counts them; null for a month before counting began,
+ * or not yet begun, which has no figure rather than none.
+ */
+function yearVisits(months, part, year) {
+  return MONTHS.map((_, i) => {
+    const m = (months || [])[i];
+    const counted = londonMidnight(Date.UTC(year, i + 1, 1)) > COUNTED_FROM && londonMidnight(Date.UTC(year, i, 1)) < Date.now();
+    if (!m || !counted) return null;
+    return part === "all" ? m.visits : inPart(m.sources, part).reduce((n, row) => n + row[3], 0);
+  });
+}
+
 // The websites a part's year-graph names: its biggest, by visits.
 function topNames(S) {
   return groupRows(S.rows).list.slice(0, CHART_SOURCES).map((s) => s.name);
@@ -2212,6 +2229,20 @@ async function renderReport(p, r, web = null) {
         console.error(`[report] no month charts for ${part}:`, err && err.message ? err.message : err);
       }
     }
+    // And this year's visits against last year's, month by month: two
+    // columns a month, last year's first.
+    for (const [part] of PARTS) {
+      const now = yearVisits(r.months, part, year);
+      const then = yearVisits(r.lastYear, part, year - 1);
+      if (!now.concat(then).some((v) => v > 0)) continue;
+      try {
+        const pairs = MONTHS.flatMap((_, i) => [[then[i] || 0, 0], [0, now[i] || 0]]);
+        const png = await columnsPng(pairs, [OTHER_COLOUR, SOURCE_COLOURS[0]], 800, 240, 2);
+        charts[part] = { ...charts[part], years: { cid: `years-${part}`, content: base64Bytes(png) } };
+      } catch (err) {
+        console.error(`[report] no year-on-year chart for ${part}:`, err && err.message ? err.message : err);
+      }
+    }
     // And the bookings made each month, the same way.
     for (const [part] of PARTS) {
       const B = bookingMonths(r, part);
@@ -2241,7 +2272,7 @@ async function renderReport(p, r, web = null) {
   }
   const pictures = [
     ...Object.values(pies),
-    ...Object.values(charts).flatMap((c) => [c.devices, c.sources, c.bookings].filter(Boolean)),
+    ...Object.values(charts).flatMap((c) => [c.devices, c.sources, c.years, c.bookings].filter(Boolean)),
     ...Object.values(days).flatMap((d) => [d.weekdays, d.hours].filter(Boolean)),
   ];
 
@@ -2371,6 +2402,22 @@ function renderPart(p, r, part, title, pie, chart, day) {
 
   const months = partMonths(r, part, year);
   const BM = p.kind === "year" ? bookingMonths(r, part) : null;
+  // This year's visits against last year's, month by month.
+  const YY =
+    p.kind === "year"
+      ? { now: yearVisits(r.months, part, year), then: yearVisits(r.lastYear, part, year - 1) }
+      : null;
+  const anyYY = Boolean(YY) && YY.now.concat(YY.then).some((v) => v !== null);
+  const change = (now, then) => {
+    if (now === null || then === null || !then) return "–";
+    const pct = Math.round((100 * (now - then)) / then);
+    return pct > 0 ? `+${pct}%` : pct < 0 ? `−${-pct}%` : "0%";
+  };
+  const yyNote = !YY
+    ? ""
+    : (YY.then.every((v) => v === null)
+        ? `There are no figures for ${year - 1}: visits were first counted in October 2026. Its columns fill in as there are figures to compare.`
+        : `Visits each month, ${year} beside ${year - 1}.`) + (p.soFar ? ` ${year}’s figures run to today, so this month is a month so far.` : "");
 
   // Its average day: the visits on each day of the week, and in each hour.
   const A = S.average;
@@ -2558,6 +2605,19 @@ function renderPart(p, r, part, title, pie, chart, day) {
             (m) =>
               `${pad(MONTHS[m.index], 4)} ${lpad(num(m.visits), 7)} visits ${lpad(num(m.views), 8)} page views   ${split(m.devices, ", ", true)}`
           ),
+        ]
+      : []),
+    ...(anyYY
+      ? [
+          "",
+          `${year} AGAINST ${year - 1}`,
+          yyNote,
+          `${pad("", 4)} ${lpad(year - 1, 9)} ${lpad(year, 9)}   Change`,
+          ...MONTHS.map((name, i) =>
+            YY.now[i] === null && YY.then[i] === null
+              ? ""
+              : `${pad(name, 4)} ${lpad(YY.then[i] === null ? "–" : num(YY.then[i]), 9)} ${lpad(YY.now[i] === null ? "–" : num(YY.now[i]), 9)}   ${change(YY.now[i], YY.then[i])}`
+          ).filter(Boolean),
         ]
       : []),
     ...(BM
@@ -2761,6 +2821,32 @@ function renderPart(p, r, part, title, pie, chart, day) {
           ) +
           labels
         : "");
+  }
+
+  // This year against last: two columns a month, with the figures in a table
+  // beneath.
+  if (anyYY) {
+    const sumOf = (list) => list.reduce((n, v) => n + (v || 0), 0);
+    html +=
+      `<h2 class="h2">${year} against ${year - 1}</h2><p class="s" style="margin:0 0 10px;">${esc(yyNote)}</p>` +
+      legend([[String(year - 1), OTHER_COLOUR], [String(year), SOURCE_COLOURS[0]]]) +
+      (chart && chart.years
+        ? picture(
+            chart.years,
+            `Bar chart of visits each month, ${year} beside ${year - 1}: ` +
+              MONTHS.map((m, i) => `${m} ${YY.then[i] === null ? "–" : num(YY.then[i])} then, ${YY.now[i] === null ? "–" : num(YY.now[i])} now`).join("; ")
+          )
+        : "") +
+      strip(MONTHS, "font-size:11px;padding:4px 0 0;") +
+      `<table class="t" style="font-size:12px;margin-top:20px;"><tr><th class="hl2">Month</th><th class="hn2">${year - 1}</th><th class="hn2">${year}</th><th class="hn2">Change</th></tr>` +
+      MONTHS.map((m, i) =>
+        YY.now[i] === null && YY.then[i] === null
+          ? ""
+          : `<tr><td class="l2">${m}</td><td class="n2">${YY.then[i] === null ? "&ndash;" : num(YY.then[i])}</td>` +
+            `<td class="n2"><strong>${YY.now[i] === null ? "&ndash;" : num(YY.now[i])}</strong></td><td class="n2">${esc(change(YY.now[i], YY.then[i]))}</td></tr>`
+      ).join("") +
+      `<tr><td class="l2"><strong>Total</strong></td><td class="n2"><strong>${YY.then.every((v) => v === null) ? "&ndash;" : num(sumOf(YY.then))}</strong></td>` +
+      `<td class="n2"><strong>${num(sumOf(YY.now))}</strong></td><td class="n2"></td></tr></table>`;
   }
 
   // Bookings made, month by month: a column a month, split by woodland or
@@ -3124,7 +3210,9 @@ async function piePng(values, colours, size = 180) {
  * of flat colours, and goes as an 8-bit palette PNG: a quarter of the bytes
  * of full colour, and quicker to pack.
  */
-async function columnsPng(stacks, colours, width = 800, height = 240) {
+// `together` columns stand side by side in one slot -- a month's two years,
+// say -- where a column alone stands in the middle of its own.
+async function columnsPng(stacks, colours, width = 800, height = 240, together = 1) {
   const palette = [[255, 255, 255], hexRgb("#e4e0c8"), ...colours.map(hexRgb)];
   const opacity = [0, 255, ...colours.map(() => 255)]; // 0: the clear ground
   const px = new Uint8Array(width * height);
@@ -3138,12 +3226,13 @@ async function columnsPng(stacks, colours, width = 800, height = 240) {
   }
   px.fill(1, floor * width, height * width);
 
-  const slot = width / stacks.length;
-  const bar = Math.round(slot * 0.62);
+  const slot = (width * together) / stacks.length;
+  const span = Math.round(slot * (together > 1 ? 0.8 : 0.62));
+  const bar = Math.floor((span - (together - 1) * 2) / together);
   stacks.forEach((values, i) => {
     const sum = values.reduce((a, b) => a + b, 0);
     if (!sum) return;
-    const x0 = Math.round(i * slot + (slot - bar) / 2);
+    const x0 = Math.round(Math.floor(i / together) * slot + (slot - span) / 2) + (i % together) * (bar + 2);
     let y = floor;
     splitParts(Math.max(2, Math.round((room * sum) / tallest)), values).forEach((h, k) => {
       for (let row = y - h; row < y; row++) px.fill(2 + k, row * width + x0, row * width + x0 + bar);
