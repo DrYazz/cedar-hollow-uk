@@ -6,11 +6,18 @@
  * view (the Worker builds it at most that often anyway); "Refresh now" asks
  * for a fresh one regardless. The tab and the period are kept in the address
  * after the #, beside the map's own choices.
+ *
+ * Opening this page also marks the browser as Cedar Hollow's own (ch_staff
+ * in local storage), which js/analytics.js reads to leave it out of every
+ * count on the site; the switch at the top undoes that, or does it again.
+ * "1" is left out and "0" counted; a browser that has never been here has
+ * neither, and is marked on its first visit only, so "Count it" sticks.
  */
 (function () {
   "use strict";
 
   var VIEWS = ["week", "lastweek", "month", "lastmonth", "year", "lastyear"];
+  var STAFF = "ch_staff";
   var EVERY = 5 * 60 * 1000;
   var $ = function (id) {
     return document.getElementById(id);
@@ -31,6 +38,36 @@
 
   // Last year has nothing in it before 2027: counting began in October 2026.
   if (new Date().getFullYear() > 2026) document.querySelector('#views [data-view="lastyear"]').hidden = false;
+
+  // ---- this browser: counted or not ---------------------------------------------
+  function mark() {
+    try {
+      return localStorage.getItem(STAFF);
+    } catch (e) {
+      return undefined;
+    }
+  }
+  try {
+    if (mark() === null) localStorage.setItem(STAFF, "1");
+  } catch (e) {}
+  function showMark() {
+    var m = mark();
+    $("staff-note").textContent =
+      m === undefined
+        ? "This browser’s storage is off, so its visits to the site are counted."
+        : m === "1"
+          ? "This device is left out of the visitor figures."
+          : "This device is counted in the visitor figures.";
+    $("staff-toggle").hidden = m === undefined;
+    $("staff-toggle").textContent = m === "1" ? "Count it" : "Leave it out";
+  }
+  $("staff-toggle").addEventListener("click", function () {
+    try {
+      localStorage.setItem(STAFF, mark() === "1" ? "0" : "1");
+    } catch (e) {}
+    showMark();
+  });
+  showMark();
 
   // ---- tabs ------------------------------------------------------------------
   var shown = false;

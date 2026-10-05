@@ -32,6 +32,11 @@
  *     2. Set PROVIDER = "ga4" and MEASUREMENT_ID = "G-XXXXXXXXXX"
  *
  * Whichever you choose, update cookies.html to describe it.
+ *
+ * Neither counter below runs in Cedar Hollow's own browsers: opening the
+ * private stats page at /wdtcf marks a browser as one, in its local storage
+ * (ch_staff, set by wdtcf/stats.js, where it can be undone), so the people
+ * reading the figures are not in them. Visitors never get the mark.
  */
 (function () {
   "use strict";
@@ -50,6 +55,11 @@
   // who asks not to be measured is not measured by either.
   if (navigator.doNotTrack === "1" || window.doNotTrack === "1") return;
   if (navigator.globalPrivacyControl) return;
+  // Cedar Hollow's own browsers -- any that has opened the private stats
+  // page, /wdtcf, which marks it so (wdtcf/stats.js) -- are not counted.
+  try {
+    if (localStorage.getItem("ch_staff") === "1") return;
+  } catch (e) {}
 
   function inject(src, attrs) {
     var s = document.createElement("script");
@@ -127,6 +137,11 @@
 
   if (navigator.doNotTrack === "1" || window.doNotTrack === "1") return;
   if (navigator.globalPrivacyControl) return;
+  // Cedar Hollow's own browsers -- any that has opened the private stats
+  // page, /wdtcf, which marks it so (wdtcf/stats.js) -- are not counted.
+  try {
+    if (localStorage.getItem("ch_staff") === "1") return;
+  } catch (e) {}
   if (window.top !== window.self) return;
 
   var KEY = "ch_visit";
