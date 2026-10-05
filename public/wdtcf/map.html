@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Visitor Map | Cedar Hollow</title>
+  <title>Live Stats | Cedar Hollow</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- Private: served only at /wdtcf, behind its password (see VISIT_PATH in
        worker/index.js). Not linked from anywhere, and not to be. -->
@@ -58,13 +58,49 @@
     td small { color: var(--muted); }
     .more { margin-top: 10px; font: inherit; font-size: .875rem; background: none; border: 0; color: var(--part); text-decoration: underline; cursor: pointer; padding: 0; }
     .empty { color: var(--muted); margin: 0; }
+
+    /* The two tabs: the visitor report, live, and the map. */
+    .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin: 0 0 18px; }
+    .tabs button { font: 600 .95rem/1 system-ui, sans-serif; color: var(--muted); background: none; border: 0; border-bottom: 3px solid transparent; padding: 10px 14px 11px; margin-bottom: -1px; cursor: pointer; }
+    .tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); }
+    .status { display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: center; color: var(--muted); font-size: .875rem; margin: 0 0 12px; }
+    .status button, .status a { font: inherit; color: var(--ink); background: none; border: 0; padding: 0; text-decoration: underline; cursor: pointer; }
+    .report { position: relative; background: #f7f5e1; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+    .report iframe { display: block; width: 100%; height: 70vh; border: 0; transition: opacity .2s; }
+    .report.loading iframe { opacity: .35; }
+    .report .wait { position: absolute; top: 40px; left: 0; right: 0; text-align: center; color: var(--muted); display: none; }
+    .report.loading .wait { display: block; }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <h1>Where visitors come from</h1>
-    <p class="sub">Visits to cedarhollow.uk by town, as Cloudflare places them. Private: not linked from the site.</p>
+    <h1>Cedar Hollow, live</h1>
+    <p class="sub">Visitors and bookings on cedarhollow.uk as they happen. Private: not linked from the site.</p>
 
+    <div class="tabs" role="tablist" aria-label="Views">
+      <button type="button" role="tab" id="tab-stats" aria-controls="panel-stats" aria-selected="true">Visitors &amp; bookings</button>
+      <button type="button" role="tab" id="tab-map" aria-controls="panel-map" aria-selected="false">Map</button>
+    </div>
+
+    <section id="panel-stats" role="tabpanel" aria-labelledby="tab-stats">
+      <div class="controls">
+        <div class="chips" id="views" role="group" aria-label="Period">
+          <button type="button" data-view="week" aria-pressed="true">This week</button>
+          <button type="button" data-view="lastweek" aria-pressed="false">Last week</button>
+          <button type="button" data-view="month" aria-pressed="false">This month</button>
+          <button type="button" data-view="lastmonth" aria-pressed="false">Last month</button>
+          <button type="button" data-view="year" aria-pressed="false">This year</button>
+          <button type="button" data-view="lastyear" aria-pressed="false" hidden>Last year</button>
+        </div>
+      </div>
+      <p class="status"><span id="built" aria-live="polite">Building the report…</span><button type="button" id="refresh">Refresh now</button><a id="csv" href="/wdtcf/report?view=week&amp;format=csv">Download spreadsheet</a></p>
+      <div class="report loading" id="report-box">
+        <p class="wait">Building the report… this can take a few seconds.</p>
+        <iframe id="report" title="The visitor report, live"></iframe>
+      </div>
+    </section>
+
+    <section id="panel-map" role="tabpanel" aria-labelledby="tab-map" hidden>
     <div class="controls">
       <div class="seg" role="group" aria-label="Which visits">
         <button type="button" data-part="all" aria-pressed="true">All visits</button>
@@ -103,8 +139,10 @@
         <div id="countries"></div>
       </section>
     </div>
+    </section>
   </div>
   <script src="/js/vendor/leaflet-1.9.4/leaflet.js"></script>
-  <script src="/wdtcf/map.js?v=1"></script>
+  <script src="/wdtcf/map.js?v=2"></script>
+  <script src="/wdtcf/stats.js?v=1"></script>
 </body>
 </html>
