@@ -2,7 +2,9 @@
  * The private visitor map at /wdtcf: draws /wdtcf/data -- visits by town and
  * by day, for all visits or one woodland's, over a run of days -- as dots on
  * a map, a chart and two tables. The choice is kept in the address after the
- * #, so a view can be bookmarked or reloaded.
+ * #, so a view can be bookmarked or reloaded. It is the page's second tab
+ * (see stats.js), and draws itself the first time that tab is shown: a map
+ * laid out while hidden has no size to fit its dots to.
  */
 (function () {
   "use strict";
@@ -83,13 +85,23 @@
   var asked = 0;
   function load() {
     var r = range();
-    var q = "part=" + view.part + (view.days ? "&days=" + view.days : "&from=" + r[0] + "&to=" + r[1]);
-    history.replaceState(null, "", "#" + q);
+    // The stats tab keeps its own choices in the same address.
+    var q = new URLSearchParams(location.hash.slice(1));
+    q.set("part", view.part);
+    ["days", "from", "to"].forEach(function (k) {
+      q.delete(k);
+    });
+    if (view.days) q.set("days", view.days);
+    else {
+      q.set("from", r[0]);
+      q.set("to", r[1]);
+    }
+    history.replaceState(null, "", "#" + q.toString());
     document.documentElement.style.setProperty("--part", COLOURS[view.part]);
-    document.querySelectorAll(".seg button").forEach(function (b) {
+    document.querySelectorAll("#panel-map .seg button").forEach(function (b) {
       b.setAttribute("aria-pressed", String(b.dataset.part === view.part));
     });
-    document.querySelectorAll(".chips button").forEach(function (b) {
+    document.querySelectorAll("#panel-map .chips button").forEach(function (b) {
       b.setAttribute("aria-pressed", String(b.dataset.days === view.days));
     });
     var mine = ++asked;
@@ -303,13 +315,13 @@
     cbox.appendChild(ct);
   }
 
-  document.querySelectorAll(".seg button").forEach(function (b) {
+  document.querySelectorAll("#panel-map .seg button").forEach(function (b) {
     b.addEventListener("click", function () {
       view.part = b.dataset.part;
       load();
     });
   });
-  document.querySelectorAll(".chips button").forEach(function (b) {
+  document.querySelectorAll("#panel-map .chips button").forEach(function (b) {
     b.addEventListener("click", function () {
       view.days = b.dataset.days;
       load();
@@ -324,5 +336,14 @@
       load();
     });
   });
-  load();
+
+  // Called by stats.js whenever the map's tab is shown.
+  var started = false;
+  window.wdtcfShowMap = function () {
+    map.invalidateSize();
+    if (!started) {
+      started = true;
+      load();
+    }
+  };
 })();

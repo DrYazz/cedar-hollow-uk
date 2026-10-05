@@ -264,7 +264,8 @@ const BOOKING_KEY = "booking:1:";
  * are turned away by their user agent. Answers 204, the counting done after.
  *
  * GET /wdtcf is the map, public/wdtcf/map.html, and /wdtcf/data the counts it
- * draws: one part, over a run of days. All of it is behind the WDTCF_PASSWORD
+ * draws: one part, over a run of days. /wdtcf/report is the visitor report,
+ * live, for the same page's other tab (see liveReport). All of it is behind the WDTCF_PASSWORD
  * secret (HTTP Basic: any user name, that password), and run_worker_first
  * sends every address under /wdtcf here first, so no file in public/wdtcf/ is
  * ever served without it.
@@ -350,7 +351,7 @@ export default {
     }
 
     if (url.pathname === MAP_PATH || url.pathname.startsWith(MAP_PATH + "/")) {
-      return visitorMap(request, url, env);
+      return visitorMap(request, url, env, ctx);
     }
 
     // Kept from the old service so the migration can be smoke-tested the same way.
@@ -652,7 +653,7 @@ async function handleVisit(request, url, env, ctx) {
 }
 
 // /wdtcf and everything under it: see VISIT_PATH.
-async function visitorMap(request, url, env) {
+async function visitorMap(request, url, env, ctx) {
   if (!env.WDTCF_PASSWORD) return new Response("Not set up.", { status: 503, headers: PRIVATE });
   if (!(await signedIn(request, env))) {
     return new Response("This page needs its password.", {
@@ -666,6 +667,8 @@ async function visitorMap(request, url, env) {
   let res;
   if (url.pathname === MAP_PATH + "/data") {
     res = await mapData(url, env);
+  } else if (url.pathname === MAP_PATH + "/report") {
+    res = await liveReport(url, env, ctx);
   } else {
     // The page itself at /wdtcf; its files at their own addresses.
     const page = url.pathname === MAP_PATH || url.pathname === MAP_PATH + "/";
@@ -729,6 +732,95 @@ async function mapData(url, env) {
     days: byDay.results.map((r) => [r.day, r.visits]),
     before: { from: before[0], to: before[1], visits: (earlier.results[0] && earlier.results[0].visits) || 0 },
   });
+}
+
+/*
+ * GET /wdtcf/report?view=week|lastweek|month|lastmonth|year|lastyear -- the
+ * visitor report, every part and chart of it as the email has it, built on
+ * demand for the stats tab of the private map page, with its charts in the
+ * page itself. A period still under way -- this week, month or year -- is its
+ * days so far, today's as they stand, against as many days of the period
+ * before; and the days the morning's cron has not kept yet are read from the
+ * API. Nothing is kept and nothing is sent. &format=csv is its spreadsheet.
+ * Built at most once in LIVE_CACHE seconds, unless asked &fresh=1.
+ */
+const LIVE_VIEWS = ["week", "lastweek", "month", "lastmonth", "year", "lastyear"];
+const LIVE_CACHE = 300;
+
+async function liveReport(url, env, ctx) {
+  if (!analyticsReady(env)) return json({ ok: false, error: "Report not configured" }, 503);
+  const q = url.searchParams;
+  const view = LIVE_VIEWS.includes(q.get("view")) ? q.get("view") : "week";
+  const csv = q.get("format") === "csv";
+  const cache = typeof caches !== "undefined" && caches.default ? caches.default : null;
+  const key = new Request(`${url.origin}${MAP_PATH}/report?view=${view}&format=${csv ? "csv" : "html"}&cached=1`);
+  if (cache && q.get("fresh") !== "1") {
+    const hit = await cache.match(key).catch(() => null);
+    if (hit) return hit;
+  }
+
+  const now = Date.now();
+  const p = livePeriod(view, now);
+  let email;
+  try {
+    email = await renderReport(p, await reportFigures(env, p, { dry: true, store: false, fetches: 3, live: true }), { web: true, now });
+  } catch (err) {
+    const reason = err && err.message ? err.message : String(err);
+    console.error(`[report] live ${view}: ${reason}`);
+    return new Response(`<!doctype html><meta charset="utf-8"><p style="font-family:Arial,sans-serif">The figures could not be read just now: ${esc(reason)}</p>`, {
+      status: 502,
+      headers: { "content-type": "text/html; charset=utf-8" },
+    });
+  }
+
+  let res;
+  if (csv) {
+    res = new Response(String.fromCharCode(0xfeff) + email.csv, {
+      headers: { "content-type": "text/csv; charset=utf-8", "content-disposition": `attachment; filename="${email.attachments[0].filename}"` },
+    });
+  } else {
+    // The charts go in as data, where the email attaches them; when it was
+    // built, for the page to say; and its links open beside the page.
+    let html = email.html.replace("</head>", `<meta name="built" content="${new Date(now).toISOString()}"><base target="_blank"></head>`);
+    for (const [cid, content] of Object.entries(email.images)) html = html.split(`cid:${cid}`).join(`data:image/png;base64,${content}`);
+    res = new Response(html, { headers: { "content-type": "text/html; charset=utf-8" } });
+  }
+  if (cache) {
+    const kept = new Response(res.clone().body, res);
+    kept.headers.set("cache-control", `max-age=${LIVE_CACHE}`);
+    ctx.waitUntil(cache.put(key, kept).catch(() => {}));
+  }
+  return res;
+}
+
+// A view's period, as the reports have them. One still under way says so
+// with soFar, today's date: its days run to there.
+function livePeriod(view, now) {
+  const today = londonDate(now);
+  const year = new Date(today).getUTCFullYear();
+  const month = new Date(today).getUTCMonth();
+  const p = {
+    week: () => weekPeriod(now, true),
+    lastweek: () => weekPeriod(now, false),
+    month: () => monthPeriod(year, month),
+    lastmonth: () => monthPeriod(year, month - 1),
+    year: () => yearPeriod(year),
+    lastyear: () => yearPeriod(year - 1),
+  }[view]();
+  if (today < p.end) p.soFar = today;
+  return p;
+}
+
+// The last few days of a period that their months' records do not have yet
+// -- today, and yesterday until the morning's cron keeps it -- read as they
+// stand and added in, for the live report. `monthOf` finds a day's record.
+async function addUnkept(env, monthOf, start, end, opts) {
+  for (let d = Math.max(start, end - 3 * DAY); d < end; d += DAY) {
+    const month = monthOf(d);
+    if (!month || month.days[isoDate(d)]) continue;
+    const day = await dayFigures(env, d, opts);
+    if (day.visits || day.views) addDay(month, day);
+  }
 }
 
 // The retreat a booking address is for: Checked.in's names each retreat, and
@@ -1062,13 +1154,17 @@ async function visitorCron(env, now, monday) {
 /*
  * A report's figures, part by part: the period's own, and the period
  * before's totals to compare them with -- unless that one started before
- * counting did.
+ * counting did. A period still under way (p.soFar, the live report's) is
+ * compared with as many days of the one before; and with opts.live the days
+ * at its end that their month has not kept yet are read as they stand.
  */
 async function reportFigures(env, p, opts) {
   const compare = londonMidnight(p.prevStart) >= COUNTED_FULLY;
   let figures;
   let before = null;
   let days; // [date, totals row, hours], for the average day
+  const upTo = p.soFar ? p.soFar + DAY : p.end;
+  const sameDays = () => dayTotals(env, p.prevStart, Math.min(p.prevStart + (upTo - p.start), p.start));
 
   if (p.kind === "week") {
     // One day at a time: keeping a day rewrites its month, and two kept at
@@ -1077,20 +1173,26 @@ async function reportFigures(env, p, opts) {
     for (let d = p.start; d < p.end; d += DAY) list.push(await dayFigures(env, d, opts));
     figures = combine(list);
     days = list.map((day) => [day.date, dayRow(day), day.hours]);
-    if (compare) before = await dayTotals(env, p.prevStart, p.start);
+    if (compare) before = await sameDays();
   } else if (p.kind === "month") {
     const d = new Date(p.start);
     const prev = new Date(p.prevStart);
     figures = await monthFigures(env, d.getUTCFullYear(), d.getUTCMonth());
+    if (opts.live) await addUnkept(env, () => figures, p.start, upTo, opts);
     days = monthDays(figures);
-    if (compare) before = partTotals(await monthFigures(env, prev.getUTCFullYear(), prev.getUTCMonth()));
+    if (compare) {
+      before = p.soFar ? await sameDays() : partTotals(await monthFigures(env, prev.getUTCFullYear(), prev.getUTCMonth()));
+    }
   } else {
     const year = new Date(p.start).getUTCFullYear();
     const twelve = (y) => Promise.all(Array.from({ length: 12 }, (_, m) => monthFigures(env, y, m)));
     const months = await twelve(year);
+    if (opts.live) await addUnkept(env, (d) => months[new Date(d).getUTCMonth()], p.start, upTo, opts);
     figures = { ...combine(months), months };
     days = months.flatMap(monthDays);
-    if (compare) {
+    if (compare && p.soFar) {
+      before = await sameDays();
+    } else if (compare) {
       const kept = await getKept(env, YEAR_KEY + (year - 1));
       before = kept ? kept.parts : partTotals(combine(await twelve(year - 1)));
     }
@@ -1125,7 +1227,8 @@ async function reportFigures(env, p, opts) {
     parts,
     rows: toRows(figures.sources),
     months: figures.months,
-    search: await searchFigures(env, p),
+    // Google is asked only up to today.
+    search: await searchFigures(env, { ...p, end: upTo }),
     // Whether any of the period had its clicks to book counted, and all of it.
     clicks: p.end > Date.parse(INTENTS_FROM),
     clicksAll: p.start >= Date.parse(INTENTS_FROM),
@@ -1805,8 +1908,20 @@ function periodLabel(p, short = false) {
   return `${start} – ${end}`;
 }
 
-// What the period before is called: "week before", "September", "2025".
+// What the period before is called: "week before", "September", "2025"; or,
+// for a period still under way, its days so far: "same days the week before",
+// "1–5 September", "same days of 2025".
 function beforeLabel(p) {
+  if (p.soFar) {
+    const days = Math.round((p.soFar - p.start) / DAY) + 1;
+    if (p.kind === "week") return days === 1 ? "same day the week before" : "same days the week before";
+    if (p.kind === "month") {
+      const last = Math.min(p.prevStart + (days - 1) * DAY, p.start - DAY);
+      const fmt = (d, opts) => new Intl.DateTimeFormat("en-GB", { timeZone: "UTC", ...opts }).format(new Date(d));
+      return `${last === p.prevStart ? "" : `${fmt(p.prevStart, { day: "numeric" })}–`}${fmt(last, { day: "numeric", month: "long" })}`;
+    }
+    return `same days of ${new Date(p.prevStart).getUTCFullYear()}`;
+  }
   if (p.kind === "week") return "week before";
   if (p.kind === "month") return new Intl.DateTimeFormat("en-GB", { timeZone: "UTC", month: "long" }).format(new Date(p.prevStart));
   return String(new Date(p.prevStart).getUTCFullYear());
@@ -1998,10 +2113,13 @@ function hourSpan(h) {
  * visitor's browser can set to anything -- is escaped for HTML, and guarded
  * in the spreadsheet against being read as a formula.
  */
-async function renderReport(p, r) {
-  const label = periodLabel(p);
+async function renderReport(p, r, web = null) {
+  const label = periodLabel(p) + (p.soFar ? ", so far" : "");
   const year = new Date(p.start).getUTCFullYear();
   const note = periodNote(p);
+  // The live report, on the private map page, says when it was built.
+  const time = web ? new Intl.DateTimeFormat("en-GB", { timeZone: REPORT_TZ, hour: "2-digit", minute: "2-digit" }).format(new Date(web.now)) : "";
+  const live = p.soFar ? `Live: up to ${time} today. Today’s figures are still coming in, and today is left out of the day-of-the-week and time-of-day averages until it is over.` : "";
   const dashboard = `https://dash.cloudflare.com/${r.account}/web-analytics/overview?siteTag~in=${r.site}`;
   const visits = fmtNum(r.parts.all.visits);
 
@@ -2010,11 +2128,13 @@ async function renderReport(p, r) {
     month: `Cedar Hollow website: ${visits} visits in ${label}`,
     year: `Cedar Hollow website: ${visits} visits in ${label}, month by month`,
   }[p.kind];
-  const kicker = { week: "weekly visitors", month: "monthly visitors", year: "the year in visitors" }[p.kind];
+  const kicker = { week: "weekly visitors", month: "monthly visitors", year: "the year in visitors" }[p.kind] + (web ? " · live" : "");
   const directNote =
     "“Direct” means the visitor’s browser didn’t say where they came from: " +
     "the address typed in, a bookmark, or a link in WhatsApp, an email or another app.";
-  const attached = "The full breakdown by part of the site, website and device is attached as a spreadsheet.";
+  const attached = web
+    ? "The full breakdown by part of the site, website and device is in the spreadsheet you can download above."
+    : "The full breakdown by part of the site, website and device is attached as a spreadsheet.";
 
   // The pies go in as pictures attached to the email and shown in its body
   // ("cid:" images): mail clients strip SVG and drawn charts, and many block
@@ -2091,6 +2211,7 @@ async function renderReport(p, r) {
 <p class="k">Cedar Hollow website &middot; ${kicker}</p>
 <h1 class="h1">${esc(label)}</h1>
 ${note ? `<p class="note">${esc(note)}</p>` : ""}
+${live ? `<p class="note">${esc(live)}</p>` : ""}
 ${parts}
 <p class="s" style="margin-top:36px;">${esc(directNote)} ${esc(attached)} More detail is on the <a href="${esc(dashboard)}">Cloudflare dashboard</a>.</p>
 </div></body></html>`;
