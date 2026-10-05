@@ -1,5 +1,6 @@
 /*
- * The private page's tabs, and its first: the visitor report, live. The
+ * The private page's tabs -- Cedar Hollow, Oxford, Dorset and the map -- and
+ * the first three: the visitor report, live, one of its parts in each. The
  * report is the weekly email's own, built on demand by /wdtcf/report for
  * this week, month or year so far or the last whole one, and shown in a
  * frame sized to it. It is rebuilt every five minutes while the tab is in
@@ -17,6 +18,8 @@
   "use strict";
 
   var VIEWS = ["week", "lastweek", "month", "lastmonth", "year", "lastyear"];
+  // The report's parts, each a tab, and the map's.
+  var TABS = ["all", "oxford", "dorset", "map"];
   var STAFF = "ch_staff";
   var EVERY = 5 * 60 * 1000;
   var $ = function (id) {
@@ -26,7 +29,7 @@
     return new URLSearchParams(location.hash.slice(1));
   };
   var state = {
-    tab: hash().get("tab") === "map" ? "map" : "stats",
+    tab: TABS.indexOf(hash().get("tab")) >= 0 ? hash().get("tab") : "all",
     view: VIEWS.indexOf(hash().get("view")) >= 0 ? hash().get("view") : "week",
   };
   function remember() {
@@ -74,18 +77,26 @@
   function showTab(tab) {
     state.tab = tab;
     remember();
-    ["stats", "map"].forEach(function (name) {
+    TABS.forEach(function (name) {
       $("tab-" + name).setAttribute("aria-selected", String(name === tab));
-      $("panel-" + name).hidden = name !== tab;
     });
-    if (tab === "map" && window.wdtcfShowMap) window.wdtcfShowMap();
-    if (tab === "stats" && !shown) load(false);
+    $("panel-map").hidden = tab !== "map";
+    $("panel-stats").hidden = tab === "map";
+    if (tab === "map") {
+      if (window.wdtcfShowMap) window.wdtcfShowMap();
+    } else {
+      $("panel-stats").setAttribute("aria-labelledby", "tab-" + tab);
+      if (!shown) load(false);
+      else showPart();
+    }
+    // Back to the top of the tab, if the page was scrolled past it.
+    var top = document.querySelector(".tabs").getBoundingClientRect().top;
+    if (top < 0) window.scrollBy(0, top);
   }
-  $("tab-stats").addEventListener("click", function () {
-    showTab("stats");
-  });
-  $("tab-map").addEventListener("click", function () {
-    showTab("map");
+  TABS.forEach(function (name) {
+    $("tab-" + name).addEventListener("click", function () {
+      showTab(name);
+    });
   });
 
   // ---- the report ------------------------------------------------------------
@@ -106,6 +117,23 @@
     loadedAt = Date.now();
   }
 
+  // The frame shows the chosen tab's part of the report alone.
+  function showPart() {
+    try {
+      var doc = frame.contentDocument;
+      if (doc && doc.head) {
+        var style = doc.getElementById("only-part");
+        if (!style) {
+          style = doc.createElement("style");
+          style.id = "only-part";
+          doc.head.appendChild(style);
+        }
+        style.textContent = '[data-part]{display:none}[data-part="' + state.tab + '"]{display:block}';
+      }
+    } catch (e) {}
+    fit();
+  }
+
   // The report's own height: the document's is never less than the frame's,
   // so a shorter report after a longer one would keep the longer's height.
   function fit() {
@@ -116,7 +144,7 @@
   }
   frame.addEventListener("load", function () {
     box.classList.remove("loading");
-    fit();
+    showPart();
     try {
       var doc = frame.contentDocument;
       var meta = doc.querySelector('meta[name="built"]');
@@ -141,10 +169,10 @@
 
   // Kept current while it is being looked at.
   setInterval(function () {
-    if (!document.hidden && state.tab === "stats" && Date.now() - loadedAt >= EVERY) load(false);
+    if (!document.hidden && state.tab !== "map" && Date.now() - loadedAt >= EVERY) load(false);
   }, 30 * 1000);
   document.addEventListener("visibilitychange", function () {
-    if (!document.hidden && state.tab === "stats" && shown && Date.now() - loadedAt >= EVERY) load(false);
+    if (!document.hidden && state.tab !== "map" && shown && Date.now() - loadedAt >= EVERY) load(false);
   });
 
   showTab(state.tab);
