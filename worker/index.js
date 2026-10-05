@@ -224,8 +224,17 @@ const RETREATS = {
   "pinwheel-treehouse": ["dorset", "Pinwheel Treehouse"],
   dorset: ["dorset", "Dorset, retreat not chosen"],
 };
-// Checked.in's names for the Oxford three, as its addresses spell them.
-const CHECKED_IN = { theoaks: "cedar-hollow-treehouse", "fauns-hideaway": "fauns-hideaway", "beavers-den-1": "beavers-den" };
+// Checked.in's names for the retreats, as its addresses spell them and as it
+// names them when it reports a booking. Dorset's three moved to Checked.in on
+// 5 October 2026, under their own account, from Mallinson's.
+const CHECKED_IN = {
+  theoaks: "cedar-hollow-treehouse",
+  "fauns-hideaway": "fauns-hideaway",
+  "beavers-den-1": "beavers-den",
+  "the-woodsmans-treehouse": "woodsmans-treehouse",
+  "dazzle-treehouse": "dazzle-treehouse",
+  "pinwheel-treehouse": "pinwheel-treehouse",
+};
 
 /*
  * Bookings, as Checked.in -- Cedar Hollow's own booking system -- reports
@@ -722,9 +731,12 @@ async function mapData(url, env) {
   });
 }
 
-// The retreat a booking address is for: Checked.in's names the Oxford three;
-// Mallinson's one page serves all of Dorset, so the button says which. A gift
-// card is not a stay, and anywhere else is not booking at all.
+// The retreat a booking address is for: Checked.in's names each retreat, and
+// a Checked.in address it does not name is Dorset's if it is on Dorset's own
+// subdomain (cedarhollowdorset.checked.in), else Oxford's. Mallinson's one
+// page, which served all of Dorset until it moved to Checked.in, needs the
+// button to say which. A gift card is not a stay, and anywhere else is not
+// booking at all.
 function retreatOf(href, given) {
   let u;
   try {
@@ -737,7 +749,7 @@ function retreatOf(href, given) {
   if (/(^|\.)mallinson\.co\.uk$/.test(host)) return named("dorset");
   if (!/(^|\.)checked\.in$/.test(host) || /gift-card/.test(u.pathname)) return null;
   const slug = (/\/(?:book|calendar2|booking-calendar)\/([a-z0-9-]+)\/?$/.exec(u.pathname) || [])[1];
-  return CHECKED_IN[slug] || named("oxford");
+  return CHECKED_IN[slug] || named(/dorset/.test(host) ? "dorset" : "oxford");
 }
 
 // A device as Cloudflare's analytics names them: tablet, mobile or desktop.
@@ -2320,9 +2332,9 @@ function renderPart(p, r, part, title, pie, chart, day) {
   const woodlands = (c) =>
     [c.oxford ? `Oxford ${num(c.oxford)}` : "", c.dorset ? `Dorset ${num(c.dorset)}` : ""].filter(Boolean);
   const clicksNote =
-    "A click to book is a visit that went on to a booking site, Checked.in for Oxford or Mallinson’s for " +
-    "Dorset, counted once for each retreat. Booking straight from the calendars on the Oxford stay pages " +
-    "counts once Checked.in reports it." +
+    "A click to book is a visit that went on to Checked.in to book (or, for Dorset before 5 October 2026, " +
+    "Mallinson’s), counted once for each retreat. Booking straight from the calendars on the stay pages " +
+    "counts too." +
     (r.clicksAll ? "" : " Clicks have only been counted since 4 October 2026.");
 
   // Its searches on Google, when Search Console is set up: how often Google

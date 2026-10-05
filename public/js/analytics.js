@@ -94,8 +94,9 @@
 /*
  * Clicks to book: which ways of finding the site lead people on to book.
  *
- * Booking happens on other sites -- Checked.in for Oxford, Mallinson's for
- * Dorset -- and Cloudflare's analytics cannot follow anyone there, or even
+ * Booking happens on another site -- Checked.in, for both woodlands since
+ * Dorset left Mallinson's on 5 October 2026 -- and Cloudflare's analytics
+ * cannot follow anyone there, or even
  * from page to page. So the tab remembers, in session storage, where its
  * visit came from: a random id, the website that sent it and the page it
  * landed on, gone when the tab closes. A click through to a booking site
