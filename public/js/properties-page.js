@@ -100,14 +100,16 @@
       esc(item.name) + '"><img src="images/icons/arrow-next.svg" alt="" aria-hidden="true"></button>';
   }
 
-  // The design reserved this panel for a Checked.in booking widget, and the
-  // Oxford three now carry it: the address their button already pointed at is
-  // a self-contained responsive calendar that sets neither X-Frame-Options nor
-  // a frame-ancestors policy, so it runs here instead of sending anyone to
-  // another site to find out whether a date is free.
+  // The design reserved this panel for a Checked.in booking widget, and all
+  // six retreats now carry it: the calendar is self-contained and responsive
+  // and sets neither X-Frame-Options nor a frame-ancestors policy, so it runs
+  // here instead of sending anyone to another site to find out whether a date
+  // is free. Dorset joined Oxford when its treehouses went live on Checked.in
+  // under their own account, and its cards stopped pointing out to Mallinson's.
   //
-  // Dorset has no calendar of its own yet and keeps its button out to
-  // Mallinson's. Adding a calendarUrl to those three is all it will take.
+  // The button and the note below it are what a retreat gets when it has no
+  // calendarUrl. Nothing in the catalogue is in that state today; they stay
+  // because the next retreat to be added will be, until its widget exists.
   //
   // The minimum stay shows where the booking site publishes one: Mallinson's
   // FAQ gives one policy for all three Dorset treehouses; the Oaks gives none,
@@ -141,8 +143,9 @@
     var book = hasCal
       ? ""
       : '<a class="button w-inline-block" href="' + esc(item.bookingUrl) +
-        // Which retreat, for counting clicks to book (js/analytics.js): the
-        // three Dorset buttons all go to the same Mallinson page.
+        // Which retreat, for counting clicks to book (js/analytics.js). It
+        // mattered most when the three Dorset buttons all went to one
+        // Mallinson page and the address could not tell them apart.
         '" data-retreat="' + esc(item.id) +
         '" target="_blank" rel="noopener"><span>Check availability</span>' + ARROW + "</a>";
 

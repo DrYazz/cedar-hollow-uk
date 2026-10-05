@@ -413,13 +413,14 @@
        still the core page. Only the first should keep a searcher in place. */
     var home = (document.documentElement.getAttribute("data-destination") || "")
       .trim().toLowerCase();
-    /* Dorset has no CheckedIn account yet, so a dated Dorset search has no
-       availability to show and falls through to its own cards, which filter on
-       guests and ignore the dates. When the account arrives it joins Oxford on
-       the line above and stops falling through. */
+    /* Dorset has its own CheckedIn account now, so a dated Dorset search is
+       answerable and goes to its frame rather than falling through to the
+       cards. A dated search that names no place goes to availability.html,
+       which carries both frames. */
     var where = "search-results.html";
     if (both && place === "oxford") where = "oxford-availability.html";
-    else if (both && place !== "dorset") where = "availability.html";
+    else if (both && place === "dorset") where = "dorset-availability.html";
+    else if (both) where = "availability.html";
     else if (home === "oxford") where = "oxford-stays.html";
     else if (home === "dorset") where = "dorset-stays.html";
     form.setAttribute("action", where);

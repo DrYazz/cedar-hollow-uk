@@ -355,3 +355,25 @@
 
 .pp-notes .pp-notes__fine { font-size: 14px; }
 @media (max-width: 991px) { .pp-notes p { font-size: 13px; } .pp-notes .pp-notes__fine { font-size: 11px; } }
+
+/* ---- availability.html: one place after another ------------------------ */
+
+/* Only the core page has more than one, so only it shows headings. The
+   sub-site pages render a bare slot, where the place is the whole page and a
+   heading would just repeat the title. .pp-content already puts 96px between
+   its children, so the section needs no margin of its own. */
+.av-place { display: flex; flex-direction: column; gap: 20px; }
+
+.av-place__title {
+  margin: 0;
+  font-family: var(--font-family--heading, Crimsonpro), serif;
+  font-weight: 300; font-size: 36px; line-height: 1.15; letter-spacing: -1.26px;
+  color: var(--accent, #3b4126);
+}
+
+@media (max-width: 991px) {
+  /* The frame pages have no side padding at this width (.pp-content drops to
+     64px 0), so the heading would otherwise sit hard against the edge. */
+  .av-place { gap: 16px; padding: 0 20px; }
+  .av-place__title { font-size: 28px; letter-spacing: -.98px; }
+}
