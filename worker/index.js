@@ -2245,7 +2245,8 @@ async function renderReport(p, r, web = null) {
   for (const [part, title] of PARTS) {
     const section = renderPart(p, r, part, title, pies[part], charts[part], days[part]);
     text.push("", "", `== ${title.toUpperCase()} ==`, ...section.text);
-    parts += section.html;
+    // On the private page each part has a tab of its own, which shows it alone.
+    parts += web ? `<div data-part="${part}">${section.html}</div>` : section.html;
   }
   text.push("", directNote, attached, `Cloudflare dashboard: ${dashboard}`);
 
