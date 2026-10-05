@@ -9,7 +9,7 @@
   <link rel="preload" href="fonts/CrimsonPro-Light.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/Inter_24pt-Medium.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/HedvigLettersSerif_18pt-Regular.woff2" as="font" type="font/woff2" crossorigin>
-<link href="css/siteswitch.css?v=20260929c" rel="stylesheet" type="text/css">
+<link href="css/siteswitch.css?v=20261005a" rel="stylesheet" type="text/css">
   <link href="css/navpanel.css?v=20260929a" rel="stylesheet" type="text/css">
   <link href="css/normalize.css" rel="stylesheet" type="text/css">
   <link href="css/webflow.css" rel="stylesheet" type="text/css">
@@ -777,16 +777,23 @@ animation:marquee-scroll 70s linear infinite;
             if (e.persisted && v.paused) attempt();
           });
           // iOS Low Power Mode (and some Android battery savers) refuse autoplay
-          // entirely until the user interacts. One retry on the first scroll,
-          // and one on the first tap, cover that without ever fighting a
-          // deliberate pause. The tap counts at its touchend: browsers let a
-          // touch start video only once it ends, and a swipe scrolls before
-          // then, so the two are retried apart.
+          // entirely until the user interacts. Every tap or click tries again
+          // until it plays -- not just the first, which is as often a swipe to
+          // scroll, and a swipe is not leave to start a video -- and the first
+          // scroll once. A tap counts at its touchend: browsers let a touch
+          // start video only once it ends. Once it plays they stop listening;
+          // the loop has no controls, so there is no pause of the reader's to
+          // fight.
           function kick() {
             if (v.paused) attempt();
           }
           window.addEventListener("scroll", kick, { passive: true, once: true });
-          window.addEventListener("touchend", kick, { passive: true, once: true });
+          window.addEventListener("touchend", kick, { passive: true });
+          window.addEventListener("click", kick);
+          v.addEventListener("playing", function () {
+            window.removeEventListener("touchend", kick);
+            window.removeEventListener("click", kick);
+          });
         })();
       </script>
     </div>
@@ -1987,28 +1994,6 @@ requestAnimationFrame(measureFPS)
   <script src="js/reviews-live.js?v=20261001a" type="text/javascript"></script>
   <script src="js/analytics.js?v=20261005b" type="text/javascript"></script>
 <script src="/js/tlg-beacon.js" defer></script>
-<script>
-  /* Pointer devices get :hover from the stylesheet; this is for touch and
-     keyboards, and for closing. */
-  (function () {
-    var box = document.querySelector('.ch-siteswitch');
-    if (!box) return;
-    var caret = box.querySelector('.ch-siteswitch__caret');
-    function set(open) {
-      box.classList.toggle('is-open', open);
-      caret.setAttribute('aria-expanded', String(open));
-    }
-    caret.addEventListener('click', function (e) {
-      e.preventDefault(); e.stopPropagation();
-      set(caret.getAttribute('aria-expanded') !== 'true');
-    });
-    document.addEventListener('click', function (e) {
-      if (!box.contains(e.target)) set(false);
-    });
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && box.classList.contains('is-open')) { set(false); caret.focus(); }
-    });
-  })();
-</script>
+<script src="js/siteswitch.js?v=20261005a"></script>
 </body>
 </html>
