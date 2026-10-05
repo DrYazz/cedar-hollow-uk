@@ -3,9 +3,11 @@
  * the first three: the visitor report, live, one of its parts in each. The
  * report is the weekly email's own, built on demand by /wdtcf/report for
  * this week, month or year so far or the last whole one, and shown in a
- * frame sized to it. It is rebuilt every five minutes while the tab is in
- * view (the Worker builds it at most that often anyway); "Refresh now" asks
- * for a fresh one regardless. The tab and the period are kept in the address
+ * frame sized to it. It is fetched again every five minutes while the tab is
+ * in view, and whenever another period is chosen; the Worker builds it at
+ * most once a minute, and "Refresh now" asks for a fresh one regardless.
+ * Changing between the three report tabs fetches nothing: the report holds
+ * all three parts. The tab and the period are kept in the address
  * after the #, beside the map's own choices.
  *
  * Opening this page also marks the browser as Cedar Hollow's own (ch_staff

@@ -176,6 +176,11 @@ id = "8d6bb0fe7112447ca233e6cd03e8d8b8"   # cedar-hollow-instagram
 # Without the database the visits are not counted; without the password the
 # map is not shown at all. Previews have neither.
 
+# Which version of the Worker is running, so the live report's kept copies
+# (see liveReport) are this version's alone.
+[version_metadata]
+binding = "CF_VERSION_METADATA"
+
 [[d1_databases]]
 binding = "VISITS_DB"
 database_name = "cedar-hollow-visits"

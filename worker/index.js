@@ -742,10 +742,14 @@ async function mapData(url, env) {
  * days so far, today's as they stand, against as many days of the period
  * before; and the days the morning's cron has not kept yet are read from the
  * API. Nothing is kept and nothing is sent. &format=csv is its spreadsheet.
- * Built at most once in LIVE_CACHE seconds, unless asked &fresh=1.
+ * Built at most once in LIVE_CACHE seconds, unless asked &fresh=1: often
+ * enough that a click shows the figures as they are, seldom enough that the
+ * page left open does not keep asking Cloudflare and Google. The copy kept is
+ * this version of the Worker's (CF_VERSION_METADATA), so one built before a
+ * deploy, in the report's old shape, is never shown after it.
  */
 const LIVE_VIEWS = ["week", "lastweek", "month", "lastmonth", "year", "lastyear"];
-const LIVE_CACHE = 300;
+const LIVE_CACHE = 60;
 
 async function liveReport(url, env, ctx) {
   if (!analyticsReady(env)) return json({ ok: false, error: "Report not configured" }, 503);
@@ -753,7 +757,8 @@ async function liveReport(url, env, ctx) {
   const view = LIVE_VIEWS.includes(q.get("view")) ? q.get("view") : "week";
   const csv = q.get("format") === "csv";
   const cache = typeof caches !== "undefined" && caches.default ? caches.default : null;
-  const key = new Request(`${url.origin}${MAP_PATH}/report?view=${view}&format=${csv ? "csv" : "html"}&cached=1`);
+  const version = (env.CF_VERSION_METADATA && env.CF_VERSION_METADATA.id) || "";
+  const key = new Request(`${url.origin}${MAP_PATH}/report?view=${view}&format=${csv ? "csv" : "html"}&cached=${encodeURIComponent(version)}`);
   if (cache && q.get("fresh") !== "1") {
     const hit = await cache.match(key).catch(() => null);
     if (hit) return hit;
