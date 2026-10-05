@@ -91,6 +91,13 @@
     #honey-months .note { margin-top: 26px; }
     .honey-went table { table-layout: fixed; }
     .honey-went th:first-child, .honey-went td:first-child { width: 60%; overflow-wrap: anywhere; }
+    .honey-key { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-bottom: 14px; }
+    .honey-key > div { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; background: var(--paper); }
+    .honey-key .what { font-weight: 600; color: var(--ink); margin-top: 2px; }
+    .honey-key .honey-more { color: var(--muted); font-size: .8rem; margin-top: 4px; }
+    .honey-went th.n { white-space: normal; }
+    .honey-went td.n small { display: block; }
+    @media (max-width: 600px) { .honey-key { grid-template-columns: 1fr; } }
     .honey-went .honey-group th { padding-top: 16px; color: var(--ink); letter-spacing: .04em; }
     @media (max-width: 600px) { .honey-stats { grid-template-columns: 1fr; } }
     .report .wait { position: absolute; top: 40px; left: 0; right: 0; text-align: center; color: var(--muted); display: none; }
@@ -133,6 +140,12 @@
       <p class="sub">Visits to cedarhollow.uk/honey, the page the code on the honesty box opens. Counted on their own, and in none of the other tabs.</p>
       <div class="honey-stats" id="honey-stats"><p class="note">Loading…</p></div>
       <p class="note" id="honey-note"></p>
+      <section class="panel">
+        <h2>Buttons pressed</h2>
+        <div class="honey-key" id="honey-key"></div>
+        <div id="honey-presses" class="honey-went"></div>
+        <p class="note" id="honey-press-note"></p>
+      </section>
       <section class="panel">
         <div class="panel-head">
           <h2 id="honey-months-title">Scans each month</h2>
@@ -190,7 +203,7 @@
   </div>
   <script src="/js/vendor/leaflet-1.9.4/leaflet.js"></script>
   <script src="/wdtcf/map.js?v=2"></script>
-  <script src="/wdtcf/honey.js?v=2"></script>
+  <script src="/wdtcf/honey.js?v=4"></script>
   <script src="/wdtcf/stats.js?v=4"></script>
 </body>
 </html>

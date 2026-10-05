@@ -3,9 +3,10 @@
  * /wdtcf/honey. A scan is a visit opening cedarhollow.uk/honey, which the
  * code on the honesty box leads to; these are counted on their own and in
  * none of the other tabs. Shown: scans today, in the last 7 and 30 days, and
- * how many of those went on anywhere; the year's scans month by month; and
- * where the visits went from the honey page -- pages of the site, and links
- * off it. Drawn the first time the tab is shown, and again every five
+ * how many of those went on anywhere; how many pressed each of the page's
+ * buttons, and what share of the visits that is -- Choose your honey and
+ * Donate first; the year's scans month by month; and where else the visits
+ * went from the honey page -- pages of the site, and other links off it. Drawn the first time the tab is shown, and again every five
  * minutes while it is in view.
  */
 (function () {
@@ -47,6 +48,21 @@
     "/terms-of-service.html": "Terms of Service",
     "/cookies.html": "Cookies Policy",
   };
+  // The honey page's buttons, by their data-honey names, in page order but
+  // for the two that matter most, which lead.
+  var BUTTONS = [
+    ["purchase", "Choose your honey", "The button to buy honey, on Menulab"],
+    ["donate", "Donate to the Shotover Preservation Society", "To SumUp"],
+    ["proceeds", "“All proceeds donated to the Shotover Preservation Society”", "The link in the introduction, to the society’s website"],
+    ["society", "About the Shotover Preservation Society", "To the society’s website"],
+    ["about-honey", "About our honey", "Our Oxford honey page"],
+    ["whatsapp", "WhatsApp number", "075 91 92 93 94, at the foot of the page"],
+    ["email", "Email address", "hello@cedarhollow.uk, at the foot of the page"],
+  ];
+  function pct(n, of) {
+    return of ? Math.round((100 * n) / of) + "%" : "–";
+  }
+
   function name(kind, target) {
     if (kind === "next") return PAGES[target] || target;
     for (var i = 0; i < LINKS.length; i++) if (LINKS[i][0].test(target)) return LINKS[i][1];
@@ -95,6 +111,49 @@
       ? "Counting began on " + nice(d.first) + "."
       : "No scans counted yet. Counting began when this tab went live; it cannot see visits before that.";
 
+    // ---- the buttons ----------------------------------------------------------
+    // Each press counts once a visit, so a share is of the visits (scans) in
+    // the same days.
+    var yearScans = d.months.reduce(function (n, m) { return n + m[0]; }, 0);
+    var pressed = {};
+    (d.presses || []).forEach(function (r) {
+      pressed[r[0]] = { today: r[1], week: r[2], month: r[3], year: r[4] };
+    });
+    var zero = { today: 0, week: 0, month: 0, year: 0 };
+    var key = $("honey-key");
+    key.replaceChildren();
+    BUTTONS.slice(0, 2).forEach(function (b) {
+      var p = pressed[b[0]] || zero;
+      var card = el("div");
+      card.appendChild(el("div", pct(p.month, t.scan.month), "big"));
+      card.appendChild(el("div", "of visitors pressed " + b[1], "what"));
+      card.appendChild(el("div",
+        number.format(p.month) + " of " + number.format(t.scan.month) + " in the last 30 days · last 7 days " + pct(p.week, t.scan.week) +
+        " · " + d.year + " " + pct(p.year, yearScans), "honey-more"));
+      key.appendChild(card);
+    });
+    var table = el("table");
+    table.innerHTML = '<thead><tr><th>Button</th><th class="n">7 days</th><th class="n">30 days</th><th class="n">' + d.year + "</th></tr></thead>";
+    var body = el("tbody");
+    BUTTONS.forEach(function (b) {
+      var p = pressed[b[0]] || zero;
+      var tr = el("tr");
+      var td = el("td", b[1]);
+      td.appendChild(document.createElement("br"));
+      td.appendChild(el("small", b[2]));
+      tr.appendChild(td);
+      [[p.week, t.scan.week], [p.month, t.scan.month], [p.year, yearScans]].forEach(function (c) {
+        var cell = el("td", number.format(c[0]), "n");
+        cell.appendChild(el("small", pct(c[0], c[1])));
+        tr.appendChild(cell);
+      });
+      body.appendChild(tr);
+    });
+    table.appendChild(body);
+    $("honey-presses").replaceChildren(table);
+    $("honey-press-note").textContent =
+      "Each visitor counts once for each button they press, however often they press it; the share is of all the visitors (scans) in the same days.";
+
     // ---- the year, month by month -------------------------------------------
     $("honey-months-title").textContent = "Scans each month, " + d.year;
     var years = $("honey-years");
@@ -142,7 +201,7 @@
     went.replaceChildren();
     var table = el("table");
     table.innerHTML = '<thead><tr><th>Went to</th><th class="n">Last 30 days</th><th class="n">' + d.year + "</th></tr></thead>";
-    [["out", "Links off the honey page"], ["next", "Pages of the site"]].forEach(function (g) {
+    [["out", "Other links off the honey page"], ["next", "Pages of the site"]].forEach(function (g) {
       var rows = d.went.filter(function (r) { return r[0] === g[0]; });
       if (!rows.length) return;
       var body = el("tbody");

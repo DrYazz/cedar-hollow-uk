@@ -277,15 +277,17 @@ const BOOKING_KEY = "booking:1:";
  *
  *   scan   the honey page opened a visit's account of it, once a visit
  *   on     the visit went on from it, anywhere, once a visit
+ *   press  it pressed this button on the honey page (to: the button's
+ *          data-honey name: purchase, donate...), once each
  *   next   it went on to this page of the site (to: the path), once each
- *   out    it followed this link off the honey page (to: host and path, or
- *          "email" or "phone"), once each
+ *   out    it followed this other link off the honey page (to: host and
+ *          path, or "email" or "phone"), once each
  *
  * Kept in VISITS_DB's honey table as a count per London day, kind and
  * target, and nothing else. GET /wdtcf/honey is what the tab draws.
  */
 const HONEY_PATH = "/api/honey";
-const HONEY_KINDS = ["scan", "on", "next", "out"];
+const HONEY_KINDS = ["scan", "on", "press", "next", "out"];
 
 const VISIT_PATH = "/api/visit";
 const MAP_PATH = "/wdtcf";
@@ -691,7 +693,8 @@ async function handleHoney(request, url, env, ctx) {
   const kind = b && HONEY_KINDS.includes(b.e) ? b.e : null;
   const to = String((b && b.to) || "");
   const target =
-    kind === "next" ? (/^\/[\w./-]{0,160}$/.test(to) ? to : null)
+    kind === "press" ? (/^[a-z-]{1,40}$/.test(to) ? to : null)
+    : kind === "next" ? (/^\/[\w./-]{0,160}$/.test(to) ? to : null)
     : kind === "out" ? (/^(email|phone|[a-z0-9.-]{1,100}(\/[\w.~%/-]{0,160})?)$/i.test(to) ? to.toLowerCase() : null)
     : "";
   if (!kind || target === null) return new Response(null, { status: 400 });
@@ -729,9 +732,10 @@ function honeyTable(env) {
 }
 
 // GET /wdtcf/honey?year=YYYY: scans (and visits that went on) today, in the
-// last 7 and 30 days; the year's, month by month; where the visits went from
-// the honey page, over the last 30 days and over the year; and the years
-// there are figures for.
+// last 7 and 30 days; the year's, month by month; each button's presses
+// over the same spans and the year; where the visits went from the honey
+// page, over the last 30 days and over the year; and the years there are
+// figures for.
 async function honeyData(url, env) {
   if (!env.VISITS_DB) return json({ ok: false, error: "No database" }, 503);
   await honeyTable(env);
@@ -742,7 +746,7 @@ async function honeyData(url, env) {
   const month = isoDate(Date.parse(today) - 29 * DAY);
   const [from, to] = [`${year}-01-01`, `${year}-12-31`];
   const db = env.VISITS_DB;
-  const [totals, months, went, span] = await db.batch([
+  const [totals, months, went, span, presses] = await db.batch([
     db
       .prepare(
         "SELECT kind, SUM(CASE WHEN day = ? THEN n ELSE 0 END) AS today, SUM(CASE WHEN day >= ? THEN n ELSE 0 END) AS week, " +
@@ -759,6 +763,13 @@ async function honeyData(url, env) {
       )
       .bind(month, from, to, month, from, to),
     db.prepare("SELECT MIN(day) AS first FROM honey WHERE kind = 'scan'"),
+    db
+      .prepare(
+        "SELECT target, SUM(CASE WHEN day = ? THEN n ELSE 0 END) AS today, SUM(CASE WHEN day >= ? THEN n ELSE 0 END) AS week, " +
+          "SUM(CASE WHEN day >= ? THEN n ELSE 0 END) AS month, SUM(CASE WHEN day BETWEEN ? AND ? THEN n ELSE 0 END) AS year " +
+          "FROM honey WHERE kind = 'press' AND (day >= ? OR day BETWEEN ? AND ?) GROUP BY target"
+      )
+      .bind(today, week, month, from, to, month, from, to),
   ]);
   const sums = { scan: { today: 0, week: 0, month: 0 }, on: { today: 0, week: 0, month: 0 } };
   for (const r of totals.results) sums[r.kind] = { today: r.today || 0, week: r.week || 0, month: r.month || 0 };
@@ -776,6 +787,7 @@ async function honeyData(url, env) {
     totals: sums,
     months: byMonth,
     went: went.results.map((r) => [r.kind, r.target, r.recent || 0, r.year || 0]),
+    presses: presses.results.map((r) => [r.target, r.today || 0, r.week || 0, r.month || 0, r.year || 0]),
   });
 }
 
