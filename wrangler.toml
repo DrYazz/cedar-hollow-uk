@@ -55,9 +55,13 @@ html_handling = "none"
 # the Worker answers itself is on it -- the API, /health and the two
 # directory spellings in PAGE_ALIASES -- as well as the videos. A new Worker
 # route needs adding here too, or it will never be reached.
+# /wdtcf is the private visitor map: its files are in public/wdtcf/, and must
+# reach the Worker first so that none of them is served without the password.
 run_worker_first = [
   "/api/*",
   "/health",
+  "/wdtcf",
+  "/wdtcf/*",
   "/oxford/",
   "/dorset/",
   "/images/*.mp4",
@@ -153,6 +157,29 @@ GSC_OLD_SITE = "sc-domain:theoaks.uk"
 [[kv_namespaces]]
 binding = "IG_KV"
 id = "8d6bb0fe7112447ca233e6cd03e8d8b8"   # cedar-hollow-instagram
+
+# --- Visitor map -------------------------------------------------------------
+# Where visits come from, by town, for the private map at /wdtcf (see
+# VISIT_PATH in worker/index.js). js/analytics.js tells POST /api/visit when a
+# visit begins and when it reaches Oxford's or Dorset's pages; the Worker
+# counts it in this D1 database against the town request.cf places it in, a
+# count per town per day and nothing else. D1 rather than IG_KV: KV's free
+# plan allows 1,000 writes a day, and the site has more visits than that will
+# soon carry. migrations/ holds the table, applied with:
+#
+#   npx wrangler d1 migrations apply cedar-hollow-visits --remote
+#
+# The map asks for a password, a secret:
+#
+#   npx wrangler secret put WDTCF_PASSWORD
+#
+# Without the database the visits are not counted; without the password the
+# map is not shown at all. Previews have neither.
+
+[[d1_databases]]
+binding = "VISITS_DB"
+database_name = "cedar-hollow-visits"
+database_id = "f88b7e6c-99ad-40c8-a9e7-28af257149c5"
 
 [triggers]
 crons = ["17 4 * * *"]
