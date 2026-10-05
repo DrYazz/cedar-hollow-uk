@@ -138,8 +138,9 @@
  * The honey page (/honey, opened by scanning the code on the honesty box) is
  * the exception: it is counted on its own, for the Honey tab, and in none of
  * the figures above. /api/honey hears of a scan, once a visit; and then, if
- * the visit goes on, of each page of the site it goes on to and each link it
- * follows off the honey page, once each.
+ * the visit goes on, of each of the page's buttons pressed, each page of the
+ * site it goes on to and each other link it follows off the honey page, once
+ * each.
  */
 (function () {
   "use strict";
@@ -238,8 +239,13 @@
         } catch (err) {
           return;
         }
-        // A page of this site is counted when it opens (above), so only
-        // what leaves it is counted here: its host and path, no query.
+        // The page's buttons say which they are (data-honey), and pressing
+        // one is counted as that: "press", once a visit for each, wherever
+        // it leads. Any other link is counted by where it goes -- a page of
+        // this site when that page opens (above), so only what leaves the
+        // site here: its host and path, no query.
+        var button = a.getAttribute("data-honey");
+        if (button && /^[a-z-]{1,40}$/.test(button)) return onward("press", button);
         var to =
           url.protocol === "mailto:" ? "email"
           : url.protocol === "tel:" ? "phone"
