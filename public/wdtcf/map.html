@@ -65,13 +65,34 @@
     .tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); }
     .tabs button { white-space: nowrap; }
     /* On a phone the woodland tabs are named by their woodland alone. */
-    @media (max-width: 600px) { .tabs .wide { display: none; } .tabs button { padding: 10px 10px 11px; } }
+    @media (max-width: 600px) { .tabs .wide { display: none; } .tabs button { padding: 10px 7px 11px; font-size: .875rem; } .tabs { gap: 0; } .honey-n { font-size: .65rem; } .honey-chart { gap: 2px; } .honey-m { font-size: .65rem; } }
     .status { display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: center; color: var(--muted); font-size: .875rem; margin: 0 0 12px; }
     .staff { margin: -10px 0 14px; }
     .status button, .status a { font: inherit; color: var(--ink); background: none; border: 0; padding: 0; text-decoration: underline; cursor: pointer; }
     .report { position: relative; background: #f7f5e1; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
     .report iframe { display: block; width: 100%; height: 70vh; border: 0; transition: opacity .2s; }
     .report.loading iframe { opacity: .35; }
+    /* The Honey tab. */
+    .honey-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 4px 0 8px; }
+    .honey-card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; }
+    .honey-card .stat { margin-top: 4px; }
+    .honey-on { color: var(--muted); font-size: .8rem; margin-top: 2px; min-height: 1em; }
+    .panel-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 8px; }
+    .year-pick { display: flex; gap: 6px; }
+    .year-pick button { font: inherit; font-size: .85rem; padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px; background: var(--card); color: var(--text); cursor: pointer; }
+    .year-pick button[aria-pressed="true"] { border-color: var(--ink); color: var(--ink); font-weight: 600; }
+    .honey-chart { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 6px; height: 200px; align-items: end; border-bottom: 1px solid var(--line); padding-top: 4px; }
+    .honey-col { display: flex; flex-direction: column; justify-content: flex-end; align-items: center; height: 100%; position: relative; }
+    .honey-n { font-size: .8rem; color: var(--text); margin-bottom: 3px; font-variant-numeric: tabular-nums; }
+    .honey-bar { display: block; width: 70%; background: var(--ink); border-radius: 3px 3px 0 0; }
+    .honey-col.is-now .honey-bar { background: #c9a227; }
+    .honey-m { position: absolute; bottom: -22px; font-size: .75rem; color: var(--muted); }
+    #honey-months { padding-bottom: 24px; }
+    #honey-months .note { margin-top: 26px; }
+    .honey-went table { table-layout: fixed; }
+    .honey-went th:first-child, .honey-went td:first-child { width: 60%; overflow-wrap: anywhere; }
+    .honey-went .honey-group th { padding-top: 16px; color: var(--ink); letter-spacing: .04em; }
+    @media (max-width: 600px) { .honey-stats { grid-template-columns: 1fr; } }
     .report .wait { position: absolute; top: 40px; left: 0; right: 0; text-align: center; color: var(--muted); display: none; }
     .report.loading .wait { display: block; }
   </style>
@@ -86,6 +107,7 @@
       <button type="button" role="tab" id="tab-all" aria-controls="panel-stats" aria-selected="true">Cedar Hollow</button>
       <button type="button" role="tab" id="tab-oxford" aria-controls="panel-stats" aria-selected="false"><span class="wide">Cedar Hollow </span>Oxford</button>
       <button type="button" role="tab" id="tab-dorset" aria-controls="panel-stats" aria-selected="false"><span class="wide">Cedar Hollow </span>Dorset</button>
+      <button type="button" role="tab" id="tab-honey" aria-controls="panel-honey" aria-selected="false">Honey</button>
       <button type="button" role="tab" id="tab-map" aria-controls="panel-map" aria-selected="false">Map</button>
     </div>
 
@@ -105,6 +127,24 @@
         <p class="wait">Building the report… this can take a few seconds.</p>
         <iframe id="report" title="The visitor report, live"></iframe>
       </div>
+    </section>
+
+    <section id="panel-honey" role="tabpanel" aria-labelledby="tab-honey" hidden>
+      <p class="sub">Visits to cedarhollow.uk/honey, the page the code on the honesty box opens. Counted on their own, and in none of the other tabs.</p>
+      <div class="honey-stats" id="honey-stats"><p class="note">Loading…</p></div>
+      <p class="note" id="honey-note"></p>
+      <section class="panel">
+        <div class="panel-head">
+          <h2 id="honey-months-title">Scans each month</h2>
+          <div class="year-pick" id="honey-years" role="group" aria-label="Year"></div>
+        </div>
+        <div id="honey-months"></div>
+      </section>
+      <section class="panel">
+        <h2>Where they went next</h2>
+        <p class="note" id="honey-went-note"></p>
+        <div id="honey-went" class="honey-went"></div>
+      </section>
     </section>
 
     <section id="panel-map" role="tabpanel" aria-labelledby="tab-map" hidden>
@@ -150,6 +190,7 @@
   </div>
   <script src="/js/vendor/leaflet-1.9.4/leaflet.js"></script>
   <script src="/wdtcf/map.js?v=2"></script>
-  <script src="/wdtcf/stats.js?v=3"></script>
+  <script src="/wdtcf/honey.js?v=2"></script>
+  <script src="/wdtcf/stats.js?v=4"></script>
 </body>
 </html>

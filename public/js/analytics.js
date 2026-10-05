@@ -60,6 +60,9 @@
   try {
     if (localStorage.getItem("ch_staff") === "1") return;
   } catch (e) {}
+  // The honey page is counted on its own, for the private stats page's Honey
+  // tab (below), and in none of the site's other figures.
+  if (/^\/honey(\.html)?$/i.test(location.pathname)) return;
 
   function inject(src, attrs) {
     var s = document.createElement("script");
@@ -131,6 +134,12 @@
  * reaches Oxford's or Dorset's pages, and counts it against the town
  * Cloudflare places it in. Nothing about the visit goes with that but which
  * of those it is.
+ *
+ * The honey page (/honey, opened by scanning the code on the honesty box) is
+ * the exception: it is counted on its own, for the Honey tab, and in none of
+ * the figures above. /api/honey hears of a scan, once a visit; and then, if
+ * the visit goes on, of each page of the site it goes on to and each link it
+ * follows off the honey page, once each.
  */
 (function () {
   "use strict";
@@ -164,7 +173,12 @@
         .replace(/-+$/, "");
     } catch (e) {}
     visit = JSON.parse(sessionStorage.getItem(KEY) || "null");
-    if (campaign ? !visit || visit.from !== campaign : !visit || !ours(from)) {
+    // A reload, or Back and Forward, carries on the visit it was part of: a
+    // page opened from nowhere -- a typed address, a scanned code -- has no
+    // referrer, and keeps having none when it is reloaded.
+    var nav = (window.performance && performance.getEntriesByType && performance.getEntriesByType("navigation")[0]) || {};
+    var again = Boolean(visit) && (nav.type === "reload" || nav.type === "back_forward");
+    if (!again && (campaign ? !visit || visit.from !== campaign : !visit || !ours(from))) {
       visit = {
         id: Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2),
         from: campaign || (ours(from) ? "" : from),
@@ -177,9 +191,71 @@
     return; // private mode or storage off: nothing to attribute a click to
   }
 
-  // Where visits come from: once a visit, and once for each woodland whose
-  // pages it reaches -- the same test as partOf in the Worker.
+  // The honey page, counted on its own. A scan is the honey page opening a
+  // visit's account of it; whatever the visit does next, once each, is where
+  // it went: "next" for a page of this site, "out" for a link off the page.
+  var HONEY = /^\/honey(\.html)?$/i.test(location.pathname);
+  function honey(e, to) {
+    var body = JSON.stringify({ e: e, to: to || "" });
+    if (!(navigator.sendBeacon && navigator.sendBeacon("/api/honey", body))) {
+      fetch("/api/honey", { method: "POST", body: body, keepalive: true }).catch(function () {});
+    }
+  }
+  function onward(kind, to) {
+    var h = visit.honey;
+    if (!h || h.went[kind + " " + to]) return;
+    h.went[kind + " " + to] = 1;
+    // "on" once a visit, so the share that went anywhere can be told.
+    if (!h.on) {
+      h.on = 1;
+      honey("on");
+    }
+    try {
+      sessionStorage.setItem(KEY, JSON.stringify(visit));
+    } catch (e) {}
+    honey(kind, to);
+  }
   try {
+    if (HONEY) {
+      if (!visit.honey) {
+        visit.honey = { went: {} };
+        sessionStorage.setItem(KEY, JSON.stringify(visit));
+        honey("scan");
+      }
+    } else if (visit.honey) {
+      onward("next", location.pathname);
+    }
+  } catch (e) {}
+  if (HONEY) {
+    document.addEventListener(
+      "click",
+      function (e) {
+        var a = e.target && e.target.closest && e.target.closest("a[href]");
+        if (!a) return;
+        var url;
+        try {
+          url = new URL(a.href, location.href);
+        } catch (err) {
+          return;
+        }
+        // A page of this site is counted when it opens (above), so only
+        // what leaves it is counted here: its host and path, no query.
+        var to =
+          url.protocol === "mailto:" ? "email"
+          : url.protocol === "tel:" ? "phone"
+          : /^https?:$/.test(url.protocol) && !ours(url.hostname)
+            ? (url.hostname.replace(/^www\./, "") + url.pathname).replace(/\/+$/, "")
+            : "";
+        if (to) onward("out", to.slice(0, 160));
+      },
+      true
+    );
+  }
+
+  // Where visits come from: once a visit, and once for each woodland whose
+  // pages it reaches -- the same test as partOf in the Worker. Not from the
+  // honey page, which is counted on its own.
+  if (!HONEY) try {
     var woodland = (/^\/(oxford|dorset)(?:[./-]|$)/i.exec(location.pathname) || [])[1];
     var mapped = visit.mapped || (visit.mapped = {});
     var parts = ["all", woodland && woodland.toLowerCase()].filter(function (part) {
