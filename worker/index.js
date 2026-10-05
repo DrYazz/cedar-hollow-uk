@@ -270,6 +270,23 @@ const BOOKING_KEY = "booking:1:";
  * sends every address under /wdtcf here first, so no file in public/wdtcf/ is
  * ever served without it.
  */
+/*
+ * The honey page, counted on its own for the private page's Honey tab, and
+ * in none of the site's other figures (js/analytics.js leaves it out of
+ * them). POST /api/honey -- { e, to } -- from that page and what follows it:
+ *
+ *   scan   the honey page opened a visit's account of it, once a visit
+ *   on     the visit went on from it, anywhere, once a visit
+ *   next   it went on to this page of the site (to: the path), once each
+ *   out    it followed this link off the honey page (to: host and path, or
+ *          "email" or "phone"), once each
+ *
+ * Kept in VISITS_DB's honey table as a count per London day, kind and
+ * target, and nothing else. GET /wdtcf/honey is what the tab draws.
+ */
+const HONEY_PATH = "/api/honey";
+const HONEY_KINDS = ["scan", "on", "next", "out"];
+
 const VISIT_PATH = "/api/visit";
 const MAP_PATH = "/wdtcf";
 const MAP_PARTS = ["all", "oxford", "dorset"];
@@ -348,6 +365,13 @@ export default {
         return json({ ok: false, error: "Method not allowed" }, 405);
       }
       return handleVisit(request, url, env, ctx);
+    }
+
+    if (url.pathname === HONEY_PATH) {
+      if (request.method !== "POST") {
+        return json({ ok: false, error: "Method not allowed" }, 405);
+      }
+      return handleHoney(request, url, env, ctx);
     }
 
     if (url.pathname === MAP_PATH || url.pathname.startsWith(MAP_PATH + "/")) {
@@ -652,6 +676,109 @@ async function handleVisit(request, url, env, ctx) {
   return new Response(null, { status: 204 });
 }
 
+// POST /api/honey: see HONEY_PATH.
+async function handleHoney(request, url, env, ctx) {
+  const origin = request.headers.get("origin") || (request.headers.get("referer") || "").replace(/^(https?:\/\/[^/]+).*$/, "$1");
+  if (origin !== url.origin) return new Response(null, { status: 403 });
+  const text = await request.text().catch(() => "");
+  if (text.length > 500) return new Response(null, { status: 413 });
+  let b;
+  try {
+    b = JSON.parse(text);
+  } catch (err) {
+    return new Response(null, { status: 400 });
+  }
+  const kind = b && HONEY_KINDS.includes(b.e) ? b.e : null;
+  const to = String((b && b.to) || "");
+  const target =
+    kind === "next" ? (/^\/[\w./-]{0,160}$/.test(to) ? to : null)
+    : kind === "out" ? (/^(email|phone|[a-z0-9.-]{1,100}(\/[\w.~%/-]{0,160})?)$/i.test(to) ? to.toLowerCase() : null)
+    : "";
+  if (!kind || target === null) return new Response(null, { status: 400 });
+  if (!env.VISITS_DB || NOT_A_VISITOR.test(request.headers.get("user-agent") || "")) {
+    return new Response(null, { status: 204 });
+  }
+  const day = isoDate(londonDate(Date.now()));
+  ctx.waitUntil(
+    honeyTable(env)
+      .then(() =>
+        env.VISITS_DB.prepare(
+          "INSERT INTO honey (day, kind, target, n) VALUES (?, ?, ?, 1) ON CONFLICT (day, kind, target) DO UPDATE SET n = n + 1"
+        )
+          .bind(day, kind, target)
+          .run()
+      )
+      .catch((err) => console.error("[honey] could not count:", err && err.message ? err.message : err))
+  );
+  return new Response(null, { status: 204 });
+}
+
+// The honey table, made the first time it is wanted (migrations/0002_honey.sql
+// says the same), so the counting needs nothing done by hand before it starts.
+let honeyReady = null;
+function honeyTable(env) {
+  honeyReady =
+    honeyReady ||
+    env.VISITS_DB.exec(
+      "CREATE TABLE IF NOT EXISTS honey (day TEXT NOT NULL, kind TEXT NOT NULL, target TEXT NOT NULL DEFAULT '', n INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (day, kind, target))"
+    ).catch((err) => {
+      honeyReady = null;
+      throw err;
+    });
+  return honeyReady;
+}
+
+// GET /wdtcf/honey?year=YYYY: scans (and visits that went on) today, in the
+// last 7 and 30 days; the year's, month by month; where the visits went from
+// the honey page, over the last 30 days and over the year; and the years
+// there are figures for.
+async function honeyData(url, env) {
+  if (!env.VISITS_DB) return json({ ok: false, error: "No database" }, 503);
+  await honeyTable(env);
+  const today = isoDate(londonDate(Date.now()));
+  const asked = url.searchParams.get("year");
+  const year = /^\d{4}$/.test(asked || "") ? asked : today.slice(0, 4);
+  const week = isoDate(Date.parse(today) - 6 * DAY);
+  const month = isoDate(Date.parse(today) - 29 * DAY);
+  const [from, to] = [`${year}-01-01`, `${year}-12-31`];
+  const db = env.VISITS_DB;
+  const [totals, months, went, span] = await db.batch([
+    db
+      .prepare(
+        "SELECT kind, SUM(CASE WHEN day = ? THEN n ELSE 0 END) AS today, SUM(CASE WHEN day >= ? THEN n ELSE 0 END) AS week, " +
+          "SUM(n) AS month FROM honey WHERE kind IN ('scan', 'on') AND day >= ? GROUP BY kind"
+      )
+      .bind(today, week, month),
+    db
+      .prepare("SELECT substr(day, 6, 2) AS m, kind, SUM(n) AS n FROM honey WHERE kind IN ('scan', 'on') AND day BETWEEN ? AND ? GROUP BY m, kind")
+      .bind(from, to),
+    db
+      .prepare(
+        "SELECT kind, target, SUM(CASE WHEN day >= ? THEN n ELSE 0 END) AS recent, SUM(CASE WHEN day BETWEEN ? AND ? THEN n ELSE 0 END) AS year " +
+          "FROM honey WHERE kind IN ('next', 'out') AND (day >= ? OR day BETWEEN ? AND ?) GROUP BY kind, target ORDER BY year DESC, recent DESC"
+      )
+      .bind(month, from, to, month, from, to),
+    db.prepare("SELECT MIN(day) AS first FROM honey WHERE kind = 'scan'"),
+  ]);
+  const sums = { scan: { today: 0, week: 0, month: 0 }, on: { today: 0, week: 0, month: 0 } };
+  for (const r of totals.results) sums[r.kind] = { today: r.today || 0, week: r.week || 0, month: r.month || 0 };
+  const byMonth = MONTHS.map(() => [0, 0]);
+  for (const r of months.results) byMonth[Number(r.m) - 1][r.kind === "scan" ? 0 : 1] += r.n || 0;
+  const first = (span.results[0] && span.results[0].first) || null;
+  const years = [];
+  for (let y = Number((first || today).slice(0, 4)); y <= Number(today.slice(0, 4)); y++) years.push(String(y));
+  return json({
+    ok: true,
+    today,
+    year,
+    first,
+    years,
+    totals: sums,
+    months: byMonth,
+    went: went.results.map((r) => [r.kind, r.target, r.recent || 0, r.year || 0]),
+  });
+}
+
 // /wdtcf and everything under it: see VISIT_PATH.
 async function visitorMap(request, url, env, ctx) {
   if (!env.WDTCF_PASSWORD) return new Response("Not set up.", { status: 503, headers: PRIVATE });
@@ -667,6 +794,8 @@ async function visitorMap(request, url, env, ctx) {
   let res;
   if (url.pathname === MAP_PATH + "/data") {
     res = await mapData(url, env);
+  } else if (url.pathname === MAP_PATH + "/honey") {
+    res = await honeyData(url, env);
   } else if (url.pathname === MAP_PATH + "/report") {
     res = await liveReport(url, env, ctx);
   } else {

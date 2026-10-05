@@ -21,7 +21,9 @@
 
   var VIEWS = ["week", "lastweek", "month", "lastmonth", "year", "lastyear"];
   // The report's parts, each a tab, and the map's.
-  var TABS = ["all", "oxford", "dorset", "map"];
+  var TABS = ["all", "oxford", "dorset", "honey", "map"];
+  // The tabs that show a part of the report; Honey and Map have their own.
+  var REPORT = ["all", "oxford", "dorset"];
   var STAFF = "ch_staff";
   var EVERY = 5 * 60 * 1000;
   var $ = function (id) {
@@ -83,9 +85,12 @@
       $("tab-" + name).setAttribute("aria-selected", String(name === tab));
     });
     $("panel-map").hidden = tab !== "map";
-    $("panel-stats").hidden = tab === "map";
+    $("panel-honey").hidden = tab !== "honey";
+    $("panel-stats").hidden = REPORT.indexOf(tab) < 0;
     if (tab === "map") {
       if (window.wdtcfShowMap) window.wdtcfShowMap();
+    } else if (tab === "honey") {
+      if (window.wdtcfShowHoney) window.wdtcfShowHoney();
     } else {
       $("panel-stats").setAttribute("aria-labelledby", "tab-" + tab);
       if (!shown) load(false);
@@ -171,10 +176,10 @@
 
   // Kept current while it is being looked at.
   setInterval(function () {
-    if (!document.hidden && state.tab !== "map" && Date.now() - loadedAt >= EVERY) load(false);
+    if (!document.hidden && REPORT.indexOf(state.tab) >= 0 && Date.now() - loadedAt >= EVERY) load(false);
   }, 30 * 1000);
   document.addEventListener("visibilitychange", function () {
-    if (!document.hidden && state.tab !== "map" && shown && Date.now() - loadedAt >= EVERY) load(false);
+    if (!document.hidden && REPORT.indexOf(state.tab) >= 0 && shown && Date.now() - loadedAt >= EVERY) load(false);
   });
 
   showTab(state.tab);
