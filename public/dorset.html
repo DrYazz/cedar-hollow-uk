@@ -9,7 +9,7 @@
   <link rel="preload" href="fonts/CrimsonPro-Light.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/Inter_24pt-Medium.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/HedvigLettersSerif_18pt-Regular.woff2" as="font" type="font/woff2" crossorigin>
-<link href="css/siteswitch.css?v=20260929c" rel="stylesheet" type="text/css">
+<link href="css/siteswitch.css?v=20261005a" rel="stylesheet" type="text/css">
   <link href="css/normalize.css" rel="stylesheet" type="text/css">
   <link href="css/webflow.css" rel="stylesheet" type="text/css">
   <link href="css/cedar-hollow-uk.webflow.css?v=20261001c" rel="stylesheet" type="text/css">
@@ -1658,29 +1658,7 @@ animation:marquee-scroll 70s linear infinite;
   <!-- <script src="js/signup-popup.js?v=20260916a" type="text/javascript"></script> -->
   <script src="js/analytics.js?v=20261005b" type="text/javascript"></script>
 <script src="/js/tlg-beacon.js" defer></script>
-<script>
-  /* Pointer devices get :hover from the stylesheet; this is for touch and
-     keyboards, and for closing. */
-  (function () {
-    var box = document.querySelector('.ch-siteswitch');
-    if (!box) return;
-    var caret = box.querySelector('.ch-siteswitch__caret');
-    function set(open) {
-      box.classList.toggle('is-open', open);
-      caret.setAttribute('aria-expanded', String(open));
-    }
-    caret.addEventListener('click', function (e) {
-      e.preventDefault(); e.stopPropagation();
-      set(caret.getAttribute('aria-expanded') !== 'true');
-    });
-    document.addEventListener('click', function (e) {
-      if (!box.contains(e.target)) set(false);
-    });
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && box.classList.contains('is-open')) { set(false); caret.focus(); }
-    });
-  })();
-</script>
+<script src="js/siteswitch.js?v=20261005a"></script>
   <script src="js/instagram-live.js?v=20261001b" type="text/javascript"></script>
 </body>
 </html>

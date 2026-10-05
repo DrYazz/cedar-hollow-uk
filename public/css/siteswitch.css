@@ -33,16 +33,24 @@
     display:flex;align-items:center;gap:clamp(1rem,2.2vw,2.25rem);
     white-space:nowrap;
     visibility:hidden;transition:visibility 0s linear .24s}
-.ch-siteswitch:hover .ch-siteswitch__list,
-  .ch-siteswitch:focus-within .ch-siteswitch__list,
-  .ch-siteswitch.is-open .ch-siteswitch__list{visibility:visible;transition-delay:0s}
+/* Open when tapped or clicked open (is-open), or while a link in it has the
+   keyboard's focus. The caret's own focus does not hold it open: a click
+   leaves the caret focused, and the caret could then never close it. */
+.ch-siteswitch.is-open .ch-siteswitch__list,
+  .ch-siteswitch__list:focus-within{visibility:visible;transition-delay:0s}
 .ch-siteswitch__list li{opacity:0;transform:translateY(-.4rem);
     transition:opacity .24s ease,transform .24s cubic-bezier(.2,.7,.3,1)}
-.ch-siteswitch:hover .ch-siteswitch__list li,
-  .ch-siteswitch:focus-within .ch-siteswitch__list li,
-  .ch-siteswitch.is-open .ch-siteswitch__list li{opacity:1;transform:none}
-.ch-siteswitch:hover .ch-siteswitch__caret,
-  .ch-siteswitch.is-open .ch-siteswitch__caret{transform:rotate(180deg);opacity:1}
+.ch-siteswitch.is-open .ch-siteswitch__list li,
+  .ch-siteswitch__list:focus-within li{opacity:1;transform:none}
+.ch-siteswitch.is-open .ch-siteswitch__caret{transform:rotate(180deg);opacity:1}
+/* A mouse also opens it by pointing at it, unless the caret has just closed
+   it (is-shut, js/siteswitch.js). A touch screen does not: there a tap
+   leaves "hover" stuck on what was tapped, which held the list open. */
+@media (hover:hover) and (pointer:fine) {
+  .ch-siteswitch:not(.is-shut):hover .ch-siteswitch__list{visibility:visible;transition-delay:0s}
+  .ch-siteswitch:not(.is-shut):hover .ch-siteswitch__list li{opacity:1;transform:none}
+  .ch-siteswitch:not(.is-shut):hover .ch-siteswitch__caret{transform:rotate(180deg);opacity:1}
+}
 .ch-siteswitch__list a{display:inline-flex;align-items:center;
     gap:clamp(.35rem,.6vw,.55rem);text-decoration:none;color:#f1ecdb;
     /* no panel, so the hero is held off with a shadow rather than a box */

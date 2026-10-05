@@ -8,7 +8,7 @@
   <link rel="preload" href="fonts/CrimsonPro-Light.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/Inter_24pt-Medium.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/HedvigLettersSerif_18pt-Regular.woff2" as="font" type="font/woff2" crossorigin>
-<link href="css/siteswitch.css?v=20260929c" rel="stylesheet" type="text/css">
+<link href="css/siteswitch.css?v=20261005a" rel="stylesheet" type="text/css">
   <link href="css/navpanel.css?v=20260929a" rel="stylesheet" type="text/css">
   <link href="css/normalize.css" rel="stylesheet" type="text/css">
   <link href="css/webflow.css" rel="stylesheet" type="text/css">
@@ -937,7 +937,7 @@
       show(/^(news|screen|guests)$/.test(asked || "") ? asked : "all");
     })();
   </script>
-<script src="js/siteswitch.js?v=20260929a"></script>
+<script src="js/siteswitch.js?v=20261005a"></script>
     <script>
       (function () {
         /* A tile is a still until it is asked for. Only then is the clip
@@ -952,6 +952,10 @@
         grid.addEventListener("click", function (e) {
           var btn = e.target.closest && e.target.closest(".ch-reel");
           if (!btn || !grid.contains(btn)) return;
+          // A playing reel's own controls -- sound, pause -- are inside its
+          // tile, and a tap on them is for the video, not for the tile: it
+          // used to stop the reel and take it away.
+          if (e.target.closest("video")) return;
           if (btn === playing) { stop(btn); return; }
           if (playing) stop(playing);
 

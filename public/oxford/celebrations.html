@@ -10,7 +10,7 @@
 <link rel="preload" href="../fonts/Inter_24pt-SemiBold.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="../fonts/HedvigLettersSerif_18pt-Regular.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="canonical" href="https://cedarhollow.uk/oxford/celebrations.html">
-  <link rel="stylesheet" href="../css/siteswitch.css?v=20260929c"><link rel="stylesheet" href="css/site.css?v=407b97bd">
+  <link rel="stylesheet" href="../css/siteswitch.css?v=20261005a"><link rel="stylesheet" href="css/site.css?v=407b97bd">
   <link href="images/favicon.svg" rel="icon" type="image/svg+xml">
   <link href="images/favicon.png" rel="icon" type="image/png" sizes="32x32" media="(prefers-color-scheme: light)">
   <link href="images/favicon-dark.png" rel="icon" type="image/png" sizes="32x32" media="(prefers-color-scheme: dark)">
@@ -224,7 +224,7 @@
       sync();
     });
   })();
-</script><script src="/js/tlg-beacon.js" defer></script><script src="../js/siteswitch.js?v=20260929a"></script>  <script>
+</script><script src="/js/tlg-beacon.js" defer></script><script src="../js/siteswitch.js?v=20261005a"></script>  <script>
     (function () {
       /* The film is a moving photograph, so it plays on its own -- but only
          where the reader has not asked for less motion, and only once it is
@@ -237,11 +237,37 @@
         && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       if (still) return;
 
-      function start(v) {
-        v.preload = "auto";
+      function play(v) {
         var p = v.play();
         if (p && p.catch) p.catch(function () {});
       }
+      // Once it has been seen and asked to play, a film the browser refused
+      // -- iOS Low Power Mode and some battery savers refuse until the reader
+      // touches the page, and a tab in the background defers it -- is tried
+      // again on every tap or click and on coming back to the page, until it
+      // plays. It has no controls, so there is no pause of the reader's to
+      // fight.
+      var waiting = [];
+      function start(v) {
+        v.preload = "auto";
+        play(v);
+        if (waiting.indexOf(v) >= 0) return;
+        waiting.push(v);
+        v.addEventListener("playing", function () {
+          waiting.splice(waiting.indexOf(v), 1);
+        }, { once: true });
+      }
+      function retry() {
+        waiting.forEach(function (v) { if (v.paused) play(v); });
+      }
+      window.addEventListener("touchend", retry, { passive: true });
+      window.addEventListener("click", retry);
+      document.addEventListener("visibilitychange", function () {
+        if (!document.hidden) retry();
+      });
+      window.addEventListener("pageshow", function (e) {
+        if (e.persisted) retry();
+      });
 
       if (!window.IntersectionObserver) { loops.forEach(start); return; }
       var watch = new IntersectionObserver(function (entries) {
