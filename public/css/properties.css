@@ -157,6 +157,16 @@
    tour are positioned against it: left to stretch, they would sit in the empty
    space below the photograph rather than on it. */
 .pp-item__media { align-self: flex-start; }
+/* But only while the two are side by side. Below 1199 .pp-item__row turns into
+   a column, and align-self switches axis with it: what stopped the picture
+   stretching down the row now stops it filling the width, and it was left-
+   pinned in a column whose text was centred -- 50px off centre at 992 and
+   154px at 1199, measured, with the gap all on one side. Stretching is the
+   right answer in a column, where it only sets the width: the height still
+   comes from the photograph, so the arrows and the tour button stay on it.
+   This is also what the picture already does below 992, where it runs
+   full-bleed, so the two now agree instead of meeting at a jump. */
+@media (max-width: 1199px) { .pp-item__media { align-self: stretch; } }
 @media (max-width: 991px) {
   /* The mobile frame runs full-bleed: no radius, no border. */
   .pp-item__media .pp-frame { aspect-ratio: 390 / 294; min-height: 0; border: 0; border-radius: 0; box-shadow: none; }
