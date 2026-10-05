@@ -762,9 +762,17 @@ animation:marquee-scroll 70s linear infinite;
           var alt = v.getAttribute("data-src-portrait");
           if (portrait && alt) v.poster = "images/hero-poster-mobile.jpg?v=20260907i";
           v.src = (portrait && alt) ? alt : v.getAttribute("data-src");
+          // Refused (NotAllowedError) is the browser's rule -- Low Power Mode,
+          // a battery saver -- and only a tap changes it; anything else is a
+          // load that went wrong, which the watchdog below sees to.
+          var refused = false;
           function attempt() {
             var p = v.play();
-            if (p && p.catch) p.catch(function () { /* refused or deferred - the still stays */ });
+            if (p && p.then) {
+              p.then(function () { refused = false; }, function (e) {
+                if (e && e.name === "NotAllowedError") refused = true;
+              });
+            }
           }
           attempt();
           // A tab opened in the background defers autoplay, so try again when it is seen.
@@ -794,6 +802,36 @@ animation:marquee-scroll 70s linear infinite;
             window.removeEventListener("touchend", kick);
             window.removeEventListener("click", kick);
           });
+          // A reload always started a film that had stuck -- on the still, or
+          // part-way -- so the page does what the reload did. Every two
+          // seconds it looks to see the film moving, or more of it arriving
+          // (a slow connection is not a stuck one); if neither has happened
+          // for six seconds while it should be playing, its source is loaded
+          // afresh and it is asked again, three times at most. Not while it is out of sight or
+          // the tab is hidden (a browser may pause it then), nor while the
+          // browser has refused it, which only a tap changes.
+          var seen = true;
+          if (window.IntersectionObserver) {
+            new IntersectionObserver(function (entries) {
+              seen = entries[0].isIntersecting;
+            }).observe(v);
+          }
+          var last = -1, got = -1, still = 0, tries = 0;
+          var watch = setInterval(function () {
+            var b = v.buffered, have = b.length ? b.end(b.length - 1) : 0;
+            if (document.hidden || !seen || refused || v.currentTime !== last || have !== got) {
+              last = v.currentTime;
+              got = have;
+              still = 0;
+              return;
+            }
+            still += 2;
+            if (still < 6) return;
+            still = 0;
+            if (++tries > 3) return clearInterval(watch);
+            v.load();
+            attempt();
+          }, 2000);
         })();
       </script>
     </div>
