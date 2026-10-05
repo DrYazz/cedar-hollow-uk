@@ -7,9 +7,10 @@
  * decides what is filterable and this file does not need to know about grids.
  *
  * Kind (Everything / In the press / On screen / Awards & Accreditations, and
- * on the combined page Our team and Social Media) hides a whole section, heading and all, so
- * the sections carry data-kind and the bar sits above all of them -- a
- * control cannot hide itself. The site menu's Our Team link is ?k=team.
+ * on the combined page Familiar Faces and Social Media) hides a whole section, heading and
+ * all, so the sections carry data-kind and the bar sits above all of them -- a
+ * control cannot hide itself. Familiar Faces, the well-known guests, is
+ * ?k=faces; the team was here as ?k=team, and a link made then lands on it.
  *
  * A woodland page renders the kind control on its own: which woodland is
  * already settled by which page you are on. So neither control is assumed --
@@ -155,11 +156,14 @@
     remember();
   });
 
-  /* honour ?w= and ?k= on arrival, ignoring a value no button offers */
+  /* honour ?w= and ?k= on arrival, ignoring a value no button offers;
+     an old name is read as the new */
+  var RENAMED = { team: "faces" };
   var wanted = new URL(window.location.href).searchParams;
   for (var name in groups) {
     var asked = wanted.get(groups[name].param);
     if (!asked) continue;
+    if (Object.prototype.hasOwnProperty.call(RENAMED, asked)) asked = RENAMED[asked];
     var offered = groups[name].buttons;
     for (var k = 0; k < offered.length; k++) {
       if (offered[k].getAttribute("data-filter") === asked) {

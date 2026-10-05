@@ -45,12 +45,10 @@ SCREEN_RE = re.compile(r"(<!-- ch:press-screen ?([\w:, -]*?) -->)(.*?)(<!-- /ch:
 FEED_RE = re.compile(r"(<!-- ch:press-feed ?([\w-]*) -->)(.*?)(<!-- /ch:press-feed -->)", re.S)
 FILTER_RE = re.compile(r"(<!-- ch:press-filter(?: ([\w-]+))? -->)(.*?)(<!-- /ch:press-filter -->)", re.S)
 AWARDS_RE = re.compile(r"(<!-- ch:press-awards(?: ([\w-]+))? -->)(.*?)(<!-- /ch:press-awards -->)", re.S)
-# The team is written once, on the careers page, between ch:team markers; a
-# ch:press-team block on a press page is a copy of it, so the people behind
-# Cedar Hollow are never listed in two places that can disagree.
-TEAM_SOURCE = ROOT / "public" / "careers.html"
-TEAM_SOURCE_RE = re.compile(r"<!-- ch:team -->(.*?)<!-- /ch:team -->", re.S)
-TEAM_RE = re.compile(r"(<!-- ch:press-team -->)(.*?)(<!-- /ch:press-team -->)", re.S)
+# Familiar Faces: the album of well-known guests, which scripts/
+# update-guests.py copies in from the reviews page between ch:guests markers.
+# The filter only needs to know how many there are; run that script first.
+GUESTS_RE = re.compile(r"<!-- ch:guests -->(.*?)<!-- /ch:guests -->", re.S)
 # The social accounts are written on the page itself, in a section marked
 # data-kind="social"; the filter only needs to know how many there are.
 SOCIAL_RE = re.compile(r'<section[^>]*data-kind="social"[^>]*>(.*?)</section>', re.S)
@@ -467,7 +465,7 @@ def video_year(v):
 def kind_counts(sections, memberships=(), extras=()):
     """What the kind buttons count: articles, films and recognitions -- and,
     on a page that shows them, the extra sections, each (key, label, count):
-    the team's people and the social accounts.
+    the familiar faces and the social accounts.
 
     Memberships count as recognitions, and they count wherever they are
     shown -- they belong to no woodland, so no choice of woodland hides
@@ -482,14 +480,6 @@ def kind_counts(sections, memberships=(), extras=()):
         counts[key] = count
     counts["all"] = sum(counts.values())
     return counts
-
-
-def team_block():
-    """The careers page's team -- the list itself -- and how many it has."""
-    found = TEAM_SOURCE_RE.search(TEAM_SOURCE.read_text(encoding="utf-8"))
-    if not found:
-        sys.exit("%s: no ch:team markers around the team" % TEAM_SOURCE.name)
-    return found.group(1), found.group(1).count('class="ch-album__print"')
 
 
 def filter_btn(group, value, label, count, on):
@@ -517,7 +507,7 @@ def filters(data, indent, scope=None, extras=()):
     """
     sections = data["sections"]
     members = data.get("memberships") or []
-    # "Our team" and "Social Media" are offered only where the page shows them.
+    # "Familiar Faces" and "Social Media" are offered only where the page shows them.
     kinds = ("kind", "Type",
              (("all", "All"), ("press", "Press"), ("screen", "TV"),
               ("awards", "Awards")) + tuple((key, label) for key, label, _n in extras))
@@ -526,7 +516,7 @@ def filters(data, indent, scope=None, extras=()):
     else:
         where = both(sections, "items")["counts"]
         # A membership shows under every woodland, so it is in every count;
-        # so does everyone on the team, and every social account.
+        # so does every familiar face, and every social account.
         for key in where:
             where[key] += len(members) + sum(n for _key, _label, n in extras)
         groups = [
@@ -783,7 +773,6 @@ def main():
     check = "--check" in sys.argv
     data = json.loads(DATA.read_text(encoding="utf-8"))
     sections = data["sections"]
-    team_html, team_count = team_block()
     changed = []
     total = 0
 
@@ -890,17 +879,14 @@ def main():
                 sys.exit("%s: unknown filter scope '%s'" % (page.name, scope))
             seen.append((scope or "combined", 0, "filter"))
             extras = []
-            if TEAM_RE.search(text):
-                extras.append(("team", "Our team", team_count))
+            guests = GUESTS_RE.search(text)
+            if guests:
+                extras.append(("faces", "Familiar Faces", guests.group(1).count('class="ch-album__print"')))
             social = SOCIAL_RE.search(text)
             if social:
                 extras.append(("social", "Social Media", social.group(1).count('class="ch-social"')))
             body = filters(data, marker_indent(match), scope, extras)
             return match.group(1) + body + match.group(4)
-
-        def replace_team(match):
-            seen.append(("combined", team_count, "team"))
-            return match.group(1) + team_html + match.group(3)
 
         updated = FILTER_RE.sub(replace_filter, text)
         updated = BLOCK_RE.sub(replace, updated)
@@ -921,7 +907,6 @@ def main():
         updated = SCREEN_RE.sub(replace_screen, updated)
         updated = AWARDS_RE.sub(replace_awards, updated)
         updated = FEED_RE.sub(replace_feed, updated)
-        updated = TEAM_RE.sub(replace_team, updated)
         if not seen:
             sys.exit("%s: no ch:press markers found" % page.name)
 
@@ -935,8 +920,6 @@ def main():
                 state = "%d videos" % count
             elif kind == "awards":
                 state = "%d awards" % count
-            elif kind == "team":
-                state = "%d people, from %s" % (count, TEAM_SOURCE.name)
             elif not count:
                 state = "skipped (no items yet)"
             else:
