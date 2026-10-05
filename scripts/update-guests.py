@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Put the guest album on the creator page, from the reviews page's copy.
+"""Put the guest album on the creator and press pages, from the reviews page's copy.
 
 The album of familiar faces lives on reviews.html, which is where it is
-edited. The creator page shows the same twelve-or-so prints, so rather than
-keep a second copy that drifts, this lifts the list out of reviews.html and
-writes it between the ch:guests markers wherever they appear.
+edited. The creator page and the press page (as Familiar Faces) show the
+same twelve-or-so prints, so rather than keep copies that drift, this lifts
+the list out of reviews.html and writes it between the ch:guests markers
+wherever they appear.
 
 Both pages sit in public/, so the image paths inside the album need no
 rewriting.
@@ -21,7 +22,7 @@ import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SOURCE = ROOT / "public" / "reviews.html"
-PAGES = [ROOT / "public" / "influencers.html"]
+PAGES = [ROOT / "public" / "influencers.html", ROOT / "public" / "press.html"]
 
 ALBUM_RE = re.compile(r'<ul class="ch-album">.*?</ul>', re.S)
 BLOCK_RE = re.compile(r"(<!-- ch:guests -->)(.*?)(<!-- /ch:guests -->)", re.S)

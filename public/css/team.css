@@ -1,8 +1,8 @@
 /*
  * The team, as prints on a table: the careers page's "The people behind it
- * all", and the same list copied onto the press page (scripts/update-press.py).
- * Shared here so the two cannot drift. (reviews-wall.css has its own .ch-album
- * for the reviews wall; the two are never on one page.)
+ * all", which the site menu's Our Team link opens (careers.html#team).
+ * (reviews-wall.css has its own .ch-album for the familiar faces, on the
+ * reviews, creator and press pages; the two are never on one page.)
  */
 /* ---- The people behind it all --------------------------------------
    Prints on a table rather than a grid of avatars: each one sits at a
