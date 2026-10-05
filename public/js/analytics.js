@@ -114,6 +114,12 @@
  * The Oxford calendars on the stay pages are Checked.in's own frames, which
  * open the booking themselves; they say so with a { cinBookingOpened }
  * message, and that counts as a click too.
+ *
+ * The same visit is counted once more, for the private map of where visits
+ * come from (/wdtcf): /api/visit hears when it begins, and when it first
+ * reaches Oxford's or Dorset's pages, and counts it against the town
+ * Cloudflare places it in. Nothing about the visit goes with that but which
+ * of those it is.
  */
 (function () {
   "use strict";
@@ -154,6 +160,26 @@
   } catch (e) {
     return; // private mode or storage off: nothing to attribute a click to
   }
+
+  // Where visits come from: once a visit, and once for each woodland whose
+  // pages it reaches -- the same test as partOf in the Worker.
+  try {
+    var woodland = (/^\/(oxford|dorset)(?:[./-]|$)/i.exec(location.pathname) || [])[1];
+    var mapped = visit.mapped || (visit.mapped = {});
+    var parts = ["all", woodland && woodland.toLowerCase()].filter(function (part) {
+      return part && !mapped[part];
+    });
+    if (parts.length) {
+      parts.forEach(function (part) {
+        mapped[part] = 1;
+      });
+      sessionStorage.setItem(KEY, JSON.stringify(visit));
+      var where = JSON.stringify({ parts: parts });
+      if (!(navigator.sendBeacon && navigator.sendBeacon("/api/visit", where))) {
+        fetch("/api/visit", { method: "POST", body: where, keepalive: true }).catch(function () {});
+      }
+    }
+  } catch (e) {}
 
   // Checked.in is Cedar Hollow's own booking system, so the links to it and
   // the calendars from it carry the visit's id and the website it came from

@@ -244,6 +244,29 @@ const BOOKING_PATH = "/api/booking";
 const BOOKING_KEY = "booking:1:";
 
 /*
+ * Where visits come from, for the private map at /wdtcf.
+ *
+ * POST /api/visit -- { parts: ["all", "oxford" | "dorset"] }, from
+ * js/analytics.js: "all" once a visit, and a woodland's name once the visit
+ * reaches its pages (as partOf decides). Each is counted in VISITS_DB against
+ * the London day and the town Cloudflare places the request in: request.cf's
+ * country, region, city and their position. Nothing else is kept -- not the
+ * address, not the visit's id, not the time -- and crawlers that run scripts
+ * are turned away by their user agent. Answers 204, the counting done after.
+ *
+ * GET /wdtcf is the map, public/wdtcf/map.html, and /wdtcf/data the counts it
+ * draws: one part, over a run of days. All of it is behind the WDTCF_PASSWORD
+ * secret (HTTP Basic: any user name, that password), and run_worker_first
+ * sends every address under /wdtcf here first, so no file in public/wdtcf/ is
+ * ever served without it.
+ */
+const VISIT_PATH = "/api/visit";
+const MAP_PATH = "/wdtcf";
+const MAP_PARTS = ["all", "oxford", "dorset"];
+const NOT_A_VISITOR = /bot|crawl|spider|slurp|headless|lighthouse|pagespeed|preview|facebookexternalhit|embedly/i;
+const PRIVATE = { "cache-control": "no-store", "x-robots-tag": "noindex, nofollow" };
+
+/*
  * Directory-style spellings of the two woodland pages.
  *
  * /oxford/ matched nothing: there is a real public/oxford/ directory holding
@@ -310,6 +333,17 @@ export default {
       return handleIntent(request, url, env, ctx);
     }
 
+    if (url.pathname === VISIT_PATH) {
+      if (request.method !== "POST") {
+        return json({ ok: false, error: "Method not allowed" }, 405);
+      }
+      return handleVisit(request, url, env, ctx);
+    }
+
+    if (url.pathname === MAP_PATH || url.pathname.startsWith(MAP_PATH + "/")) {
+      return visitorMap(request, url, env);
+    }
+
     // Kept from the old service so the migration can be smoke-tested the same way.
     if (url.pathname === "/health") {
       const sites = Object.keys(IG_TOKENS).filter((s) => Boolean(env[IG_TOKENS[s]]));
@@ -326,6 +360,7 @@ export default {
         instagram: sites,
         instagramRenewed: renewed,
         visitorReports: analyticsReady(env) && mailReady(env),
+        visitorMap: Boolean(env.VISITS_DB && env.WDTCF_PASSWORD),
       });
     }
 
@@ -565,6 +600,126 @@ async function handleIntent(request, url, env, ctx) {
     );
   }
   return new Response(null, { status: 204 });
+}
+
+// POST /api/visit: see VISIT_PATH.
+async function handleVisit(request, url, env, ctx) {
+  const origin = request.headers.get("origin") || (request.headers.get("referer") || "").replace(/^(https?:\/\/[^/]+).*$/, "$1");
+  if (origin !== url.origin) return new Response(null, { status: 403 });
+  const text = await request.text().catch(() => "");
+  if (text.length > 500) return new Response(null, { status: 413 });
+  let b;
+  try {
+    b = JSON.parse(text);
+  } catch (err) {
+    return new Response(null, { status: 400 });
+  }
+  const parts = MAP_PARTS.filter((part) => b && Array.isArray(b.parts) && b.parts.includes(part));
+  if (!parts.length) return new Response(null, { status: 400 });
+
+  const cf = request.cf || {};
+  if (!env.VISITS_DB || !cf.country || NOT_A_VISITOR.test(request.headers.get("user-agent") || "")) {
+    return new Response(null, { status: 204 });
+  }
+  // The town's position to two places, about a kilometre: no finer than
+  // Cloudflare's guess at it deserves.
+  const at = (v, most) => {
+    const n = Number(v);
+    return v != null && v !== "" && Number.isFinite(n) && Math.abs(n) <= most ? Math.round(n * 100) / 100 : null;
+  };
+  const place = [String(cf.country).slice(0, 2), String(cf.region || "").slice(0, 80), String(cf.city || "").slice(0, 80)];
+  const day = isoDate(londonDate(Date.now()));
+  const add = env.VISITS_DB.prepare(
+    "INSERT INTO visits (day, part, country, region, city, lat, lon, visits) VALUES (?, ?, ?, ?, ?, ?, ?, 1) " +
+      "ON CONFLICT (day, part, country, region, city) DO UPDATE SET visits = visits + 1, " +
+      "lat = COALESCE(lat, excluded.lat), lon = COALESCE(lon, excluded.lon)"
+  );
+  ctx.waitUntil(
+    env.VISITS_DB.batch(parts.map((part) => add.bind(day, part, ...place, at(cf.latitude, 90), at(cf.longitude, 180)))).catch((err) =>
+      console.error("[visit] could not count:", err && err.message ? err.message : err)
+    )
+  );
+  return new Response(null, { status: 204 });
+}
+
+// /wdtcf and everything under it: see VISIT_PATH.
+async function visitorMap(request, url, env) {
+  if (!env.WDTCF_PASSWORD) return new Response("Not set up.", { status: 503, headers: PRIVATE });
+  if (!(await signedIn(request, env))) {
+    return new Response("This page needs its password.", {
+      status: 401,
+      headers: { ...PRIVATE, "www-authenticate": 'Basic realm="Cedar Hollow visitor map", charset="UTF-8"' },
+    });
+  }
+  if (request.method !== "GET" && request.method !== "HEAD") {
+    return json({ ok: false, error: "Method not allowed" }, 405);
+  }
+  let res;
+  if (url.pathname === MAP_PATH + "/data") {
+    res = await mapData(url, env);
+  } else {
+    // The page itself at /wdtcf; its files at their own addresses.
+    const page = url.pathname === MAP_PATH || url.pathname === MAP_PATH + "/";
+    res = await env.ASSETS.fetch(new Request(page ? new URL(MAP_PATH + "/map.html", url) : url, request));
+  }
+  const out = new Response(res.body, res);
+  for (const [name, value] of Object.entries(PRIVATE)) out.headers.set(name, value);
+  return out;
+}
+
+// HTTP Basic, with any user name and the map's password.
+async function signedIn(request, env) {
+  const m = /^Basic\s+([A-Za-z0-9+/=]+)\s*$/i.exec(request.headers.get("authorization") || "");
+  if (!m) return false;
+  let pair;
+  try {
+    pair = new TextDecoder().decode(Uint8Array.from(atob(m[1]), (c) => c.charCodeAt(0)));
+  } catch (err) {
+    return false;
+  }
+  const given = pair.slice(pair.indexOf(":") + 1);
+  return Boolean(given) && (await sameSecret(given, env.WDTCF_PASSWORD));
+}
+
+// GET /wdtcf/data?part=all|oxford|dorset&from=YYYY-MM-DD&to=YYYY-MM-DD: the
+// part's visits over those days -- by town, with each town's position, and by
+// day -- and the total for as many days again just before, to compare with.
+// Thirty days to today unless asked otherwise.
+async function mapData(url, env) {
+  if (!env.VISITS_DB) return json({ ok: false, error: "No database" }, 503);
+  const q = url.searchParams;
+  const part = MAP_PARTS.includes(q.get("part")) ? q.get("part") : "all";
+  const today = isoDate(londonDate(Date.now()));
+  const date = (v, otherwise) => (/^\d{4}-\d{2}-\d{2}$/.test(v || "") && Date.parse(v) ? v : otherwise);
+  let to = date(q.get("to"), today);
+  let from = date(q.get("from"), isoDate(Date.parse(to) - 29 * DAY));
+  if (from > to) [from, to] = [to, from];
+  const days = Math.round((Date.parse(to) - Date.parse(from)) / DAY) + 1;
+  const before = [isoDate(Date.parse(from) - days * DAY), isoDate(Date.parse(from) - DAY)];
+
+  const db = env.VISITS_DB;
+  const [towns, byDay, earlier, first] = await db.batch([
+    db
+      .prepare(
+        "SELECT country, region, city, AVG(lat) AS lat, AVG(lon) AS lon, SUM(visits) AS visits FROM visits " +
+          "WHERE part = ? AND day BETWEEN ? AND ? GROUP BY country, region, city ORDER BY visits DESC"
+      )
+      .bind(part, from, to),
+    db.prepare("SELECT day, SUM(visits) AS visits FROM visits WHERE part = ? AND day BETWEEN ? AND ? GROUP BY day ORDER BY day").bind(part, from, to),
+    db.prepare("SELECT SUM(visits) AS visits FROM visits WHERE part = ? AND day BETWEEN ? AND ?").bind(part, ...before),
+    db.prepare("SELECT MIN(day) AS day FROM visits WHERE part = ?").bind(part),
+  ]);
+  return json({
+    ok: true,
+    part,
+    from,
+    to,
+    today,
+    first: (first.results[0] && first.results[0].day) || null,
+    towns: towns.results.map((r) => [r.country, r.region, r.city, r.lat, r.lon, r.visits]),
+    days: byDay.results.map((r) => [r.day, r.visits]),
+    before: { from: before[0], to: before[1], visits: (earlier.results[0] && earlier.results[0].visits) || 0 },
+  });
 }
 
 // The retreat a booking address is for: Checked.in's names the Oxford three;
