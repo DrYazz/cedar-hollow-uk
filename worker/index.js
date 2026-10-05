@@ -1368,7 +1368,7 @@ async function monthFigures(env, year, month) {
 
 /*
  * The confirmed bookings made in a period, by the London day they were made
- * on, as { retreat, channel, via, src, total, currency, nights } -- via if it
+ * on, as { date, retreat, channel, via, src, total, currency, nights } -- via if it
  * was booked direct after a click from this site -- and whether Checked.in
  * has reported any booking yet: until it has, the reports leave bookings out.
  */
@@ -1384,6 +1384,7 @@ async function periodBookings(env, p) {
       .map((m) => {
         const channel = m.k || "direct";
         return {
+          date: m.d,
           retreat: RETREATS[m.r] ? m.r : "oxford",
           channel,
           via: Boolean(m.f) && channel === "direct",
@@ -1991,6 +1992,39 @@ function partMonths(r, part, year) {
     .filter((m) => londonMidnight(Date.UTC(year, m.index + 1, 1)) > COUNTED_FROM);
 }
 
+/*
+ * A part's bookings in a year's report by the month they were made in -- not
+ * the month of the stay -- split by woodland for the whole website and by
+ * retreat for a woodland, each split only if it has any: { groups, months,
+ * total }, with each month's count, nights, value (direct bookings in pounds,
+ * in pence) and count in each group. Null when the report shows no bookings:
+ * until Checked.in has reported one, and for Dorset while it has none.
+ */
+function bookingMonths(r, part) {
+  if (!r.bookings || !r.bookings.live) return null;
+  const list = r.bookings.list.filter((b) => part === "all" || RETREATS[b.retreat][0] === part);
+  if (part === "dorset" && !list.length) return null;
+  const groupOf = (b) => (part === "all" ? RETREATS[b.retreat][0] : b.retreat);
+  const keys = (part === "all" ? ["oxford", "dorset"] : Object.keys(RETREATS).filter((k) => RETREATS[k][0] === part)).filter((k) =>
+    list.some((b) => groupOf(b) === k)
+  );
+  const groups = keys.map((k, i) =>
+    part === "all"
+      ? { name: k === "oxford" ? "Oxford" : "Dorset", colour: k === "oxford" ? SOURCE_COLOURS[0] : SOURCE_COLOURS[1] }
+      : { name: RETREATS[k][1], colour: SOURCE_COLOURS[i % SOURCE_COLOURS.length] }
+  );
+  const months = MONTHS.map(() => ({ count: 0, nights: 0, pence: 0, groups: keys.map(() => 0) }));
+  for (const b of list) {
+    const m = months[Number(String(b.date || "").slice(5, 7)) - 1];
+    if (!m) continue;
+    m.count += 1;
+    m.nights += b.nights || 0;
+    if (b.currency === "GBP" && b.total) m.pence += b.total;
+    m.groups[keys.indexOf(groupOf(b))] += 1;
+  }
+  return { groups, months, total: list.length, channels: list.some((b) => b.channel !== "direct") };
+}
+
 // The websites a part's year-graph names: its biggest, by visits.
 function topNames(S) {
   return groupRows(S.rows).list.slice(0, CHART_SOURCES).map((s) => s.name);
@@ -2173,6 +2207,17 @@ async function renderReport(p, r, web = null) {
         console.error(`[report] no month charts for ${part}:`, err && err.message ? err.message : err);
       }
     }
+    // And the bookings made each month, the same way.
+    for (const [part] of PARTS) {
+      const B = bookingMonths(r, part);
+      if (!B || !B.total) continue;
+      try {
+        const png = await columnsPng(B.months.map((m) => m.groups), B.groups.map((g) => g.colour));
+        charts[part] = { ...charts[part], bookings: { cid: `bookings-${part}`, content: base64Bytes(png) } };
+      } catch (err) {
+        console.error(`[report] no bookings chart for ${part}:`, err && err.message ? err.message : err);
+      }
+    }
   }
   // Each part's average day, the same way: a column for each day of the
   // week, and one for each hour.
@@ -2191,7 +2236,7 @@ async function renderReport(p, r, web = null) {
   }
   const pictures = [
     ...Object.values(pies),
-    ...Object.values(charts).flatMap((c) => [c.devices, c.sources]),
+    ...Object.values(charts).flatMap((c) => [c.devices, c.sources, c.bookings].filter(Boolean)),
     ...Object.values(days).flatMap((d) => [d.weekdays, d.hours].filter(Boolean)),
   ];
 
@@ -2319,6 +2364,7 @@ function renderPart(p, r, part, title, pie, chart, day) {
   const beganTotal = began.reduce((n, b) => n + b.visits, 0);
 
   const months = partMonths(r, part, year);
+  const BM = p.kind === "year" ? bookingMonths(r, part) : null;
 
   // Its average day: the visits on each day of the week, and in each hour.
   const A = S.average;
@@ -2508,6 +2554,22 @@ function renderPart(p, r, part, title, pie, chart, day) {
           ),
         ]
       : []),
+    ...(BM
+      ? [
+          "",
+          "BOOKINGS MADE, MONTH BY MONTH",
+          ...(BM.total
+            ? BM.months
+                .map((m, i) =>
+                  m.count
+                    ? `${pad(MONTHS[i], 4)} ${lpad(plural(m.count, "booking"), 12)} ${lpad(plural(m.nights, "night"), 10)} ${lpad(m.pence ? money(m.pence) : "", 8)}   ` +
+                      BM.groups.map((g, k) => (m.groups[k] ? `${g.name} ${num(m.groups[k])}` : "")).filter(Boolean).join(", ")
+                    : ""
+                )
+                .filter(Boolean)
+            : [`No bookings were made in ${year}.`]),
+        ]
+      : []),
     "",
     sourcesTitle.toUpperCase(),
     ...(sources.length
@@ -2676,14 +2738,14 @@ function renderPart(p, r, part, title, pie, chart, day) {
 
     html +=
       `<h2 class="h2">Month by month</h2>` +
-      (chart
+      (chart && chart.devices
         ? totals +
           picture(chart.devices, `Bar chart of visits each month, by computer, phone and tablet: ${byMonth}`) +
           labels +
           legend(DEVICE_ORDER.filter((d) => devices[d]).map((d) => [d, DEVICE_COLOURS[d]]))
         : "") +
       monthTable +
-      (chart
+      (chart && chart.sources
         ? `<h2 class="h2">Where visitors came from, month by month</h2>` +
           legend([...named.map((name, i) => [name, SOURCE_COLOURS[i]]), ...(anyOther ? [["Other websites", OTHER_COLOUR]] : [])]) +
           totals +
@@ -2693,6 +2755,42 @@ function renderPart(p, r, part, title, pie, chart, day) {
           ) +
           labels
         : "");
+  }
+
+  // Bookings made, month by month: a column a month, split by woodland or
+  // retreat, with its count above and the figures in a table beneath.
+  if (BM) {
+    const filled = BM.months.map((m, i) => ({ ...m, i })).filter((m) => m.count);
+    const sum = (key) => BM.months.reduce((n, m) => n + m[key], 0);
+    html +=
+      `<h2 class="h2">Bookings made, month by month</h2>` +
+      `<p class="s" style="margin:0 0 10px;">${esc(
+        "The month each booking was made in, not the month of the stay." +
+          (BM.channels ? " A booking through Airbnb or another channel counts from when Checked.in first saw it." : "")
+      )}</p>` +
+      (BM.total
+        ? legend(BM.groups.map((g) => [g.name, g.colour])) +
+          strip(
+            BM.months.map((m) => (m.count ? num(m.count) : "")),
+            "font-size:10px;padding:0 0 2px;white-space:nowrap;"
+          ) +
+          (chart && chart.bookings
+            ? picture(chart.bookings, `Bar chart of bookings made each month: ${filled.map((m) => `${MONTHS[m.i]} ${num(m.count)}`).join(", ")}`)
+            : "") +
+          strip(MONTHS, "font-size:11px;padding:4px 0 0;") +
+          `<table class="t" style="font-size:12px;margin-top:20px;"><tr><th class="hl2">Month</th><th class="hn2">Bookings</th><th class="hn2">Nights</th><th class="hn2">Value</th></tr>` +
+          filled
+            .map(
+              (m) =>
+                `<tr><td class="l2">${MONTHS[m.i]}<br><span class="s">${esc(
+                  BM.groups.map((g, k) => (m.groups[k] ? `${g.name} ${num(m.groups[k])}` : "")).filter(Boolean).join(" · ")
+                )}</span></td><td class="n2"><strong>${num(m.count)}</strong></td><td class="n2">${num(m.nights)}</td>` +
+                `<td class="n2">${m.pence ? esc(money(m.pence)) : "&ndash;"}</td></tr>`
+            )
+            .join("") +
+          `<tr><td class="l2"><strong>Total</strong></td><td class="n2"><strong>${num(BM.total)}</strong></td><td class="n2"><strong>${num(sum("nights"))}</strong></td>` +
+          `<td class="n2"><strong>${sum("pence") ? esc(money(sum("pence"))) : "&ndash;"}</strong></td></tr></table>`
+        : `<p class="s">No bookings were made in ${year}.</p>`);
   }
 
   // The average day: a column a day of the week, with its figure above it
