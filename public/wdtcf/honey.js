@@ -56,7 +56,7 @@
     ["proceeds", "“All proceeds donated to the Shotover Preservation Society”", "The link in the introduction, to the society’s website"],
     ["society", "About the Shotover Preservation Society", "To the society’s website"],
     ["about-honey", "About our honey", "Our Oxford honey page"],
-    ["whatsapp", "WhatsApp number", "075 91 92 93 94, at the foot of the page"],
+    ["whatsapp", "WhatsApp number", "075 11 22 33 75, at the foot of the page"],
     ["email", "Email address", "hello@cedarhollow.uk, at the foot of the page"],
   ];
   function pct(n, of) {
