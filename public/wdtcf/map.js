@@ -214,6 +214,18 @@
     drawnPart = view.part;
   }
 
+  // The chart's label: pointing at a bar (or touching it, or the arrow keys
+  // on the chart) shows that day's or week's visits above it. A touch or
+  // click anywhere else puts it away; one listener serves every redraw.
+  var hideTip = function () {};
+  document.addEventListener("pointerdown", function (e) {
+    var svg = document.querySelector("#chart svg");
+    if (!svg || !svg.contains(e.target)) hideTip();
+  });
+  function longDay(day) {
+    return new Date(day + "T00:00:00Z").toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+  }
+
   // Bars by day, or by week once the run is longer than three months.
   function chart(d, from) {
     var box = $("chart");
@@ -234,14 +246,59 @@
     if (!bars.length) return;
     var most = Math.max.apply(null, bars.map(function (b) { return b.v; })) || 1;
     var W = 1000, H = 140, gap = bars.length > 60 ? 1 : 3, w = W / bars.length;
-    var svg = '<svg viewBox="0 0 ' + W + " " + H + '" preserveAspectRatio="none" role="img" aria-label="' + (weekly ? "Visits each week" : "Visits each day") + '">';
+    var svg = '<svg viewBox="0 0 ' + W + " " + H + '" preserveAspectRatio="none" role="img" tabindex="0" aria-label="' +
+      (weekly ? "Visits each week" : "Visits each day") + '. Point at a bar, touch it, or use the arrow keys, to see its visits.">';
     bars.forEach(function (b, i) {
       var h = b.v ? Math.max(2, (b.v / most) * (H - 4)) : 0;
       svg +=
         '<rect x="' + (i * w + gap / 2).toFixed(2) + '" y="' + (H - h).toFixed(2) + '" width="' + Math.max(0.5, w - gap).toFixed(2) + '" height="' + h.toFixed(2) +
-        '" fill="' + COLOURS[view.part] + '" rx="1.5"><title>' + (weekly ? "Week of " : "") + nice(b.day, true) + ": " + number.format(b.v) + "</title></rect>";
+        '" fill="' + COLOURS[view.part] + '" rx="1.5"></rect>';
     });
     box.innerHTML = svg + "</svg>";
+
+    // Its label, above the bar in hand.
+    var plot = box.querySelector("svg");
+    var rects = plot.querySelectorAll("rect");
+    var tip = el("div", null, "chart-tip");
+    tip.hidden = true;
+    tip.setAttribute("aria-live", "polite");
+    box.appendChild(tip);
+    var on = -1;
+    function show(i) {
+      if (i < 0 || i >= bars.length) return;
+      if (on >= 0) rects[on].classList.remove("on");
+      on = i;
+      rects[i].classList.add("on");
+      plot.classList.add("pointing");
+      var b = bars[i];
+      tip.replaceChildren(el("strong", number.format(b.v) + " visit" + (b.v === 1 ? "" : "s")), el("span", (weekly ? "Week of " : "") + longDay(b.day)));
+      tip.hidden = false;
+      // Over the bar's middle, kept inside the chart's width.
+      var r = rects[i].getBoundingClientRect(), c = box.getBoundingClientRect(), p = plot.getBoundingClientRect();
+      var half = tip.offsetWidth / 2;
+      tip.style.left = Math.max(half, Math.min(c.width - half, r.left + r.width / 2 - c.left)) + "px";
+      tip.style.top = Math.min(r.top, p.bottom) - c.top + "px";
+    }
+    hideTip = function () {
+      if (on >= 0) rects[on].classList.remove("on");
+      on = -1;
+      plot.classList.remove("pointing");
+      tip.hidden = true;
+    };
+    function at(e) {
+      var p = plot.getBoundingClientRect();
+      return Math.max(0, Math.min(bars.length - 1, Math.floor(((e.clientX - p.left) / p.width) * bars.length)));
+    }
+    plot.addEventListener("pointermove", function (e) { show(at(e)); });
+    plot.addEventListener("pointerdown", function (e) { show(at(e)); });
+    plot.addEventListener("pointerleave", function (e) { if (e.pointerType === "mouse") hideTip(); });
+    plot.addEventListener("keydown", function (e) {
+      var step = { ArrowLeft: -1, ArrowRight: 1, Home: -bars.length, End: bars.length }[e.key];
+      if (step === undefined) return;
+      e.preventDefault();
+      show(Math.max(0, Math.min(bars.length - 1, (on < 0 ? (step > 0 ? -1 : bars.length) : on) + step)));
+    });
+    plot.addEventListener("blur", function () { hideTip(); });
     var axis = el("div", null, "axis");
     axis.appendChild(el("span", nice(bars[0].day, false)));
     axis.appendChild(el("span", "busiest " + (weekly ? "week " : "day ") + number.format(most)));
