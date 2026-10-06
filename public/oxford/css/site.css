@@ -952,3 +952,22 @@ body.ch-nav-open .ch-page-hero{overflow:visible}
   .section-footer .footer_legal{row-gap:1.5rem}
   .section-footer .footer-link-list.is-legal{justify-content:center}
 }
+
+/* The panel's top row carried only the Book your Stay pill, pinned hard right
+   by the rule above, which left the corner opposite it empty. Home goes there,
+   so the panel opens with a way back to oxford.html as well as a way to book.
+   Dorset's panel has had a Home link all along, inside its first group; this
+   is the Oxford equivalent.
+
+   Both are pinned to row 1 explicitly. The pill reached that row only by being
+   the panel's first child, and Home is the first child now, so without this
+   the pill would drop to a row of its own. */
+#ch-nav-menu .ch-nav__home {
+  grid-row: 1;
+  grid-column: 1 / -1;
+  justify-self: start;
+  align-self: center;
+  margin-bottom: .75rem;
+  font-size: 1.0625rem;
+}
+#ch-nav-menu .ch-nav__book-cta { grid-row: 1; }
