@@ -35,8 +35,10 @@
   // The header the bar sits in, where it keeps its own colours. The booking
   // pages have none: their bar sits straight on the page.
   var home = holder.closest("header, section");
-  var logo = bar.querySelector(".ch-nav__logo");
+  var owl = bar.querySelector(".ch-nav__logo .ch-nav__owl");
+  var word = bar.querySelector(".ch-nav__logo .ch-nav__wordmark");
   var caret = bar.querySelector(".ch-siteswitch__caret");
+  var list = bar.querySelector(".ch-siteswitch__list");
   var toggle = bar.querySelector(".ch-nav__toggle");
 
   // A fixed bar can rise no higher than the layer it is drawn in. On the
@@ -166,8 +168,24 @@
   }
   function layers(el, s, x, y) {
     var out = [];
+    // A layer blended into what is under it (color-burn and the like)
+    // changes it rather than covering it; left out.
+    if (s.mixBlendMode && s.mixBlendMode !== "normal") return out;
     var r = el.getBoundingClientRect();
     var tag = el.tagName;
+    // A wash laid over the whole box by ::before or ::after -- the dark layer
+    // a photo often has to keep its words legible -- is part of it too.
+    ["::after", "::before"].forEach(function (which) {
+      var p = getComputedStyle(el, which);
+      if (p.content === "none" || p.content === "normal" || (p.position !== "absolute" && p.position !== "fixed")) return;
+      if (p.mixBlendMode && p.mixBlendMode !== "normal") return;
+      if (!(parseFloat(p.top) <= 0 && parseFloat(p.left) <= 0 && parseFloat(p.right) <= 0 && parseFloat(p.bottom) <= 0)) return;
+      var po = parseFloat(p.opacity);
+      if (isNaN(po)) po = 1;
+      [/gradient/.test(p.backgroundImage) ? gradient(p.backgroundImage) : null, colour(p.backgroundColor)].forEach(function (c) {
+        if (c && c[3] > 0) out.push([c[0], c[1], c[2], c[3] * po, false]);
+      });
+    });
     if (tag === "IMG") {
       var t = thumbOfImg(el);
       if (t) {
@@ -175,7 +193,10 @@
         out.push(at(t, (x - r.left - f.x) / f.w, (y - r.top - f.y) / f.h));
       } else out.push(PHOTO);
     } else if (tag === "VIDEO" || tag === "CANVAS") {
-      out.push(PHOTO);
+      // The map on the home pages is drawn on canvases, on its own pale
+      // ground: see-through, so that ground decides. Any other canvas or
+      // video counts as a photo.
+      if (!(tag === "CANVAS" && el.closest(".leaflet-container"))) out.push(PHOTO);
     }
     if (s.backgroundImage && s.backgroundImage !== "none") {
       var images = s.backgroundImage.split(/,(?![^(]*\))/);
@@ -192,11 +213,40 @@
       });
     }
     out.push(colour(s.backgroundColor));
-    var o = parseFloat(s.opacity);
     return out.filter(function (c) {
       return c && c[3] > 0;
-    }).map(function (c) {
-      return [c[0], c[1], c[2], c[3] * (isNaN(o) ? 1 : o), c[4]];
+    });
+  }
+  // How much of an element shows, its parents' fading included: a closed
+  // dialog at opacity 0 covers nothing.
+  function shown(el) {
+    var o = 1;
+    for (var e = el; e && e !== root && o > 0; e = e.parentElement) {
+      var v = parseFloat(getComputedStyle(e).opacity);
+      if (!isNaN(v)) o *= v;
+    }
+    return o;
+  }
+  // Pictures laid behind the words often let the pointer through them
+  // (pointer-events: none), and pointing at a place does not find what the
+  // pointer passes through -- the Dorset retreat cards' photos, for one.
+  // While the bar looks they are made findable, and then put straight back.
+  var ghosts = [];
+  function findGhosts() {
+    ghosts = [];
+    var all = document.body.getElementsByTagName("*");
+    for (var i = 0; i < all.length; i++) {
+      var el = all[i];
+      if (getComputedStyle(el).pointerEvents !== "none" || bar.contains(el)) continue;
+      // one whose parent lets the pointer through comes back with it
+      if (el.parentElement && getComputedStyle(el.parentElement).pointerEvents === "none") continue;
+      ghosts.push(el);
+    }
+  }
+  function solid(on) {
+    ghosts.forEach(function (g) {
+      if (on) g.style.setProperty("pointer-events", "auto", "important");
+      else g.style.removeProperty("pointer-events");
     });
   }
   // What is behind the bar at one point: its lightness from 0 to 1 and how
@@ -218,13 +268,15 @@
       if (bar.contains(el)) continue;
       var got = layers(el, getComputedStyle(el), x, y);
       if (!got.length) continue;
+      var o = shown(el);
+      if (!(o > 0)) continue;
       if (first) {
         first = false;
         if (home && home.contains(el)) return "home";
       }
       for (var j = 0; j < got.length && left > 0.02; j++) {
         var c = got[j],
-          a = Math.min(1, c[3]);
+          a = Math.min(1, c[3] * o);
         for (var k = 0; k < 3; k++) rgb[k] += c[k] * a * left;
         if (c[4]) photo += a * left;
         left *= 1 - a;
@@ -240,8 +292,9 @@
   // The ink for one part of the bar, from a few points across it. Dark
   // green reads better than cream once the background is lighter than about
   // a quarter (the two contrasts cross at 0.24); over a photo the line is
-  // drawn higher, since cream with its shadow holds up over most pictures.
-  // The gap between the two lines stops it flickering at the edge.
+  // drawn a little higher, since cream has its shadow to stand on there --
+  // but not much, or cream is left on bright sky. The gap between the two
+  // lines stops it flickering at the edge.
   function ink(points, now) {
     var lum = 0,
       photo = 0,
@@ -257,34 +310,58 @@
     if (!seen || homes > seen) return "";
     lum /= seen;
     photo /= seen;
-    var up = photo > 0.5 ? 0.5 : 0.3,
-      down = photo > 0.5 ? 0.4 : 0.2;
+    var up = photo > 0.5 ? 0.36 : 0.3,
+      down = photo > 0.5 ? 0.28 : 0.2;
     if (now === "dark") return lum < down ? "light" : "dark";
     if (now === "light") return lum > up ? "dark" : "light";
     return lum > (up + down) / 2 ? "dark" : "light";
   }
-  function across(el, more) {
+  // Points to look behind: across an element's middle, or down it.
+  function across(el) {
     if (!el) return [];
     var r = el.getBoundingClientRect();
     if (!r.width) return [];
     var y = r.top + r.height / 2;
-    var out = [[r.left + r.width * 0.15, y], [r.left + r.width / 2, y], [r.left + r.width * 0.85, y]];
-    if (more) {
-      var m = more.getBoundingClientRect();
-      if (m.width) out.push([m.left + m.width / 2, m.top + m.height / 2]);
-    }
-    return out;
+    return [[r.left + r.width * 0.15, y], [r.left + r.width / 2, y], [r.left + r.width * 0.85, y]];
   }
+  function down(el) {
+    if (!el) return [];
+    var r = el.getBoundingClientRect();
+    if (!r.width) return [];
+    var x = r.left + r.width / 2;
+    return [[x, r.top + r.height * 0.25], [x, r.top + r.height / 2], [x, r.top + r.height * 0.75]];
+  }
+  // Each piece takes its own ink. On a phone the photos stop short of the
+  // screen's edge, so the owl can sit on the cream margin while the word
+  // beside it is over the photo: one ink for both left one of them unread.
+  var PARTS = [
+    ["owl", function () { return down(owl); }],
+    ["word", function () { return across(word); }],
+    ["caret", function () { return down(caret); }],
+    ["menu", function () { return across(toggle); }],
+    // the Oxford and Dorset links under the logo, while they are showing
+    ["list", function () {
+      if (!list || getComputedStyle(list).visibility !== "visible") return [];
+      var out = [];
+      Array.prototype.forEach.call(list.querySelectorAll("a"), function (a) {
+        out = out.concat(across(a));
+      });
+      return out;
+    }],
+  ];
   function colourIn() {
-    var a = ink(across(logo, caret), bar.getAttribute("data-ink-logo"));
-    var b = ink(across(toggle), bar.getAttribute("data-ink-menu"));
-    if (a !== (bar.getAttribute("data-ink-logo") || "")) {
-      if (a) bar.setAttribute("data-ink-logo", a);
-      else bar.removeAttribute("data-ink-logo");
-    }
-    if (b !== (bar.getAttribute("data-ink-menu") || "")) {
-      if (b) bar.setAttribute("data-ink-menu", b);
-      else bar.removeAttribute("data-ink-menu");
+    solid(true);
+    try {
+      PARTS.forEach(function (part) {
+        var name = "data-ink-" + part[0];
+        var now = bar.getAttribute(name) || "";
+        var next = ink(part[1](), now);
+        if (next === now) return;
+        if (next) bar.setAttribute(name, next);
+        else bar.removeAttribute(name);
+      });
+    } finally {
+      solid(false);
     }
   }
 
@@ -300,6 +377,7 @@
     queued = true;
     requestAnimationFrame(update);
   }
+  findGhosts();
   update();
   // Colours change gently from here on, but not on the way in.
   requestAnimationFrame(function () {
@@ -309,7 +387,13 @@
   });
   addEventListener("scroll", queue, { passive: true });
   addEventListener("resize", queue);
-  addEventListener("load", queue);
+  addEventListener("load", function () {
+    findGhosts();
+    queue();
+  });
+  // Pointing at the logo opens the Oxford and Dorset links.
+  bar.addEventListener("mouseover", queue);
+  bar.addEventListener("focusin", queue);
   // Opening the menu puts green behind the bar on a phone.
   document.addEventListener("click", function () {
     setTimeout(queue, 30);
@@ -322,4 +406,9 @@
   setInterval(function () {
     if (!document.hidden) queue();
   }, 800);
+  // Pages that build part of themselves after loading (the listings, the
+  // reviews) may add pictures that let the pointer through.
+  setInterval(function () {
+    if (!document.hidden) findGhosts();
+  }, 4000);
 })();
