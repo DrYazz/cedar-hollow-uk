@@ -19,7 +19,7 @@
 (function () {
   "use strict";
 
-  var VIEWS = ["week", "lastweek", "month", "lastmonth", "year", "lastyear"];
+  var VIEWS = ["today", "week", "lastweek", "month", "lastmonth", "year", "lastyear"];
   // The report's parts, each a tab, and the map's.
   var TABS = ["all", "oxford", "dorset", "honey", "map"];
   // The tabs that show a part of the report; Honey and Map have their own.
