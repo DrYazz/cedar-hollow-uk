@@ -14,7 +14,12 @@ name = "theoaks-redirect"
 main = "index.js"
 compatibility_date = "2026-09-02"
 
+# theoaks.co.uk showed the same Wix site, so its old addresses are the same
+# and go to the same places. Attached on 7 October 2026, when the domain
+# moved from Wix's nameservers to Cloudflare's.
 routes = [
   { pattern = "theoaks.uk", custom_domain = true },
   { pattern = "www.theoaks.uk", custom_domain = true },
+  { pattern = "theoaks.co.uk", custom_domain = true },
+  { pattern = "www.theoaks.co.uk", custom_domain = true },
 ]
