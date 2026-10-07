@@ -1102,20 +1102,22 @@ async function mapData(url, env) {
 }
 
 /*
- * GET /wdtcf/report?view=week|lastweek|month|lastmonth|year|lastyear -- the
- * visitor report, every part and chart of it as the email has it, built on
- * demand for the stats tab of the private map page, with its charts in the
+ * GET /wdtcf/report?view=today|week|lastweek|month|lastmonth|year|lastyear --
+ * the visitor report, every part and chart of it as the email has it, built
+ * on demand for the stats tab of the private map page, with its charts in the
  * page itself. A period still under way -- this week, month or year -- is its
  * days so far, today's as they stand, against as many days of the period
  * before; and the days the morning's cron has not kept yet are read from the
- * API. Nothing is kept and nothing is sent. &format=csv is its spreadsheet.
+ * API. Today, which no email has, is today so far against yesterday up to
+ * the same time. Nothing is kept and nothing is sent. &format=csv is its
+ * spreadsheet.
  * Built at most once in LIVE_CACHE seconds, unless asked &fresh=1: often
  * enough that a click shows the figures as they are, seldom enough that the
  * page left open does not keep asking Cloudflare and Google. The copy kept is
  * this version of the Worker's (CF_VERSION_METADATA), so one built before a
  * deploy, in the report's old shape, is never shown after it.
  */
-const LIVE_VIEWS = ["week", "lastweek", "month", "lastmonth", "year", "lastyear"];
+const LIVE_VIEWS = ["today", "week", "lastweek", "month", "lastmonth", "year", "lastyear"];
 const LIVE_CACHE = 60;
 
 async function liveReport(url, env, ctx) {
@@ -1172,6 +1174,7 @@ function livePeriod(view, now) {
   const year = new Date(today).getUTCFullYear();
   const month = new Date(today).getUTCMonth();
   const p = {
+    today: () => dayPeriod(today),
     week: () => weekPeriod(now, true),
     lastweek: () => weekPeriod(now, false),
     month: () => monthPeriod(year, month),
@@ -1538,7 +1541,12 @@ async function reportFigures(env, p, opts) {
   const upTo = p.soFar ? p.soFar + DAY : p.end;
   const sameDays = () => dayTotals(env, p.prevStart, Math.min(p.prevStart + (upTo - p.start), p.start));
 
-  if (p.kind === "week") {
+  if (p.kind === "day") {
+    const day = await dayFigures(env, p.start, opts);
+    figures = combine([day]);
+    days = [[day.date, dayRow(day), day.hours]];
+    if (compare) before = await sameTime(env, p, opts);
+  } else if (p.kind === "week") {
     // One day at a time: keeping a day rewrites its month, and two kept at
     // once would each overwrite the other's addition.
     const list = [];
@@ -1576,7 +1584,8 @@ async function reportFigures(env, p, opts) {
   }
 
   const totals = partTotals(figures);
-  const average = averageDay(days);
+  // A day has no average to show; its own hours so far take their place.
+  const average = p.kind === "day" ? dayAsAverage(days[0]) : averageDay(days);
   // A month's record holds its clicks day by day; weeks and years are
   // already added up.
   const intents = p.kind === "month" ? combine([figures]).intents : figures.intents;
@@ -1602,8 +1611,9 @@ async function reportFigures(env, p, opts) {
     rows: toRows(figures.sources),
     months: figures.months,
     lastYear: figures.lastYear,
-    // Google is asked only up to today.
-    search: await searchFigures(env, { ...p, end: upTo }),
+    // Google is asked only up to today -- and not for today alone: its
+    // figures come two or three days late, and would show none.
+    search: p.kind === "day" ? null : await searchFigures(env, { ...p, end: upTo }),
     // Whether any of the period had its clicks to book counted, and all of it.
     clicks: p.end > Date.parse(INTENTS_FROM),
     clicksAll: p.start >= Date.parse(INTENTS_FROM),
@@ -1811,6 +1821,39 @@ function averageDay(list) {
       hourDays,
     };
   });
+  return average;
+}
+
+/*
+ * The day before a day still under way, up to the same time: each part's
+ * visits in its hours before the one now, and the share of that hour gone by.
+ * Today so far against the whole of yesterday would always look like a fall.
+ * Page views are not kept by the hour, so theirs are the same share of the
+ * day's as its visits. Null if the day before has no hours to go by.
+ */
+async function sameTime(env, p, opts) {
+  const day = await dayFigures(env, p.prevStart, opts);
+  if (!day.hours) return null;
+  const totals = partTotals(day);
+  const t = londonParts(Date.now());
+  const share = (list) => list.slice(0, t.hour).reduce((n, v) => n + v, 0) + ((list[t.hour] || 0) * t.minute) / 60;
+  const out = {};
+  for (const [part] of PARTS) {
+    const visits = Math.round(share(day.hours[part] || []));
+    const whole = totals[part].visits;
+    out[part] = { visits, views: whole ? Math.round((totals[part].views * visits) / whole) : 0 };
+  }
+  return out;
+}
+
+// A single day's [date, totals row, hours] in the shape of an average day:
+// no days of the week, and its own visits in each hour.
+function dayAsAverage(entry) {
+  const hours = (entry && entry[2]) || {};
+  const average = {};
+  for (const [part] of PARTS) {
+    average[part] = { days: 0, weekdays: WEEKDAYS.map(() => null), hours: hours[part] || null, hourDays: hours[part] ? 1 : 0, today: true };
+  }
   return average;
 }
 
@@ -2243,6 +2286,11 @@ function sourceName(host) {
  */
 const DAY = 86400000;
 
+// One London day, given as its UTC-midnight date.
+function dayPeriod(date) {
+  return { kind: "day", start: date, end: date + DAY, prevStart: date - DAY };
+}
+
 // The week before the one containing `day`; or, with `containing`, that week.
 function weekPeriod(day, containing) {
   const date = londonDate(day);
@@ -2269,6 +2317,7 @@ function yearPeriod(year) {
 // `short`, "28 Sept – 4 Oct" or "Oct 2026", for a subject line.
 function periodLabel(p, short = false) {
   const fmt = (d, opts) => new Intl.DateTimeFormat("en-GB", { timeZone: "UTC", ...opts }).format(new Date(d));
+  if (p.kind === "day") return fmt(p.start, { weekday: short ? "short" : "long", day: "numeric", month: short ? "short" : "long", year: "numeric" });
   if (p.kind === "year") return String(new Date(p.start).getUTCFullYear());
   if (p.kind === "month") return fmt(p.start, { month: short ? "short" : "long", year: "numeric" });
 
@@ -2288,6 +2337,7 @@ function periodLabel(p, short = false) {
 // for a period still under way, its days so far: "same days the week before",
 // "1–5 September", "same days of 2025".
 function beforeLabel(p) {
+  if (p.kind === "day") return p.soFar ? "yesterday by this time" : "the day before";
   if (p.soFar) {
     const days = Math.round((p.soFar - p.start) / DAY) + 1;
     if (p.kind === "week") return days === 1 ? "same day the week before" : "same days the week before";
@@ -2542,16 +2592,21 @@ async function renderReport(p, r, web = null) {
   const note = periodNote(p);
   // The live report, on the private map page, says when it was built.
   const time = web ? new Intl.DateTimeFormat("en-GB", { timeZone: REPORT_TZ, hour: "2-digit", minute: "2-digit" }).format(new Date(web.now)) : "";
-  const live = p.soFar ? `Live: up to ${time} today. Today’s figures are still coming in, and today is left out of the day-of-the-week and time-of-day averages until it is over.` : "";
+  const live = !p.soFar
+    ? ""
+    : p.kind === "day"
+      ? `Live: up to ${time}. Today’s figures are still coming in. Visits are compared with yesterday’s up to the same time, and Google’s search figures, which come two or three days late, are left out.`
+      : `Live: up to ${time} today. Today’s figures are still coming in, and today is left out of the day-of-the-week and time-of-day averages until it is over.`;
   const dashboard = `https://dash.cloudflare.com/${r.account}/web-analytics/overview?siteTag~in=${r.site}`;
   const visits = fmtNum(r.parts.all.visits);
 
   const subject = {
+    day: `Cedar Hollow website: ${visits} visits on ${label}`,
     week: `Cedar Hollow website: ${visits} visits, ${periodLabel(p, true)}`,
     month: `Cedar Hollow website: ${visits} visits in ${label}`,
     year: `Cedar Hollow website: ${visits} visits in ${label}, month by month`,
   }[p.kind];
-  const kicker = { week: "weekly visitors", month: "monthly visitors", year: "the year in visitors" }[p.kind] + (web ? " · live" : "");
+  const kicker = { day: "the day’s visitors", week: "weekly visitors", month: "monthly visitors", year: "the year in visitors" }[p.kind] + (web ? " · live" : "");
   const directNote =
     "“Direct” means the visitor’s browser didn’t say where they came from: " +
     "the address typed in, a bookmark, or a link in WhatsApp, an email or another app.";
@@ -2627,9 +2682,13 @@ async function renderReport(p, r, web = null) {
   const days = {};
   for (const [part] of PARTS) {
     const average = r.parts[part].average;
-    if (!average.weekdays.some((v) => v > 0)) continue;
+    const anyWeekdays = average.weekdays.some((v) => v > 0);
+    if (!anyWeekdays && !(average.hours && average.hours.some((v) => v > 0))) continue;
     try {
-      days[part] = { weekdays: { cid: `weekdays-${part}`, content: base64Bytes(await columnsPng(average.weekdays.map((v) => [v || 0]), [DAY_COLOUR])) } };
+      days[part] = {};
+      if (anyWeekdays) {
+        days[part].weekdays = { cid: `weekdays-${part}`, content: base64Bytes(await columnsPng(average.weekdays.map((v) => [v || 0]), [DAY_COLOUR])) };
+      }
       if (average.hours && average.hours.some((v) => v > 0)) {
         days[part].hours = { cid: `hours-${part}`, content: base64Bytes(await columnsPng(average.hours.map((v) => [v]), [DAY_COLOUR])) };
       }
@@ -2682,13 +2741,13 @@ ${parts}
   };
   const site = (host) => (host.startsWith("@") ? "(within this site)" : host || "(none)");
   const line = (key, x) => [key, PART_LABELS[x.part] || x.part, x.source, site(x.host), x.device, x.visits];
-  const stamp = p.kind === "week" ? isoDate(p.start) : p.kind === "month" ? isoDate(p.start).slice(0, 7) : String(year);
+  const stamp = p.kind === "day" || p.kind === "week" ? isoDate(p.start) : p.kind === "month" ? isoDate(p.start).slice(0, 7) : String(year);
   const body =
     p.kind === "year"
       ? (r.months || []).flatMap((m, i) => ordered(toRows(m.sources)).map((x) => line(`${year}-${String(i + 1).padStart(2, "0")}`, x)))
       : ordered(r.rows).map((x) => line(stamp, x));
   const csv =
-    [[p.kind === "week" ? "Week starting" : "Month", "Part of site", "Source", "Website", "Device", "Visits"], ...body]
+    [[{ day: "Day", week: "Week starting" }[p.kind] || "Month", "Part of site", "Source", "Website", "Device", "Visits"], ...body]
       .map((cells) => cells.map(csvCell).join(","))
       .join("\r\n") + "\r\n";
 
@@ -2803,10 +2862,12 @@ function renderPart(p, r, part, title, pie, chart, day) {
         .slice(0, 3)
         .map(([v, h], i) => `${hourSpan(h)} (${fmtAvg(v)}${i ? "" : " visits"})`)
     : [];
-  const hoursNote = anyHours
-    ? `Average visits in each hour of the day, UK time, ${overDays(A.hourDays)}. ` +
-      `Busiest: ${busiest.length > 1 ? `${busiest.slice(0, -1).join(", ")} and ${busiest[busiest.length - 1]}` : busiest[0]}.`
-    : "";
+  const busiestList = busiest.length > 1 ? `${busiest.slice(0, -1).join(", ")} and ${busiest[busiest.length - 1]}` : busiest[0];
+  const hoursNote = !anyHours
+    ? ""
+    : A.today
+      ? `Visits in each hour of the day, UK time, so far. Busiest: ${busiestList}.`
+      : `Average visits in each hour of the day, UK time, ${overDays(A.hourDays)}. Busiest: ${busiestList}.`;
   const weekdayValue = (i) => (A.weekdays[i] === null ? "–" : fmtAvg(A.weekdays[i]));
 
   // Its clicks to book: for the whole website, by where the visits came from,
@@ -2871,7 +2932,7 @@ function renderPart(p, r, part, title, pie, chart, day) {
   const byChannel = new Map();
   for (const b of showBookings ? bookings : []) if (b.channel !== "direct") byChannel.set(b.channel, (byChannel.get(b.channel) || 0) + 1);
   const bookingsLine = showBookings
-    ? `${plural(bookings.length, "booking")} ${bookings.length === 1 ? "was" : "were"} made this ${p.kind}` +
+    ? `${plural(bookings.length, "booking")} ${bookings.length === 1 ? "was" : "were"} made ${p.kind === "day" ? "today" : `this ${p.kind}`}` +
       (bookings.length
         ? `: ${listed([
             ...(madeDirect.length ? [`${num(madeDirect.length)} direct on Checked.in`] : []),
@@ -3278,7 +3339,7 @@ function renderPart(p, r, part, title, pie, chart, day) {
       (day && day.hours
         ? picture(
             day.hours,
-            `Bar chart of average visits in each hour of the day, UK time: ${A.hours.map((v, h) => `${hourSpan(h)} ${fmtAvg(v)}`).join(", ")}`
+            `Bar chart of ${A.today ? "" : "average "}visits in each hour of the day, UK time: ${A.hours.map((v, h) => `${hourSpan(h)} ${fmtAvg(v)}`).join(", ")}`
           ) +
           strip(
             A.hours.map((_, h) => (h % 3 ? "" : String(h % 12 || 12))),
