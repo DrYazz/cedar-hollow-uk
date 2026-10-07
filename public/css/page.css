@@ -63,6 +63,11 @@ body { background: var(--offwhite, #f8f8e8); color: var(--color-text, #5d5c4b); 
 @media (max-width: 479px) { .ch-award { flex-direction: column; text-align: center; } }
 
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+/* The menu's links start hidden and are faded in by an animation, which the
+   rule above switches off -- so with "reduce motion" on, the menu opened
+   empty. Shown outright instead. Stronger than the page's own .ch-nav__menu a
+   rule, which comes later. */
+@media (prefers-reduced-motion: reduce) { .ch-nav .ch-nav__menu a { opacity: 1; transform: none; } }
 
 /* ---- Photo rows: three framed photographs in the site's card language ---- */
 .ch-photos {
