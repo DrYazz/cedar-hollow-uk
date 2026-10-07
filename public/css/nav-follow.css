@@ -29,51 +29,65 @@ html.ch-nav-follow .ch-nav__bar.is-floating .ch-searchbar{opacity:0;visibility:h
   pointer-events:none;transition:opacity .2s ease,visibility 0s linear .2s}
 
 /* ---- Colour ----------------------------------------------------------------
-   The script marks each half of the bar dark or light ink: data-ink-logo and
-   data-ink-menu. Unmarked, as over the page's own header, the page's own
-   colours stand. Dark is the site's moss green, as on the booking pages;
-   light is the cream the bar has everywhere else. */
-html.ch-nav-follow .ch-nav__bar[data-ink-logo="dark"] .ch-nav__logo,
-html.ch-nav-follow .ch-nav__bar[data-ink-logo="dark"] .ch-nav__wordmark,
-html.ch-nav-follow .ch-nav__bar[data-ink-logo="dark"] .ch-siteswitch__caret,
-html.ch-nav-follow .ch-nav__bar[data-ink-logo="dark"] .ch-siteswitch__list a{color:var(--accent,#3b4126)}
-/* The owl picture is cream; this turns it the same green. The Oxford pages
-   draw their owl in the text colour, so it follows on its own. */
-html.ch-nav-follow .ch-nav__bar[data-ink-logo="dark"] img.ch-nav__owl{
-  filter:sepia(87%) saturate(322%) hue-rotate(14deg) brightness(25%)}
-html.ch-nav-follow .ch-nav__bar[data-ink-logo="dark"] .ch-siteswitch__list a{text-shadow:none}
-html.ch-nav-follow .ch-nav__bar[data-ink-logo="dark"] .ch-siteswitch__caret:focus-visible,
-html.ch-nav-follow .ch-nav__bar[data-ink-logo="dark"] .ch-siteswitch__list a:focus-visible{outline-color:var(--accent,#3b4126)}
+   The script marks each piece of the bar dark or light ink, by what is behind
+   that piece: data-ink-owl, -word, -caret, -menu, and -list for the Oxford
+   and Dorset links under the logo. Unmarked, as over the page's own header,
+   the page's own colours stand. Dark is the site's moss green, as on the
+   booking pages; light is the cream the bar has everywhere else, with a soft
+   shadow once the bar has left its header, to stand on a busy picture.
 
-html.ch-nav-follow .ch-nav__bar[data-ink-logo="light"] .ch-nav__logo,
-html.ch-nav-follow .ch-nav__bar[data-ink-logo="light"] .ch-nav__wordmark,
-html.ch-nav-follow .ch-nav__bar[data-ink-logo="light"] .ch-siteswitch__caret,
-html.ch-nav-follow .ch-nav__bar[data-ink-logo="light"] .ch-siteswitch__list a{color:#f1ecdb}
-html.ch-nav-follow .ch-nav__bar[data-ink-logo="light"] .ch-nav__logo img.ch-nav__owl{filter:none}
-html.ch-nav-follow .ch-nav__bar[data-ink-logo="light"] .ch-siteswitch__caret:focus-visible,
-html.ch-nav-follow .ch-nav__bar[data-ink-logo="light"] .ch-siteswitch__list a:focus-visible{outline-color:#f1ecdb}
+   The owl picture is cream, and turned green by a filter. Light and dark
+   give the same list of filters, so one changes smoothly into the other. The
+   Oxford pages draw their owl in the text colour instead. */
+html.ch-nav-follow .ch-nav__bar[data-ink-owl="dark"] .ch-nav__logo img.ch-nav__owl{
+  filter:sepia(87%) saturate(322%) hue-rotate(14deg) brightness(25%) drop-shadow(0 1px 4px rgba(16,11,1,0))}
+html.ch-nav-follow .ch-nav__bar[data-ink-owl="light"] .ch-nav__logo img.ch-nav__owl{
+  filter:sepia(0%) saturate(100%) hue-rotate(0deg) brightness(100%) drop-shadow(0 1px 4px rgba(16,11,1,0))}
+html.ch-nav-follow .ch-nav__bar.is-floating[data-ink-owl="light"] .ch-nav__logo img.ch-nav__owl{
+  filter:sepia(0%) saturate(100%) hue-rotate(0deg) brightness(100%) drop-shadow(0 1px 4px rgba(16,11,1,.55))}
+html.ch-nav-follow .ch-nav__bar[data-ink-owl="dark"] .ch-nav__logo svg.ch-nav__owl{color:var(--accent,#3b4126);filter:none}
+html.ch-nav-follow .ch-nav__bar[data-ink-owl="light"] .ch-nav__logo svg.ch-nav__owl{color:#f1ecdb}
+html.ch-nav-follow .ch-nav__bar.is-floating[data-ink-owl="light"] .ch-nav__logo svg.ch-nav__owl{filter:drop-shadow(0 1px 4px rgba(16,11,1,.55))}
+
+html.ch-nav-follow .ch-nav__bar[data-ink-word="dark"] .ch-nav__logo .ch-nav__wordmark,
+html.ch-nav-follow .ch-nav__bar[data-ink-word="dark"] .ch-nav__place{color:var(--accent,#3b4126);text-shadow:none}
+html.ch-nav-follow .ch-nav__bar[data-ink-word="light"] .ch-nav__logo .ch-nav__wordmark,
+html.ch-nav-follow .ch-nav__bar[data-ink-word="light"] .ch-nav__place{color:#f1ecdb}
+html.ch-nav-follow .ch-nav__bar.is-floating[data-ink-word="light"] .ch-nav__logo .ch-nav__wordmark,
+html.ch-nav-follow .ch-nav__bar.is-floating[data-ink-word="light"] .ch-nav__place{
+  text-shadow:0 1px 2px rgba(16,11,1,.4),0 0 12px rgba(16,11,1,.35)}
+
+html.ch-nav-follow .ch-nav__bar[data-ink-caret="dark"] .ch-siteswitch__caret{color:var(--accent,#3b4126)}
+html.ch-nav-follow .ch-nav__bar[data-ink-caret="dark"] .ch-siteswitch__caret:focus-visible{outline-color:var(--accent,#3b4126)}
+html.ch-nav-follow .ch-nav__bar[data-ink-caret="light"] .ch-siteswitch__caret{color:#f1ecdb}
+html.ch-nav-follow .ch-nav__bar[data-ink-caret="light"] .ch-siteswitch__caret:focus-visible{outline-color:#f1ecdb}
+html.ch-nav-follow .ch-nav__bar.is-floating[data-ink-caret="light"] .ch-siteswitch__caret{filter:drop-shadow(0 1px 3px rgba(16,11,1,.5))}
+
+html.ch-nav-follow .ch-nav__bar[data-ink-list="dark"] .ch-siteswitch__list a{color:var(--accent,#3b4126);text-shadow:none}
+html.ch-nav-follow .ch-nav__bar[data-ink-list="dark"] .ch-siteswitch__list img.ch-nav__owl{
+  filter:sepia(87%) saturate(322%) hue-rotate(14deg) brightness(25%)}
+html.ch-nav-follow .ch-nav__bar[data-ink-list="dark"] .ch-siteswitch__list a:focus-visible{outline-color:var(--accent,#3b4126)}
+html.ch-nav-follow .ch-nav__bar[data-ink-list="light"] .ch-siteswitch__list a{color:#f1ecdb}
+html.ch-nav-follow .ch-nav__bar[data-ink-list="light"] .ch-siteswitch__list img.ch-nav__owl{filter:drop-shadow(0 1px 8px rgba(16,11,1,.5))}
+/* The booking pages colour every wordmark green themselves; in the list the
+   link's own ink decides. */
+html.ch-nav-follow .ch-nav__bar[data-ink-list] .ch-siteswitch__list .ch-nav__wordmark{color:inherit}
 
 html.ch-nav-follow .ch-nav__bar[data-ink-menu="dark"] .ch-nav__toggle span[aria-hidden]{background-color:var(--accent,#3b4126)}
 html.ch-nav-follow .ch-nav__bar[data-ink-menu="dark"] .ch-nav__toggle:focus-visible{outline-color:var(--accent,#3b4126)}
 html.ch-nav-follow .ch-nav__bar[data-ink-menu="light"] .ch-nav__toggle span[aria-hidden]{background-color:#f1ecdb}
 html.ch-nav-follow .ch-nav__bar[data-ink-menu="light"] .ch-nav__toggle:focus-visible{outline-color:#f1ecdb}
-
-/* Cream over a busy picture gets a soft shadow to stand on, once the bar has
-   left its header. */
-html.ch-nav-follow .ch-nav__bar.is-floating[data-ink-logo="light"] .ch-nav__logo,
-html.ch-nav-follow .ch-nav__bar.is-floating[data-ink-logo="light"] .ch-siteswitch__caret,
-html.ch-nav-follow .ch-nav__bar.is-floating[data-ink-menu="light"] .ch-nav__toggle{
-  filter:drop-shadow(0 1px 2px rgba(16,11,1,.35)) drop-shadow(0 0 10px rgba(16,11,1,.3))}
+html.ch-nav-follow .ch-nav__bar.is-floating[data-ink-menu="light"] .ch-nav__toggle{filter:drop-shadow(0 1px 3px rgba(16,11,1,.5))}
 
 /* Gently, once the page has settled; not as it first draws. */
-html.ch-nav-follow--ready .ch-nav__logo,
 html.ch-nav-follow--ready .ch-nav__wordmark,
+html.ch-nav-follow--ready .ch-nav__place{transition:color .3s ease,text-shadow .3s ease}
 html.ch-nav-follow--ready .ch-nav__owl{transition:color .3s ease,filter .3s ease}
 html.ch-nav-follow--ready .ch-siteswitch__caret{transition:opacity .2s ease,transform .25s ease,color .3s ease,filter .3s ease}
 html.ch-nav-follow--ready .ch-nav__toggle{transition:filter .3s ease}
 html.ch-nav-follow--ready .ch-nav__toggle span[aria-hidden]{transition:transform .2s ease,opacity .2s ease,background-color .3s ease}
 @media (prefers-reduced-motion:reduce){
-  html.ch-nav-follow--ready .ch-nav__logo,html.ch-nav-follow--ready .ch-nav__wordmark,
+  html.ch-nav-follow--ready .ch-nav__wordmark,html.ch-nav-follow--ready .ch-nav__place,
   html.ch-nav-follow--ready .ch-nav__owl,html.ch-nav-follow--ready .ch-siteswitch__caret,
   html.ch-nav-follow--ready .ch-nav__toggle,html.ch-nav-follow--ready .ch-nav__toggle span[aria-hidden]{transition:none}
 }
