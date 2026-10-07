@@ -41,14 +41,26 @@
   var list = bar.querySelector(".ch-siteswitch__list");
   var toggle = bar.querySelector(".ch-nav__toggle");
 
-  // A fixed bar can rise no higher than the layer it is drawn in. On the
-  // three home pages that is the hero's (z-index 3), which would leave it
-  // under anything further down the page that is raised at all. Lifted to
-  // 100: still under the booking panel, the dialogs and the lightbox.
-  for (var e = holder; e && e !== document.body; e = e.parentElement) {
-    var z = parseInt(getComputedStyle(e).zIndex, 10);
-    if (!isNaN(z) && z < 100) e.style.zIndex = "100";
-  }
+  // The bar and its menu leave the page's header for the top of <body>.
+  // Left inside it, the header could cut them off: the headers hide what
+  // spills outside them (overflow: hidden), and Safari on an iPhone applied
+  // that to the fixed bar too -- on the Oxford home page the logo was sliced
+  // off at the bottom of the photo and gone below it. The header's layer
+  // (z-index 3 on the home pages) would also have kept the bar under anything
+  // raised further down. Up here nothing contains them; the bar's z-index of
+  // 100 keeps it under the booking panel, the dialogs and the lightbox.
+  //
+  // The place they leave (.ch-nav) stays, held open at the bar's height, so
+  // nothing on the page moves. Their new home is a .ch-nav as well, for the
+  // styles that look for the menu inside one; the page's scripts find them
+  // by name and are not affected.
+  holder.style.minHeight = bar.offsetHeight + "px";
+  var menu = document.getElementById("ch-nav-menu");
+  var lifted = document.createElement("div");
+  lifted.className = "ch-nav ch-nav--lifted";
+  lifted.appendChild(bar);
+  if (menu && holder.contains(menu)) lifted.appendChild(menu);
+  document.body.insertBefore(lifted, document.body.firstChild);
   root.classList.add("ch-nav-follow");
 
   // ---- where the bar goes -----------------------------------------------
