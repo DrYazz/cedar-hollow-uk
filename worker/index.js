@@ -313,6 +313,41 @@ const PAGE_ALIASES = {
   "/dorset/": "/dorset.html",
 };
 
+/*
+ * The Dorset booking pause. Temporary: remove this block, dorsetGate and its
+ * helpers, the four paths in run_worker_first, and the bookingPaused branch in
+ * js/properties-page.js, and Dorset books again.
+ *
+ * Set DORSET_BOOKING_PASSWORD to be able to see it yourself:
+ *
+ *   npx wrangler secret put DORSET_BOOKING_PASSWORD
+ *
+ * Then open /dorset-preview, give any user name and that password, and this
+ * browser sees the bookable site for a week. Without the secret nothing is
+ * bookable for anyone, which is the safe way round: a pause that depends on a
+ * secret being set should not lapse because it never was.
+ *
+ * What it covers, and what it cannot. Every route into Dorset booking that
+ * runs through this site is here: the calendars on the cards, the Dorset
+ * frame on the two availability pages, and the booking links on the core home
+ * page's featured cards. What it does not cover is checked.in itself --
+ * cedarhollowdorset.checked.in/book/<property> answers 200 to anyone, loads
+ * Stripe and is not noindex -- so a booking from a direct link or a search
+ * result still goes through. Isabella knows; stopping that is CheckedIn's
+ * side, not ours.
+ */
+const DORSET_PREVIEW_PATH = "/dorset-preview";
+const DORSET_GATED = new Set([
+  "/js/listings.js",        // the calendars and booking links on every card
+  "/availability.html",     // the combined page carries a Dorset frame
+  "/dorset-availability.html",
+]);
+// Anything addressing Dorset booking, whoever wrote it. Matched rather than
+// replaced literally so a changed slug or a new property cannot slip past.
+const DORSET_BOOK_RE = /https:\/\/cedarhollowdorset\.checked\.in\/book\/[A-Za-z0-9-]+/g;
+const DORSET_CAL_RE =
+  /https:\/\/checked\.in\/widget\/booking-calendar\/(?:the-woodsmans-treehouse|dazzle-treehouse|pinwheel-treehouse)[^"']*/g;
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
@@ -320,6 +355,23 @@ export default {
     const alias = PAGE_ALIASES[url.pathname];
     if (alias) {
       return Response.redirect(new URL(alias, url).toString(), 301);
+    }
+
+    /* The Dorset booking pause, temporary. See dorsetGate.
+
+       It fails closed: if anything in here throws, the answer is the blocked
+       page, never the asset. Falling through to the asset would serve the
+       bookable version, which is the one thing this must not do. */
+    if (DORSET_GATED.has(url.pathname)) {
+      try {
+        const gated = await dorsetGate(request, url, env);
+        if (gated) return gated;
+      } catch (err) {
+        return dorsetFellOver(url);
+      }
+    }
+    if (url.pathname === DORSET_PREVIEW_PATH) {
+      return dorsetPreview(request, url, env);
     }
 
     // Sent here first by run_worker_first in wrangler.toml.
@@ -789,6 +841,180 @@ async function honeyData(url, env) {
     went: went.results.map((r) => [r.kind, r.target, r.recent || 0, r.year || 0]),
     presses: presses.results.map((r) => [r.target, r.today || 0, r.week || 0, r.month || 0, r.year || 0]),
   });
+}
+
+/*
+ * The Dorset booking pause, on the three addresses that carry it.
+ *
+ * Returns null only when this browser has the preview cookie, which lets the
+ * ordinary asset through untouched. Everything else gets the asset with the
+ * Dorset booking taken out of it, so the pages still read and still sell: a
+ * guest can browse the treehouses and see the prices, and finds a line saying
+ * booking is paused where the calendar was.
+ *
+ * Nothing here is cacheable, because the answer depends on a cookie.
+ */
+async function dorsetGate(request, url, env) {
+  if (await dorsetUnlocked(request, env)) return null;
+
+  if (url.pathname === "/dorset-availability.html") return dorsetBlocked(url);
+
+  const res = await env.ASSETS.fetch(new Request(url.toString(), request));
+  if (!res.ok) return res;
+  let body = await res.text();
+
+  if (url.pathname === "/js/listings.js") {
+    /* A card with no calendarUrl renders its "Check availability" button
+       instead, so the booking link is sent back to the Dorset stays page
+       rather than deleted: the button still works and lands somewhere that
+       explains itself. bookingPaused is what js/properties-page.js reads. */
+    body = body.replace(DORSET_CAL_RE, "").replace(DORSET_BOOK_RE, "dorset-stays.html");
+    body = body.replace(
+      /(\n\s*)bookingUrl: "dorset-stays\.html"/g,
+      '$1bookingPaused: true,$1bookingUrl: "dorset-stays.html"'
+    );
+  } else {
+    // availability.html: drop the whole Dorset section, heading and frame.
+    body = dropDorsetSection(body);
+  }
+
+  const out = new Response(body, {
+    status: res.status,
+    headers: res.headers,
+  });
+  out.headers.set("cache-control", "no-store");
+  out.headers.set("vary", "cookie");
+  out.headers.delete("content-length");
+  out.headers.delete("etag");
+  return out;
+}
+
+/* The Dorset <section class="av-place"> on availability.html, found by the
+   account on its slot rather than by its position, so the Oxford one above it
+   is never the one that goes. */
+function dropDorsetSection(html) {
+  const slot = html.indexOf('data-cin-account="83"');
+  if (slot === -1) return html;
+  const open = html.lastIndexOf("<section", slot);
+  const close = html.indexOf("</section>", slot);
+  if (open === -1 || close === -1) return html;
+  return html.slice(0, open) + html.slice(close + "</section>".length);
+}
+
+/*
+ * What the gate answers if it throws, which it should not: the pause holds
+ * either way, because the alternative -- handing back the real asset -- is the
+ * one thing it exists to prevent.
+ *
+ * The catalogue gets JavaScript rather than the HTML notice. Serving an HTML
+ * page where a script was asked for would break the cards on the Oxford pages
+ * as well, and Oxford has nothing to do with this.
+ */
+function dorsetFellOver(url) {
+  if (url.pathname.endsWith(".js")) {
+    return new Response("/* Temporarily unavailable. */\n", {
+      status: 503,
+      headers: { ...PRIVATE, "content-type": "text/javascript; charset=utf-8" },
+    });
+  }
+  return dorsetBlocked(url);
+}
+
+// The page a guest gets where live Dorset availability would have been.
+function dorsetBlocked(url) {
+  const body =
+    "<!doctype html><html lang=en><meta charset=utf-8>" +
+    '<meta name=viewport content="width=device-width,initial-scale=1">' +
+    "<title>Booking paused | Cedar Hollow Dorset</title>" +
+    "<style>body{margin:0;min-height:100vh;display:flex;align-items:center;" +
+    "justify-content:center;background:#f1ecdb;color:#3b4126;" +
+    "font:400 1.0625rem/1.6 system-ui,-apple-system,Segoe UI,sans-serif;" +
+    "text-align:center;padding:2rem}main{max-width:30rem}" +
+    "h1{font-size:1.75rem;font-weight:400;margin:0 0 .75rem}" +
+    "a{color:inherit}</style>" +
+    "<main><h1>Dorset booking is paused</h1>" +
+    "<p>We are checking our calendars, so the Dorset treehouses cannot be " +
+    "booked online for the moment. They will be back shortly.</p>" +
+    '<p><a href="/dorset-stays.html">See the treehouses</a> or ' +
+    '<a href="/dorset-contact.html">get in touch</a>.</p></main>';
+  return new Response(body, {
+    status: 503,
+    headers: {
+      ...PRIVATE,
+      "content-type": "text/html; charset=utf-8",
+      "retry-after": "86400",
+    },
+  });
+}
+
+// The cookie this browser gets from /dorset-preview, and nothing else.
+async function dorsetUnlocked(request, env) {
+  if (!env.DORSET_BOOKING_PASSWORD) return false;
+  const m = /(?:^|;\s*)dorset_preview=([^;]+)/.exec(request.headers.get("cookie") || "");
+  if (!m) return false;
+  return sameSecret(decodeURIComponent(m[1]), await sha256(env.DORSET_BOOKING_PASSWORD));
+}
+
+/*
+ * GET /dorset-preview: HTTP Basic, any user name and DORSET_BOOKING_PASSWORD,
+ * and this browser sees the bookable site for a week. ?off=1 gives it back.
+ *
+ * The cookie carries a hash of the password rather than the password, so what
+ * sits in the browser is not the secret itself.
+ */
+async function dorsetPreview(request, url, env) {
+  if (!env.DORSET_BOOKING_PASSWORD) {
+    return new Response("DORSET_BOOKING_PASSWORD is not set, so nothing is bookable.", {
+      status: 503,
+      headers: PRIVATE,
+    });
+  }
+  if (url.searchParams.get("off") === "1") {
+    return new Response("Dorset booking is hidden again in this browser.", {
+      status: 200,
+      headers: {
+        ...PRIVATE,
+        "set-cookie": "dorset_preview=; Path=/; Max-Age=0; Secure; HttpOnly; SameSite=Lax",
+      },
+    });
+  }
+  if (!(await dorsetSignedIn(request, env))) {
+    return new Response("This page needs its password.", {
+      status: 401,
+      headers: {
+        ...PRIVATE,
+        "www-authenticate": 'Basic realm="Cedar Hollow Dorset booking", charset="UTF-8"',
+      },
+    });
+  }
+  const token = encodeURIComponent(await sha256(env.DORSET_BOOKING_PASSWORD));
+  return new Response(
+    "Dorset booking is visible in this browser for seven days.\n" +
+      "Turn it off again at /dorset-preview?off=1",
+    {
+      status: 200,
+      headers: {
+        ...PRIVATE,
+        "content-type": "text/plain; charset=utf-8",
+        "set-cookie":
+          "dorset_preview=" + token + "; Path=/; Max-Age=604800; Secure; HttpOnly; SameSite=Lax",
+      },
+    }
+  );
+}
+
+// HTTP Basic, with any user name and the Dorset booking password.
+async function dorsetSignedIn(request, env) {
+  const m = /^Basic\s+([A-Za-z0-9+/=]+)\s*$/i.exec(request.headers.get("authorization") || "");
+  if (!m) return false;
+  let pair;
+  try {
+    pair = new TextDecoder().decode(Uint8Array.from(atob(m[1]), (c) => c.charCodeAt(0)));
+  } catch (err) {
+    return false;
+  }
+  const given = pair.slice(pair.indexOf(":") + 1);
+  return Boolean(given) && (await sameSecret(given, env.DORSET_BOOKING_PASSWORD));
 }
 
 // /wdtcf and everything under it: see VISIT_PATH.
