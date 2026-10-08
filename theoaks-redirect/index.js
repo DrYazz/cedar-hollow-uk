@@ -75,7 +75,7 @@ const MAP = {
   "/makeamemory": "/oxford/philanthropy.html#make-a-memory",
   "/availability": "/oxford-stays.html",
   "/influencers": "/influencers.html",
-  "/sustainability": "/oxford-sustainability.html",
+  "/sustainability": "/sustainability.html#oxford",
   "/reviews": "/oxford-reviews.html",
   "/working": "/careers.html",
   "/events": "/oxford/celebrations.html",
