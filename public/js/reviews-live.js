@@ -39,7 +39,7 @@
       "oxford": {
         "name": "Cedar Hollow Oxford, The Oaks",
         "short": "Cedar Hollow Oxford",
-        "page": "oxford-reviews.html",
+        "page": "reviews.html",
         "rating": 5.0,
         "count": 269,
         "sources": [
@@ -84,7 +84,7 @@
       "dorset": {
         "name": "Mallinson's Woodland Retreat",
         "short": "Cedar Hollow Dorset",
-        "page": "dorset-reviews.html",
+        "page": "reviews.html",
         "rating": 4.9,
         "count": 208,
         "sources": [
@@ -104,8 +104,8 @@
           }
         ],
         "photo": {
-          "src": "images/gallery/woodsmans-hero-1060.webp",
-          "srcset": "images/gallery/woodsmans-hero-530.webp 530w, images/gallery/woodsmans-hero-1060.webp 1060w, images/gallery/woodsmans-hero-1600.webp 1600w, images/gallery/woodsmans-hero-2400.webp 2400w",
+          "src": "images/property-woodsmans-treehouse-999.webp",
+          "srcset": "images/property-woodsmans-treehouse-530.webp 530w, images/property-woodsmans-treehouse-999.webp 999w",
           "alt": "The Woodsman's Treehouse wrapped around its oak at Cedar Hollow Dorset"
         }
       }

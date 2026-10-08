@@ -32,7 +32,7 @@
     "oxford": {
       "name": "Cedar Hollow Oxford, The Oaks",
       "short": "Cedar Hollow Oxford",
-      "page": "oxford-reviews.html",
+      "page": "reviews.html",
       "live": {
         "provider": "Repuso",
         "widget": "34454",
@@ -88,7 +88,7 @@
     "dorset": {
       "name": "Mallinson's Woodland Retreat",
       "short": "Cedar Hollow Dorset",
-      "page": "dorset-reviews.html",
+      "page": "reviews.html",
       "sources": [
         {
           "platform": "Google",

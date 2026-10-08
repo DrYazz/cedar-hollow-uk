@@ -10,9 +10,15 @@
 # The Oxford sub-site's own reviews and sustainability pages duplicated the
 # root ones the nav points at, and index2.html was its homepage, orphaned once
 # every sub-site logo was repointed at /oxford. All three now forward.
-/oxford/reviews.html         /oxford-reviews.html         301
+/oxford/reviews.html         /reviews.html                301
 /oxford/sustainability.html  /sustainability.html#oxford  301
 /oxford/index2.html          /oxford.html                 301
+
+# One reviews page for both woodlands; Celebrations moved to the main site.
+/oxford-reviews.html         /reviews.html                301
+/dorset-reviews.html         /reviews.html                301
+/oxford/celebrations.html    /celebrations.html           301
+/oxford/events.html          /celebrations.html           301
 
 # The general experiences page became Cedar Hollow Dorset's; Oxford has
 # its own (oxford/experiences.html).
@@ -88,7 +94,7 @@
 /dorset-press                /dorset-press.html                              301
 /dorset-prices               /dorset-prices.html                             301
 /dorset-retreats             /dorset-retreats.html                           301
-/dorset-reviews              /dorset-reviews.html                            301
+/dorset-reviews              /reviews.html                            301
 /dorset-stays                /dorset-stays.html                              301
 /dorset-sustainability       /dorset-sustainability.html                     301
 /dorset-woodland-map         /dorset-woodland-map.html                       301
@@ -100,7 +106,7 @@
 /honey                       /honey.html                                     301
 /influencers                 /influencers.html                               301
 /oxford-press                /oxford-press.html                              301
-/oxford-reviews              /oxford-reviews.html                            301
+/oxford-reviews              /reviews.html                            301
 /oxford-stays                /oxford-stays.html                              301
 /oxford-sustainability       /sustainability.html#oxford                     301
 /oxford                      /oxford.html                                    301
@@ -109,14 +115,14 @@
 /oxford/availability         /search-results.html?destination=Oxford         301
 /oxford/beemuseum            /oxford/beemuseum.html                          301
 /oxford/bees                 /oxford/bees.html                               301
-/oxford/celebrations         /oxford/celebrations.html                       301
+/oxford/celebrations         /celebrations.html                              301
 /oxford/chocolate            /oxford/chocolate.html                          301
 /oxford/colonial             /oxford/colonial.html                           301
 /oxford/copy-of-facilities   /search-results.html?destination=Oxford         301
 /oxford/copy-of-map          /oxford.html                                    301
 /oxford/dining               /oxford/dining.html                             301
 /oxford/enemies              /oxford/enemies.html                            301
-/oxford/events               /oxford/events.html                             301
+/oxford/events               /celebrations.html                              301
 /oxford/experiences          /oxford/experiences.html                        301
 /oxford/facilities           /oxford/facilities.html                         301
 /oxford/faq                  /oxford/faq.html                                301
@@ -135,7 +141,7 @@
 /oxford/privacy              /oxford/privacy.html                            301
 /oxford/product-bonbons      /oxford/chocolate.html                          301
 /oxford/product-honey        /oxford/honey.html                              301
-/oxford/reviews              /oxford-reviews.html                            301
+/oxford/reviews              /reviews.html                            301
 /oxford/schoolgroups         /oxford/schoolgroups.html                       301
 /oxford/shop                 /oxford.html                                    301
 /oxford/story                /oxford/story.html                              301
