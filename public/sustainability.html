@@ -43,6 +43,27 @@
     .ch-evidence figcaption{margin-top:.75rem;font-size:.9375rem;line-height:1.5;opacity:.7;}
     /* Which woodland a section is about, over its title: the sections the
        Oxford page brought with it. Set like the label over each page's title. */
+    /* The honey, standing out from the cards above it: the photograph beside
+       the words on a wide screen, above them on a phone, in the cards' own
+       colours, with a cream button, since the site's dark one would vanish
+       on the green. */
+    .ch-feature{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:stretch;
+      max-width:56rem;margin:3rem auto 0;text-align:left;background:#434a2c;
+      border:1px solid #ffffff26;border-radius:var(--radius--16,1rem);overflow:hidden;}
+    .ch-feature img{display:block;width:100%;height:100%;min-height:18rem;object-fit:cover;object-position:50% 30%;}
+    .ch-feature__body{display:flex;flex-direction:column;justify-content:center;align-items:flex-start;
+      padding:2.5rem;color:var(--brand,#efeed5);}
+    .ch-feature__body h3{margin:0 0 .75rem;color:var(--brand,#efeed5);}
+    .ch-feature__body p{margin:0 0 1.75rem;line-height:1.7;opacity:.85;}
+    .ch-feature .button{background-color:var(--brand,#efeed5);color:var(--accent,#3b4126);border-color:var(--brand,#efeed5);}
+    .ch-feature .button:hover{background-color:#fff;border-color:#fff;}
+    @media screen and (max-width:767px){
+      .ch-feature{grid-template-columns:1fr;text-align:center;}
+      .ch-feature img{height:auto;min-height:0;aspect-ratio:4/3;}
+      .ch-feature__body{align-items:center;padding:1.75rem 1.5rem 2rem;}
+    }
+    /* A link in a card on the green reads in the card's own colour. */
+    .ch-section--accent .ch-cards a{color:inherit;text-decoration:underline;text-underline-offset:.15em;}
     .ch-overline{margin:0 0 1rem;font-size:1rem;font-weight:600;letter-spacing:.08em;
       line-height:1.1;text-transform:uppercase;opacity:.7;}
   </style>
@@ -263,7 +284,7 @@
                     <h2 class="heading-style-h1">How we care <span class="text-style-italic">for the land</span></h2>
                   </div>
                 </div>
-                <ul class="ch-cards"><li><h3 class="heading-style-h4">Woodland stewardship</h3><p>Native trees planted each year. Log piles, deadwood and wildflower zones left as microhabitat. External lighting on timers and kept low, so bats and owls still have their dark.</p></li><li><h3 class="heading-style-h4">Bees and the orchard</h3><p>Six active hives, and membership of the British Beekeepers Association. The mixed orchard of fruit and nut trees feeds the bees and the birds, and draws butterflies, fungi and deer with them; guests go home with a jar of the honey and a box of the honey-filled bonbons.</p></li><li><h3 class="heading-style-h4">Reclaimed and reused</h3><p>Salvaged stone, antique furniture and reclaimed wood throughout, including beams rescued from the church where C. S. Lewis is buried. Reuse is the default, not the flourish.</p></li><li><h3 class="heading-style-h4">Energy and light</h3><p>Air source heat pumps, which draw around three times less energy than a conventional system, with low-energy lighting and appliances, efficient log burners and insulation to match.</p></li><li><h3 class="heading-style-h4">Water and waste</h3><p>Refillable cleaning and toiletry products, reusable cloths, minimal single-use items, recycling bins and clear guidance in every building, composting for food and garden waste, and a move to well water to take pressure off the mains.</p></li><li><h3 class="heading-style-h4">Arriving gently</h3><p>An hour of free EV charging, bicycles to rent, and walking and cycle routes from the door. Our travel guide is built around the days out you can reach without the car.</p></li></ul>
+                <ul class="ch-cards"><li><h3 class="heading-style-h4">Woodland stewardship</h3><p>Native trees planted each year. Log piles, deadwood and wildflower zones left as microhabitat. External lighting on timers and kept low, so bats and owls still have their dark.</p></li><li><h3 class="heading-style-h4">Bees and the orchard</h3><p>Six active hives, and membership of the British Beekeepers Association. The mixed orchard of fruit and nut trees feeds the bees and the birds, and draws butterflies, fungi and deer with them; guests go home with a jar of <a href="oxford/honey.html">the honey</a> and a box of the honey-filled bonbons.</p></li><li><h3 class="heading-style-h4">Reclaimed and reused</h3><p>Salvaged stone, antique furniture and reclaimed wood throughout, including beams rescued from the church where C. S. Lewis is buried. Reuse is the default, not the flourish.</p></li><li><h3 class="heading-style-h4">Energy and light</h3><p>Air source heat pumps, which draw around three times less energy than a conventional system, with low-energy lighting and appliances, efficient log burners and insulation to match.</p></li><li><h3 class="heading-style-h4">Water and waste</h3><p>Refillable cleaning and toiletry products, reusable cloths, minimal single-use items, recycling bins and clear guidance in every building, composting for food and garden waste, and a move to well water to take pressure off the mains.</p></li><li><h3 class="heading-style-h4">Arriving gently</h3><p>An hour of free EV charging, bicycles to rent, and walking and cycle routes from the door. Our travel guide is built around the days out you can reach without the car.</p></li></ul><div class="ch-feature"><img src="oxford/images/bee/c26d1e1c1904.webp?v=20260923a" srcset="oxford/images/bee/c26d1e1c1904-sm.webp?v=20260923a 640w, oxford/images/bee/c26d1e1c1904.webp?v=20260923a 900w" sizes="(min-width: 768px) 28rem, 92vw" width="900" height="680" loading="lazy" decoding="async" alt="A young beekeeper in her bee suit by the gate at Cedar Hollow Oxford"><div class="ch-feature__body"><h3 class="heading-style-h4">Cedar Hollow Honey</h3><p>Raw, unfiltered honey from the hives in our own Oxford woodland, with deep floral notes from the garden and the hill. A jar goes home with every guest.</p><a href="oxford/honey.html" class="button w-inline-block"><span>About our honey</span><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewbox="0 0 17 12" fill="none" class="button_icon"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.2443 5.03644L9.48927 1.21321L10.6935 0L16.5 5.91195L10.6783 11.55L9.50444 10.3067L13.17 6.75673H0V5.03644H13.2443Z" fill="currentColor"></path></svg></a></div></div>
               </div>
             </div>
           </div>
