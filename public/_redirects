@@ -14,6 +14,10 @@
 /oxford/sustainability.html  /sustainability.html#oxford  301
 /oxford/index2.html          /oxford.html                 301
 
+# The general experiences page became Cedar Hollow Dorset's; Oxford has
+# its own (oxford/experiences.html).
+/experiences.html  /dorset-experiences.html  301
+
 # The Oxford sustainability page was folded into the main one, whose
 # Cedar Hollow Oxford sections (#oxford) now carry all of it.
 /oxford-sustainability.html  /sustainability.html#oxford  301
@@ -92,7 +96,7 @@
 /dorset-woodsmans-manual     /dorset-woodsmans-manual.html                   301
 /dorset-woodsmans-treehouse  /dorset-woodsmans-treehouse.html                301
 /dorset                      /dorset.html                                    301
-/experiences                 /experiences.html                               301
+/experiences                 /dorset-experiences.html                        301
 /honey                       /honey.html                                     301
 /influencers                 /influencers.html                               301
 /oxford-press                /oxford-press.html                              301
