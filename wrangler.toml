@@ -63,13 +63,6 @@ run_worker_first = [
   "/health",
   "/wdtcf",
   "/wdtcf/*",
-  # The Dorset booking pause, temporary: these four come out with it. Without
-  # them the asset server answers first and the gate never runs at all, which
-  # is the quiet way for a pause like this to do nothing.
-  "/dorset-preview",
-  "/js/listings.js",
-  "/availability.html",
-  "/dorset-availability.html",
   "/oxford/",
   "/dorset/",
   "/images/*.mp4",
