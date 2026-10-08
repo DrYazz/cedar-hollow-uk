@@ -270,7 +270,8 @@ def card(item, show_location=False, brief=False):
     return parts
 
 
-def video_card(v, onthumb=False, bare=False, named=False, keepleft=False):
+def video_card(v, onthumb=False, bare=False, named=False, keepleft=False,
+               titleleft=False):
     """A video as a still with a play button, not an iframe.
 
     Three shapes: most are a button that swaps in the player, the ones whose
@@ -315,8 +316,9 @@ def video_card(v, onthumb=False, bare=False, named=False, keepleft=False):
     # link straight to YouTube: a tile that goes somewhere beats one that
     # fails. Test it in a browser, from a page on cedarhollow.uk, not with the
     # API, which reports playableInEmbed true either way -- and test again
-    # now and then: Parallel Universe was blocked in September 2026 and
-    # played embedded by October.
+    # now and then: Parallel Universe and Beta Squad were both blocked in
+    # September 2026 and both played embedded by October, so no entry carries
+    # the flag now. The branch stays for the next one that is blocked.
     elif v.get("embed") is False:
         opener = [
             '  <a class="ch-vid__play is-offsite" href="%s" target="_blank" rel="noopener"' % url,
@@ -408,7 +410,8 @@ def video_card(v, onthumb=False, bare=False, named=False, keepleft=False):
         '<article class="ch-vid%s%s" style="--ch-vid-ar:%s">'
         % (portrait,
            (" ch-vid--onthumb" if onthumb else "")
-           + (" ch-vid--keepleft" if keepleft else ""), ratio),
+           + (" ch-vid--keepleft" if keepleft else "")
+           + (" ch-vid--titleleft" if titleleft else ""), ratio),
         *opener,
         '    <img src="%s" srcset="%s" sizes="(max-width: 767px) 92vw, 22rem"'
         % (asset(v["thumb"]["src"]), html.escape(v["thumb"]["srcset"], quote=True)),
@@ -425,7 +428,7 @@ def video_card(v, onthumb=False, bare=False, named=False, keepleft=False):
 
 
 def render_screen(section, indent, onthumb=(), bare=(), named=(),
-                  onthumb_all=False, keepleft=()):
+                  onthumb_all=False, keepleft=(), titleleft=()):
     videos = section.get("screen") or []
     if not videos:
         return None
@@ -457,7 +460,7 @@ def render_screen(section, indent, onthumb=(), bare=(), named=(),
                          for line in video_card(
                              v, onthumb_all or v["slug"] in onthumb,
                              v["slug"] in bare, v["slug"] in named,
-                             v["slug"] in keepleft))
+                             v["slug"] in keepleft, v["slug"] in titleleft))
             lines.append("    </li>")
         lines.append("  </ul>")
     lines.append("</div>")
@@ -834,6 +837,7 @@ def main():
             bare = set()
             named = set()
             keepleft = set()
+            titleleft = set()
             onthumb_all = False
             rest = []
             for word in words:
@@ -847,6 +851,9 @@ def main():
                 elif word.startswith("keepleft:"):
                     # their own title is in this frame; leave that half alone
                     keepleft.update(w for w in word[9:].split(",") if w)
+                elif word.startswith("titleleft:"):
+                    # the name in the bottom-left corner, the mark in the right
+                    titleleft.update(w for w in word[10:].split(",") if w)
                 elif word.startswith("title:"):
                     named.update(w for w in word[6:].split(",") if w)
                 else:
@@ -866,12 +873,12 @@ def main():
             # A slug that is not in the block is a typo, not a gap: it would
             # otherwise go unnoticed as one tile that kept its caption.
             have = set(v["slug"] for v in section.get("screen") or [])
-            astray = sorted((onthumb | bare | named | keepleft) - have)
+            astray = sorted((onthumb | bare | named | keepleft | titleleft) - have)
             if astray:
                 sys.exit("%s: the screen marker names no such film: %s"
                          % (page.name, ", ".join(astray)))
             body = render_screen(section, marker_indent(match), onthumb, bare,
-                                 named, onthumb_all, keepleft)
+                                 named, onthumb_all, keepleft, titleleft)
             if body is None:
                 return match.group(0)
             seen.append((name or "combined", len(section["screen"]), "screen"))

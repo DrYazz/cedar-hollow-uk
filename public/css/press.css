@@ -704,6 +704,23 @@ a.ch-vid__play {
   mask-image: linear-gradient(90deg, transparent 0 52%, #000 88%);
 }
 
+/* The name in the bottom-left corner and the mark in the bottom-right, on
+   one line ("titleleft:" in the screen marker). The still carries no type
+   of its own there, so the scrim runs the full width: the left-hand fade
+   above is for broadcasters' titles, and here the title is ours. */
+.ch-vid--titleleft .ch-vid__over {
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: space-between;
+  column-gap: 1rem;
+  text-align: left;
+}
+
+.ch-vid--titleleft .ch-vid__over::before {
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
 .ch-vid__over > * {
   position: relative;
   z-index: 1;
