@@ -174,7 +174,8 @@
       highlight: "Rooftop sauna",
       minimumStay: "2 nights midweek, 3 at weekends",
       photos: [
-        { src: "images/gallery/woodsmans-treehouse-s11-1060.webp", srcset: "images/gallery/woodsmans-treehouse-s11-530.webp 530w, images/gallery/woodsmans-treehouse-s11-1060.webp 1060w" },
+        { src: "images/gallery/woodsmans-hero-1060.webp", srcset: "images/gallery/woodsmans-hero-530.webp 530w, images/gallery/woodsmans-hero-1060.webp 1060w, images/gallery/woodsmans-hero-1600.webp 1600w, images/gallery/woodsmans-hero-2400.webp 2400w" },
+        { src: "images/gallery/woodsmans-hero2-1060.webp", srcset: "images/gallery/woodsmans-hero2-530.webp 530w, images/gallery/woodsmans-hero2-1060.webp 1060w, images/gallery/woodsmans-hero2-1600.webp 1600w, images/gallery/woodsmans-hero2-2400.webp 2400w" },
         { src: "images/gallery/woodsmans-treehouse-s01-1000.webp", srcset: "images/gallery/woodsmans-treehouse-s01-530.webp 530w, images/gallery/woodsmans-treehouse-s01-1000.webp 1000w" },
         { src: "images/gallery/woodsmans-treehouse-s02-1060.webp", srcset: "images/gallery/woodsmans-treehouse-s02-530.webp 530w, images/gallery/woodsmans-treehouse-s02-1060.webp 1060w" },
         { src: "images/gallery/woodsmans-treehouse-s03-1060.webp", srcset: "images/gallery/woodsmans-treehouse-s03-530.webp 530w, images/gallery/woodsmans-treehouse-s03-1060.webp 1060w" },
@@ -199,9 +200,9 @@
         { src: "images/gallery/woodsmans-treehouse-s23-714.webp", srcset: "images/gallery/woodsmans-treehouse-s23-530.webp 530w, images/gallery/woodsmans-treehouse-s23-714.webp 714w" }
       ],
       image: {
-        src: "images/property-woodsmans-treehouse-999.webp",
+        src: "images/gallery/woodsmans-hero-1060.webp",
         sizes: "(max-width: 420px) 100vw, 420px",
-        srcset: "images/property-woodsmans-treehouse-530.webp 530w, images/property-woodsmans-treehouse-999.webp 999w"
+        srcset: "images/gallery/woodsmans-hero-530.webp 530w, images/gallery/woodsmans-hero-1060.webp 1060w, images/gallery/woodsmans-hero-1600.webp 1600w, images/gallery/woodsmans-hero-2400.webp 2400w"
       },
       description:
         "Perched in an ancient oak and reached by rope bridge, with a rotating wood burner, roll-top bath and rooftop sauna.",
@@ -225,7 +226,7 @@
       highlight: "Wood-fired hot tub",
       minimumStay: "2 nights midweek, 3 at weekends",
       photos: [
-        { src: "images/gallery/dazzle-treehouse-s01-1060.webp", srcset: "images/gallery/dazzle-treehouse-s01-530.webp 530w, images/gallery/dazzle-treehouse-s01-1060.webp 1060w" },
+        { src: "images/gallery/dazzle-treehouse-s01-1060.webp", srcset: "images/gallery/dazzle-treehouse-s01-530.webp 530w, images/gallery/dazzle-treehouse-s01-1060.webp 1060w, images/gallery/dazzle-treehouse-s01-1600.webp 1600w" },
         { src: "images/gallery/dazzle-treehouse-s02-1000.webp", srcset: "images/gallery/dazzle-treehouse-s02-530.webp 530w, images/gallery/dazzle-treehouse-s02-1000.webp 1000w" },
         { src: "images/gallery/dazzle-treehouse-s04-1060.webp", srcset: "images/gallery/dazzle-treehouse-s04-530.webp 530w, images/gallery/dazzle-treehouse-s04-1060.webp 1060w" },
         { src: "images/gallery/dazzle-treehouse-s06-1000.webp", srcset: "images/gallery/dazzle-treehouse-s06-530.webp 530w, images/gallery/dazzle-treehouse-s06-1000.webp 1000w" },
@@ -258,7 +259,7 @@
       image: {
         src: "images/property-dazzle-treehouse-1060.webp",
         sizes: "(max-width: 420px) 100vw, 420px",
-        srcset: "images/property-dazzle-treehouse-530.webp 530w, images/property-dazzle-treehouse-1060.webp 1060w"
+        srcset: "images/property-dazzle-treehouse-530.webp 530w, images/property-dazzle-treehouse-1060.webp 1060w, images/property-dazzle-treehouse-1600.webp 1600w, images/property-dazzle-treehouse-2400.webp 2400w"
       },
       description:
         "A contemporary canopy retreat wearing WW1 ship-inspired dazzle camouflage, adults only, deep in Dorset woodland.",
