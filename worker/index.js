@@ -265,10 +265,13 @@ const BOOKING_KEY = "booking:1:";
  *
  * GET /wdtcf is the map, public/wdtcf/map.html, and /wdtcf/data the counts it
  * draws: one part, over a run of days. /wdtcf/report is the visitor report,
- * live, for the same page's other tab (see liveReport). All of it is behind the WDTCF_PASSWORD
- * secret (HTTP Basic: any user name, that password), and run_worker_first
- * sends every address under /wdtcf here first, so no file in public/wdtcf/ is
- * ever served without it.
+ * live, for the same page's other tab (see liveReport). All of it is behind
+ * Cloudflare Access: a code emailed to an address on the "Visitor Map Owners"
+ * list (Zero Trust > Access controls > Applications). run_worker_first sends
+ * every address under /wdtcf here first, and here nothing is answered without
+ * the signed token Access adds to a request it has let through (see
+ * signedIn) -- so neither a file in public/wdtcf/ nor the Worker's own
+ * workers.dev address, which Access does not stand in front of, gets past.
  */
 /*
  * The honey page, counted on its own for the private page's Honey tab, and
@@ -294,6 +297,11 @@ const MAP_PATH = "/wdtcf";
 const MAP_PARTS = ["all", "oxford", "dorset"];
 const NOT_A_VISITOR = /bot|crawl|spider|slurp|headless|lighthouse|pagespeed|preview|facebookexternalhit|embedly/i;
 const PRIVATE = { "cache-control": "no-store", "x-robots-tag": "noindex, nofollow" };
+// The Access team that signs the tokens, and the application they are for:
+// the "Application Audience (AUD) Tag" on its overview. Neither is a secret --
+// both are in the address of the login page Access sends a visitor to.
+const ACCESS_TEAM = "thelabgroup.cloudflareaccess.com";
+const ACCESS_AUD = "9d8f95a0e9acfa389ad7a115bc1aa69efdf3abd3a997cdd035a8d3fd8c757910";
 
 /*
  * Directory-style spellings of the two woodland pages.
@@ -455,7 +463,7 @@ export default {
         instagram: sites,
         instagramRenewed: renewed,
         visitorReports: analyticsReady(env) && mailReady(env),
-        visitorMap: Boolean(env.VISITS_DB && env.WDTCF_PASSWORD),
+        visitorMap: Boolean(env.VISITS_DB),
       });
     }
 
@@ -1034,12 +1042,16 @@ async function dorsetSignedIn(request, env) {
 
 // /wdtcf and everything under it: see VISIT_PATH.
 async function visitorMap(request, url, env, ctx) {
-  if (!env.WDTCF_PASSWORD) return new Response("Not set up.", { status: 503, headers: PRIVATE });
-  if (!(await signedIn(request, env))) {
-    return new Response("This page needs its password.", {
-      status: 401,
-      headers: { ...PRIVATE, "www-authenticate": 'Basic realm="Cedar Hollow visitor map", charset="UTF-8"' },
-    });
+  if (!(await signedIn(request, url, env))) {
+    // Locally the browser is asked for the stand-in password; anywhere else
+    // there is nothing to ask for here -- signing in is Access's page.
+    if (localDev(url, env)) {
+      return new Response("This page needs its password.", {
+        status: 401,
+        headers: { ...PRIVATE, "www-authenticate": 'Basic realm="Cedar Hollow visitor map (local)", charset="UTF-8"' },
+      });
+    }
+    return new Response("Sign in at cedarhollow.uk/wdtcf.", { status: 403, headers: PRIVATE });
   }
   if (request.method !== "GET" && request.method !== "HEAD") {
     return json({ ok: false, error: "Method not allowed" }, 405);
@@ -1061,18 +1073,88 @@ async function visitorMap(request, url, env, ctx) {
   return out;
 }
 
-// HTTP Basic, with any user name and the map's password.
-async function signedIn(request, env) {
-  const m = /^Basic\s+([A-Za-z0-9+/=]+)\s*$/i.exec(request.headers.get("authorization") || "");
-  if (!m) return false;
-  let pair;
+/*
+ * Whether Cloudflare Access let this request through: the token it adds
+ * (Cf-Access-Jwt-Assertion) carries Access's own signature, for this
+ * application, and has not run out. Anything else is turned away, including
+ * a request with no token at all -- the one that reaches the Worker by its
+ * workers.dev address, or that would if Access were ever switched off.
+ *
+ * Running locally (npx wrangler dev) there is no Access in front, so there,
+ * and only on the machine's own address, the old HTTP Basic password stands
+ * in, from WDTCF_DEV_PASSWORD in .dev.vars.
+ */
+function localDev(url, env) {
+  return Boolean(env.WDTCF_DEV_PASSWORD) && (url.hostname === "127.0.0.1" || url.hostname === "localhost");
+}
+
+async function signedIn(request, url, env) {
+  if (localDev(url, env)) {
+    const m = /^Basic\s+([A-Za-z0-9+/=]+)\s*$/i.exec(request.headers.get("authorization") || "");
+    if (!m) return false;
+    let pair;
+    try {
+      pair = new TextDecoder().decode(Uint8Array.from(atob(m[1]), (c) => c.charCodeAt(0)));
+    } catch (err) {
+      return false;
+    }
+    const given = pair.slice(pair.indexOf(":") + 1);
+    return Boolean(given) && (await sameSecret(given, env.WDTCF_DEV_PASSWORD));
+  }
+  // The token Access adds as a header, or else the copy it keeps in the
+  // browser's CF_Authorization cookie: the same signed token, checked alike.
+  const cookie = /(?:^|;\s*)CF_Authorization=([^;]+)/.exec(request.headers.get("cookie") || "");
+  const token = request.headers.get("cf-access-jwt-assertion") || (cookie && cookie[1]);
+  return accessToken(token, ACCESS_TEAM, ACCESS_AUD);
+}
+
+// Access's public keys, by their ids, kept for an hour; fetched again early
+// when a token names a key not among them (Access has rotated them).
+let accessKeys = { at: 0, team: "", byId: new Map() };
+async function accessKey(team, kid) {
+  const fresh = accessKeys.team === team && Date.now() - accessKeys.at < 3600 * 1000;
+  if (fresh && accessKeys.byId.has(kid)) return accessKeys.byId.get(kid);
+  if (fresh && Date.now() - accessKeys.at < 60 * 1000) return null;
+  const res = await fetch(`https://${team}/cdn-cgi/access/certs`);
+  if (!res.ok) return null;
+  const body = await res.json();
+  const byId = new Map();
+  for (const jwk of body.keys || []) {
+    if (jwk.kty !== "RSA" || !jwk.kid) continue;
+    const key = await crypto.subtle.importKey("jwk", jwk, { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" }, false, ["verify"]);
+    byId.set(jwk.kid, key);
+  }
+  accessKeys = { at: Date.now(), team, byId };
+  return byId.get(kid) || null;
+}
+
+// A token from Access is good: signed (RS256) by one of the team's keys, for
+// this application, from this team, and in date.
+async function accessToken(token, team, aud) {
+  if (!token) return false;
+  const parts = token.split(".");
+  if (parts.length !== 3) return false;
+  const bytes = (s) => Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/").padEnd(Math.ceil(s.length / 4) * 4, "=")), (c) => c.charCodeAt(0));
   try {
-    pair = new TextDecoder().decode(Uint8Array.from(atob(m[1]), (c) => c.charCodeAt(0)));
+    const header = JSON.parse(new TextDecoder().decode(bytes(parts[0])));
+    const claims = JSON.parse(new TextDecoder().decode(bytes(parts[1])));
+    if (header.alg !== "RS256" || !header.kid) return false;
+    const key = await accessKey(team, header.kid);
+    if (!key) return false;
+    const signed = new TextEncoder().encode(`${parts[0]}.${parts[1]}`);
+    if (!(await crypto.subtle.verify("RSASSA-PKCS1-v1_5", key, bytes(parts[2]), signed))) return false;
+    const now = Date.now() / 1000;
+    const auds = Array.isArray(claims.aud) ? claims.aud : [claims.aud];
+    return (
+      auds.includes(aud) &&
+      claims.iss === `https://${team}` &&
+      typeof claims.exp === "number" &&
+      claims.exp > now - 30 &&
+      !(typeof claims.nbf === "number" && claims.nbf > now + 30)
+    );
   } catch (err) {
     return false;
   }
-  const given = pair.slice(pair.indexOf(":") + 1);
-  return Boolean(given) && (await sameSecret(given, env.WDTCF_PASSWORD));
 }
 
 // GET /wdtcf/data?part=all|oxford|dorset&from=YYYY-MM-DD&to=YYYY-MM-DD: the

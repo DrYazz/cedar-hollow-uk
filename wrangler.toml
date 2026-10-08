@@ -56,7 +56,8 @@ html_handling = "none"
 # directory spellings in PAGE_ALIASES -- as well as the videos. A new Worker
 # route needs adding here too, or it will never be reached.
 # /wdtcf is the private visitor map: its files are in public/wdtcf/, and must
-# reach the Worker first so that none of them is served without the password.
+# reach the Worker first so that none of them is served without the signed
+# token Cloudflare Access adds once someone has signed in (see signedIn).
 run_worker_first = [
   "/api/*",
   "/health",
@@ -176,12 +177,14 @@ id = "8d6bb0fe7112447ca233e6cd03e8d8b8"   # cedar-hollow-instagram
 #
 #   npx wrangler d1 migrations apply cedar-hollow-visits --remote
 #
-# The map asks for a password, a secret:
+# The map is behind Cloudflare Access: an emailed code, for the addresses on
+# the "Visitor Map Owners" policy (Zero Trust > Access controls >
+# Applications > cedarhollow.uk). The Worker checks the token Access signs,
+# against the team and application in ACCESS_TEAM and ACCESS_AUD in
+# worker/index.js, and shows nothing without it. Running locally, where
+# Access is not in front, WDTCF_DEV_PASSWORD in .dev.vars stands in.
 #
-#   npx wrangler secret put WDTCF_PASSWORD
-#
-# Without the database the visits are not counted; without the password the
-# map is not shown at all. Previews have neither.
+# Without the database the visits are not counted. Previews have none.
 
 # Which version of the Worker is running, so the live report's kept copies
 # (see liveReport) are this version's alone.
