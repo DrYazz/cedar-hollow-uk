@@ -300,12 +300,6 @@ def video_card(v, onthumb=False, bare=False, named=False, keepleft=False):
     if onthumb and not bare and v.get("detail"):
         said = ", " + html.escape(v["detail"])
 
-    # "embed": false means the owner has disallowed off-site playback, so an
-    # iframe here renders YouTube's "This video is unavailable" panel instead
-    # of the film. Those entries keep the still and the play badge but are a
-    # link straight to YouTube: a tile that goes somewhere beats one that
-    # fails. Confirmed in a browser, not from the API, which reports
-    # playableInEmbed true for both of them.
     # Our own file: a link to it, so with scripting off the browser's own
     # player opens it, and with scripting on press-video.js plays it in place.
     # Nothing leaves the site either way, so there is no cookie to hold off.
@@ -315,6 +309,14 @@ def video_card(v, onthumb=False, bare=False, named=False, keepleft=False):
             '     aria-label="Play &ldquo;%s&rdquo; (%s%s)">' % (title, source, said),
         ]
         closer = "  </a>"
+    # "embed": false means the owner has disallowed off-site playback, so an
+    # iframe here renders YouTube's "This video is unavailable" panel instead
+    # of the film. Those entries keep the still and the play badge but are a
+    # link straight to YouTube: a tile that goes somewhere beats one that
+    # fails. Test it in a browser, from a page on cedarhollow.uk, not with the
+    # API, which reports playableInEmbed true either way -- and test again
+    # now and then: Parallel Universe was blocked in September 2026 and
+    # played embedded by October.
     elif v.get("embed") is False:
         opener = [
             '  <a class="ch-vid__play is-offsite" href="%s" target="_blank" rel="noopener"' % url,
