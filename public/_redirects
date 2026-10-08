@@ -11,8 +11,12 @@
 # root ones the nav points at, and index2.html was its homepage, orphaned once
 # every sub-site logo was repointed at /oxford. All three now forward.
 /oxford/reviews.html         /oxford-reviews.html         301
-/oxford/sustainability.html  /oxford-sustainability.html  301
+/oxford/sustainability.html  /sustainability.html#oxford  301
 /oxford/index2.html          /oxford.html                 301
+
+# The Oxford sustainability page was folded into the main one, whose
+# Cedar Hollow Oxford sections (#oxford) now carry all of it.
+/oxford-sustainability.html  /sustainability.html#oxford  301
 
 # A Webflow template shell with an empty body, never linked and never in the
 # sitemap. The properties search is what it was a stub for.
@@ -94,7 +98,7 @@
 /oxford-press                /oxford-press.html                              301
 /oxford-reviews              /oxford-reviews.html                            301
 /oxford-stays                /oxford-stays.html                              301
-/oxford-sustainability       /oxford-sustainability.html                     301
+/oxford-sustainability       /sustainability.html#oxford                     301
 /oxford                      /oxford.html                                    301
 /oxford/accessibility        /oxford/accessibility.html                      301
 /oxford/adaptation           /oxford/adaptation.html                         301
@@ -131,7 +135,7 @@
 /oxford/schoolgroups         /oxford/schoolgroups.html                       301
 /oxford/shop                 /oxford.html                                    301
 /oxford/story                /oxford/story.html                              301
-/oxford/sustainability       /oxford-sustainability.html                     301
+/oxford/sustainability       /sustainability.html#oxford                     301
 /oxford/terms                /oxford/terms.html                              301
 /oxford/todo                 /oxford/todo.html                               301
 /oxford/vr                   /oxford.html                                    301
