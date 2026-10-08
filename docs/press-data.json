@@ -40,7 +40,14 @@
     "publication date from the page's own metadata. For videos it is the YouTube",
     "upload date, which is NOT the broadcast date: two of the programmes aired",
     "years before the channel posted the clip in August 2026. The cards label",
-    "them differently for that reason, and the combined feed sorts on this field."
+    "them differently for that reason, and the combined feed sorts on this field.",
+    "",
+    "A clip we host ourselves has 'file' (its path under public/) in place of",
+    "'id' and 'url', and plays in place from our own server. The RTÉ one aired",
+    "on Irish national television in October 2026; its 'date' is that month",
+    "(dateKind 'aired'), the day unknown. Keep",
+    "any such file under 25 MiB, Cloudflare's limit for one asset: a larger one",
+    "fails the whole deploy."
   ],
   "checked": "2026-09-21",
   "memberships": [
@@ -290,6 +297,28 @@
         }
       ],
       "screen": [
+        {
+          "slug": "rte",
+          "title": "Cedar Hollow Oxford on RTÉ",
+          "source": "RTÉ",
+          "file": "videos/press/rte.mp4?v=20261008a",
+          "thumb": {
+            "src": "images/press-video/rte-640.webp?v=20261008a",
+            "srcset": "images/press-video/rte-320.webp?v=20261008a 320w, images/press-video/rte-640.webp?v=20261008a 640w, images/press-video/rte-1280.webp?v=20261008a 1280w"
+          },
+          "date": "2026-10-01",
+          "dateKind": "aired",
+          "location": "oxford",
+          "ratio": "16/9",
+          "logo": [
+            {
+              "src": "images/press/rte.png?v=20261008a",
+              "label": "RTÉ",
+              "ar": "19/10",
+              "scale": 1.4
+            }
+          ]
+        },
         {
           "id": "fPdU-01UL1Q",
           "slug": "mafs",
