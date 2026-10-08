@@ -314,29 +314,36 @@ const PAGE_ALIASES = {
 };
 
 /*
- * The Dorset booking pause. Temporary: remove this block, dorsetGate and its
- * helpers, the four paths in run_worker_first, and the bookingPaused branch in
- * js/properties-page.js, and Dorset books again.
+ * Dorset books on Mallinson's site, not Checked.in, until the Checked.in data
+ * is right. Temporary: remove this block, dorsetGate and its helpers, and the
+ * four paths in run_worker_first, and Dorset books on Checked.in again.
  *
- * Set DORSET_BOOKING_PASSWORD to be able to see it yourself:
+ * It is the same arrangement the site had before eda2597 wired Dorset to
+ * Checked.in, reached by taking the Dorset calendars back out of the
+ * catalogue: a card with no calendarUrl renders a "Check availability" button
+ * instead, and says underneath that booking opens on the Mallinson site. So
+ * guests can still book Dorset, through the system that is known to be right.
+ *
+ * Set DORSET_BOOKING_PASSWORD to see the Checked.in version yourself:
  *
  *   npx wrangler secret put DORSET_BOOKING_PASSWORD
  *
  * Then open /dorset-preview, give any user name and that password, and this
- * browser sees the bookable site for a week. Without the secret nothing is
- * bookable for anyone, which is the safe way round: a pause that depends on a
- * secret being set should not lapse because it never was.
+ * browser sees Checked.in for a week while everyone else sees Mallinson.
+ * Without the secret nobody gets the Checked.in version, including us, which
+ * is the safe way round: an arrangement that depends on a secret being set
+ * should not lapse because it never was.
  *
- * What it covers, and what it cannot. Every route into Dorset booking that
- * runs through this site is here: the calendars on the cards, the Dorset
- * frame on the two availability pages, and the booking links on the core home
- * page's featured cards. What it does not cover is checked.in itself --
- * cedarhollowdorset.checked.in/book/<property> answers 200 to anyone, loads
- * Stripe and is not noindex -- so a booking from a direct link or a search
- * result still goes through. Isabella knows; stopping that is CheckedIn's
- * side, not ours.
+ * What it covers, and what it cannot. Every route from this site into
+ * Checked.in's Dorset booking is here: the calendars on the cards and the
+ * Dorset frame on the two availability pages. What it cannot cover is
+ * checked.in itself -- cedarhollowdorset.checked.in/book/<property> answers
+ * 200 to anyone, loads Stripe and is not noindex -- so a booking from a
+ * direct link or a search result still reaches the data being fixed.
+ * Isabella knows; stopping that is CheckedIn's side, not ours.
  */
 const DORSET_PREVIEW_PATH = "/dorset-preview";
+const MALLINSON_BOOKING = "https://mallinson.co.uk/availability/";
 const DORSET_GATED = new Set([
   "/js/listings.js",        // the calendars and booking links on every card
   "/availability.html",     // the combined page carries a Dorset frame
@@ -864,15 +871,13 @@ async function dorsetGate(request, url, env) {
   let body = await res.text();
 
   if (url.pathname === "/js/listings.js") {
-    /* A card with no calendarUrl renders its "Check availability" button
-       instead, so the booking link is sent back to the Dorset stays page
-       rather than deleted: the button still works and lands somewhere that
-       explains itself. bookingPaused is what js/properties-page.js reads. */
-    body = body.replace(DORSET_CAL_RE, "").replace(DORSET_BOOK_RE, "dorset-stays.html");
-    body = body.replace(
-      /(\n\s*)bookingUrl: "dorset-stays\.html"/g,
-      '$1bookingPaused: true,$1bookingUrl: "dorset-stays.html"'
-    );
+    /* Dorset books on Mallinson's site again until Checked.in is right.
+       Taking the calendar out is all the card needs: with no calendarUrl it
+       renders its "Check availability" button and the line under it reads
+       "Booking opens on the Mallinson site", which is what it said before
+       Checked.in and is true again. The booking link goes back to the same
+       page all three used then. */
+    body = body.replace(DORSET_CAL_RE, "").replace(DORSET_BOOK_RE, MALLINSON_BOOKING);
   } else {
     // availability.html: drop the whole Dorset section, heading and frame.
     body = dropDorsetSection(body);
@@ -920,30 +925,40 @@ function dorsetFellOver(url) {
   return dorsetBlocked(url);
 }
 
-// The page a guest gets where live Dorset availability would have been.
+/*
+ * Where live Dorset availability would have been. A dated Dorset search still
+ * lands here, by js/search-bar.js, so this points on to Mallinson's own
+ * availability page rather than reporting an outage: Dorset can be booked, it
+ * is simply booked somewhere else for now.
+ *
+ * 200 rather than 503 for the same reason. Nothing is broken, and a search
+ * that ends in a working way out is not an error. noindex keeps it out of
+ * results while it stands in for the real page.
+ */
 function dorsetBlocked(url) {
   const body =
     "<!doctype html><html lang=en><meta charset=utf-8>" +
     '<meta name=viewport content="width=device-width,initial-scale=1">' +
-    "<title>Booking paused | Cedar Hollow Dorset</title>" +
+    "<title>Booking the Dorset treehouses | Cedar Hollow Dorset</title>" +
     "<style>body{margin:0;min-height:100vh;display:flex;align-items:center;" +
     "justify-content:center;background:#f1ecdb;color:#3b4126;" +
     "font:400 1.0625rem/1.6 system-ui,-apple-system,Segoe UI,sans-serif;" +
-    "text-align:center;padding:2rem}main{max-width:30rem}" +
+    "text-align:center;padding:2rem}main{max-width:32rem}" +
     "h1{font-size:1.75rem;font-weight:400;margin:0 0 .75rem}" +
+    ".go{display:inline-block;margin:1.25rem 0 .5rem;padding:.8rem 1.6rem;" +
+    "border-radius:50em;background:#3b4126;color:#f1ecdb;text-decoration:none}" +
     "a{color:inherit}</style>" +
-    "<main><h1>Dorset booking is paused</h1>" +
-    "<p>We are checking our calendars, so the Dorset treehouses cannot be " +
-    "booked online for the moment. They will be back shortly.</p>" +
-    '<p><a href="/dorset-stays.html">See the treehouses</a> or ' +
+    "<main><h1>Booking the Dorset treehouses</h1>" +
+    "<p>Dates and availability for the Woodsman&rsquo;s, Dazzle and Pinwheel " +
+    "treehouses are on the Mallinson&rsquo;s Woodland Retreat site, where they " +
+    "have always been booked.</p>" +
+    '<p><a class="go" href="' + MALLINSON_BOOKING + '" rel="noopener">' +
+    "Check availability</a></p>" +
+    '<p><a href="/dorset-stays.html">See the three treehouses</a> or ' +
     '<a href="/dorset-contact.html">get in touch</a>.</p></main>';
   return new Response(body, {
-    status: 503,
-    headers: {
-      ...PRIVATE,
-      "content-type": "text/html; charset=utf-8",
-      "retry-after": "86400",
-    },
+    status: 200,
+    headers: { ...PRIVATE, "content-type": "text/html; charset=utf-8" },
   });
 }
 

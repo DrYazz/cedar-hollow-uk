@@ -116,19 +116,6 @@
   // so the Oxford three have no facts left to show here at all and the list
   // does not render for them.
   function bookingPanel(item) {
-    /* Booking paused: the Worker sets this on the Dorset three while their
-       Checked.in calendars are being corrected, and takes the calendar and the
-       booking link out of the catalogue with it. The panel says so rather than
-       quietly losing its calendar, which would read as a page half-loaded.
-       Temporary -- this branch goes when the pause does. */
-    if (item.bookingPaused) {
-      return '<div class="pp-book">' +
-        '<p class="pp-book__note">Booking for this treehouse is paused for a few ' +
-        'days while we check our calendars. It will be back shortly, and we can ' +
-        'still take a booking by <a href="dorset-contact.html">email or phone</a>.</p>' +
-        "</div>";
-    }
-
     var hasCal = !!item.calendarUrl;
 
     // The frame is lazy, so six calendars do not all load at once on a page
