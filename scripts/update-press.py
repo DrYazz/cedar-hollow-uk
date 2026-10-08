@@ -273,9 +273,10 @@ def card(item, show_location=False, brief=False):
 def video_card(v, onthumb=False, bare=False, named=False, keepleft=False):
     """A video as a still with a play button, not an iframe.
 
-    Two shapes: most are a button that swaps in the player, and the ones
-    whose owner has blocked off-site playback ("embed": false) are a link
-    straight to YouTube.
+    Three shapes: most are a button that swaps in the player, the ones whose
+    owner has blocked off-site playback ("embed": false) are a link straight
+    to YouTube, and the ones we host ourselves ("file" instead of "id" and
+    "url") are a link to the file that plays in place instead.
 
     Pressing play is what inserts the player -- see js/press-video.js. Until
     then nothing is requested from YouTube at all: the thumbnail is ours, and
@@ -286,7 +287,8 @@ def video_card(v, onthumb=False, bare=False, named=False, keepleft=False):
     """
     title = html.escape(v["title"])
     source = html.escape(v["source"])
-    url = html.escape(v["url"], quote=True)
+    own = v.get("file")
+    url = html.escape(own or v["url"], quote=True)
 
     # With the caption gone the episode is only on the still, and a still is
     # not read out, so the button's own label carries it instead.
@@ -304,7 +306,16 @@ def video_card(v, onthumb=False, bare=False, named=False, keepleft=False):
     # link straight to YouTube: a tile that goes somewhere beats one that
     # fails. Confirmed in a browser, not from the API, which reports
     # playableInEmbed true for both of them.
-    if v.get("embed") is False:
+    # Our own file: a link to it, so with scripting off the browser's own
+    # player opens it, and with scripting on press-video.js plays it in place.
+    # Nothing leaves the site either way, so there is no cookie to hold off.
+    if own:
+        opener = [
+            '  <a class="ch-vid__play" href="%s" data-src="%s"' % (url, url),
+            '     aria-label="Play &ldquo;%s&rdquo; (%s%s)">' % (title, source, said),
+        ]
+        closer = "  </a>"
+    elif v.get("embed") is False:
         opener = [
             '  <a class="ch-vid__play is-offsite" href="%s" target="_blank" rel="noopener"' % url,
             '     aria-label="Watch &ldquo;%s&rdquo; (%s%s) on YouTube, which is the only place it can be played">' % (title, source, said),
@@ -386,8 +397,9 @@ def video_card(v, onthumb=False, bare=False, named=False, keepleft=False):
         caption = [
             '  <p class="ch-vid__meta"><span class="ch-vid__title">%s</span>' % title,
             source_line,
-            '  <a class="ch-vid__link" href="%s" target="_blank" rel="noopener">'
-            'Watch on YouTube</a>' % html.escape(v["url"], quote=True),
+            ('  <a class="ch-vid__link" href="%s">Watch the clip</a>' % url) if own else
+            ('  <a class="ch-vid__link" href="%s" target="_blank" rel="noopener">'
+             'Watch on YouTube</a>' % url),
         ]
 
     return [

@@ -25,6 +25,10 @@
  * Progressive enhancement: with JavaScript off the button does nothing and the
  * "Watch on YouTube" link beneath each still is the way through, so the
  * coverage is reachable either way.
+ *
+ * A clip we host ourselves (data-src rather than data-video) gets a plain
+ * <video> in the same place instead. It is a link to the file, so with
+ * JavaScript off the browser's own player opens it.
  */
 (function () {
   "use strict";
@@ -71,28 +75,65 @@
     return frame;
   }
 
+  /* Our own clip. Only a path on this site is accepted, so a tampered
+     attribute cannot point the player somewhere else. The still is its
+     poster, so the box does not flash empty while the first frame loads. */
+  var OWN = /^[\w\/.-]+\.mp4(\?v=\w+)?$/;
+
+  function ownPlayer(button) {
+    var src = button.getAttribute("data-src");
+    if (!src || !OWN.test(src)) return null;
+    var video = document.createElement("video");
+    video.src = src;
+    video.controls = true;
+    video.autoplay = true; /* the click WAS the request to play */
+    video.playsInline = true;
+    video.setAttribute("playsinline", "");
+    video.preload = "auto";
+    var still = button.querySelector("img");
+    if (still && (still.currentSrc || still.src)) video.poster = still.currentSrc || still.src;
+    video.setAttribute("aria-label", button.getAttribute("aria-label") || "Video");
+    video.style.background = "#000";
+    return video;
+  }
+
+  /* iOS only lets a video start with sound from inside the tap itself, so
+     our own clip is started here, synchronously, rather than left to the
+     autoplay attribute. If it is still refused, the controls are there. */
+  function start(frame) {
+    if (frame.tagName !== "VIDEO") return;
+    var p = frame.play();
+    if (p && p.catch) p.catch(function () {});
+  }
+
+  function makePlayer(button) {
+    if (button.hasAttribute("data-src")) return ownPlayer(button);
+    var id = button.getAttribute("data-video");
+    if (!id || !/^[\w-]{11}$/.test(id)) return null;
+    return player(id, button.getAttribute("aria-label"));
+  }
+
   /* Inline playback, where the still is already big enough to watch in.
      .ch-vid-grid gives each video about half the container; the lightbox is
      kept for videos listed in the mixed feed, whose tiles are portrait and
      roughly 240px wide -- the case that made an in-place player useless. The
      still is replaced rather than covered, so the box does not move. */
   function playInline(button) {
-    var id = button.getAttribute("data-video");
-    if (!id || !/^[\w-]{11}$/.test(id)) return;
-    var frame = player(id, button.getAttribute("aria-label"));
+    var frame = makePlayer(button);
+    if (!frame) return;
     frame.className = "ch-vid__frame";
     button.parentNode.replaceChild(frame, button);
+    start(frame);
     frame.focus();
   }
 
   function open(button) {
-    var id = button.getAttribute("data-video");
-    if (!id || !/^[\w-]{11}$/.test(id)) return;
+    var frame = makePlayer(button);
+    if (!frame) return;
 
     opener = button;
     box = box || build();
 
-    var frame = player(id, button.getAttribute("aria-label"));
     frame.className = "ch-lightbox__frame";
 
     var card = button.closest(".ch-vid");
@@ -105,6 +146,7 @@
     var stage = box.querySelector(".ch-lightbox__stage");
     stage.innerHTML = "";
     stage.appendChild(frame);
+    start(frame);
 
     box.hidden = false;
     document.body.classList.add("ch-nav-open"); /* reuses the nav's scroll lock */
@@ -137,7 +179,7 @@
     }
     /* Only two things are focusable in here, so keep Tab between them. */
     if (e.key === "Tab" && box && !box.hidden) {
-      var stops = box.querySelectorAll("button, iframe");
+      var stops = box.querySelectorAll("button, iframe, video");
       if (!stops.length) return;
       var first = stops[0];
       var last = stops[stops.length - 1];
