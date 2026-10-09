@@ -715,7 +715,132 @@ width:100%;
 
         /* Figma 357:1067 floats one button over the foot of the map band. */
         .ch-map__cta{position:absolute;left:50%;bottom:12px;z-index:3;transform:translateX(-50%);}
-        .ch-map__cta .button{white-space:nowrap;}</style>
+        .ch-map__cta .button{white-space:nowrap;}
+
+            /* ---- Brought over from oxford.html ----------------------------
+               The tile row and the photo spread are Oxford's, ported whole so
+               the two home pages read the same way. Only the two section
+               classes are renamed; every child class keeps Oxford's name, so a
+               change made there can be copied across without translation. */
+/* CTA / 8, Figma 73:185: four tiles, 291x220 image over a 50px label. */
+        .section-dorset-cta{background-color:#efeed5;color:var(--accent,#3b4126);}
+/* An editorial spread rather than a wall of thumbnails. Nine equal
+           squares at a hairline seam read as a contact sheet: the same shape
+           nine times, nothing asking to be looked at for more than a second,
+           and every photograph cropped through the middle to make it square.
+           Six frames at two deliberate shapes, staggered down a twelve-column
+           grid and captioned, read as a magazine page instead. */
+        /* The measure is narrower than .container-large (80rem) on purpose.
+           Nothing in the photo library is wider than 1060px, so a frame past
+           roughly 660 CSS px is upscaled on a retina screen -- which is what
+           made the old 2x2 tile soft at the one size that mattered. 68rem
+           holds the widest frame at ~620px, and the margin either side is the
+           more expensive-looking choice anyway. */
+        /* The gutter is .padding-global's 5%, so between 768 and 1200 -- where
+           the measure is not yet capped -- the frames start on the same line as
+           the headings in the sections above and below, rather than an inch
+           closer to the screen edge. */
+        .section-dorset-gallery{background-color:var(--offwhite,#f8f8e8);padding-left:5%;padding-right:5%;}
+.ch-spread-wrap{max-width:68rem;margin:0 auto;padding:clamp(3.5rem,7vw,6rem) 0;}
+/* A label, not a heading: the section directly below opens with a
+           centred h1-sized heading, and two headings back to back would fight.
+           Left-aligned, where every other block on this page is centred, which
+           is most of what tells a reader this one is a spread. */
+        /* Case, weight, tracking and line-height come from .text-style-allcaps
+           on the element, the way every other label on the main site is built
+           -- "As featured in" further down this page and the nine page-hero
+           eyebrows all carry it. Only what actually differs is set here: the
+           .875rem the hero eyebrows override to, and a moss green at .7 for a
+           cream ground rather than the cream at .7 they use on green. */
+        .ch-spread__eyebrow{margin:0 0 clamp(2rem,4vw,3rem);color:var(--accent,#3b4126);opacity:.7;font-size:.875rem;}
+.ch-spread{display:grid;grid-template-columns:repeat(12,1fr);grid-column-gap:2rem;grid-row-gap:clamp(2.5rem,5vw,4rem);align-items:start;margin:0;padding:0;list-style:none;counter-reset:plate;}
+.ch-spread>li{margin:0;counter-increment:plate;}
+/* Wide left and tall right, then tall left and wide right, then wide
+           left again. The weight changing sides down the page is what stops
+           six frames settling back into the grid they came from. */
+        .ch-spread>li.is-wide{grid-column:span 7;}
+.ch-spread>li.is-tall{grid-column:span 5;}
+/* The second frame in each row drops, so no two frames share a top
+           edge. Without the offset the alternating spans still line up row by
+           row and the spread reads as a two-column grid again. */
+        .ch-spread>li:nth-child(2n){margin-top:clamp(1.25rem,3.5vw,3rem);}
+.ch-plate{display:block;color:inherit;text-decoration:none;}
+.ch-plate__fig{margin:0;}
+.ch-plate__frame{position:relative;overflow:hidden;border-radius:var(--radius--16,1rem);background-color:var(--accent,#3b4126);}
+/* Two shapes only. The landscape frame is the originals' own 4:3, so
+           those three are not cropped at all; the portrait frame takes a 4:5
+           slice, and the per-image object-position in the markup decides what
+           survives it -- the old wall squared everything off through centre,
+           whatever happened to be standing there. */
+        .is-wide .ch-plate__frame{aspect-ratio:4/3;}
+.is-tall .ch-plate__frame{aspect-ratio:4/5;}
+.ch-plate__frame img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .9s cubic-bezier(.2,.6,.2,1);}
+/* The #f5f4e6 colour burn every photograph on the site carries. */
+        .ch-plate__frame:after{content:"";position:absolute;inset:0;pointer-events:none;background-color:#f5f4e6;mix-blend-mode:color-burn;opacity:var(--image-burn-strength,.35);}
+.ch-plate:hover .ch-plate__frame img,.ch-plate:focus-visible .ch-plate__frame img{transform:scale(1.04);}
+.ch-plate:focus-visible{outline:2px solid var(--accent,#3b4126);outline-offset:.5rem;border-radius:var(--radius--16,1rem);}
+/* Numbered from a counter rather than typed into the markup, so
+           reordering or dropping a frame cannot leave the numbers lying. */
+        /* The caption is set as the property cards' tag text -- the
+           "Cave / Sleeps 2 / 1 bedroom" line under a cabin card. Figma records
+           that on .cabin-item_body p as "details are 16px at 1.6, specs
+           Regular", and a rendered card measures Inter 16px / 400 / 25.6px.
+           Body is 500 at 1.5, so weight and line-height are both stated; the
+           family is left alone because body's Inter is already right. */
+        .ch-plate__caption{display:flex;align-items:baseline;grid-column-gap:.75rem;column-gap:.75rem;margin:1rem .25rem 0;}
+.ch-plate__caption:before{content:counter(plate,decimal-leading-zero);flex:none;font-size:.6875rem;font-weight:600;letter-spacing:.1em;color:var(--accent,#3b4126);opacity:.65;}
+.ch-plate__label{font-weight:400;font-size:1rem;line-height:1.6;color:var(--accent,#3b4126);}
+.ch-plate:hover .ch-plate__label{text-decoration:underline;text-underline-offset:.18em;text-decoration-thickness:1px;}
+@media (prefers-reduced-motion:reduce) {
+  .ch-plate__frame img {transition:none;}
+  .ch-plate:hover .ch-plate__frame img,.ch-plate:focus-visible .ch-plate__frame img {transform:none;}
+}
+.ch-tiles{display:grid;grid-template-columns:repeat(4,1fr);grid-column-gap:1.5rem;grid-row-gap:2.5rem;margin:0;padding:0;list-style:none;}
+.ch-tile{display:flex;flex-direction:column;align-items:center;gap:1rem;}
+/* The whole tile is the link. Figma 73:185 draws this row as photo
+           and label with no button, so above 767px there is nothing visible
+           to click; wrapping the tile keeps one anchor per card and one
+           accessible name, rather than a hit area laid over dead markup.
+           It carries the layout because .ch-tile now has a single child. */
+        .ch-tile__hit{display:flex;flex-direction:column;align-items:center;gap:1rem;width:100%;color:inherit;text-decoration:none;}
+.ch-tile__hit:hover .ch-tile__title{text-decoration:underline;text-underline-offset:.12em;text-decoration-thickness:1px;}
+.ch-tile__hit:focus-visible{outline:2px solid currentColor;outline-offset:6px;border-radius:var(--radius--16,1rem);}
+.ch-tile__img-wrap{position:relative;width:100%;border-radius:var(--radius--16,1rem);overflow:hidden;}
+/* The same cream burn the property and full-bleed images carry, so the
+           tiles sit in the site's palette rather than reading as raw photos. */
+        .ch-tile__img-wrap:after{content:"";position:absolute;inset:0;background-color:#f5f4e6;mix-blend-mode:color-burn;opacity:var(--image-burn-strength,1);pointer-events:none;}
+.ch-tile__img{display:block;width:100%;height:auto;aspect-ratio:291/220;object-fit:cover;}
+.ch-tile__title{margin:0;font-family:var(--font-family--heading,Crimsonpro),serif;font-weight:400;font-size:clamp(1.75rem,3.47vw,3.125rem);line-height:1.1;letter-spacing:-.035em;text-align:center;}
+.ch-tile__body{display:flex;flex-direction:column;align-items:center;gap:.75rem;}
+/* Copy and button are a phone-only addition: the tiles filled out as
+           rows there, but Figma 73:185 draws this row as photo and label only
+           and desktop keeps that. Shown again in the phone block below. */
+        .ch-tile__copy,.ch-tile__link{display:none;}
+.ch-tile__copy{margin:0;font-size:1rem;line-height:1.5;text-align:center;}
+.ch-tile__link{padding:.625rem 1.125rem;font-size:.9375rem;white-space:nowrap;}
+@media screen and (max-width:991px) {
+  .ch-tiles {grid-template-columns:repeat(2,1fr);}
+}
+@media screen and (max-width:767px) {
+  .ch-tiles {grid-template-columns:1fr;grid-row-gap:1.25rem;}
+  .ch-tile {flex-direction:row;align-items:center;gap:1.25rem;}
+  .ch-tile__hit {flex-direction:row;align-items:center;gap:1.25rem;}
+  .ch-tile__img-wrap {flex:0 0 38%;align-self:center;}
+  .ch-tile__img {aspect-ratio:2/3;height:100%;}
+  .ch-tile__body {flex:1 1 auto;min-width:0;align-items:flex-start;gap:.5rem;}
+  .ch-tile__title {text-align:left;font-size:2.25rem;}
+  .ch-tile__copy {display:block;text-align:left;font-size:.9375rem;line-height:1.45;}
+  .ch-tile__link {display:inline-flex;align-self:flex-start;}
+}
+@media screen and (max-width:991px) {
+  .ch-spread {grid-column-gap:1.25rem;}
+}
+@media screen and (max-width:767px) {
+  .ch-spread {grid-template-columns:1fr;grid-row-gap:2rem;}
+  .ch-spread>li.is-wide,.ch-spread>li.is-tall {grid-column:1/-1;}
+  .ch-spread>li:nth-child(2n) {margin-top:0;}
+}
+          </style>
       <style>
       /* =====================================================================
          HERO -- every rule for this page's hero lives here and nowhere else.
@@ -1057,6 +1182,68 @@ animation:marquee-scroll 70s linear infinite;
         </div>
       </div>
     </section>
+    <section class="section-dorset-cta">
+      <div class="padding-section-medium">
+        <div class="padding-global">
+          <div class="container-large">
+            <div class="text-align-center section-title-block">
+              <div class="max-width-xlarge align-center">
+                <div class="margin-bottom margin-xsmall">
+                  <h2 class="heading-style-h1">Not Just a Treehouse. <span class="text-style-block text-style-italic">A Whole Wood.</span></h2>
+                </div>
+              </div>
+              <div class="margin-bottom margin-xlarge">
+                <div class="max-width-medium align-center">
+                  <p class="text-size-large">Beyond the three treehouses there are thirteen acres of working craft woodland, a copper tub under the canopy, and the Jurassic coast ten miles away.</p>
+                </div>
+              </div>
+            </div>
+            <ul class="ch-tiles">
+              <li class="ch-tile">
+                <a class="ch-tile__hit" href="dorset-woodland.html">
+                  <div class="ch-tile__img-wrap"><img class="ch-tile__img" src="images/gallery/sus-oak-portrait-1060.webp" alt="The Woodsman&rsquo;s Treehouse among the oaks" loading="lazy" width="600" height="450"></div>
+                  <div class="ch-tile__body">
+                    <h3 class="ch-tile__title">The Woodland</h3>
+                    <p class="ch-tile__copy">Thirteen acres on the corner where Dorset, Devon and Somerset meet, a working craft wood before it was ever a place to stay.</p>
+                    <span class="button ch-tile__link w-inline-block"><span>Explore the woodland</span></span>
+                  </div>
+                </a>
+              </li>
+              <li class="ch-tile">
+                <a class="ch-tile__hit" href="dorset-experiences.html">
+                  <div class="ch-tile__img-wrap"><img class="ch-tile__img" src="images/gallery/exp-copper-tub-530.webp" alt="A copper hot tub on the treehouse deck, open to the canopy" loading="lazy" width="600" height="450"></div>
+                  <div class="ch-tile__body">
+                    <h3 class="ch-tile__title">Experiences</h3>
+                    <p class="ch-tile__copy">Mostly a stay here is about doing less. When you want to venture out, there is plenty within reach.</p>
+                    <span class="button ch-tile__link w-inline-block"><span>Explore experiences</span></span>
+                  </div>
+                </a>
+              </li>
+              <li class="ch-tile">
+                <a class="ch-tile__hit" href="dorset-local-information.html">
+                  <div class="ch-tile__img-wrap"><img class="ch-tile__img" src="images/dorset-coast-1024.webp" alt="The Dorset shingle beach and cliffs at golden hour" loading="lazy" width="600" height="450"></div>
+                  <div class="ch-tile__body">
+                    <h3 class="ch-tile__title">The Local Area</h3>
+                    <p class="ch-tile__copy">Ten miles from the Jurassic coast, with the villages, walks and pubs we send guests to.</p>
+                    <span class="button ch-tile__link w-inline-block"><span>Explore the area</span></span>
+                  </div>
+                </a>
+              </li>
+              <li class="ch-tile">
+                <a class="ch-tile__hit" href="dorset-compare.html">
+                  <div class="ch-tile__img-wrap"><img class="ch-tile__img" src="images/property-pinwheel-treehouse-b-1060.webp" alt="Pinwheel Treehouse in its clearing of oaks" loading="lazy" width="600" height="450"></div>
+                  <div class="ch-tile__body">
+                    <h3 class="ch-tile__title">Compare Them</h3>
+                    <p class="ch-tile__copy">All three sleep two, and all three have a hot tub, a pizza oven and a wood burner. Everything that differs is in one table.</p>
+                    <span class="button ch-tile__link w-inline-block"><span>Compare them</span></span>
+                  </div>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
     <section class="section-awards">
       <div class="padding-section-medium">
         <div class="padding-global">
@@ -1192,6 +1379,61 @@ animation:marquee-scroll 70s linear infinite;
                 <a href="press.html?w=dorset" class="button w-inline-block"><span>View All Press</span><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewbox="0 0 17 12" fill="none" class="button_icon"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.2443 5.03644L9.48927 1.21321L10.6935 0L16.5 5.91195L10.6783 11.55L9.50444 10.3067L13.17 6.75673H0V5.03644H13.2443Z" fill="currentColor"></path></svg></a>
               </div>
             </div>
+    </section>
+    <section class="section-dorset-gallery">
+      <div class="ch-spread-wrap">
+        <p class="ch-spread__eyebrow text-style-allcaps">Around the wood</p>
+        <ul class="ch-spread">
+          <li class="is-wide">
+            <a class="ch-plate" href="dorset-woodsmans-treehouse.html">
+              <figure class="ch-plate__fig">
+                <div class="ch-plate__frame"><img src="images/gallery/woodsmans-treehouse-1-1060.webp" alt="The Woodsman&rsquo;s Treehouse in its oak" loading="lazy"></div>
+                <figcaption class="ch-plate__caption"><span class="ch-plate__label">The Woodsman&rsquo;s Treehouse</span></figcaption>
+              </figure>
+            </a>
+          </li>
+          <li class="is-tall">
+            <a class="ch-plate" href="dorset-dazzle-treehouse.html">
+              <figure class="ch-plate__fig">
+                <div class="ch-plate__frame"><img src="images/gallery/dazzle-treehouse-1-1060.webp" alt="The Dazzle Treehouse at the end of its timber walkway" loading="lazy"></div>
+                <figcaption class="ch-plate__caption"><span class="ch-plate__label">Dazzle Treehouse</span></figcaption>
+              </figure>
+            </a>
+          </li>
+          <li class="is-tall">
+            <a class="ch-plate" href="dorset-pinwheel-treehouse.html">
+              <figure class="ch-plate__fig">
+                <div class="ch-plate__frame"><img src="images/gallery/pinwheel-treehouse-1-1060.webp" alt="The bed in the Pinwheel Treehouse, beside a window into the canopy" loading="lazy"></div>
+                <figcaption class="ch-plate__caption"><span class="ch-plate__label">Inside Pinwheel</span></figcaption>
+              </figure>
+            </a>
+          </li>
+          <li class="is-wide">
+            <a class="ch-plate" href="dorset-dazzle-treehouse.html">
+              <figure class="ch-plate__fig">
+                <div class="ch-plate__frame"><img src="images/gallery/story-porthole-1060.webp" alt="A porthole door and rope rigging between stacked log walls" loading="lazy"></div>
+                <figcaption class="ch-plate__caption"><span class="ch-plate__label">The porthole door</span></figcaption>
+              </figure>
+            </a>
+          </li>
+          <li class="is-wide">
+            <a class="ch-plate" href="dorset-experiences.html">
+              <figure class="ch-plate__fig">
+                <div class="ch-plate__frame"><img src="images/gallery/exp-starlit-shower-1060.webp" alt="The outdoor shower under a starry night sky" loading="lazy"></div>
+                <figcaption class="ch-plate__caption"><span class="ch-plate__label">The shower under the stars</span></figcaption>
+              </figure>
+            </a>
+          </li>
+          <li class="is-tall">
+            <a class="ch-plate" href="dorset-pizza-oven.html">
+              <figure class="ch-plate__fig">
+                <div class="ch-plate__frame"><img src="images/gallery/story-craft-1060.webp" alt="A wood-fired oven on a treehouse deck, with a pizza peel beside it" loading="lazy"></div>
+                <figcaption class="ch-plate__caption"><span class="ch-plate__label">The wood-fired oven</span></figcaption>
+              </figure>
+            </a>
+          </li>
+        </ul>
+      </div>
     </section>
     
     <!-- Figma 73:360. The coast photograph is the section's own background,
