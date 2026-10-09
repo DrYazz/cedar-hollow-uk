@@ -292,7 +292,7 @@ a.ch-frame:hover img{transform:scale(1.035)}
 /* ---- Feature rows (photo + copy) ---- */
 .ch-features{display:flex;flex-direction:column;gap:clamp(2.5rem,6vw,5rem)}
 .ch-feature{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:clamp(1.5rem,4vw,4rem);align-items:center}
-.ch-feature:nth-child(even) .ch-feature__media{order:2}
+.ch-feature:nth-of-type(even) .ch-feature__media{order:2}
 .ch-feature__media{display:grid;gap:14px}
 .ch-feature__media.is-pair{grid-template-columns:1fr 1fr}
 .ch-feature__media.is-pair .ch-frame{aspect-ratio:3/4}
@@ -315,9 +315,21 @@ a.ch-frame:hover img{transform:scale(1.035)}
 .ch-feature.is-center .ch-feature__body .ch-prose{margin:0 auto}
 @media (max-width:767px){
   .ch-feature{grid-template-columns:1fr;gap:1.25rem}
-  .ch-feature:nth-child(even) .ch-feature__media{order:0}
+  .ch-feature:nth-of-type(even) .ch-feature__media{order:0}
   .ch-feature__media.is-pair .ch-frame{aspect-ratio:1}
 }
+
+/* ---- Callout: a shallow band in the flow of a page ----
+   One line of invitation and a button, between two feature rows. The
+   quiet panel of .ch-cards and .ch-cal (cream on the off-white section,
+   hairline border), so it is noticed without competing with the photos.
+   Text left and button right where they fit; below that the button wraps
+   under the text, left-aligned, with no breakpoint to keep in step. */
+.ch-callout{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:1.25rem 2.5rem;text-align:left;background:var(--brand-secondary);border:1px solid var(--border--accent-20);border-radius:var(--radius--24);padding:clamp(1.5rem,3vw,2rem) clamp(1.25rem,4vw,2.75rem)}
+.ch-callout__text{flex:1 1 24rem;min-width:0}
+.ch-callout__title{margin:0 0 .4rem;color:var(--accent)}
+.ch-callout__body{margin:0;max-width:64ch;font-size:1.125rem;font-weight:400;line-height:1.6;text-wrap:pretty}
+.ch-callout .button{flex:none}
 
 
 /* ---- Rental blocks (availability page) ---- */
