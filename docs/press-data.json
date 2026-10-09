@@ -303,8 +303,8 @@
           "source": "RTÉ",
           "file": "videos/press/rte.mp4?v=20261008a",
           "thumb": {
-            "src": "images/press-video/rte-640.webp?v=20261008b",
-            "srcset": "images/press-video/rte-320.webp?v=20261008b 320w, images/press-video/rte-640.webp?v=20261008b 640w, images/press-video/rte-1280.webp?v=20261008b 1280w"
+            "src": "images/press-video/rte-640.webp?v=20261009a",
+            "srcset": "images/press-video/rte-320.webp?v=20261009a 320w, images/press-video/rte-640.webp?v=20261009a 640w, images/press-video/rte-1280.webp?v=20261009a 1280w"
           },
           "date": "2026-10-01",
           "dateKind": "aired",
