@@ -14,6 +14,10 @@
 /oxford/sustainability.html  /sustainability.html#oxford  301
 /oxford/index2.html          /oxford.html                 301
 
+# One press page: the two woodland press pages open it on their own woodland.
+/oxford-press.html  /press.html?w=oxford  301
+/dorset-press.html  /press.html?w=dorset  301
+
 # Cedar Hollow Oxford's story was merged into the main Our Story page.
 /oxford/story.html  /about.html#oxford-story  301
 
@@ -94,7 +98,7 @@
 /dorset-pizza-oven           /dorset-pizza-oven.html                         301
 /dorset-pre-arrival          /dorset-pre-arrival.html                        301
 /dorset-press-enquiries      /dorset-press-enquiries.html                    301
-/dorset-press                /dorset-press.html                              301
+/dorset-press                /press.html?w=dorset                              301
 /dorset-prices               /dorset-prices.html                             301
 /dorset-retreats             /dorset-retreats.html                           301
 /dorset-reviews              /reviews.html                            301
@@ -108,7 +112,7 @@
 /experiences                 /dorset-experiences.html                        301
 /honey                       /honey.html                                     301
 /influencers                 /influencers.html                               301
-/oxford-press                /oxford-press.html                              301
+/oxford-press                /press.html?w=oxford                              301
 /oxford-reviews              /reviews.html                            301
 /oxford-stays                /oxford-stays.html                              301
 /oxford-sustainability       /sustainability.html#oxford                     301
