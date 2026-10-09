@@ -542,6 +542,8 @@ width:100%;
               <div class="button-group align-center ch-hero-book">
                 <a data-wf--button--variant="secondary" href="dorset-stays.html" class="button w-variant-a908aaae-34d6-e728-4d69-09b57268ca2e w-inline-block"><span>Book your Stay</span><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewbox="0 0 17 12" fill="none" class="button_icon">
                     <path fill-rule="evenodd" clip-rule="evenodd" d="M13.2443 5.03644L9.48927 1.21321L10.6935 0L16.5 5.91195L10.6783 11.55L9.50444 10.3067L13.17 6.75673H0V5.03644H13.2443Z" fill="currentColor"></path>
+                  </svg></a><a href="#rentals" class="button is-secondary w-inline-block"><span>View Rentals</span><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewbox="0 0 17 12" fill="none" class="button_icon">
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M13.2443 5.03644L9.48927 1.21321L10.6935 0L16.5 5.91195L10.6783 11.55L9.50444 10.3067L13.17 6.75673H0V5.03644H13.2443Z" fill="currentColor"></path>
                   </svg></a><a href="design-a-treehouse.html" class="button is-secondary w-inline-block"><span>Design a Treehouse</span><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewbox="0 0 17 12" fill="none" class="button_icon">
                     <path fill-rule="evenodd" clip-rule="evenodd" d="M13.2443 5.03644L9.48927 1.21321L10.6935 0L16.5 5.91195L10.6783 11.55L9.50444 10.3067L13.17 6.75673H0V5.03644H13.2443Z" fill="currentColor"></path>
                   </svg></a>
@@ -651,38 +653,50 @@ width:100%;
       <style>
 
 
-        /* Our Retreats, Figma 252:272: three 624px bands, 32px radius, the
-           photograph under 40% black and the site's cream burn. */
-        .section-dorset-retreats{background-color:#f1e6d7;color:var(--accent,#3b4126);}
-        .dorset-cards{display:flex;flex-direction:column;grid-row-gap:2rem;row-gap:2rem;margin:0;padding:0;list-style:none;}
-        .dorset-card{position:relative;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;min-height:clamp(22rem,43.33vw,39rem);border-radius:2rem;overflow:hidden;}
-        .dorset-card__bg{position:absolute;inset:0;}
-        .dorset-card__img{width:100%;height:100%;object-fit:cover;display:block;}
-        /* The design puts a flat 40% black over the photograph. Measured against
-           the real photographs it leaves cream 20px body copy at 2.75:1 on the
-           Woodsman's card, well under the 4.5:1 it needs, so the scrim deepens
-           to 62% across the lower half the type sits in and holds the design's
-           40% over the rest of the picture. */
-        .dorset-card__bg:before{content:"";position:absolute;inset:0;background-image:linear-gradient(to top,rgba(0,0,0,.62) 0%,rgba(0,0,0,.62) 45%,rgba(0,0,0,.4) 72%,rgba(0,0,0,.4) 100%);}
-        .dorset-card__bg:after{content:"";position:absolute;inset:0;background-color:var(--brand,#efeed5);mix-blend-mode:color-burn;opacity:var(--image-burn-strength,1);}
-        .dorset-card__body{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;grid-row-gap:2rem;row-gap:2rem;width:100%;padding:4rem 1.5rem;text-align:center;color:var(--brand,#efeed5);}
-        .dorset-card__copy{display:flex;flex-direction:column;align-items:center;grid-row-gap:1.5rem;row-gap:1.5rem;}
-        .dorset-card__title{margin:0;font-family:var(--font-family--heading,Crimsonpro),serif;font-weight:400;font-size:clamp(2.25rem,5.56vw,5rem);line-height:.9;letter-spacing:-.035em;}
-        .dorset-card__text{margin:0;max-width:32.25rem;font-weight:500;font-size:clamp(1rem,1.39vw,1.25rem);line-height:1.6;}
-        /* No outline variant exists in the export; the design uses one here. */
-        .button.is-outline{background-color:#0000;border:2px solid var(--brand,#efeed5);color:var(--brand,#efeed5);transition:background-color .2s ease,color .2s ease;}
-        .button.is-outline:hover,.button.is-outline:focus-visible{background-color:var(--brand,#efeed5);color:var(--accent,#3b4126);}
+        /* ---- In the Oxford front page's style --------------------------------
+           Dorset's pictures and words, laid out the way oxford.html lays out
+           the same sections. */
 
-        /* Awards sits on #fdf4e8 here rather than the homepage's offwhite. */
-        .section-awards{background-color:#fdf4e8;}
+        /* Our Retreats as Oxford's Featured Rentals: the cream ground, the
+           lead held to a 500px column, and the three cards as a row from 768
+           up and one under the other on phones. Oxford's row is a Splide
+           list left unmounted; this page loads no Splide, so the row is set
+           out here directly with the same widths and gaps. */
+        .section-properties.is-dorset{background-color:#f7f5e1;}
+        .section-properties.is-dorset .ch-section-lead{max-width:31.25rem;margin-left:auto;margin-right:auto;}
+        .ch-retreats{display:flex;justify-content:center;grid-column-gap:1rem;column-gap:1rem;margin:0;padding:0;list-style:none;}
+        .ch-retreat{flex:0 0 min(420px,30vw);display:flex;}
+        .ch-retreat .cabin-item{height:100%;width:100%;}
+        .cabin-item:hover .cabin-item_img{transform:scale(1.035);}
+        .ch-retreat__name{color:inherit;text-decoration:none;}
+        .ch-retreat__name:hover{text-decoration:underline;text-underline-offset:.12em;text-decoration-thickness:1px;}
+        /* Each card's own line from the old bands, under the facts. */
+        .ch-retreat__text{margin:0 auto 1.25rem;max-width:22rem;font-size:1rem;line-height:1.6;font-weight:400;}
+        /* The three lines of description differ in length, so the buttons are
+           held to the foot of each card and line up along the row. */
+        .ch-retreat .cabin-item{display:flex;flex-direction:column;}
+        .ch-retreat .cabin-item_body{flex:1 1 auto;display:flex;flex-direction:column;align-items:center;}
+        .ch-retreat .cabin-item_body > .button{margin-top:auto;}
+        @media screen and (max-width:767px){
+          .ch-retreats{flex-direction:column;align-items:center;grid-row-gap:2.5rem;row-gap:2.5rem;padding-left:5vw;padding-right:5vw;}
+          .ch-retreat{flex:none;width:100%;max-width:26.25rem;}
+        }
 
-        /* Explore Dorset, Figma 73:360. The image is 225.71% of the section
-           tall and pulled up 42.83%, which lands the sky behind the type and
-           the beach along the bottom edge. */
-        .section-dorset-explore{position:relative;background-color:#f8efdd;color:var(--accent,#3b4126);overflow:hidden;padding-bottom:8.75rem;}
-        .dorset-explore__bg{position:absolute;inset:0;overflow:hidden;}
-        .dorset-explore__img{position:absolute;left:0;top:-42.83%;width:100%;height:225.71%;object-fit:cover;}
-        .section-dorset-explore > .padding-section-medium{position:relative;z-index:1;}
+        /* The coast as Oxford's full-bleed band. The photograph is portrait,
+           so the 16:9 band takes the slice with the cliffs and the shoreline
+           rather than the sky above them. */
+        .full-bleed-img.ch-coast{object-fit:cover;object-position:50% 67%;}
+
+        /* Phones and tablets: the award badges wrap onto two lines at full
+           size, as Oxford's do on phones, rather than running to (or off) both
+           edges of the screen. Dorset's RIBA badge is wide, so this row needs
+           the room up to 991px where Oxford's only needs it below 768. */
+        @media screen and (max-width:991px){
+          .section-awards .awards-top-logos{flex-wrap:wrap;}
+        }
+
+        /* Explore Dorset in the setting Oxford gives its story passage. */
+        .section-dorset-story{background-color:var(--offwhite,#f8f8e8);color:var(--accent,#3b4126);}
 
         /* Figma 73:381 puts this page's footer on moss green. */
         .section-footer{background-color:var(--accent,#3b4126);color:var(--brand,#efeed5);}
@@ -960,7 +974,7 @@ animation:marquee-scroll 70s linear infinite;
     <!-- Figma 178:421 / 252:272. One full-width card per treehouse rather than
          the homepage's deck: there are three, and the design gives each its
          own band. -->
-    <section class="section-dorset-retreats">
+    <section class="section-properties bg-brand-dark is-dorset" id="rentals">
       <div class="padding-section-medium">
         <div class="padding-global">
           <div class="container-large">
@@ -972,45 +986,72 @@ animation:marquee-scroll 70s linear infinite;
               </div>
               <div class="margin-bottom margin-xlarge">
                 <div class="max-width-medium align-center">
-                  <p class="text-size-large">A small collection of handcrafted cabins designed for privacy, nature, and comfort.</p>
+                  <p class="text-size-large ch-section-lead">A small collection of handcrafted cabins designed for privacy, nature, and comfort.</p>
                 </div>
               </div>
             </div>
-            <ul role="list" class="dorset-cards">
-              <li class="dorset-card">
-                <div class="dorset-card__bg" aria-hidden="true"><img src="images/gallery/woodsmans-hero-1060.webp" srcset="images/gallery/woodsmans-hero-530.webp 530w, images/gallery/woodsmans-hero-1060.webp 1060w, images/gallery/woodsmans-hero-1600.webp 1600w, images/gallery/woodsmans-hero-2400.webp 2400w" sizes="(max-width: 991px) 100vw, 1312px" loading="lazy" alt="" class="dorset-card__img" width="1060" height="795"></div>
-                <div class="dorset-card__body">
-                  <div class="dorset-card__copy">
-                    <h3 class="dorset-card__title"><span class="text-style-italic">The Woodsman&#x2019;s</span> Treehouse</h3>
-                    <p class="dorset-card__text">The ultimate retreat: a luxury treetop stay, perched in the branches of an ancient oak.</p>
-                  </div>
-                  <a href="https://mallinson.co.uk/availability/" target="_blank" rel="noopener" class="button is-outline w-inline-block"><span>Check availability</span><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewbox="0 0 17 12" fill="none" class="button_icon">
+            <ul role="list" class="ch-retreats">
+              <li class="ch-retreat">
+                <div class="cabin-item">
+                  <a href="dorset-woodsmans-treehouse.html" class="cabin-item_img-wrap w-inline-block"><img src="images/gallery/woodsmans-hero-1060.webp" srcset="images/gallery/woodsmans-hero-530.webp 530w, images/gallery/woodsmans-hero-1060.webp 1060w, images/gallery/woodsmans-hero-1600.webp 1600w, images/gallery/woodsmans-hero-2400.webp 2400w" sizes="(max-width: 767px) 90vw, (max-width: 1399px) 30vw, 420px" loading="lazy" alt="The Woodsman&#x2019;s Treehouse" class="cabin-item_img" width="1060" height="795"></a>
+                  <div class="cabin-item_body">
+                    <div class="max-width-xlarge align-center">
+                      <div class="margin-bottom margin-xxsmall">
+                        <h3 class="heading-style-h4"><a href="dorset-woodsmans-treehouse.html" class="ch-retreat__name">The Woodsman&#x2019;s Treehouse</a></h3>
+                      </div>
+                    </div>
+                    <div class="margin-bottom margin-xsmall">
+                      <div class="cabin-item_feature-wrapper">
+                        <div class="cabin-item_features"><p>Treehouse</p><span class="seperator-dot">&bull;</span><p>Sleeps 2</p><span class="seperator-dot">&bull;</span><p>1 bedroom</p></div>
+                      </div>
+                    </div>
+                    <p class="ch-retreat__text">The ultimate retreat: a luxury treetop stay, perched in the branches of an ancient oak.</p>
+                    <a href="https://mallinson.co.uk/availability/" target="_blank" rel="noopener" class="button w-inline-block"><span>Check availability</span><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewbox="0 0 17 12" fill="none" class="button_icon">
                       <path fill-rule="evenodd" clip-rule="evenodd" d="M13.2443 5.03644L9.48927 1.21321L10.6935 0L16.5 5.91195L10.6783 11.55L9.50444 10.3067L13.17 6.75673H0V5.03644H13.2443Z" fill="currentColor"></path>
                     </svg></a>
+                  </div>
                 </div>
               </li>
-              <li class="dorset-card">
-                <div class="dorset-card__bg" aria-hidden="true"><img src="images/property-dazzle-treehouse-1060.webp" srcset="images/property-dazzle-treehouse-530.webp 530w, images/property-dazzle-treehouse-1060.webp 1060w, images/property-dazzle-treehouse-1600.webp 1600w, images/property-dazzle-treehouse-2400.webp 2400w" sizes="(max-width: 991px) 100vw, 1312px" loading="lazy" alt="" class="dorset-card__img" width="1060" height="757"></div>
-                <div class="dorset-card__body">
-                  <div class="dorset-card__copy">
-                    <h3 class="dorset-card__title"><span class="text-style-italic">Dazzle</span> Treehouse</h3>
-                    <p class="dorset-card__text">Brand new: a contemporary canopy space.</p>
-                  </div>
-                  <a href="https://mallinson.co.uk/availability/" target="_blank" rel="noopener" class="button is-outline w-inline-block"><span>Check availability</span><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewbox="0 0 17 12" fill="none" class="button_icon">
+              <li class="ch-retreat">
+                <div class="cabin-item">
+                  <a href="dorset-dazzle-treehouse.html" class="cabin-item_img-wrap w-inline-block"><img src="images/property-dazzle-treehouse-1060.webp" srcset="images/property-dazzle-treehouse-530.webp 530w, images/property-dazzle-treehouse-1060.webp 1060w, images/property-dazzle-treehouse-1600.webp 1600w, images/property-dazzle-treehouse-2400.webp 2400w" sizes="(max-width: 767px) 90vw, (max-width: 1399px) 30vw, 420px" loading="lazy" alt="Dazzle Treehouse" class="cabin-item_img" width="1060" height="757"></a>
+                  <div class="cabin-item_body">
+                    <div class="max-width-xlarge align-center">
+                      <div class="margin-bottom margin-xxsmall">
+                        <h3 class="heading-style-h4"><a href="dorset-dazzle-treehouse.html" class="ch-retreat__name">Dazzle Treehouse</a></h3>
+                      </div>
+                    </div>
+                    <div class="margin-bottom margin-xsmall">
+                      <div class="cabin-item_feature-wrapper">
+                        <div class="cabin-item_features"><p>Treehouse</p><span class="seperator-dot">&bull;</span><p>Sleeps 2</p><span class="seperator-dot">&bull;</span><p>1 bedroom</p></div>
+                      </div>
+                    </div>
+                    <p class="ch-retreat__text">Brand new: a contemporary canopy space.</p>
+                    <a href="https://mallinson.co.uk/availability/" target="_blank" rel="noopener" class="button w-inline-block"><span>Check availability</span><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewbox="0 0 17 12" fill="none" class="button_icon">
                       <path fill-rule="evenodd" clip-rule="evenodd" d="M13.2443 5.03644L9.48927 1.21321L10.6935 0L16.5 5.91195L10.6783 11.55L9.50444 10.3067L13.17 6.75673H0V5.03644H13.2443Z" fill="currentColor"></path>
                     </svg></a>
+                  </div>
                 </div>
               </li>
-              <li class="dorset-card">
-                <div class="dorset-card__bg" aria-hidden="true"><img src="images/gallery/pinwheel-card-854.webp" srcset="images/gallery/pinwheel-card-530.webp 530w, images/gallery/pinwheel-card-854.webp 854w, images/gallery/pinwheel-card-1200.webp 1200w" sizes="(max-width: 991px) 100vw, 1312px" loading="lazy" alt="" class="dorset-card__img" width="854" height="569"></div>
-                <div class="dorset-card__body">
-                  <div class="dorset-card__copy">
-                    <h3 class="dorset-card__title"><span class="text-style-italic">Pinwheel</span> Treehouse</h3>
-                    <p class="dorset-card__text">A brand new treetop chalet.</p>
-                  </div>
-                  <a href="https://mallinson.co.uk/availability/" target="_blank" rel="noopener" class="button is-outline w-inline-block"><span>Check availability</span><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewbox="0 0 17 12" fill="none" class="button_icon">
+              <li class="ch-retreat">
+                <div class="cabin-item">
+                  <a href="dorset-pinwheel-treehouse.html" class="cabin-item_img-wrap w-inline-block"><img src="images/gallery/pinwheel-card-854.webp" srcset="images/gallery/pinwheel-card-530.webp 530w, images/gallery/pinwheel-card-854.webp 854w, images/gallery/pinwheel-card-1200.webp 1200w" sizes="(max-width: 767px) 90vw, (max-width: 1399px) 30vw, 420px" loading="lazy" alt="Pinwheel Treehouse" class="cabin-item_img" width="854" height="569"></a>
+                  <div class="cabin-item_body">
+                    <div class="max-width-xlarge align-center">
+                      <div class="margin-bottom margin-xxsmall">
+                        <h3 class="heading-style-h4"><a href="dorset-pinwheel-treehouse.html" class="ch-retreat__name">Pinwheel Treehouse</a></h3>
+                      </div>
+                    </div>
+                    <div class="margin-bottom margin-xsmall">
+                      <div class="cabin-item_feature-wrapper">
+                        <div class="cabin-item_features"><p>Treehouse</p><span class="seperator-dot">&bull;</span><p>Sleeps 2</p><span class="seperator-dot">&bull;</span><p>1 bedroom</p></div>
+                      </div>
+                    </div>
+                    <p class="ch-retreat__text">A brand new treetop chalet.</p>
+                    <a href="https://mallinson.co.uk/availability/" target="_blank" rel="noopener" class="button w-inline-block"><span>Check availability</span><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewbox="0 0 17 12" fill="none" class="button_icon">
                       <path fill-rule="evenodd" clip-rule="evenodd" d="M13.2443 5.03644L9.48927 1.21321L10.6935 0L16.5 5.91195L10.6783 11.55L9.50444 10.3067L13.17 6.75673H0V5.03644H13.2443Z" fill="currentColor"></path>
                     </svg></a>
+                  </div>
                 </div>
               </li>
             </ul>
@@ -1158,8 +1199,10 @@ animation:marquee-scroll 70s linear infinite;
     <!-- Figma 73:360. The coast photograph is the section's own background,
          positioned so its pale sky sits behind the type and the beach lands
          along the bottom edge. -->
-    <section class="section-dorset-explore">
-      <div class="dorset-explore__bg" aria-hidden="true"><img src="images/dorset-coast-1024.webp" srcset="images/dorset-coast-530.webp 530w, images/dorset-coast-1024.webp 1024w" sizes="100vw" loading="lazy" alt="" class="dorset-explore__img" width="1024" height="1536"></div>
+    <div class="section-full-bleed-img">
+      <div class="full-bleed-img-wrap"><img src="images/dorset-coast-1024.webp" srcset="images/dorset-coast-530.webp 530w, images/dorset-coast-1024.webp 1024w" sizes="100vw" loading="lazy" alt="A shingle beach on the Jurassic Coast, running out under the cliffs" class="full-bleed-img ch-coast" width="1024" height="1536"></div>
+    </div>
+    <section class="section-dorset-story">
       <div class="padding-section-medium">
         <div class="padding-global">
           <div class="container-large">
