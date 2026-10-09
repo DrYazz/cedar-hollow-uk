@@ -478,71 +478,33 @@ def video_year(v):
     return (v.get("aired") or v.get("date", ""))[:4]
 
 
-def kind_counts(sections, memberships=(), extras=()):
-    """What the kind buttons count: articles, films and recognitions -- and,
-    on a page that shows them, the extra sections, each (key, label, count):
-    the familiar faces and the social accounts.
-
-    Memberships count as recognitions, and they count wherever they are
-    shown -- they belong to no woodland, so no choice of woodland hides
-    them. Nor do the extras.
-    """
-    counts = {}
-    for key, field in (("press", "items"), ("screen", "screen"),
-                       ("awards", "awards")):
-        counts[key] = sum(len(sec.get(field) or []) for sec in sections.values())
-    counts["awards"] += len(memberships)
-    for key, _label, count in extras:
-        counts[key] = count
-    counts["all"] = sum(counts.values())
-    return counts
-
-
-def filter_btn(group, value, label, count, on):
+def filter_btn(group, value, label, on):
+    # A word each, no count beside it: the numbers were already hidden on
+    # phones, and on a wide screen they were six figures to read before
+    # the choice they qualified.
     return ('    <button class="ch-feed__btn" type="button" data-group="%s" '
-            'data-filter="%s" aria-pressed="%s">%s '
-            '<span class="ch-feed__count">%d</span></button>'
-            % (group, value, "true" if on else "false", label, count))
+            'data-filter="%s" aria-pressed="%s">%s</button>'
+            % (group, value, "true" if on else "false", label))
 
 
 def filters(data, indent, scope=None, extras=()):
-    """The controls above the coverage: which woodland, and which kind.
+    """The control above the coverage: which kind.
 
-    They sit above both sections rather than inside either. The woodland
-    control narrows the grids, so its counts are articles and films together;
-    the kind control hides a whole section, which is why neither can live
-    inside one.
-
-    A named marker scopes the bar to one woodland, and the woodland control
-    is then left out: that page has already settled which woodland, so only
-    the kind control has anything left to ask.
+    It sits above every section rather than inside one, because choosing a
+    kind hides whole sections. There is no woodland control: the press page
+    is one page for both woodlands, and every entry stays on it.
 
     Rendered server-side and complete: with JavaScript off the buttons do
     nothing and every entry stays on the page, which is the sensible
     fallback for a filter.
     """
-    sections = data["sections"]
-    members = data.get("memberships") or []
     # "Familiar Faces" and "Social Media" are offered only where the page shows them.
     kinds = ("kind", "Type",
              (("all", "All"), ("press", "Press"), ("screen", "TV"),
               ("awards", "Awards")) + tuple((key, label) for key, label, _n in extras))
-    if scope:
-        groups = [(kinds, kind_counts({scope: sections[scope]}, members, extras))]
-    else:
-        where = both(sections, "items")["counts"]
-        # A membership shows under every woodland, so it is in every count;
-        # so does every familiar face, and every social account.
-        for key in where:
-            where[key] += len(members) + sum(n for _key, _label, n in extras)
-        groups = [
-            (("location", "Location",
-              (("all", "All"), ("oxford", "Oxford"), ("dorset", "Dorset"))),
-             where),
-            (kinds, kind_counts(sections, members, extras)),
-        ]
+    groups = [kinds]
     lines = ['<div class="ch-press__filters">']
-    for (group, label, options), counts in groups:
+    for group, label, options in groups:
         # The group is named on the page rather than only to a screen
         # reader, so the buttons can be a word each: four long ones wrapped
         # into a wall on a phone.
@@ -551,7 +513,7 @@ def filters(data, indent, scope=None, extras=()):
         lines.append('    <span class="ch-press__filter-label" '
                      'id="ch-filter-%s">%s:</span>' % (group, label))
         for key, text in options:
-            lines.append(filter_btn(group, key, text, counts.get(key, 0), key == "all"))
+            lines.append(filter_btn(group, key, text, key == "all"))
         lines.append("  </div>")
     lines.append("</div>")
     body = ("\n" + indent).join(lines)
