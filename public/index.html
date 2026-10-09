@@ -421,6 +421,13 @@ animation:marquee-scroll 70s linear infinite;
                with viewport, so these track it: 10vw = 145px and 5vw = 72px at 1440. */
             .section-hero .hero_contents > .padding-global{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;justify-content:center;padding-top:min(110px,13.58vh);padding-bottom:min(50px,6.17vh);}
             .section-hero .button-group{padding-top:0;}
+            /* The outline button beside the filled one. Oxford and Dorset each
+               carry this already; the core home page had no second hero button
+               until now, so .is-secondary fell through to the Webflow default of
+               black on transparent and all but vanished against the wood. Same
+               declarations as the other two, so the three heroes match. */
+            .section-hero .button.is-secondary{background-color:transparent;color:var(--brand,#efeed5);border:1px solid #efeed599;font-weight:500;transition:background-color .2s ease;}
+            .section-hero .button.is-secondary:hover{background-color:#ffffff1f;}
             /* A little more presence against the 80px heading, while keeping the
                pill proportion. The 102px version tried earlier dropped the ratio to
                2.5:1 and read as a lozenge; this holds ~3.7:1. */
@@ -562,6 +569,8 @@ animation:marquee-scroll 70s linear infinite;
               </div>
               <div class="button-group align-center">
                 <a data-wf--button--variant="secondary" data-ch-book href="search-results.html" aria-haspopup="dialog" class="button w-variant-a908aaae-34d6-e728-4d69-09b57268ca2e w-inline-block"><span>Explore Retreats</span><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewbox="0 0 17 12" fill="none" class="button_icon">
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M13.2443 5.03644L9.48927 1.21321L10.6935 0L16.5 5.91195L10.6783 11.55L9.50444 10.3067L13.17 6.75673H0V5.03644H13.2443Z" fill="currentColor"></path>
+                  </svg></a><a href="the-next-hollow.html" class="button is-secondary w-inline-block"><span>The Next Hollow</span><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewbox="0 0 17 12" fill="none" class="button_icon">
                     <path fill-rule="evenodd" clip-rule="evenodd" d="M13.2443 5.03644L9.48927 1.21321L10.6935 0L16.5 5.91195L10.6783 11.55L9.50444 10.3067L13.17 6.75673H0V5.03644H13.2443Z" fill="currentColor"></path>
                   </svg></a>
               </div>
