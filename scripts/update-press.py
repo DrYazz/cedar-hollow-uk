@@ -25,16 +25,15 @@ import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 DATA = ROOT / "docs" / "press-data.json"
-# Every page carrying press markers. The combined page shows both sections;
-# each location page shows its own. One data file feeds all three, so a
-# corrected URL or a new quote lands everywhere at once.
+# Every page carrying press markers. There is one press page, press.html,
+# which shows both woodlands and filters to either; oxford-press.html and
+# dorset-press.html now forward to it. One data file feeds every page, so
+# a corrected URL or a new quote lands everywhere at once.
 PAGES = [
     ROOT / "public" / "press.html",
     # The creator page carries the same two grids in their unnamed form, so
     # the coverage it shows is the press page's, not a copy of it.
     ROOT / "public" / "influencers.html",
-    ROOT / "public" / "oxford-press.html",
-    ROOT / "public" / "dorset-press.html",
 ]
 
 # The name is a whole word after a space, so a sibling marker such as
