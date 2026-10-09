@@ -14,6 +14,9 @@
 /oxford/sustainability.html  /sustainability.html#oxford  301
 /oxford/index2.html          /oxford.html                 301
 
+# Cedar Hollow Oxford's story was merged into the main Our Story page.
+/oxford/story.html  /about.html#oxford-story  301
+
 # One reviews page for both woodlands; Celebrations moved to the main site.
 /oxford-reviews.html         /reviews.html                301
 /dorset-reviews.html         /reviews.html                301
@@ -144,7 +147,7 @@
 /oxford/reviews              /reviews.html                            301
 /oxford/schoolgroups         /oxford/schoolgroups.html                       301
 /oxford/shop                 /oxford.html                                    301
-/oxford/story                /oxford/story.html                              301
+/oxford/story                /about.html#oxford-story                        301
 /oxford/sustainability       /sustainability.html#oxford                     301
 /oxford/terms                /oxford/terms.html                              301
 /oxford/todo                 /oxford/todo.html                               301

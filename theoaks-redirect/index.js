@@ -61,7 +61,7 @@ const MAP = {
   "/todo": "/oxford/todo.html",
   "/chocolate": "/oxford/chocolate.html",
   "/illusions": "/oxford/illusions.html",
-  "/story": "/oxford/story.html",
+  "/story": "/about.html#oxford-story",
   "/beemuseum": "/oxford/beemuseum.html",
   "/colonial": "/oxford/colonial.html",
   "/wellness": "/oxford/wellness.html",
