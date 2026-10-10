@@ -3,7 +3,8 @@
  * /wdtcf/honey. A scan is a visit opening cedarhollow.uk/honey, which the
  * code on the honesty box leads to; these are counted on their own and in
  * none of the other tabs. Shown: scans today, in the last 7 and 30 days, and
- * how many of those went on anywhere; how many pressed each of the page's
+ * how many of those went on anywhere; the last 7 days' scans day by day;
+ * how many pressed each of the page's
  * buttons, and what share of the visits that is -- Choose your honey and
  * Donate first; the year's scans month by month; and where else the visits
  * went from the honey page -- pages of the site, and other links off it. Drawn the first time the tab is shown, and again every five
@@ -17,6 +18,7 @@
   };
   var number = new Intl.NumberFormat("en-GB");
   var MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  var WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   var EVERY = 5 * 60 * 1000;
   var state = { year: null, at: 0 };
 
@@ -153,6 +155,39 @@
     $("honey-presses").replaceChildren(table);
     $("honey-press-note").textContent =
       "Each visitor counts once for each button they press, however often they press it; the share is of all the visitors (scans) in the same days.";
+
+    // ---- the last 7 days, day by day ----------------------------------------
+    // The month chart's columns, seven of them: oldest on the left, today on
+    // the right and in gold, as the day so far. Each is labelled with its
+    // weekday and date, since a week that runs Saturday to Friday would be
+    // ambiguous by weekday alone.
+    var days = d.days || [];
+    var dayScans = days.map(function (r) { return r[1]; });
+    var dayMost = Math.max.apply(null, dayScans.concat([0])) || 1;
+    var label = function (day) {
+      var dt = new Date(day + "T00:00:00Z");
+      return WEEKDAYS[dt.getUTCDay()] + " " + dt.getUTCDate();
+    };
+    var week = el("div", null, "honey-chart is-week");
+    week.setAttribute("role", "img");
+    week.setAttribute("aria-label", "Scans each day of the last 7 days: " + days.map(function (r) {
+      return new Date(r[0] + "T00:00:00Z").toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" }) + " " + r[1];
+    }).join(", ") + ". The last is today so far.");
+    days.forEach(function (r, i) {
+      var col = el("div", null, "honey-col" + (r[0] === d.today ? " is-now" : ""));
+      col.setAttribute("aria-hidden", "true");
+      col.title = nice(r[0]) + ": " + number.format(r[1]) + " scan" + (r[1] === 1 ? "" : "s");
+      // Every day shown has happened, so a quiet one says 0 rather than
+      // leaving a gap that could pass for missing figures.
+      col.appendChild(el("span", number.format(r[1]), "honey-n"));
+      var bar = el("span", null, "honey-bar");
+      bar.style.height = (r[1] ? Math.max(2, (r[1] / dayMost) * 100) : 0) + "%";
+      col.appendChild(bar);
+      col.appendChild(el("span", label(r[0]), "honey-m"));
+      week.appendChild(col);
+    });
+    $("honey-days").replaceChildren(week);
+    if (days.length) $("honey-days").appendChild(el("p", "Today, in gold, is the day so far.", "note"));
 
     // ---- the year, month by month -------------------------------------------
     $("honey-months-title").textContent = "Scans each month, " + d.year;
