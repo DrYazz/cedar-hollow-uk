@@ -7,7 +7,9 @@
  *
  * To add or edit a property, change the LISTINGS array below. Every field is
  * plain data; `nameHtml` carries the italic styling used in headings, while
- * `name` is the plain-text version used for matching. `pageUrl`, where a
+ * `name` is the plain-text version used for matching. `maxAdults` caps how
+ * many of `sleeps` may be adults, and `guestsLabel` then says so on the
+ * cards. `pageUrl`, where a
  * retreat has a page of its own, gives its card a More info button.
  */
 (function () {
@@ -167,7 +169,10 @@
       destination: "Dorset",
       type: "Treehouse",
       region: "Dorset",
-      sleeps: 2,
+      // Two adults and one child: capacity three, but never three adults.
+      sleeps: 3,
+      maxAdults: 2,
+      guestsLabel: "2 adults + 1 child",
       bedrooms: 1,
       bathrooms: 1,
       price: 495,
@@ -220,7 +225,10 @@
       destination: "Dorset",
       type: "Treehouse",
       region: "Dorset",
-      sleeps: 2,
+      // Two adults and one child: capacity three, but never three adults.
+      sleeps: 3,
+      maxAdults: 2,
+      guestsLabel: "2 adults + 1 child",
       bedrooms: 1,
       bathrooms: 1,
       price: 295,
@@ -264,7 +272,7 @@
         srcset: "images/property-dazzle-treehouse-530.webp 530w, images/property-dazzle-treehouse-1060.webp 1060w, images/property-dazzle-treehouse-1600.webp 1600w, images/property-dazzle-treehouse-2400.webp 2400w"
       },
       description:
-        "A contemporary canopy retreat wearing WW1 ship-inspired dazzle camouflage, adults only, deep in Dorset woodland.",
+        "A contemporary canopy retreat wearing WW1 ship-inspired dazzle camouflage, deep in Dorset woodland.",
       longDescription:
         "RIBA South West award winner, 2023. Ship-themed throughout, from gangplank entry to glass spine and yacht-deck floors, with a wood-fired hot tub, pizza oven, ceramic wood-burning stove and a cargo-net day bed suspended above the stream.",
       calendarUrl: "https://checked.in/widget/booking-calendar/dazzle-treehouse?preset=cedarhollow",
@@ -278,7 +286,10 @@
       destination: "Dorset",
       type: "Treehouse",
       region: "Dorset",
-      sleeps: 2,
+      // Two adults and one child: capacity three, but never three adults.
+      sleeps: 3,
+      maxAdults: 2,
+      guestsLabel: "2 adults + 1 child",
       bedrooms: 1,
       bathrooms: 1,
       price: 295,
@@ -390,10 +401,12 @@
       search != null ? search : window.location.search
     );
     var guests = parseInt(params.get("guests"), 10);
+    var adults = parseInt(params.get("adults"), 10);
     return {
       q: (params.get("q") || "").trim(),
       destination: (params.get("destination") || "").trim(),
-      guests: isNaN(guests) ? 0 : guests
+      guests: isNaN(guests) ? 0 : guests,
+      adults: isNaN(adults) ? 0 : adults
     };
   }
 
@@ -409,6 +422,10 @@
         return false;
       }
       if (guests && item.sleeps < guests) {
+        return false;
+      }
+      // Dorset takes three, but only two of them adults.
+      if (params.adults && item.maxAdults && params.adults > item.maxAdults) {
         return false;
       }
       if (q) {
@@ -441,7 +458,7 @@
   // Build one result card matching the site's .search-result-item markup.
   function cardHtml(item) {
     var features =
-      feature(ICONS.sleeps, "Sleeps " + item.sleeps) +
+      feature(ICONS.sleeps, item.guestsLabel || "Sleeps " + item.sleeps) +
       feature(
         ICONS.bedrooms,
         item.bedrooms + (item.bedrooms === 1 ? " bedroom" : " bedrooms")
@@ -561,8 +578,8 @@
       "<p>" +
       escapeHtml(item.destination) +
       '</p><span class="seperator-dot">•</span>' +
-      "<p>Sleeps " +
-      item.sleeps +
+      "<p>" +
+      (item.guestsLabel ? escapeHtml(item.guestsLabel) : "Sleeps " + item.sleeps) +
       '</p><span class="seperator-dot">•</span>' +
       "<p>" +
       item.bedrooms +
