@@ -11,8 +11,12 @@
 .pp .ch-nav__owl { filter: brightness(0) saturate(100%) invert(21%) sepia(11%) saturate(1430%) hue-rotate(43deg) brightness(94%) contrast(88%); }
 .pp .ch-nav__toggle span[aria-hidden] { background-color: var(--accent, #3b4126); }
 .pp .ch-nav__toggle:focus-visible { outline-color: var(--accent, #3b4126); }
-.pp .ch-nav__menu a { color: var(--accent, #3b4126); text-shadow: none; }
-@media screen and (max-width: 767px) { .pp .ch-nav__menu a { color: var(--brand, #efeed5); } }
+/* The menu opens as the same moss panel here as on every other page, so its
+   links keep the panel's cream and the Book your Stay pill is cream again.
+   Moss type and a moss pill were for when this page's menu sat straight on
+   the cream page; on the panel they made the links vanish. */
+.pp .ch-nav__menu a { text-shadow: none; }
+.pp #ch-nav-menu .ch-nav__book-cta { background-color: #f1ecdb; color: var(--accent, #3b4126); }
 /* On a phone the open menu covers the page in green, so the green logo and
    burger above it vanish -- the close cross with them. While it is open they
    go back to the cream they are everywhere else. */
