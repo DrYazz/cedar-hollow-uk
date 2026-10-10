@@ -1,0 +1,23 @@
+/* Cedar Hollow Dorset: the footer's titled link columns.
+   ------------------------------------------------------------------------
+   The booking pages, the guest pages and the treehouse manuals left the
+   burger menu when it was made to read as Oxford's does, and sit here
+   instead, in four titled columns. The same column rules oxford-footer.css
+   gives the Oxford pages at the root, without that file's nav rules, which
+   are written for Oxford's panel. The block stops short of the centred owl
+   watermark (236px wide), and auto-fit decides how many columns fit. */
+.section-footer .footer_content-right:not(.is-bottom){
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(8.5rem,1fr));
+  gap:1.75rem 1.5rem;width:100%;max-width:calc(50% - 8rem);align-items:start}
+.section-footer .footer_link-col{min-width:0}
+.section-footer .footer_col-title{margin:0 0 .6rem;font-family:var(--font-family--body);
+  font-size:.7rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;opacity:.65}
+.section-footer .footer_link-col .footer_link.is-large{font-size:1rem;font-weight:400}
+.section-footer .footer_link-col .footer-link-list{row-gap:0}
+.section-footer .footer_link-col .footer-link-list li{padding:.3rem 0}
+@media screen and (max-width:991px){
+  .section-footer .footer_content-right:not(.is-bottom){max-width:none}
+}
+@media screen and (max-width:767px){
+  .section-footer .footer_content-right:not(.is-bottom){gap:1.5rem 1.25rem}
+}
