@@ -1,0 +1,47 @@
+# Can every menu item and footer link be read?
+#
+# On every pull request that changes the site, scripts/check-contrast.mjs opens
+# each page at a computer's width and a phone's, opens its burger menu, and
+# measures every menu and footer item against the colour behind it. A link the
+# same colour as its background -- the fault that twice left a menu looking
+# empty in October 2026 -- turns this check red on the pull request, naming
+# the page and the item, before anything is merged.
+
+name: Readable menus
+
+on:
+  pull_request:
+    paths:
+      - "public/**"
+      - "scripts/check-contrast.mjs"
+      - ".github/workflows/contrast.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contrast:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install a browser
+        run: |
+          npm install --no-save --no-package-lock playwright@1.48.2
+          npx playwright install --with-deps chromium
+
+      - name: Serve the pull request's pages
+        run: |
+          cd public && python3 -m http.server 8765 >/dev/null 2>&1 &
+          for i in $(seq 1 20); do curl -sf http://localhost:8765/index.html >/dev/null && break; sleep 1; done
+
+      - name: Check every menu and footer item can be read
+        run: node scripts/check-contrast.mjs
+        env:
+          BASE: http://localhost:8765/

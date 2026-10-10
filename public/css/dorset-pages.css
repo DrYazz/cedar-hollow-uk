@@ -460,6 +460,9 @@
 .dp-page .section-footer .footer_link { color: var(--dp-brand); }
 .dp-page .section-footer .footer_link:after { background: var(--dp-brand); }
 .dp-page .section-footer .footer_logo_wrap { color: #efeed514; }
+/* The social icons draw in currentColor; without this they took the moss
+   link colour and all but vanished on the near-black footer. */
+.dp-page .section-footer .social-link-item { color: var(--dp-brand); }
 
 /* --- Narrow screens ------------------------------------------------------ */
 
