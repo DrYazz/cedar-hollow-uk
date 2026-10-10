@@ -178,7 +178,8 @@ const SOURCE_NAMES = [
   [/(^|\.)facebook\.com$|^fb\.me$|^(facebook|fb)$/, "Facebook"],
   [/(^|\.)tiktok\.com$|^tiktok$/, "TikTok"],
   [/(^|\.)youtube\.com$|^youtu\.be$|^youtube$/, "YouTube"],
-  [/(^|\.)coolstays\.com$|^coolstays$/, "Coolstays"],
+  [/(^|\.)coolstays\.com$|^coolstays$/, "CoolStays"],
+  [/(^|\.)coolplaces\.co\.uk$|^cool-?places$/, "Cool Places"],
   [/^t\.co$|(^|\.)(x|twitter)\.com$/, "X (Twitter)"],
   [/(^|\.)bing\.com$/, "Bing"],
   [/(^|\.)duckduckgo\.com$/, "DuckDuckGo"],
@@ -2804,37 +2805,59 @@ function renderPart(p, r, part, title, pie, chart, day) {
             : "")
         : ".")
     : "";
+  // Where a booking came from, in the six the owner reads them by. Direct is
+  // booked on Checked.in with no other website before it. Google, Instagram,
+  // CoolStays and Cool Places are booked on Checked.in after a visit to this
+  // site that came from there (or through that site's calendar, should
+  // Checked.in ever relay one). Other names the rest: another website the
+  // visit came from, or a channel such as Airbnb.
+  const BOOKING_SOURCES = ["Direct", "Google", "Instagram", "CoolStays", "Cool Places"];
+  const bookingSource = (b) => {
+    if (b.channel !== "direct") {
+      if (/^coolstays/.test(b.channel)) return ["CoolStays"];
+      if (/^cool-?places/.test(b.channel)) return ["Cool Places"];
+      return ["Other", channelName(b.channel)];
+    }
+    if (!b.via) return ["Direct"];
+    const name = sourceName(b.src);
+    if (name === DIRECT) return ["Direct"];
+    return BOOKING_SOURCES.includes(name) ? [name] : ["Other", name];
+  };
   // A woodland's bookings retreat by retreat: how many, the nights, what the
-  // direct ones were worth, and where they came from -- the website and the
-  // site that sent the visit, direct on Checked.in some other way, or a channel.
+  // direct ones were worth, and how many came from each of the six -- every
+  // one shown, a nought included, so the line reads the same for each retreat.
   const retreatBookings =
     showBookings && part !== "all"
       ? Object.keys(RETREATS)
           .filter((key) => RETREATS[key][0] === part)
           .map((key) => {
             const list = bookings.filter((b) => b.retreat === key);
-            const fromSite = new Map();
-            for (const b of list) if (b.via) fromSite.set(sourceName(b.src), (fromSite.get(sourceName(b.src)) || 0) + 1);
-            const other = list.filter((b) => b.channel === "direct" && !b.via).length;
-            const channels = new Map();
-            for (const b of list) if (b.channel !== "direct") channels.set(b.channel, (channels.get(b.channel) || 0) + 1);
-            const site = [...fromSite].sort((a, b) => b[1] - a[1]);
-            const siteTotal = site.reduce((n, [, c]) => n + c, 0);
-            // A number never wraps away from what it counts.
-            const nb = "\u00a0";
-            const from = [
-              ...(siteTotal ? [`Website${nb}${num(siteTotal)} (${site.map(([name, c]) => `${name}${nb}${num(c)}`).join(", ")})`] : []),
-              ...(other ? [`Checked.in direct${nb}${num(other)}`] : []),
-              ...[...channels].sort((a, b) => b[1] - a[1]).map(([c, n]) => `${channelName(c)}${nb}${num(n)}`),
-            ];
+            const counts = new Map(BOOKING_SOURCES.map((name) => [name, 0]));
+            const others = new Map();
+            for (const b of list) {
+              const [bucket, what] = bookingSource(b);
+              if (bucket === "Other") others.set(what, (others.get(what) || 0) + 1);
+              else counts.set(bucket, counts.get(bucket) + 1);
+            }
+            const otherTotal = [...others.values()].reduce((n, c) => n + c, 0);
+            const otherWhat = [...others].sort((a, b) => b[1] - a[1]).map(([what, c]) => [what, c]);
+            const from = [...[...counts].map(([name, c]) => [name, c, []]), ["Other", otherTotal, otherWhat]];
             return { name: RETREATS[key][1], count: list.length, nights: list.reduce((n, b) => n + b.nights, 0), pence: gbp(list), from };
           })
           .filter((x) => x.count > 0)
           .sort((a, b) => b.count - a.count)
       : [];
+  // The six as words: "Direct 2; Google 1; ... Other 1 (Airbnb 1)". A number
+  // never wraps away from what it counts.
+  const fromText = (from, sep) =>
+    from
+      .map(([name, c, what]) => `${name}\u00a0${num(c)}` + (what.length ? ` (${what.map(([w, n]) => `${w}\u00a0${num(n)}`).join(", ")})` : ""))
+      .join(sep);
   const retreatNote =
-    "Website means booked on Checked.in after a click from this site, with the site the visit came from; " +
-    "Checked.in direct, booked there some other way." +
+    "Direct means booked on Checked.in with no other website before it. Google, Instagram, CoolStays and Cool Places " +
+    "are bookings made on Checked.in after a visit to this site that came from there. Other names the rest: another " +
+    "website the visit came from, or a channel such as Airbnb. A booking made on Checked.in straight from another " +
+    "site’s link, without coming through this one, cannot be traced, and counts as Direct." +
     (byChannel.size ? " Value counts direct bookings only, and a channel’s bookings count from when Checked.in first saw them: their calendars carry no price." : "");
   const woodlands = (c) =>
     [c.oxford ? `Oxford ${num(c.oxford)}` : "", c.dorset ? `Dorset ${num(c.dorset)}` : ""].filter(Boolean);
@@ -2966,7 +2989,7 @@ function renderPart(p, r, part, title, pie, chart, day) {
           "BOOKINGS BY RETREAT",
           ...retreatBookings.flatMap((x) => [
             `${pad(x.name, 34)} ${lpad(plural(x.count, "booking"), 12)} ${lpad(plural(x.nights, "night"), 10)} ${lpad(x.pence ? money(x.pence) : "", 8)}`,
-            `   ${x.from.join("; ")}`,
+            `   ${fromText(x.from, "; ")}`,
           ]),
           retreatNote,
         ]
@@ -3264,8 +3287,18 @@ function renderPart(p, r, part, title, pie, chart, day) {
       retreatBookings
         .map(
           (x) =>
-            `<tr><td class="l">${esc(x.name)}<br><span class="s">${esc(x.from.join(" · "))}</span></td>` +
-            `<td class="n"><strong>${num(x.count)}</strong></td><td class="n">${num(x.nights)}</td><td class="n">${x.pence ? esc(money(x.pence)) : "&ndash;"}</td></tr>`
+            // The figures on the retreat's own row, and the six beneath it across
+            // the full width, so on a phone they wrap into two or three lines
+            // rather than a column one word wide.
+            `<tr><td class="l" style="border-bottom:0;padding-bottom:2px;">${esc(x.name)}</td>` +
+            `<td class="n" style="border-bottom:0;padding-bottom:2px;"><strong>${num(x.count)}</strong></td>` +
+            `<td class="n" style="border-bottom:0;padding-bottom:2px;">${num(x.nights)}</td>` +
+            `<td class="n" style="border-bottom:0;padding-bottom:2px;">${x.pence ? esc(money(x.pence)) : "&ndash;"}</td></tr>` +
+            `<tr><td class="l s" colspan="4" style="padding-top:0;">${x.from
+              .map(([name, c, what]) =>
+                `<span style="white-space:nowrap;">${esc(name)} <strong>${num(c)}</strong></span>` +
+                (what.length ? ` (${esc(what.map(([w, n]) => `${w}\u00a0${num(n)}`).join(", "))})` : ""))
+              .join(" &middot; ")}</td></tr>`
         )
         .join("") +
       (retreatBookings.length > 1
