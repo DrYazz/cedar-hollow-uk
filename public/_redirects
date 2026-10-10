@@ -17,6 +17,10 @@
 # The Dorset local area page was folded into On Our Doorstep and Dining.
 /dorset-local-information.html  /dorset-doorstep.html  301
 
+# Seasons & Prices: prices are shown on the booking calendar only, and the rest
+# of the page moved into the Dorset FAQ. The address forwards to the rentals page.
+/dorset-prices.html  /dorset-retreats.html  301
+
 # One press page, for both woodlands: the two woodland press pages forward to it.
 /oxford-press.html  /press.html  301
 /dorset-press.html  /press.html  301
@@ -102,7 +106,7 @@
 /dorset-pre-arrival          /dorset-pre-arrival.html                        301
 /dorset-press-enquiries      /dorset-press-enquiries.html                    301
 /dorset-press                /press.html                              301
-/dorset-prices               /dorset-prices.html                             301
+/dorset-prices               /dorset-retreats.html                           301
 /dorset-retreats             /dorset-retreats.html                           301
 /dorset-reviews              /reviews.html                            301
 /dorset-stays                /dorset-stays.html                              301
