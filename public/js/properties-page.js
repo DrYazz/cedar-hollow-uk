@@ -85,7 +85,7 @@
     var site = item.destination;
 
     return '<ul class="pp-meta">' +
-      '<li><img src="images/icons/icon-guests.svg" alt="" aria-hidden="true">' + item.sleeps + " guests</li>" +
+      '<li><img src="images/icons/icon-guests.svg" alt="" aria-hidden="true">' + esc(item.guestsLabel || item.sleeps + " guests") + "</li>" +
       '<li><img src="images/icons/icon-beds.svg" alt="" aria-hidden="true">' + beds + "</li>" +
       '<li><img src="images/icons/icon-baths.svg" alt="" aria-hidden="true">' + baths + "</li>" +
       '<li><img src="images/icons/icon-location.svg" alt="" aria-hidden="true">' + esc(site) + "</li>" +
@@ -231,6 +231,8 @@
     var wantPlace = scope || (params.get("destination") || "").trim().toLowerCase();
     var wantGuests = parseInt(params.get("guests"), 10);
     if (isNaN(wantGuests)) wantGuests = 0;
+    // Dorset takes three, but only two of them adults.
+    var wantAdults = parseInt(params.get("adults"), 10) || 0;
 
     var all = CH.listings;
     // Everything this page is allowed to show, before any search narrows it.
@@ -241,6 +243,7 @@
     var narrowed = inScope.filter(function (it) {
       if (!scope && wantPlace && it.destination.toLowerCase() !== wantPlace) return false;
       if (wantGuests && it.sleeps < wantGuests) return false;
+      if (wantAdults && it.maxAdults && wantAdults > it.maxAdults) return false;
       return true;
     });
 
