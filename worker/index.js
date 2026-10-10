@@ -742,7 +742,8 @@ function honeyTable(env) {
 }
 
 // GET /wdtcf/honey?year=YYYY: scans (and visits that went on) today, in the
-// last 7 and 30 days; the year's, month by month; each button's presses
+// last 7 and 30 days; the last 7 days' scans day by day, oldest first and
+// today last; the year's, month by month; each button's presses
 // over the same spans and the year; where the visits went from the honey
 // page, over the last 30 days and over the year; and the years there are
 // figures for.
@@ -756,7 +757,7 @@ async function honeyData(url, env) {
   const month = isoDate(Date.parse(today) - 29 * DAY);
   const [from, to] = [`${year}-01-01`, `${year}-12-31`];
   const db = env.VISITS_DB;
-  const [totals, months, went, span, presses] = await db.batch([
+  const [totals, months, went, span, presses, daily] = await db.batch([
     db
       .prepare(
         "SELECT kind, SUM(CASE WHEN day = ? THEN n ELSE 0 END) AS today, SUM(CASE WHEN day >= ? THEN n ELSE 0 END) AS week, " +
@@ -780,12 +781,21 @@ async function honeyData(url, env) {
           "FROM honey WHERE kind = 'press' AND (day >= ? OR day BETWEEN ? AND ?) GROUP BY target"
       )
       .bind(today, week, month, from, to, month, from, to),
+    db.prepare("SELECT day, SUM(n) AS n FROM honey WHERE kind = 'scan' AND day >= ? GROUP BY day").bind(week),
   ]);
   const sums = { scan: { today: 0, week: 0, month: 0 }, on: { today: 0, week: 0, month: 0 } };
   for (const r of totals.results) sums[r.kind] = { today: r.today || 0, week: r.week || 0, month: r.month || 0 };
   const byMonth = MONTHS.map(() => [0, 0]);
   for (const r of months.results) byMonth[Number(r.m) - 1][r.kind === "scan" ? 0 : 1] += r.n || 0;
   const first = (span.results[0] && span.results[0].first) || null;
+  // Every one of the seven days, a day with no scans as a nought.
+  const perDay = {};
+  for (const r of daily.results) perDay[r.day] = r.n || 0;
+  const days = [];
+  for (let i = 0; i < 7; i++) {
+    const d = isoDate(Date.parse(week) + i * DAY);
+    days.push([d, perDay[d] || 0]);
+  }
   const years = [];
   for (let y = Number((first || today).slice(0, 4)); y <= Number(today.slice(0, 4)); y++) years.push(String(y));
   return json({
@@ -796,6 +806,7 @@ async function honeyData(url, env) {
     years,
     totals: sums,
     months: byMonth,
+    days,
     went: went.results.map((r) => [r.kind, r.target, r.recent || 0, r.year || 0]),
     presses: presses.results.map((r) => [r.target, r.today || 0, r.week || 0, r.month || 0, r.year || 0]),
   });

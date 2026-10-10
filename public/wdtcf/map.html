@@ -97,8 +97,9 @@
     .honey-bar { display: block; width: 70%; background: var(--ink); border-radius: 3px 3px 0 0; }
     .honey-col.is-now .honey-bar { background: #c9a227; }
     .honey-m { position: absolute; bottom: -22px; font-size: .75rem; color: var(--muted); }
-    #honey-months { padding-bottom: 24px; }
-    #honey-months .note { margin-top: 26px; }
+    #honey-months, #honey-days { padding-bottom: 24px; }
+    #honey-months .note, #honey-days .note { margin-top: 26px; }
+    .honey-chart.is-week { grid-template-columns: repeat(7, minmax(0, 1fr)); }
     .honey-went table { table-layout: fixed; }
     .honey-went th:first-child, .honey-went td:first-child { width: 60%; overflow-wrap: anywhere; }
     .honey-key { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-bottom: 14px; }
@@ -158,6 +159,10 @@
         <p class="note" id="honey-press-note"></p>
       </section>
       <section class="panel">
+        <h2>Scans each day, last 7 days</h2>
+        <div id="honey-days"></div>
+      </section>
+      <section class="panel">
         <div class="panel-head">
           <h2 id="honey-months-title">Scans each month</h2>
           <div class="year-pick" id="honey-years" role="group" aria-label="Year"></div>
@@ -214,7 +219,7 @@
   </div>
   <script src="/js/vendor/leaflet-1.9.4/leaflet.js"></script>
   <script src="/wdtcf/map.js?v=3"></script>
-  <script src="/wdtcf/honey.js?v=4"></script>
+  <script src="/wdtcf/honey.js?v=5"></script>
   <script src="/wdtcf/stats.js?v=5"></script>
 </body>
 </html>
