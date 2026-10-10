@@ -210,7 +210,7 @@
 </style>
   <link href="css/dorset-footer.css?v=98875fb9" rel="stylesheet" type="text/css">
   <style>
-    /* Places without a photograph of their own: a card each, the name, how far,
+    /* Places: a card each, the name, how far,
        a line about it and what it is known for. */
     .ch-places{margin-top:2.5rem}
     .ch-places li{text-align:left;display:flex;flex-direction:column}
@@ -222,6 +222,14 @@
     .ch-places .ch-place__note{margin-top:auto;padding-top:.75rem;font-size:.875rem;font-weight:600;letter-spacing:.01em;color:var(--accent)}
     .ch-places-group{margin-top:3.5rem}
     .ch-places-group:first-child{margin-top:0}
+    /* A photograph across the top of a place's card, to the card's edges, with
+       its credit beneath it as the licence asks. */
+    .ch-places li{overflow:hidden}
+    .ch-place__photo{margin:-2rem -1.5rem 1.1rem;position:relative}
+    .ch-place__photo img{display:block;width:100%;height:auto;aspect-ratio:3/2;object-fit:cover}
+    .ch-place__photo figcaption{position:absolute;right:.5rem;bottom:.4rem;max-width:calc(100% - 1rem);font-size:.6875rem;line-height:1.3;text-align:right}
+    .ch-place__photo figcaption a{color:#fff;text-decoration:none;text-shadow:0 1px 3px rgba(0,0,0,.85);opacity:.85}
+    .ch-place__photo figcaption a:hover{opacity:1;text-decoration:underline}
   </style>
 </head>
 <body class="cp">
