@@ -185,6 +185,14 @@
       '" target="_blank" rel="noopener">3D Tour</a>';
   }
 
+  // A retreat with a page of its own (the Dorset three) gets a button to it,
+  // under its price. The others have nothing more to show than the card.
+  function moreInfo(item) {
+    if (!item.pageUrl) return "";
+    return '<a class="button is-secondary w-inline-block pp-more" href="' + esc(item.pageUrl) +
+      '" aria-label="More info about ' + esc(item.name) + '"><span>More info</span>' + ARROW + "</a>";
+  }
+
   function property(item) {
     var n = splitName(item.name);
     return '<article class="pp-item" id="property-' + esc(item.id) + '">' +
@@ -195,6 +203,7 @@
           '<div class="pp-desc">' + meta(item) +
             "<p>" + esc(item.description) + "</p>" +
             '<p class="pp-price">From <strong>&pound;' + item.price + '</strong><span>pn</span></p>' +
+            moreInfo(item) +
           "</div>" +
           bookingPanel(item) +
         "</div>" +
