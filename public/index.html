@@ -774,11 +774,17 @@ animation:marquee-scroll 70s linear infinite;
           var portrait = window.matchMedia("(max-aspect-ratio: 4/3)").matches;
           var alt = v.getAttribute("data-src-portrait");
           if (portrait && alt) v.poster = "images/hero-poster-mobile.jpg?v=20260907i";
+          // Marked autoplay as well as played. Safari looks after a film marked
+          // autoplay itself, starting it again when the phone is unlocked or
+          // Safari comes back to the front; one only ever played from script it
+          // leaves paused at those moments, which is what a reload used to fix.
+          v.muted = true;
+          v.autoplay = true;
           v.src = (portrait && alt) ? alt : v.getAttribute("data-src");
           // Refused (NotAllowedError) is the browser's rule -- Low Power Mode,
           // a battery saver -- and only a tap changes it; anything else is a
           // load that went wrong, which the watchdog below sees to.
-          var refused = false;
+          var refused = false, tries = 0;
           function attempt() {
             var p = v.play();
             if (p && p.then) {
@@ -788,39 +794,49 @@ animation:marquee-scroll 70s linear infinite;
             }
           }
           attempt();
-          // A tab opened in the background defers autoplay, so try again when it is seen.
+          // Coming back to the page -- a tab opened in the background and now
+          // seen, the Back button, Safari brought to the front, the phone
+          // unlocked -- is when a browser may have paused it, so each of them
+          // tries again. A refusal is forgotten then too: one given while the
+          // page was half-hidden says nothing about now, and while it stood the
+          // watchdog below would not act.
+          function again() {
+            refused = false;
+            tries = 0;
+            if (v.paused) attempt();
+          }
           document.addEventListener("visibilitychange", function () {
-            if (!document.hidden && v.paused) attempt();
+            if (!document.hidden) again();
           });
-          // Coming back with the Back button restores the page as it was left,
-          // video paused, and Safari does not always count that as being seen.
-          window.addEventListener("pageshow", function (e) {
-            if (e.persisted && v.paused) attempt();
-          });
+          window.addEventListener("pageshow", again);
+          window.addEventListener("focus", again);
           // iOS Low Power Mode (and some Android battery savers) refuse autoplay
           // entirely until the user interacts. Every tap or click tries again
-          // until it plays -- not just the first, which is as often a swipe to
-          // scroll, and a swipe is not leave to start a video -- and the first
-          // scroll once. A tap counts at its touchend: browsers let a touch
-          // start video only once it ends. Once it plays they stop listening;
-          // the loop has no controls, so there is no pause of the reader's to
-          // fight.
+          // while it is not playing -- not just the first, which is as often a
+          // swipe to scroll, and a swipe is not leave to start a video -- and
+          // so does scrolling, at most once a second. A tap counts at its
+          // touchend: browsers let a touch start video only once it ends. They
+          // keep listening after it has played, because the phone can stop it
+          // again later; the loop has no controls, so a paused film is never
+          // the reader's own choice.
           function kick() {
             if (v.paused) attempt();
           }
-          window.addEventListener("scroll", kick, { passive: true, once: true });
+          var scrolled = 0;
+          window.addEventListener("scroll", function () {
+            var now = Date.now();
+            if (now - scrolled < 1000) return;
+            scrolled = now;
+            kick();
+          }, { passive: true });
           window.addEventListener("touchend", kick, { passive: true });
           window.addEventListener("click", kick);
-          v.addEventListener("playing", function () {
-            window.removeEventListener("touchend", kick);
-            window.removeEventListener("click", kick);
-          });
           // A reload always started a film that had stuck -- on the still, or
           // part-way -- so the page does what the reload did. Every two
           // seconds it looks to see the film moving, or more of it arriving
           // (a slow connection is not a stuck one); if neither has happened
           // for six seconds while it should be playing, its source is loaded
-          // afresh and it is asked again, three times at most. Not while it is out of sight or
+          // afresh and it is asked again, three times at most for each stall. Not while it is out of sight or
           // the tab is hidden (a browser may pause it then), nor while the
           // browser has refused it, which only a tap changes.
           var seen = true;
@@ -829,8 +845,12 @@ animation:marquee-scroll 70s linear infinite;
               seen = entries[0].isIntersecting;
             }).observe(v);
           }
-          var last = -1, got = -1, still = 0, tries = 0;
-          var watch = setInterval(function () {
+          var last = -1, got = -1, still = 0;
+          v.addEventListener("playing", function () {
+            refused = false;
+            tries = 0;
+          });
+          setInterval(function () {
             var b = v.buffered, have = b.length ? b.end(b.length - 1) : 0;
             if (document.hidden || !seen || refused || v.currentTime !== last || have !== got) {
               last = v.currentTime;
@@ -841,7 +861,8 @@ animation:marquee-scroll 70s linear infinite;
             still += 2;
             if (still < 6) return;
             still = 0;
-            if (++tries > 3) return clearInterval(watch);
+            if (tries >= 3) return;
+            tries++;
             v.load();
             attempt();
           }, 2000);
