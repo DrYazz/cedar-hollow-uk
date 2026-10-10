@@ -21,3 +21,16 @@
 @media screen and (max-width:767px){
   .section-footer .footer_content-right:not(.is-bottom){gap:1.5rem 1.25rem}
 }
+
+/* Every Cedar Hollow Dorset page wears the home page's moss footer with cream
+   type, so a reader can tell the Dorset pages from the Oxford ones at the foot
+   of any page. Before, the home page was moss, most pages near-black and the
+   newest pale. The pages set their footers in several places (dorset-pages.css,
+   a page's own <style>, the Oxford sheet the newest pages borrow), so these
+   rules are written to outrank all of them: body plus the class twice. */
+body .section-footer.section-footer{background-color:var(--accent,#3b4126);color:var(--brand,#efeed5)}
+body .section-footer.section-footer .footer_link,
+body .section-footer.section-footer .social-link-item,
+body .section-footer.section-footer a{color:var(--brand,#efeed5)}
+body .section-footer.section-footer .footer_link:after{background:var(--brand,#efeed5)}
+body .section-footer.section-footer .footer_logo_wrap{color:#efeed51f}
