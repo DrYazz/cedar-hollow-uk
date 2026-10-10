@@ -25,6 +25,10 @@
 # lists with their calendars; the stays page is now the only one.
 /dorset-retreats.html  /dorset-stays.html  301
 
+# Compare the Treehouses: the stays page shows the three side by side, so the
+# comparison page forwards there (and stays as an address for mallinson.co.uk).
+/dorset-compare.html  /dorset-stays.html  301
+
 # One press page, for both woodlands: the two woodland press pages forward to it.
 /oxford-press.html  /press.html  301
 /dorset-press.html  /press.html  301
@@ -94,7 +98,7 @@
 /cookies                     /cookies.html                                   301
 /design-a-treehouse          /design-a-treehouse.html                        301
 /detail_properties           /search-results.html                            301
-/dorset-compare              /dorset-compare.html                            301
+/dorset-compare              /dorset-stays.html                              301
 /dorset-contact              /dorset-contact.html                            301
 /dorset-dazzle-manual        /dorset-dazzle-manual.html                      301
 /dorset-dazzle-treehouse     /dorset-dazzle-treehouse.html                   301
