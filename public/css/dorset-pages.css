@@ -369,6 +369,7 @@
 .dp-faq__body p { margin: 0 0 .9rem; }
 .dp-faq__body p:last-child { margin-bottom: 0; }
 .dp-faq__body ul { margin: 0 0 .9rem; padding-left: 1.25rem; }
+.dp-faq__body a { color: var(--dp-accent); text-decoration: underline; text-underline-offset: .18em; }
 .dp-faq__body li { margin-bottom: .4rem; }
 
 /* --- Figure / gallery ---------------------------------------------------- */
