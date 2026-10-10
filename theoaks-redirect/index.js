@@ -1,5 +1,6 @@
 /*
- * theoaks.uk -- the old Oxford site, forwarded to cedarhollow.uk.
+ * theoaks.uk -- the old Oxford site, forwarded to cedarhollow.uk. And
+ * theoaks.co.uk, which showed the same Wix site, the same way.
  *
  * theoaks.uk was Cedar Hollow Oxford's site, built on Wix, until October
  * 2026. Every page on it has an equivalent here, and this Worker answers
