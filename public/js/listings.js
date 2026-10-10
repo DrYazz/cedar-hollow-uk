@@ -7,7 +7,8 @@
  *
  * To add or edit a property, change the LISTINGS array below. Every field is
  * plain data; `nameHtml` carries the italic styling used in headings, while
- * `name` is the plain-text version used for matching.
+ * `name` is the plain-text version used for matching. `pageUrl`, where a
+ * retreat has a page of its own, gives its card a More info button.
  */
 (function () {
   "use strict";
@@ -209,7 +210,8 @@
       longDescription:
         "RIBA South West award winner, 2016. A circular central room with a rotating wood burner, king bed, full kitchen and roll-top bath; upper deck with sauna and hot tub, plus a wood-fired pizza oven and an outdoor tree shower.",
       calendarUrl: "https://checked.in/widget/booking-calendar/the-woodsmans-treehouse?preset=cedarhollow",
-      bookingUrl: "https://cedarhollowdorset.checked.in/book/the-woodsmans-treehouse"
+      bookingUrl: "https://cedarhollowdorset.checked.in/book/the-woodsmans-treehouse",
+      pageUrl: "dorset-woodsmans-treehouse.html"
     },
     {
       id: "dazzle-treehouse",
@@ -266,7 +268,8 @@
       longDescription:
         "RIBA South West award winner, 2023. Ship-themed throughout, from gangplank entry to glass spine and yacht-deck floors, with a wood-fired hot tub, pizza oven, ceramic wood-burning stove and a cargo-net day bed suspended above the stream.",
       calendarUrl: "https://checked.in/widget/booking-calendar/dazzle-treehouse?preset=cedarhollow",
-      bookingUrl: "https://cedarhollowdorset.checked.in/book/dazzle-treehouse"
+      bookingUrl: "https://cedarhollowdorset.checked.in/book/dazzle-treehouse",
+      pageUrl: "dorset-dazzle-treehouse.html"
     },
     {
       id: "pinwheel-treehouse",
@@ -349,7 +352,8 @@
       longDescription:
         "RIBA South West award-winning architecture by Guy Mallinson and Keith Brownlie. Ceramic wood-burning stove, wood-fired pizza oven, outdoor hot tub and a two-person swing. Featured in The World’s Most Secret Hotels.",
       calendarUrl: "https://checked.in/widget/booking-calendar/pinwheel-treehouse?preset=cedarhollow",
-      bookingUrl: "https://cedarhollowdorset.checked.in/book/pinwheel-treehouse"
+      bookingUrl: "https://cedarhollowdorset.checked.in/book/pinwheel-treehouse",
+      pageUrl: "dorset-pinwheel-treehouse.html"
     }
   ];
 

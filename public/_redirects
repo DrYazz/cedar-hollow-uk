@@ -18,8 +18,12 @@
 /dorset-local-information.html  /dorset-doorstep.html  301
 
 # Seasons & Prices: prices are shown on the booking calendar only, and the rest
-# of the page moved into the Dorset FAQ. The address forwards to the rentals page.
-/dorset-prices.html  /dorset-retreats.html  301
+# of the page moved into the Dorset FAQ. The address forwards to the stays page.
+/dorset-prices.html  /dorset-stays.html  301
+
+# The Dorset retreats page summarised the three treehouses that dorset-stays.html
+# lists with their calendars; the stays page is now the only one.
+/dorset-retreats.html  /dorset-stays.html  301
 
 # One press page, for both woodlands: the two woodland press pages forward to it.
 /oxford-press.html  /press.html  301
@@ -106,8 +110,8 @@
 /dorset-pre-arrival          /dorset-pre-arrival.html                        301
 /dorset-press-enquiries      /dorset-press-enquiries.html                    301
 /dorset-press                /press.html                              301
-/dorset-prices               /dorset-retreats.html                           301
-/dorset-retreats             /dorset-retreats.html                           301
+/dorset-prices               /dorset-stays.html                              301
+/dorset-retreats             /dorset-stays.html                              301
 /dorset-reviews              /reviews.html                            301
 /dorset-stays                /dorset-stays.html                              301
 /dorset-sustainability       /dorset-sustainability.html                     301
