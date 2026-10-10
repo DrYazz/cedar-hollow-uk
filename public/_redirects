@@ -14,6 +14,9 @@
 /oxford/sustainability.html  /sustainability.html#oxford  301
 /oxford/index2.html          /oxford.html                 301
 
+# The Dorset local area page was folded into On Our Doorstep and Dining.
+/dorset-local-information.html  /dorset-doorstep.html  301
+
 # One press page, for both woodlands: the two woodland press pages forward to it.
 /oxford-press.html  /press.html  301
 /dorset-press.html  /press.html  301
@@ -92,7 +95,7 @@
 /dorset-gift-certificates    /search-results.html?destination=Dorset         301
 /dorset-guest-information    /dorset-guest-information.html                  301
 /dorset-information          /dorset-information.html                        301
-/dorset-local-information    /dorset-local-information.html                  301
+/dorset-local-information    /dorset-doorstep.html                           301
 /dorset-pinwheel-manual      /dorset-pinwheel-manual.html                    301
 /dorset-pinwheel-treehouse   /dorset-pinwheel-treehouse.html                 301
 /dorset-pizza-oven           /dorset-pizza-oven.html                         301
