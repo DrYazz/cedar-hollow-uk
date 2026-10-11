@@ -88,8 +88,7 @@
           "title": "Rubbish and waste",
           "items": [
             { "role": "Rubbish collection", "name": "ClearABee", "links": [{ "label": "Website", "url": "https://www.clearabee.co.uk" }] },
-            { "role": "Rubbish collection", "name": "AnyJunk", "links": [{ "label": "Website", "url": "https://www.anyjunk.co.uk/" }, { "label": "Customer portal", "url": "https://portal.anyjunk.co.uk/login" }] },
-            { "role": "Rubbish collection", "name": "Litta", "links": [{ "label": "Website", "url": "https://litta.co.uk" }] }
+            { "role": "Waste and recycling", "name": "Biffa", "links": [{ "label": "Website", "url": "https://www.biffa.co.uk" }] }
           ]
         },
         {
