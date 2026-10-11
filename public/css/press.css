@@ -38,6 +38,14 @@
   padding: 3.5rem 0 0;
 }
 
+/* Every section the bar can open onto is cream like the band, and brings its
+   own space above it, except Familiar Faces, which is dark green. With only
+   that one showing, the band needs space of its own underneath, or the
+   pressed button sits right on the edge of the green. */
+.ch-press__filters:has([data-filter="faces"][aria-pressed="true"]) {
+  padding-bottom: 3rem;
+}
+
 .ch-press__filter {
   display: flex;
   flex-wrap: wrap;
