@@ -116,6 +116,9 @@
        under every kind of colour blindness, 3:1 against the card -- and keeps
        clear of the scan charts' gold, which there means "so far". */
     .sales-sum { margin: -4px 0 12px; color: var(--text); }
+    .sales-pick { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; margin: 18px 0 12px; }
+    .sales-pick label { font: 600 .75rem/1.2 system-ui, sans-serif; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+    .sales-pick select { font: inherit; padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--text); max-width: 100%; }
     .sales-legend { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 0 0 10px; font-size: .8rem; color: var(--text); }
     .sales-legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
     .sales-legend i.is-box, .sales-seg.is-box { background: #c0841a; }
@@ -169,6 +172,10 @@
       <p class="sub">Visits to cedarhollow.uk/honey, the page the code on the honesty box opens. Counted on their own, and in none of the other tabs.</p>
       <div class="honey-stats" id="honey-stats"><p class="note">Loading…</p></div>
       <p class="note" id="honey-note"></p>
+      <div class="sales-pick">
+        <label for="honey-sales-item">Honey sales for</label>
+        <select id="honey-sales-item" disabled><option value="">All honey products</option></select>
+      </div>
       <section class="panel">
         <h2>Honey sales each month, last 12 months</h2>
         <p class="sales-sum" id="honey-sales-year-sum"></p>
@@ -249,7 +256,7 @@
   </div>
   <script src="/js/vendor/leaflet-1.9.4/leaflet.js"></script>
   <script src="/wdtcf/map.js?v=3"></script>
-  <script src="/wdtcf/honey.js?v=6"></script>
+  <script src="/wdtcf/honey.js?v=7"></script>
   <script src="/wdtcf/stats.js?v=5"></script>
 </body>
 </html>

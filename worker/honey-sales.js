@@ -20,6 +20,9 @@
  * product, table and day, from the first of the month eleven months back to
  * today. It is kept for five minutes, so the tab, which asks again every five
  * minutes while it is open, is never what keeps MenuLab busy.
+ *
+ * Each item's own months and days come too (items), so the tab's item list
+ * can show any one of them without asking again.
  */
 
 const SALES_API = "https://app.menulab.com/api/business/theoaks/sales/summary";
@@ -71,36 +74,45 @@ function failure(status, body) {
   return `MenuLab's sales API answered ${status}.`;
 }
 
-// Sums the summary's rows into the two charts. Exported for testing.
+// Sums the summary's rows into the two charts: for all the honey together,
+// and for each item on its own. Exported for testing.
 export function shape(rows, today) {
   const months = lastTwelveMonths(today);
   const days = [];
   for (let i = 6; i >= 0; i--) days.push(addDays(today, -i));
   const blank = () => ({ hbUnits: 0, hbPence: 0, units: 0, pence: 0 });
-  const byMonth = Object.fromEntries(months.map((m) => [m, blank()]));
-  const byDay = Object.fromEntries(days.map((d) => [d, blank()]));
-  const products = new Set();
+  const sheet = () => ({
+    byMonth: Object.fromEntries(months.map((m) => [m, blank()])),
+    byDay: Object.fromEntries(days.map((d) => [d, blank()])),
+  });
+  const all = sheet();
+  const items = new Map();
   for (const r of rows) {
     if (!isHoney(r.product_name)) continue;
     const units = Number(r.net_units || 0);
     const value = pence(r.net_revenue);
+    if (!units && !value) continue;
     const box = String(r.table_id) === HONESTY_BOX;
-    for (const slot of [byMonth[String(r.trading_date).slice(0, 7)], byDay[r.trading_date]]) {
-      if (!slot) continue;
-      slot.units += units;
-      slot.pence += value;
-      if (box) {
-        slot.hbUnits += units;
-        slot.hbPence += value;
+    if (!items.has(r.product_name)) items.set(r.product_name, sheet());
+    for (const target of [all, items.get(r.product_name)]) {
+      for (const slot of [target.byMonth[String(r.trading_date).slice(0, 7)], target.byDay[r.trading_date]]) {
+        if (!slot) continue;
+        slot.units += units;
+        slot.pence += value;
+        if (box) {
+          slot.hbUnits += units;
+          slot.hbPence += value;
+        }
       }
     }
-    if (units || value) products.add(r.product_name);
   }
   const row = (key, s) => [key, s.hbUnits, s.hbPence, s.units, s.pence];
+  const lay = (t) => ({ months: months.map((m) => row(m, t.byMonth[m])), days: days.map((d) => row(d, t.byDay[d])) });
+  const names = [...items.keys()].sort((a, b) => a.localeCompare(b));
   return {
-    months: months.map((m) => row(m, byMonth[m])),
-    days: days.map((d) => row(d, byDay[d])),
-    products: [...products].sort((a, b) => a.localeCompare(b)),
+    ...lay(all),
+    products: names,
+    items: names.map((name) => ({ name, ...lay(items.get(name)) })),
   };
 }
 
