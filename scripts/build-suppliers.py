@@ -9,7 +9,8 @@ secret, so it has no password; logins and passwords are never put in the data.
 
 The page is complete without its script: every supplier is in the HTML, by
 woodland and by section. The script adds the two tabs (Oxford, Dorset) and the
-search, which looks through both woodlands at once.
+search, which looks through both woodlands at once. A mobile number has a
+WhatsApp button beside its Call button.
 
 To add or change a supplier, edit docs/suppliers.json and run:
     python scripts/build-suppliers.py
@@ -32,6 +33,18 @@ def tel(number):
     return "tel:" + re.sub(r"[^\d+]", "", number)
 
 
+# A UK mobile (07...) can be messaged on WhatsApp: wa.me wants it in full
+# international form without the plus (447...). A landline cannot, and gets
+# only the call.
+def whatsapp(number):
+    digits = re.sub(r"\D", "", number)
+    if len(digits) == 11 and digits.startswith("07"):
+        return "https://wa.me/44" + digits[1:]
+    if len(digits) == 12 and digits.startswith("447"):
+        return "https://wa.me/" + digits
+    return None
+
+
 def nice_date(iso):
     import datetime
     d = datetime.date.fromisoformat(iso)
@@ -46,8 +59,11 @@ def card(item, section_title):
     for p in item.get("phones", []):
         label, number = (p.get("label"), p["number"]) if isinstance(p, dict) else (None, p)
         words.append(number)
-        actions.append('<a class="act is-call" href="%s"><span class="act-k">Call%s</span> %s</a>'
-                       % (e(tel(number)), " " + e(label) if label else "", e(number)))
+        call = ('<a class="act is-call" href="%s"><span class="act-k">Call%s</span> <span class="act-tel">%s</span></a>'
+                % (e(tel(number)), " " + e(label) if label else "", e(number)))
+        wa = whatsapp(number)
+        actions.append('<div class="act-pair">%s<a class="act is-wa" href="%s" target="_blank" rel="noopener" aria-label="WhatsApp %s"><span class="act-k">WhatsApp</span></a></div>'
+                       % (call, e(wa), e(number)) if wa else call)
     for m in item.get("emails", []):
         href = "mailto:" + m["address"] + ("?subject=" + quote(m["subject"]) if m.get("subject") else "")
         words.append(m["address"])
@@ -152,9 +168,16 @@ TEMPLATE = """<!DOCTYPE html>
     .sup-name { margin: 2px 0 0; font: 400 1.35rem/1.2 "Crimson Pro", Georgia, serif; color: var(--ink); }
     .sup-people { margin: 2px 0 0; }
     .sup-acts { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
-    .act { display: flex; align-items: baseline; gap: 8px; min-height: 44px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; text-decoration: none; color: var(--text); overflow-wrap: anywhere; }
+    .act { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; min-height: 44px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; text-decoration: none; color: var(--text); overflow-wrap: anywhere; }
     .act:hover { border-color: var(--ink); }
     .act-k { flex: none; font-weight: 600; color: var(--ink); }
+    /* A mobile number: the call, and beside it WhatsApp. */
+    /* A number stays whole: it moves under "Call" rather than breaking, and
+       on the narrowest phones WhatsApp takes a line of its own. */
+    .act-tel { white-space: nowrap; }
+    .act-pair { display: flex; flex-wrap: wrap; gap: 6px; }
+    .act-pair .is-call { flex: 1 1 13rem; min-width: 0; }
+    .act-pair .is-wa { flex: 0 0 auto; }
     .sup-note { margin: 10px 0 0; font-size: .9rem; color: var(--muted); }
     .none { margin: 18px 0; color: var(--muted); }
     footer { margin: 40px 0; font-size: .85rem; color: var(--muted); }

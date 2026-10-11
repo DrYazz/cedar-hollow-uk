@@ -52,7 +52,7 @@
           "items": [
             { "role": "Wi-Fi", "name": "Oxford IT Solutions", "people": "Rob", "phones": ["01865 364 995"], "emails": [{ "address": "hello@oxforditsolutions.com", "subject": "Wifi issue at The Oaks" }] },
             { "role": "Control4 (lights, sound, controls)", "name": "iHav", "people": "Jason", "phones": ["07437 515 151"], "emails": [{ "address": "jason@i-hav.co.uk" }] },
-            { "role": "VR walkabout", "name": "Pete", "emails": [{ "address": "pcampbell@a1-designs.co.uk" }] },
+            { "role": "VR and 360 virtual tours", "name": "Magic Hour 360", "people": "Charlie", "phones": [{ "label": "Charlie", "number": "0780 1135 687" }], "emails": [{ "label": "Aimee", "address": "aimee.squires@magichour360.com" }], "links": [{ "label": "Website", "url": "https://magichour360.com" }] },
             { "role": "Encryption app", "name": "Nissi" },
             { "role": "Reviews widget", "name": "Repuso", "links": [{ "label": "Website", "url": "https://repuso.com" }], "note": "Account: enquiries@cedarhollow.uk" },
             { "role": "Video editing", "name": "Clideo", "links": [{ "label": "Website", "url": "https://clideo.com" }] },
@@ -70,7 +70,7 @@
           "items": [
             { "role": "BBQ gas (Calor)", "name": "Harringtons Reading", "people": "Mark", "phones": ["0118 924 2888"], "emails": [{ "address": "info@harringtonsreading.co.uk", "subject": "15 5kg Calor Gas Cannister for The Oaks" }], "links": [{ "label": "Website", "url": "https://www.harringtonsreading.co.uk/" }] },
             { "role": "Bell tents", "name": "Bell Tent Bliss", "links": [{ "label": "Website", "url": "https://www.belltentbliss.co.uk/" }] },
-            { "role": "Botanical scents (shop)", "name": "Ella Rose, Leafology", "people": "Yvonne Eller", "phones": ["07950 777 972"], "emails": [{ "address": "hello@leafology.co.uk" }], "links": [{ "label": "Website", "url": "http://www.leafology.co.uk" }] },
+            { "role": "Pillow sprays", "name": "Ella Rose, Leafology", "people": "Yvonne Eller", "phones": ["07950 777 972"], "emails": [{ "address": "hello@leafology.co.uk" }], "links": [{ "label": "Website", "url": "http://www.leafology.co.uk" }] },
             { "role": "Wine (shop)", "name": "Chiltern Valley Winery", "people": "Donald", "phones": ["07748 843 586"], "links": [{ "label": "Website", "url": "https://www.chilternvalley.co.uk/" }] },
             { "role": "Champagne flutes", "name": "Keep it Personal", "links": [{ "label": "Website", "url": "https://www.keepitpersonal.co.uk/" }] },
             { "role": "Honey", "name": "Maurice Leen", "emails": [{ "address": "mo.leen321@gmail.com" }] },
@@ -88,8 +88,7 @@
           "title": "Rubbish and waste",
           "items": [
             { "role": "Rubbish collection", "name": "ClearABee", "links": [{ "label": "Website", "url": "https://www.clearabee.co.uk" }] },
-            { "role": "Rubbish collection", "name": "AnyJunk", "links": [{ "label": "Website", "url": "https://www.anyjunk.co.uk/" }, { "label": "Customer portal", "url": "https://portal.anyjunk.co.uk/login" }] },
-            { "role": "Rubbish collection", "name": "Litta", "links": [{ "label": "Website", "url": "https://litta.co.uk" }] }
+            { "role": "Waste and recycling", "name": "Biffa", "links": [{ "label": "Website", "url": "https://www.biffa.co.uk" }] }
           ]
         },
         {
