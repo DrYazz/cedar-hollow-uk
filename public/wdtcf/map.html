@@ -112,21 +112,18 @@
     @media (max-width: 600px) { .honey-key { grid-template-columns: 1fr; } }
     .honey-went .honey-group th { padding-top: 16px; color: var(--ink); letter-spacing: .04em; }
     @media (max-width: 600px) { .honey-stats { grid-template-columns: 1fr; } }
-    /* Honey sales: the Honesty Box in amber at the foot of each column, every
-       other table in blue above it. The pair passes the colour checks -- apart
-       under every kind of colour blindness, 3:1 against the card -- and keeps
-       clear of the scan charts' gold, which there means "so far". */
+    /* Honey sales: two lists to choose what is shown, a column chart for the
+       months and another for the days, and the figures in tables. */
     .sales-sum { margin: -4px 0 12px; color: var(--text); }
     .sales-pick { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; margin: 18px 0 12px; }
     .sales-pick label { font: 600 .75rem/1.2 system-ui, sans-serif; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
     .sales-pick select { font: inherit; padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--text); max-width: 100%; }
-    .sales-legend { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 0 0 10px; font-size: .8rem; color: var(--text); }
-    .sales-legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
-    .sales-legend i.is-box, .sales-seg.is-box { background: #c0841a; }
-    .sales-legend i.is-rest, .sales-seg.is-rest { background: #1f78a8; }
-    .sales-stack { display: flex; flex-direction: column; gap: 2px; width: 70%; }
-    .sales-seg { display: block; min-height: 2px; }
-    .sales-seg:first-child { border-radius: 3px 3px 0 0; }
+    /* One series at a time: all the tables in blue, the Honesty Box alone in
+       amber. Each passes 3:1 against the card, and neither is the scan
+       charts' gold, which there means "so far". */
+    .sales-bar { display: block; width: 70%; border-radius: 3px 3px 0 0; }
+    .sales-bar.is-all { background: #1f78a8; }
+    .sales-bar.is-box { background: #c0841a; }
     #honey-sales-months, #honey-sales-days { padding-bottom: 24px; }
     #honey-sales-months .note, #honey-sales-days .note { margin-top: 26px; }
     .sales-table { margin-top: 14px; }
@@ -176,6 +173,8 @@
       <div class="sales-pick">
         <label for="honey-sales-item">Honey sales for</label>
         <select id="honey-sales-item" disabled><option value="jars">Summer, Spring and Creamed honey</option></select>
+        <label for="honey-sales-where">at</label>
+        <select id="honey-sales-where" disabled><option value="all" selected>All tables</option><option value="box">Honesty Box only</option></select>
       </div>
       <section class="panel">
         <h2>Honey sales each month, last 12 months</h2>
@@ -257,7 +256,7 @@
   </div>
   <script src="/js/vendor/leaflet-1.9.4/leaflet.js"></script>
   <script src="/wdtcf/map.js?v=3"></script>
-  <script src="/wdtcf/honey.js?v=9"></script>
+  <script src="/wdtcf/honey.js?v=10"></script>
   <script src="/wdtcf/stats.js?v=5"></script>
 </body>
 </html>
