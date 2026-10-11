@@ -52,7 +52,7 @@
           "items": [
             { "role": "Wi-Fi", "name": "Oxford IT Solutions", "people": "Rob", "phones": ["01865 364 995"], "emails": [{ "address": "hello@oxforditsolutions.com", "subject": "Wifi issue at The Oaks" }] },
             { "role": "Control4 (lights, sound, controls)", "name": "iHav", "people": "Jason", "phones": ["07437 515 151"], "emails": [{ "address": "jason@i-hav.co.uk" }] },
-            { "role": "VR walkabout", "name": "Pete", "emails": [{ "address": "pcampbell@a1-designs.co.uk" }] },
+            { "role": "VR and 360 virtual tours", "name": "Magic Hour 360", "people": "Charlie", "phones": [{ "label": "Charlie", "number": "0780 1135 687" }], "emails": [{ "label": "Aimee", "address": "aimee.squires@magichour360.com" }], "links": [{ "label": "Website", "url": "https://magichour360.com" }] },
             { "role": "Encryption app", "name": "Nissi" },
             { "role": "Reviews widget", "name": "Repuso", "links": [{ "label": "Website", "url": "https://repuso.com" }], "note": "Account: enquiries@cedarhollow.uk" },
             { "role": "Video editing", "name": "Clideo", "links": [{ "label": "Website", "url": "https://clideo.com" }] },
