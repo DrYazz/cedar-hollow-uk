@@ -13,7 +13,8 @@
  * And honey sold, from MenuLab, by /wdtcf/honey-sales: the last twelve
  * months month by month and the last seven days day by day, each column
  * the Honesty Box (table 10, amber) under every other table (blue), with
- * the total above it and the exact figures in a table beneath.
+ * the total above it and the exact figures in a table beneath. The list
+ * above them picks the item: all the honey together, or any one item.
  */
 (function () {
   "use strict";
@@ -28,7 +29,7 @@
   var MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   var WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   var EVERY = 5 * 60 * 1000;
-  var state = { year: null, at: 0 };
+  var state = { year: null, at: 0, item: "", sales: null };
 
   // Where a visit went, in words: a link by its host and path, a page by its
   // name where it has an obvious one, else its address.
@@ -136,20 +137,20 @@
     }, [0, 0, 0, 0]);
   }
 
-  function summary(rows, span) {
+  function summary(rows, span, what) {
     var t = total(rows);
-    return money.format(t[3] / 100) + " of honey (" + sold(t[2]) + ") at all tables " + span + ", " +
+    return money.format(t[3] / 100) + " of " + what + " (" + sold(t[2]) + ") at all tables " + span + ", " +
       money.format(t[1] / 100) + " of it (" + sold(t[0]) + ") at the Honesty Box.";
   }
 
   // Columns like the scan charts', each a stack: the Honesty Box at the foot
   // in amber, every other table above it in blue, a 2px gap between, and the
   // total over the top. A quiet day or month says £0 rather than leaving a gap.
-  function salesChart(rows, short, long, week) {
+  function salesChart(rows, short, long, week, what) {
     var most = Math.max.apply(null, rows.map(function (r) { return r[4]; }).concat([0])) || 1;
     var chart = el("div", null, "honey-chart sales-chart" + (week ? " is-week" : ""));
     chart.setAttribute("role", "img");
-    chart.setAttribute("aria-label", "Honey sales, Honesty Box and all tables: " + rows.map(function (r) {
+    chart.setAttribute("aria-label", "Sales of " + what + ", Honesty Box and all tables: " + rows.map(function (r) {
       return long(r[0]) + " " + money.format(r[4] / 100) + ", Honesty Box " + money.format(r[2] / 100);
     }).join("; "));
     rows.forEach(function (r) {
@@ -210,7 +211,36 @@
     return table;
   }
 
+  // The item list: all the honey together, then each item sold in these
+  // months by name. The choice stays put when the figures are fetched again,
+  // and falls back to all of it if that item has gone from the list.
+  function pickItem(d) {
+    var pick = $("honey-sales-item");
+    var names = (d.items || []).map(function (i) { return i.name; });
+    if (state.item && names.indexOf(state.item) < 0) state.item = "";
+    pick.replaceChildren();
+    [["", "All honey products"]].concat(names.map(function (n) { return [n, n]; })).forEach(function (o) {
+      var opt = el("option", o[1]);
+      opt.value = o[0];
+      if (o[0] === state.item) opt.selected = true;
+      pick.appendChild(opt);
+    });
+    pick.disabled = !names.length;
+  }
+
   function drawSales(d) {
+    state.sales = d;
+    pickItem(d);
+    drawItem();
+  }
+
+  function drawItem() {
+    var d = state.sales;
+    if (!d) return;
+    var item = null;
+    (d.items || []).forEach(function (i) { if (i.name === state.item) item = i; });
+    var rows = item || d;
+    var what = item ? item.name : "honey";
     var monthShort = function (k) { return MONTHS[Number(k.slice(5, 7)) - 1]; };
     var monthLong = function (k) {
       return MONTH_NAMES[Number(k.slice(5, 7)) - 1] + " " + k.slice(0, 4) + (k === d.today.slice(0, 7) ? " (so far)" : "");
@@ -223,14 +253,14 @@
       return new Date(k + "T00:00:00Z").toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" }) +
         (k === d.today ? " (so far)" : "");
     };
-    $("honey-sales-year-sum").textContent = summary(d.months, "over the last 12 months");
-    $("honey-sales-months").replaceChildren(legend(), salesChart(d.months, monthShort, monthLong, false));
+    $("honey-sales-year-sum").textContent = summary(rows.months, "over the last 12 months", what);
+    $("honey-sales-months").replaceChildren(legend(), salesChart(rows.months, monthShort, monthLong, false, what));
     $("honey-sales-months").appendChild(el("p", "The last month, " + MONTH_NAMES[Number(d.today.slice(5, 7)) - 1] + ", is the month so far.", "note"));
-    $("honey-sales-months-table").replaceChildren(salesTable(d.months, "Month", monthLong));
-    $("honey-sales-week-sum").textContent = summary(d.days, "in the last 7 days");
-    $("honey-sales-days").replaceChildren(legend(), salesChart(d.days, dayShort, dayLong, true));
+    $("honey-sales-months-table").replaceChildren(salesTable(rows.months, "Month", monthLong));
+    $("honey-sales-week-sum").textContent = summary(rows.days, "in the last 7 days", what);
+    $("honey-sales-days").replaceChildren(legend(), salesChart(rows.days, dayShort, dayLong, true, what));
     $("honey-sales-days").appendChild(el("p", "The last day is today so far.", "note"));
-    $("honey-sales-days-table").replaceChildren(salesTable(d.days, "Day", dayLong));
+    $("honey-sales-days-table").replaceChildren(salesTable(rows.days, "Day", dayLong));
     $("honey-sales-note").textContent =
       "From MenuLab: net sales, with refunds taken off and cancelled orders left out, on the venue\u2019s own trading days. " +
       "Honey is every product with \u201choney\u201d in its name, and Hive Mind Drink" +
@@ -405,6 +435,11 @@
     if (table.tBodies.length) went.appendChild(table);
     else went.appendChild(el("p", "Nowhere yet.", "empty"));
   }
+
+  $("honey-sales-item").addEventListener("change", function (e) {
+    state.item = e.target.value;
+    drawItem();
+  });
 
   // Called by stats.js whenever the tab is shown; fetched again if it is
   // older than five minutes.
