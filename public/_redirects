@@ -83,6 +83,12 @@
 # so the address stays /.
 /  /index.html  200
 
+# The team's suppliers page, at the address it was asked for: a rewrite, so
+# the address stays /staff/suppliers. The folder form forwards to it. See
+# scripts/build-suppliers.py.
+/staff/suppliers  /staff/suppliers.html  200
+/staff/suppliers/  /staff/suppliers  301
+
 # ---- Short and folder forms (added 2026-10-01, with html_handling = "none") ----
 # Pages are served at /page.html, the address every canonical and link uses.
 # These send the other spellings there permanently: /oxford/ and /dorset/,
