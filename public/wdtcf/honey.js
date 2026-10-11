@@ -11,11 +11,12 @@
  * minutes while it is in view.
  *
  * And honey sold, from MenuLab, by /wdtcf/honey-sales: the last twelve
- * months month by month and the last seven days day by day, each column
- * the Honesty Box (table 10, amber) under every other table (blue), with
- * the total above it and the exact figures in a table beneath. The list
- * above them picks the item: the jars of Summer, Spring and Creamed honey
- * together, which it opens on; all the honey together; or any one item.
+ * months month by month and the last seven days day by day, the total over
+ * each column and the exact figures in a table beneath. Two lists above
+ * them pick what is shown. The item: the jars of Summer, Spring and Creamed
+ * honey together, which it opens on; all the honey together; or any one
+ * item. And where: all the tables (blue), the Honesty Box among them, or
+ * the Honesty Box (table 10) alone (amber).
  */
 (function () {
   "use strict";
@@ -34,7 +35,9 @@
   // Creamed honey, under any of the names they have been sold under.
   var JARS = "jars";
   var IS_JAR = /\b(summer|spring|creamed) honey\b/i;
-  var state = { year: null, at: 0, item: JARS, sales: null };
+  var state = { year: null, at: 0, item: JARS, where: "all", sales: null };
+  // Where the sales were: [what it is called, the row's units and pence columns].
+  var WHERE = { all: ["all tables (Honesty Box included)", 3, 4], box: ["the Honesty Box", 1, 2] };
 
   // Where a visit went, in words: a link by its host and path, a page by its
   // name where it has an obvious one, else its address.
@@ -160,72 +163,46 @@
 
   function summary(rows, span, what) {
     var t = total(rows);
-    return money.format(t[3] / 100) + " of " + what + " (" + sold(t[2]) + ") at all tables " + span + ", " +
-      money.format(t[1] / 100) + " of it (" + sold(t[0]) + ") at the Honesty Box.";
+    var w = state.where === "box" ? [t[1], t[0]] : [t[3], t[2]];
+    return money.format(w[0] / 100) + " of " + what + " (" + sold(w[1]) + ") at " + WHERE[state.where][0] + " " + span + ".";
   }
 
-  // Columns like the scan charts', each a stack: the Honesty Box at the foot
-  // in amber, every other table above it in blue, a 2px gap between, and the
-  // total over the top. A quiet day or month says £0 rather than leaving a gap.
+  // Columns like the scan charts', one for each month or day: the sales at
+  // all the tables in blue, or at the Honesty Box alone in amber, with the
+  // pounds over the top. A quiet day or month says £0 rather than leaving a gap.
   function salesChart(rows, short, long, week, what) {
-    var most = Math.max.apply(null, rows.map(function (r) { return r[4]; }).concat([0])) || 1;
+    var u = WHERE[state.where][1], v = WHERE[state.where][2];
+    var most = Math.max.apply(null, rows.map(function (r) { return r[v]; }).concat([0])) || 1;
     var chart = el("div", null, "honey-chart sales-chart" + (week ? " is-week" : ""));
     chart.setAttribute("role", "img");
-    chart.setAttribute("aria-label", "Sales of " + what + ", Honesty Box and all tables: " + rows.map(function (r) {
-      return long(r[0]) + " " + money.format(r[4] / 100) + ", Honesty Box " + money.format(r[2] / 100);
+    chart.setAttribute("aria-label", "Sales of " + what + " at " + WHERE[state.where][0] + ": " + rows.map(function (r) {
+      return long(r[0]) + " " + money.format(r[v] / 100);
     }).join("; "));
     rows.forEach(function (r) {
-      var all = Math.max(0, r[4]);
-      var box = Math.min(all, Math.max(0, r[2]));
       var col = el("div", null, "honey-col");
       col.setAttribute("aria-hidden", "true");
-      col.title = long(r[0]) + ": " + money.format(r[4] / 100) + " (" + sold(r[3]) + ") at all tables, " +
-        money.format(r[2] / 100) + " (" + sold(r[1]) + ") at the Honesty Box";
-      col.appendChild(el("span", pounds.format(r[4] / 100), "honey-n"));
-      var stack = el("span", null, "sales-stack");
-      stack.style.height = (all ? Math.max(2, (all / most) * 100) : 0) + "%";
-      if (all - box > 0) {
-        var rest = el("span", null, "sales-seg is-rest");
-        rest.style.flexGrow = String(all - box);
-        stack.appendChild(rest);
-      }
-      if (box > 0) {
-        var hb = el("span", null, "sales-seg is-box");
-        hb.style.flexGrow = String(box);
-        stack.appendChild(hb);
-      }
-      col.appendChild(stack);
+      col.title = long(r[0]) + ": " + money.format(r[v] / 100) + " (" + sold(r[u]) + ")";
+      col.appendChild(el("span", pounds.format(r[v] / 100), "honey-n"));
+      var bar = el("span", null, "sales-bar is-" + state.where);
+      bar.style.height = (r[v] > 0 ? Math.max(2, (r[v] / most) * 100) : 0) + "%";
+      col.appendChild(bar);
       col.appendChild(el("span", short(r[0]), "honey-m"));
       chart.appendChild(col);
     });
     return chart;
   }
 
-  function legend() {
-    var key = el("div", null, "sales-legend");
-    key.setAttribute("aria-hidden", "true");
-    [["is-box", "Honesty Box (table 10)"], ["is-rest", "Every other table"]].forEach(function (k) {
-      var item = el("span");
-      item.appendChild(el("i", null, k[0]));
-      item.appendChild(document.createTextNode(k[1]));
-      key.appendChild(item);
-    });
-    return key;
-  }
-
   function salesTable(rows, head, long) {
+    var u = WHERE[state.where][1], v = WHERE[state.where][2];
     var table = el("table");
-    table.innerHTML = "<thead><tr><th>" + head + '</th><th class="n">Honesty Box</th><th class="n">All tables</th></tr></thead>';
+    table.innerHTML = "<thead><tr><th>" + head + '</th><th class="n">Sold</th><th class="n">Sales</th></tr></thead>';
     var body = el("tbody");
     rows.concat([["Total"].concat(total(rows))]).forEach(function (r, i) {
       var last = i === rows.length;
       var tr = el("tr", null, last ? "sales-total" : "");
       tr.appendChild(el("td", last ? "Total" : long(r[0])));
-      [[r[2], r[1]], [r[4], r[3]]].forEach(function (c) {
-        var cell = el("td", money.format(c[0] / 100), "n");
-        cell.appendChild(el("small", sold(c[1])));
-        tr.appendChild(cell);
-      });
+      tr.appendChild(el("td", number.format(r[u]), "n"));
+      tr.appendChild(el("td", money.format(r[v] / 100), "n"));
       body.appendChild(tr);
     });
     table.appendChild(body);
@@ -247,6 +224,7 @@
       pick.appendChild(opt);
     });
     pick.disabled = !names.length;
+    $("honey-sales-where").disabled = !names.length;
   }
 
   function drawSales(d) {
@@ -276,11 +254,11 @@
         (k === d.today ? " (so far)" : "");
     };
     $("honey-sales-year-sum").textContent = summary(rows.months, "over the last 12 months", what);
-    $("honey-sales-months").replaceChildren(legend(), salesChart(rows.months, monthShort, monthLong, false, what));
+    $("honey-sales-months").replaceChildren(salesChart(rows.months, monthShort, monthLong, false, what));
     $("honey-sales-months").appendChild(el("p", "The last month, " + MONTH_NAMES[Number(d.today.slice(5, 7)) - 1] + ", is the month so far.", "note"));
     $("honey-sales-months-table").replaceChildren(salesTable(rows.months, "Month", monthLong));
     $("honey-sales-week-sum").textContent = summary(rows.days, "in the last 7 days", what);
-    $("honey-sales-days").replaceChildren(legend(), salesChart(rows.days, dayShort, dayLong, true, what));
+    $("honey-sales-days").replaceChildren(salesChart(rows.days, dayShort, dayLong, true, what));
     $("honey-sales-days").appendChild(el("p", "The last day is today so far.", "note"));
     $("honey-sales-days-table").replaceChildren(salesTable(rows.days, "Day", dayLong));
     $("honey-sales-note").textContent =
@@ -463,6 +441,10 @@
 
   $("honey-sales-item").addEventListener("change", function (e) {
     state.item = e.target.value;
+    drawItem();
+  });
+  $("honey-sales-where").addEventListener("change", function (e) {
+    state.where = e.target.value === "box" ? "box" : "all";
     drawItem();
   });
 
