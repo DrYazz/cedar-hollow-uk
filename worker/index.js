@@ -290,7 +290,10 @@ const BOOKING_KEY = "booking:1:";
  *          path, or "email" or "phone"), once each
  *
  * Kept in VISITS_DB's honey table as a count per London day, kind and
- * target, and nothing else. GET /wdtcf/honey is what the tab draws.
+ * target, and nothing else -- but for the minute of each scan, London time,
+ * kept as kind "at" with the minute ("13:02") as its target, so the tab can
+ * say when today's scans were. Those go after a week. GET /wdtcf/honey is
+ * what the tab draws.
  *
  * GET /wdtcf/honey-sales is the tab's other half: honey sold, from MenuLab's
  * sales API, over the last twelve months and the last seven days, at the
@@ -718,16 +721,23 @@ async function handleHoney(request, url, env, ctx) {
   if (!env.VISITS_DB || NOT_A_VISITOR.test(request.headers.get("user-agent") || "")) {
     return new Response(null, { status: 204 });
   }
-  const day = isoDate(londonDate(Date.now()));
+  const now = Date.now();
+  const day = isoDate(londonDate(now));
+  const add = (k, t) =>
+    env.VISITS_DB.prepare(
+      "INSERT INTO honey (day, kind, target, n) VALUES (?, ?, ?, 1) ON CONFLICT (day, kind, target) DO UPDATE SET n = n + 1"
+    ).bind(day, k, t);
+  // A scan is also kept by its minute, for the tab's "today" times, and the
+  // minutes older than a week are let go as it is.
+  const p = londonParts(now);
+  const minute = `${String(p.hour).padStart(2, "0")}:${String(p.minute).padStart(2, "0")}`;
+  const writes =
+    kind === "scan"
+      ? [add(kind, target), add("at", minute), env.VISITS_DB.prepare("DELETE FROM honey WHERE kind = 'at' AND day < ?").bind(isoDate(londonDate(now) - 7 * DAY))]
+      : [add(kind, target)];
   ctx.waitUntil(
     honeyTable(env)
-      .then(() =>
-        env.VISITS_DB.prepare(
-          "INSERT INTO honey (day, kind, target, n) VALUES (?, ?, ?, 1) ON CONFLICT (day, kind, target) DO UPDATE SET n = n + 1"
-        )
-          .bind(day, kind, target)
-          .run()
-      )
+      .then(() => env.VISITS_DB.batch(writes))
       .catch((err) => console.error("[honey] could not count:", err && err.message ? err.message : err))
   );
   return new Response(null, { status: 204 });
@@ -748,7 +758,8 @@ function honeyTable(env) {
   return honeyReady;
 }
 
-// GET /wdtcf/honey?year=YYYY: scans (and visits that went on) today, in the
+// GET /wdtcf/honey?year=YYYY: scans (and visits that went on) today, and the
+// minute of each of today's scans; in the
 // last 7 and 30 days; the last 7 days' scans day by day, oldest first and
 // today last; the year's, month by month; each button's presses
 // over the same spans and the year; where the visits went from the honey
@@ -764,7 +775,7 @@ async function honeyData(url, env) {
   const month = isoDate(Date.parse(today) - 29 * DAY);
   const [from, to] = [`${year}-01-01`, `${year}-12-31`];
   const db = env.VISITS_DB;
-  const [totals, months, went, span, presses, daily] = await db.batch([
+  const [totals, months, went, span, presses, daily, times] = await db.batch([
     db
       .prepare(
         "SELECT kind, SUM(CASE WHEN day = ? THEN n ELSE 0 END) AS today, SUM(CASE WHEN day >= ? THEN n ELSE 0 END) AS week, " +
@@ -789,6 +800,7 @@ async function honeyData(url, env) {
       )
       .bind(today, week, month, from, to, month, from, to),
     db.prepare("SELECT day, SUM(n) AS n FROM honey WHERE kind = 'scan' AND day >= ? GROUP BY day").bind(week),
+    db.prepare("SELECT target, n FROM honey WHERE kind = 'at' AND day = ? ORDER BY target").bind(today),
   ]);
   const sums = { scan: { today: 0, week: 0, month: 0 }, on: { today: 0, week: 0, month: 0 } };
   for (const r of totals.results) sums[r.kind] = { today: r.today || 0, week: r.week || 0, month: r.month || 0 };
@@ -814,6 +826,7 @@ async function honeyData(url, env) {
     totals: sums,
     months: byMonth,
     days,
+    times: times.results.map((r) => [r.target, r.n || 0]),
     went: went.results.map((r) => [r.kind, r.target, r.recent || 0, r.year || 0]),
     presses: presses.results.map((r) => [r.target, r.today || 0, r.week || 0, r.month || 0, r.year || 0]),
   });

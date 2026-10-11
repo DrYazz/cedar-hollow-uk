@@ -79,6 +79,11 @@
     for (var i = 0; i < LINKS.length; i++) if (LINKS[i][0].test(target)) return LINKS[i][1];
     return target;
   }
+  // [["08:14", 1], ["13:02", 2]] as "08:14 and 13:02 (2 scans)".
+  function when(times) {
+    var parts = times.map(function (t) { return t[0] + (t[1] > 1 ? " (" + t[1] + " scans)" : ""); });
+    return parts.length > 1 ? parts.slice(0, -1).join(", ") + " and " + parts[parts.length - 1] : parts[0];
+  }
   function el(tag, text, cls) {
     var e = document.createElement(tag);
     if (text != null) e.textContent = text;
@@ -280,6 +285,8 @@
       card.appendChild(el("div", "scan" + (t.scan[s[1]] === 1 ? "" : "s") + " · " + s[0].toLowerCase(), "stat"));
       var on = t.on[s[1]];
       card.appendChild(el("div", t.scan[s[1]] ? number.format(on) + " went on from the page" : "", "honey-on"));
+      // Today's scans are few enough to list by the minute they came in.
+      if (s[1] === "today" && d.times && d.times.length) card.appendChild(el("div", "At " + when(d.times), "honey-times"));
       box.appendChild(card);
     });
     $("honey-note").textContent = d.first
