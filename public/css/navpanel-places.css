@@ -165,6 +165,107 @@
   }
 }
 
+/* --- The place switcher, phones only ------------------------------------- */
+
+/* Below 768px the panel shows one place at a time and this chooses which. It
+   is never drawn on a laptop, where both places fit side by side and a switch
+   would be a control with nothing to do. js/navpanel-switch.js unhides it and
+   adds .is-tabbed; without that script every group stays visible and the
+   panel is the plain list it was. */
+
+@media screen and (min-width: 768px) {
+  #ch-nav-menu.is-places .ch-navswitch { display: none; }
+}
+
+@media screen and (max-width: 767px) {
+  #ch-nav-menu.is-places .ch-navswitch {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: .3rem;
+    margin-bottom: .5rem;
+    padding: .3rem;
+    background: #f1ecdb1a;
+    border-radius: 999px;
+  }
+
+  /* Load-bearing. The rule above is an id plus two classes, which outranks
+     the browser's own [hidden]{display:none}, so without this the switcher
+     drew anyway on a phone with no JavaScript: a dead control above a panel
+     that still listed everything. Same trap the panel itself hit with
+     #ch-nav-menu[hidden]. */
+  #ch-nav-menu.is-places .ch-navswitch[hidden] { display: none; }
+
+  /* Each segment is at least as wide as its own label and the spare width is
+     shared out evenly, rather than three equal thirds: at 320px a third is
+     87px and "Cedar Hollow" needs 92, so equal thirds clipped it to an
+     ellipsis. Content-sized bases give it 110 there and still leave the other
+     two roomy. The ellipsis below stays as a backstop, nothing more. */
+  #ch-nav-menu.is-places .ch-navswitch__tab {
+    flex: 1 1 auto;
+    appearance: none;
+    -webkit-appearance: none;
+    border: 0;
+    background: none;
+    padding: 0 .4rem;
+    min-height: 2.75rem;
+    border-radius: 999px;
+    font: inherit;
+    font-size: .8125rem;
+    line-height: 1.2;
+    color: #f1ecdbc7;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+  }
+  #ch-nav-menu.is-places .ch-navswitch__tab[aria-checked="true"] {
+    background: #f1ecdb;
+    color: #3b4126;
+    font-weight: 500;
+  }
+  #ch-nav-menu.is-places .ch-navswitch__tab:focus-visible {
+    outline: 2px solid #f1ecdb;
+    outline-offset: 2px;
+  }
+
+  /* One place at a time, so one column and room for larger type. */
+  #ch-nav-menu.is-places.is-tabbed:not([hidden]) { grid-template-columns: 1fr; }
+
+  #ch-nav-menu.is-places.is-tabbed .ch-navgroup--place { display: none; }
+  #ch-nav-menu.is-places.is-tabbed[data-place="oxford"] .ch-navgroup--oxford,
+  #ch-nav-menu.is-places.is-tabbed[data-place="dorset"] .ch-navgroup--dorset { display: flex; }
+  #ch-nav-menu.is-places.is-tabbed .ch-navgroup--place a { font-size: 1.0625rem; }
+
+  /* The brand group has two forms. On a place, it stays the row of links
+     across the foot. On its own choice it becomes the list itself, at the
+     same size as a place's, and the place groups are hidden above it. The
+     attribute makes these outrank the row rules further up this file. */
+  #ch-nav-menu.is-places.is-tabbed[data-place="brand"] .ch-navgroup--brand {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    border-top: 0;
+    margin-top: 0;
+    padding-top: 0;
+  }
+  #ch-nav-menu.is-places.is-tabbed[data-place="brand"] .ch-navgroup--brand .ch-navgroup__title {
+    /* In a column the 100% basis of the row form shrinks to the text, which
+       left the rule under the title stopping short of the panel edge while
+       every place group's ran the full width. */
+    flex: 0 0 auto;
+    width: 100%;
+    margin-bottom: .35rem;
+    padding-bottom: .35rem;
+    border-bottom: 1px solid #f1ecdb26;
+  }
+  #ch-nav-menu.is-places.is-tabbed[data-place="brand"] .ch-navgroup--brand a {
+    display: flex;
+    font-size: 1.0625rem;
+  }
+  #ch-nav-menu.is-places.is-tabbed[data-place="brand"] .ch-navgroup--brand a:not(:last-child)::after {
+    content: none;
+  }
+}
+
 /* A 320px screen leaves 122px a column, which "Cedar Hollow Oxford" overruns
    at 15px. At 13px it is 125px and the gutters come in to clear it. The
    breakpoint is 352px rather than 360 so that a 360px Android, the commonest

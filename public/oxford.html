@@ -417,7 +417,7 @@ width:100%;
 }
 </script>
 <!-- /ch:schema -->
-<link href="css/navpanel-places.css?v=20261011a" rel="stylesheet" type="text/css">
+<link href="css/navpanel-places.css?v=20261011b" rel="stylesheet" type="text/css">
 </head>
 <body>
   <div class="page-style w-embed">
@@ -462,10 +462,15 @@ width:100%;
             <div class="ch-siteswitch"><a href="oxford.html" aria-current="page" class="ch-nav__logo"><img src="images/cedar-hollow-owl.svg" loading="eager" alt="Cedar Hollow Oxford" class="ch-nav__owl" width="36" height="45"><span class="ch-nav__wordmark">Oxford</span></a><button class="ch-siteswitch__caret" type="button" aria-expanded="false" aria-controls="ch-siteswitch-list"><span class="ch-nav__sr">Switch site</span><svg viewBox="0 0 12 8" width="12" height="8" fill="none" aria-hidden="true" focusable="false"><path d="M1 1.5 6 6.5l5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><ul class="ch-siteswitch__list" id="ch-siteswitch-list"><li><a href="dorset.html"><img src="images/cedar-hollow-owl.svg" alt="" aria-hidden="true" class="ch-nav__owl" width="36" height="45"><span class="ch-nav__wordmark">Dorset</span></a></li><li><a href="index.html"><img src="images/cedar-hollow-owl.svg" alt="" aria-hidden="true" class="ch-nav__owl" width="36" height="45"><span class="ch-nav__wordmark">Cedar Hollow</span></a></li></ul></div>
             <button class="ch-nav__toggle" type="button" aria-expanded="false" aria-controls="ch-nav-menu"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span><span class="ch-nav__sr">Menu</span></button>
           </nav>
-          <div class="ch-nav__menu is-places" id="ch-nav-menu" hidden>
+          <div class="ch-nav__menu is-places" id="ch-nav-menu" data-site="oxford" hidden>
             <a href="oxford.html" class="ch-nav__home" aria-current="page">Home</a>
             <a href="oxford-stays.html" class="ch-nav__book-cta"><span>Book your Stay</span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 17 12" fill="none" class="button_icon" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.2443 5.03644L9.48927 1.21321L10.6935 0L16.5 5.91195L10.6783 11.55L9.50444 10.3067L13.17 6.75673H0V5.03644H13.2443Z" fill="currentColor"/></svg></a>
-            <div class="ch-navgroup">
+            <div class="ch-navswitch" role="radiogroup" aria-label="Choose a place" hidden>
+              <button class="ch-navswitch__tab" type="button" role="radio" data-place="brand" aria-checked="false">Cedar Hollow</button>
+              <button class="ch-navswitch__tab" type="button" role="radio" data-place="oxford" aria-checked="false">Oxford</button>
+              <button class="ch-navswitch__tab" type="button" role="radio" data-place="dorset" aria-checked="false">Dorset</button>
+            </div>
+            <div class="ch-navgroup ch-navgroup--place ch-navgroup--oxford">
               <p class="ch-navgroup__title">Oxfordshire</p>
               <a href="oxford.html" aria-current="page">Cedar Hollow Oxford</a>
               <a href="oxford/facilities.html">Facilities</a>
@@ -475,7 +480,7 @@ width:100%;
               <a href="oxford/todo.html">On Our Doorstep</a>
               <a href="oxford/faq.html">FAQ</a>
             </div>
-            <div class="ch-navgroup">
+            <div class="ch-navgroup ch-navgroup--place ch-navgroup--dorset">
               <p class="ch-navgroup__title">Dorset</p>
               <a href="dorset.html">Cedar Hollow Dorset</a>
               <a href="dorset-stays.html">Rentals</a>
@@ -2260,5 +2265,6 @@ requestAnimationFrame(measureFPS)
 <script src="js/siteswitch.js?v=20261005a"></script>
 <script src="js/nav-follow.js?v=20261007c" defer></script>
   <script src="js/instagram-live.js?v=20261001b" type="text/javascript"></script>
+<script src="js/navpanel-switch.js?v=20261011a" defer></script>
 </body>
 </html>

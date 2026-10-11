@@ -251,14 +251,19 @@
     .ch-feature__credit a{color:#fff;text-decoration:none;text-shadow:0 1px 3px rgba(0,0,0,.85);opacity:.85}
     .ch-feature__credit a:hover{opacity:1;text-decoration:underline}
   </style>
-<link href="css/navpanel-places.css?v=20261011a" rel="stylesheet" type="text/css">
+<link href="css/navpanel-places.css?v=20261011b" rel="stylesheet" type="text/css">
 </head>
 <body class="cp">
 <a class="skip-link" href="#main">Skip to content</a>
-<section class="ch-page-hero has-image"><div class="ch-page-hero__bg"><img src="images/dorset/dining-hero-1600.webp" srcset="images/dorset/dining-hero-800.webp 800w, images/dorset/dining-hero-1600.webp 1500w" sizes="100vw" alt="Supper at sunset on Pinwheel&rsquo;s deck" loading="eager" decoding="async" width="1500" height="1000"></div><div class="ch-nav"><nav class="ch-nav__bar" aria-label="Main"><div class="ch-siteswitch"><a href="dorset.html" class="ch-nav__logo"><img src="images/cedar-hollow-owl.svg" loading="eager" alt="Cedar Hollow Dorset" class="ch-nav__owl" width="36" height="45"><span class="ch-nav__wordmark">Dorset</span></a><button class="ch-siteswitch__caret" type="button" aria-expanded="false" aria-controls="ch-siteswitch-list"><span class="ch-nav__sr sr-only">Switch site</span><svg viewBox="0 0 12 8" width="12" height="8" fill="none" aria-hidden="true" focusable="false"><path d="M1 1.5 6 6.5l5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><ul class="ch-siteswitch__list" id="ch-siteswitch-list"><li><a href="oxford.html"><img src="images/cedar-hollow-owl.svg" alt="" aria-hidden="true" class="ch-nav__owl" width="36" height="45"><span class="ch-nav__wordmark">Oxford</span></a></li><li><a href="index.html"><img src="images/cedar-hollow-owl.svg" alt="" aria-hidden="true" class="ch-nav__owl" width="36" height="45"><span class="ch-nav__wordmark">Cedar Hollow</span></a></li></ul></div><div class="ch-nav__right"><button class="ch-nav__toggle" type="button" aria-expanded="false" aria-controls="ch-nav-menu"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span><span class="ch-nav__sr sr-only">Menu</span></button></div></nav><div class="ch-nav__menu is-dropdown is-places" id="ch-nav-menu" hidden>
+<section class="ch-page-hero has-image"><div class="ch-page-hero__bg"><img src="images/dorset/dining-hero-1600.webp" srcset="images/dorset/dining-hero-800.webp 800w, images/dorset/dining-hero-1600.webp 1500w" sizes="100vw" alt="Supper at sunset on Pinwheel&rsquo;s deck" loading="eager" decoding="async" width="1500" height="1000"></div><div class="ch-nav"><nav class="ch-nav__bar" aria-label="Main"><div class="ch-siteswitch"><a href="dorset.html" class="ch-nav__logo"><img src="images/cedar-hollow-owl.svg" loading="eager" alt="Cedar Hollow Dorset" class="ch-nav__owl" width="36" height="45"><span class="ch-nav__wordmark">Dorset</span></a><button class="ch-siteswitch__caret" type="button" aria-expanded="false" aria-controls="ch-siteswitch-list"><span class="ch-nav__sr sr-only">Switch site</span><svg viewBox="0 0 12 8" width="12" height="8" fill="none" aria-hidden="true" focusable="false"><path d="M1 1.5 6 6.5l5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><ul class="ch-siteswitch__list" id="ch-siteswitch-list"><li><a href="oxford.html"><img src="images/cedar-hollow-owl.svg" alt="" aria-hidden="true" class="ch-nav__owl" width="36" height="45"><span class="ch-nav__wordmark">Oxford</span></a></li><li><a href="index.html"><img src="images/cedar-hollow-owl.svg" alt="" aria-hidden="true" class="ch-nav__owl" width="36" height="45"><span class="ch-nav__wordmark">Cedar Hollow</span></a></li></ul></div><div class="ch-nav__right"><button class="ch-nav__toggle" type="button" aria-expanded="false" aria-controls="ch-nav-menu"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span><span class="ch-nav__sr sr-only">Menu</span></button></div></nav><div class="ch-nav__menu is-dropdown is-places" id="ch-nav-menu" data-site="dorset" hidden>
             <a href="dorset.html" class="ch-nav__home">Home</a>
             <a href="dorset-stays.html" class="ch-nav__book-cta"><span>Book your Stay</span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 17 12" fill="none" class="button_icon" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.2443 5.03644L9.48927 1.21321L10.6935 0L16.5 5.91195L10.6783 11.55L9.50444 10.3067L13.17 6.75673H0V5.03644H13.2443Z" fill="currentColor"/></svg></a>
-            <div class="ch-navgroup">
+            <div class="ch-navswitch" role="radiogroup" aria-label="Choose a place" hidden>
+              <button class="ch-navswitch__tab" type="button" role="radio" data-place="brand" aria-checked="false">Cedar Hollow</button>
+              <button class="ch-navswitch__tab" type="button" role="radio" data-place="oxford" aria-checked="false">Oxford</button>
+              <button class="ch-navswitch__tab" type="button" role="radio" data-place="dorset" aria-checked="false">Dorset</button>
+            </div>
+            <div class="ch-navgroup ch-navgroup--place ch-navgroup--oxford">
               <p class="ch-navgroup__title">Oxfordshire</p>
               <a href="oxford.html">Cedar Hollow Oxford</a>
               <a href="oxford/facilities.html">Facilities</a>
@@ -268,7 +273,7 @@
               <a href="oxford/todo.html">On Our Doorstep</a>
               <a href="oxford/faq.html">FAQ</a>
             </div>
-            <div class="ch-navgroup">
+            <div class="ch-navgroup ch-navgroup--place ch-navgroup--dorset">
               <p class="ch-navgroup__title">Dorset</p>
               <a href="dorset.html">Cedar Hollow Dorset</a>
               <a href="dorset-stays.html">Rentals</a>
@@ -452,5 +457,6 @@
       });
     })();
   </script>
+<script src="js/navpanel-switch.js?v=20261011a" defer></script>
 </body>
 </html>
