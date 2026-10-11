@@ -8,6 +8,11 @@
   X-XSS-Protection: 1; mode=block
   Strict-Transport-Security: max-age=31536000
 
+# The team's pages (/staff/suppliers) are not for search engines. The page
+# says so too; this covers anything else ever put under /staff/.
+/staff/*
+  X-Robots-Tag: noindex, nofollow
+
 # ---- Caching (added 2026-10-01) ----
 # Without these Cloudflare sends max-age=0 on everything, so a returning
 # visitor re-checks every font, image and script on every page. Pages keep

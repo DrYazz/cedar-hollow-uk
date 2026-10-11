@@ -1,0 +1,155 @@
+{
+  "updated": "2026-10-11",
+  "source": "Moved from theoaks.me/help on 11 October 2026. Logins and passwords that page showed are deliberately not carried over: keep those in a password manager, not on a web page.",
+  "places": [
+    {
+      "id": "oxford",
+      "name": "Oxford",
+      "sections": [
+        {
+          "id": "repairs",
+          "title": "Repairs and maintenance",
+          "items": [
+            { "role": "Plumber", "name": "Mr Ollie", "phones": ["078 0264 0069"], "links": [{ "label": "Website", "url": "https://plumbersinoxford.co.uk" }] },
+            { "role": "Electrician", "name": "Lionel", "phones": ["07954 372 264"] },
+            { "role": "Drain unblocking", "name": "RT Drains Clearance Oxford", "links": [{ "label": "Website", "url": "https://www.rtdrainsclearanceoxford.co.uk/blocked-drains-and-pipes" }] },
+            { "role": "Septic tank", "name": "OPC Drain Services", "people": "Lisa", "phones": ["01235 835 999"], "emails": [{ "address": "lisa@opc.me.uk" }] },
+            { "role": "Gutters", "name": "Ben's Gutters", "note": "No contact details on file yet." },
+            { "role": "Surfacing", "name": "Stevens Surfacing", "phones": ["07787 469 146"] },
+            { "role": "Wood burners", "name": "Marlow Stoves", "phones": ["01628 290142"], "emails": [{ "address": "info@marlowstoves.co.uk" }] },
+            { "role": "Treehouse builder", "name": "Henry", "phones": ["01442 733 837"], "emails": [{ "address": "info@highlifetreehouses.co.uk" }] },
+            { "role": "Zipline", "name": "Technical Outdoor Solutions", "emails": [{ "address": "info@technicaloutdoorsolutions.co.uk" }], "links": [{ "label": "Website", "url": "https://technicaloutdoorsolutions.co.uk" }] },
+            { "role": "Garden bar", "name": "Julian Christian", "links": [{ "label": "Website", "url": "https://julianchristian.co.uk/garden-buildings/" }] }
+          ]
+        },
+        {
+          "id": "pools",
+          "title": "Pool, spa and hot tubs",
+          "items": [
+            { "role": "Pool", "name": "MW Pools", "people": "Michael", "phones": ["07900 30 60 70"], "links": [{ "label": "Website", "url": "https://www.mwpools.co.uk" }] },
+            { "role": "Pool cover", "name": "Aquatrac", "emails": [{ "address": "service@aquatrac.co.uk" }], "links": [{ "label": "Website", "url": "https://www.aquatrac.co.uk" }] },
+            { "role": "Hot tubs", "name": "Arctic Spas", "people": "Lisa", "emails": [{ "address": "lisa@arcticspas.co.uk" }] },
+            { "role": "Hot tub supplies", "name": "Arctic Outdoors", "links": [{ "label": "Website", "url": "https://arcticoutdoors.co.uk/" }] },
+            { "role": "Pumps", "name": "SI Pumps", "people": "Ryan Martin", "phones": ["01865 791 719", { "label": "Ryan", "number": "07824 344 673" }] },
+            { "role": "Koi carp and pond", "name": "Rob", "phones": ["07983 491 219"] },
+            { "role": "Spa robes", "name": "Richard Haworth", "links": [{ "label": "Website", "url": "https://www.richardhaworth.co.uk/" }] }
+          ]
+        },
+        {
+          "id": "gardens",
+          "title": "Gardens and woodland",
+          "items": [
+            { "role": "Garden design", "name": "Gardens for Good Design", "people": "Joe", "phones": ["07974 160 230"] },
+            { "role": "Tree surgeon", "name": "James", "phones": ["07870 916 668"] },
+            { "role": "Tree survey", "name": "The Whole Tree Company", "people": "Nick Dunbar", "emails": [{ "address": "wholetree@icloud.com" }], "links": [{ "label": "Website", "url": "https://www.thewholetreecompany.co.uk" }] },
+            { "role": "Gardener", "name": "Ryan", "phones": ["07900 822454"] },
+            { "role": "Pest control", "name": "JG Pest Control", "phones": ["0330 024 3342"], "emails": [{ "address": "enquiries@jgpestcontrol.co.uk" }] }
+          ]
+        },
+        {
+          "id": "tech",
+          "title": "Wi-Fi, tech and online tools",
+          "items": [
+            { "role": "Wi-Fi", "name": "Oxford IT Solutions", "people": "Rob", "phones": ["01865 364 995"], "emails": [{ "address": "hello@oxforditsolutions.com", "subject": "Wifi issue at The Oaks" }] },
+            { "role": "Control4 (lights, sound, controls)", "name": "iHav", "people": "Jason", "phones": ["07437 515 151"], "emails": [{ "address": "jason@i-hav.co.uk" }] },
+            { "role": "VR walkabout", "name": "Pete", "emails": [{ "address": "pcampbell@a1-designs.co.uk" }] },
+            { "role": "Encryption app", "name": "Nissi" },
+            { "role": "Reviews widget", "name": "Repuso", "links": [{ "label": "Website", "url": "https://repuso.com" }], "note": "Account: enquiries@cedarhollow.uk" },
+            { "role": "Video editing", "name": "Clideo", "links": [{ "label": "Website", "url": "https://clideo.com" }] },
+            { "role": "AI tools", "name": "Gooey.AI", "links": [{ "label": "Website", "url": "https://gooey.ai" }] },
+            { "role": "AI voices", "name": "ElevenLabs", "links": [{ "label": "Website", "url": "https://elevenlabs.io" }] },
+            { "role": "Photo editing", "name": "Fotor", "links": [{ "label": "Website", "url": "https://www.fotor.com" }] },
+            { "role": "Image tools", "name": "TinyWow", "links": [{ "label": "Website", "url": "https://tinywow.com/tools/image" }] },
+            { "role": "Browser automation", "name": "axiom.ai", "links": [{ "label": "Website", "url": "https://axiom.ai/" }] },
+            { "role": "Free alternatives to paid software", "name": "osalt.com", "links": [{ "label": "Website", "url": "https://www.osalt.com/" }] }
+          ]
+        },
+        {
+          "id": "supplies",
+          "title": "Supplies and shop stock",
+          "items": [
+            { "role": "BBQ gas (Calor)", "name": "Harringtons Reading", "people": "Mark", "phones": ["0118 924 2888"], "emails": [{ "address": "info@harringtonsreading.co.uk", "subject": "15 5kg Calor Gas Cannister for The Oaks" }], "links": [{ "label": "Website", "url": "https://www.harringtonsreading.co.uk/" }] },
+            { "role": "Bell tents", "name": "Bell Tent Bliss", "links": [{ "label": "Website", "url": "https://www.belltentbliss.co.uk/" }] },
+            { "role": "Botanical scents (shop)", "name": "Ella Rose, Leafology", "people": "Yvonne Eller", "phones": ["07950 777 972"], "emails": [{ "address": "hello@leafology.co.uk" }], "links": [{ "label": "Website", "url": "http://www.leafology.co.uk" }] },
+            { "role": "Wine (shop)", "name": "Chiltern Valley Winery", "people": "Donald", "phones": ["07748 843 586"], "links": [{ "label": "Website", "url": "https://www.chilternvalley.co.uk/" }] },
+            { "role": "Champagne flutes", "name": "Keep it Personal", "links": [{ "label": "Website", "url": "https://www.keepitpersonal.co.uk/" }] },
+            { "role": "Honey", "name": "Maurice Leen", "emails": [{ "address": "mo.leen321@gmail.com" }] },
+            { "role": "Stickers", "name": "Avery", "links": [{ "label": "Website", "url": "https://www.avery.co.uk/" }] },
+            { "role": "Chocolate boxes", "name": "The Cosmetic Boxes", "links": [{ "label": "Website", "url": "https://www.thecosmeticboxes.co.uk/" }], "note": "Size: 12 × 8.5 × 1.5 cm" },
+            { "role": "Golden tickets", "name": "We Love 2 Print", "links": [{ "label": "Website", "url": "https://www.welove2print.com/" }] },
+            { "role": "Personalised fun money", "name": "Personalised Fun Money", "links": [{ "label": "Website", "url": "https://www.personalisedfunmoney.co.uk/" }] },
+            { "role": "Board games", "name": "BoardGames Maker", "links": [{ "label": "Website", "url": "https://www.boardgamesmaker.com/" }] },
+            { "role": "3D printing", "name": "Surface Scan", "links": [{ "label": "Website", "url": "https://www.surfacescan.co.uk/" }] },
+            { "role": "Printing", "name": "Vistaprint", "links": [{ "label": "Website", "url": "https://www.vistaprint.co.uk" }], "note": "Account: hello@theoaks.uk" }
+          ]
+        },
+        {
+          "id": "rubbish",
+          "title": "Rubbish and waste",
+          "items": [
+            { "role": "Rubbish collection", "name": "ClearABee", "links": [{ "label": "Website", "url": "https://www.clearabee.co.uk" }] },
+            { "role": "Rubbish collection", "name": "AnyJunk", "links": [{ "label": "Website", "url": "https://www.anyjunk.co.uk/" }, { "label": "Customer portal", "url": "https://portal.anyjunk.co.uk/login" }] },
+            { "role": "Rubbish collection", "name": "Litta", "links": [{ "label": "Website", "url": "https://litta.co.uk" }] }
+          ]
+        },
+        {
+          "id": "admin",
+          "title": "Insurance, energy and admin",
+          "items": [
+            { "role": "Insurance (The Oaks)", "name": "Sutton Winson", "people": "Harry Akers or Cara Stutely" },
+            { "role": "Insurance (Oak Apples)", "name": "Flint Insurance", "people": "Rachel Ewing", "emails": [{ "address": "rachelewing@flintinsurance.co.uk" }] },
+            { "role": "Mortgage broker", "name": "Charles Cameron", "people": "Stavros Georgiou", "emails": [{ "address": "stavros.georgiou@ccameron.co.uk" }] },
+            { "role": "Planning consultant", "name": "JPPC", "people": "Henry Venners", "phones": ["01865 326 823"], "emails": [{ "address": "henry.venners@jppc.co.uk" }] },
+            { "role": "Energy", "name": "OVO Energy", "links": [{ "label": "Website", "url": "https://www.ovoenergy.com/" }], "note": "Account: hello@theoaks.uk" },
+            { "role": "AA and VisitEngland ratings", "name": "Rated Trips member hub", "links": [{ "label": "Sign in", "url": "https://business.ratedtrips.com/user/member-login" }] },
+            { "role": "Deals", "name": "Wowcher merchant area", "links": [{ "label": "Sign in", "url": "https://merchant-area.wowcher.co.uk/" }], "note": "Account: hello@theoaks.uk" },
+            { "role": "Carbon offsetting", "name": "Carbon Footprint", "links": [{ "label": "Website", "url": "https://www.carbonfootprint.com" }] },
+            { "role": "Charity giving", "name": "Charities Trust (SponsorMe)", "links": [{ "label": "Sign in", "url": "https://www.sponsorme.co.uk/login.aspx?ReturnUrl=/my-giving-account.aspx" }] }
+          ]
+        },
+        {
+          "id": "vehicles",
+          "title": "Buses, heaters and telephone boxes",
+          "items": [
+            { "role": "Wet to electric heater conversion", "name": "Cast Iron Radiators", "people": "Laura Payne", "phones": ["01723 339986"], "emails": [{ "address": "laurapayne@castironradiators.com" }] },
+            { "role": "Bus restoration", "name": "The Revivist", "links": [{ "label": "Website", "url": "https://therevivist.com/services/" }] },
+            { "role": "Bus restoration", "name": "Historic Vehicle Restoration", "people": "Seb Marshall", "emails": [{ "address": "sebmarshall@hotmail.co.uk" }], "links": [{ "label": "Website", "url": "http://www.historicvehiclerestoration.com/" }] },
+            { "role": "Bus advice", "name": "Oxford Bus Museum", "note": "No contact details on file yet." },
+            { "role": "Telephone box parts", "name": "X2Connect", "links": [{ "label": "Website", "url": "https://www.x2connect.com/" }], "note": "Home of the British K6 red telephone box." },
+            { "role": "Car valeting", "name": "Gary Mason", "phones": ["07775 957044"] }
+          ]
+        },
+        {
+          "id": "creative",
+          "title": "Design and creative",
+          "items": [
+            { "role": "Map editing", "name": "Yopi Kwb", "links": [{ "label": "Fiverr", "url": "https://www.fiverr.com/yop_kw" }], "note": "@yop_kw, @anna_ioannidou" },
+            { "role": "Music distribution", "name": "Ditto Music", "links": [{ "label": "Website", "url": "https://dittomusic.com" }], "note": "Account: hello@theoaks.uk" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dorset",
+      "name": "Dorset",
+      "sections": [
+        {
+          "id": "legal",
+          "title": "Legal and property",
+          "items": [
+            { "role": "Property solicitor", "name": "Nexa Law", "people": "Simon Robinson", "emails": [{ "address": "simon.robinson@nexa.law" }] },
+            { "role": "Solicitors", "name": "Lawbox Legal", "people": "Natalie Murray and Assel", "emails": [{ "label": "Natalie", "address": "natalie@lawboxlegal.com" }, { "label": "Assel", "address": "assel@lawboxlegal.com" }] },
+            { "role": "Surveyors", "name": "Croft Surveyors", "people": "Taunton office", "note": "No contact details on file yet." }
+          ]
+        },
+        {
+          "id": "design",
+          "title": "Design",
+          "items": [
+            { "role": "Designers", "name": "Monopoly Studios", "links": [{ "label": "Website", "url": "https://www.monopolystudios.co.uk/" }] }
+          ]
+        }
+      ]
+    }
+  ]
+}
