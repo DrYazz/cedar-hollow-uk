@@ -1,0 +1,183 @@
+/* ---------------------------------------------------------------------------
+   Cedar Hollow -- the nav panel, one shape everywhere.
+
+   Before this, the panel was a different shape on each of the three sites: the
+   core pages listed Cedar Hollow, Oxfordshire and Dorset as three equal
+   columns, while an Oxford page dropped the Dorset group and a Dorset page
+   dropped the Oxfordshire one. So the menu changed under you as you moved
+   between the sites, and from a sub-site there was no way into the other place
+   at all except the switcher in the logo.
+
+   Putting all three groups on every page in a fixed order does not work
+   either: whichever place is listed second reads as the lesser one, and on a
+   phone, where the groups stack, it sits below the fold. Reordering by which
+   site you are on fixes that and breaks the consistency.
+
+   This is the way out of both: the two places sit SIDE BY SIDE in two columns,
+   on the same top edge, so neither is above or before the other, at every
+   width including a phone. Cedar Hollow's own links, which belong to no place,
+   run as one row across the foot. The panel is then identical on all 64 pages,
+   markup and layout, and nothing has to be conditional.
+
+   WHY A FOURTH STYLESHEET. The panel is drawn in three places already --
+   css/navpanel.css (12 core pages), css/subsite-nav.css (22 root-level
+   sub-site pages) and oxford/css/site.css (30 pages, scoped .is-dropdown) --
+   and all 64 pages load exactly one of them. Restating this layer in all three
+   would be three copies to keep in step. This file is linked last in the head
+   on every one of those pages instead, and every rule is written against
+   #ch-nav-menu.is-places: an id plus a class outranks anything the three
+   files have, and the .is-places hook means a page that was not converted is
+   untouched. The groups, the open/close script and the panel's own chrome --
+   the green card, its corners, where it hangs off the burger -- are all left
+   exactly as they were.
+
+   See [[bump-css-cache-key-on-css-changes]]: this file's ?v= is stamped on all
+   64 pages.
+   --------------------------------------------------------------------------- */
+
+/* --- Both widths --------------------------------------------------------- */
+
+/* The place columns sit on one row, so the phone rule that spaced stacked
+   groups apart would now push the Dorset column down out of line. The brand
+   row sets its own spacing below. */
+#ch-nav-menu.is-places .ch-navgroup + .ch-navgroup { margin-top: 0; }
+
+/* The core pages' nav bar is text-align:right and the panel inherits it, so
+   the two columns ran to their right edges while the brand row below them,
+   being a flex box, stayed left. Two of the three stylesheets already say
+   left here; this is the third. */
+#ch-nav-menu.is-places { text-align: left; }
+
+/* Cedar Hollow across the foot: the title on its own line, then the links in
+   one wrapped row rather than a column. */
+#ch-nav-menu.is-places .ch-navgroup--brand {
+  grid-column: 1 / -1;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: .6rem;
+  row-gap: 0;
+  border-top: 1px solid #f1ecdb2e;
+  margin-top: .35rem;
+  padding-top: .9rem;
+}
+#ch-nav-menu.is-places .ch-navgroup--brand .ch-navgroup__title {
+  flex: 0 0 100%;
+  margin-bottom: .3rem;
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+#ch-nav-menu.is-places .ch-navgroup--brand a { display: inline-block; }
+
+/* The separators between them. ::after rather than ::before, because the
+   aria-current dot is already a ::before on these same links. A link that
+   begins a new row leaves its predecessor's dot at the end of the row above,
+   which is how a wrapped list of this kind normally reads. The last link has
+   none, and no brand link opens in a new tab, so this never collides with the
+   external-link arrow. */
+#ch-nav-menu.is-places .ch-navgroup--brand a:not(:last-child)::after {
+  content: "\00b7";
+  margin-left: .6rem;
+  color: #f1ecdb70;
+}
+
+/* --- Desktop ------------------------------------------------------------- */
+
+@media screen and (min-width: 768px) {
+  /* Exactly two columns, so the two places can never reflow into one above the
+     other, and a definite width so the brand row wraps inside the panel
+     instead of setting the panel's width. 35.625rem is the 570px the panel
+     already measured with three columns, so it opens at the width it did. */
+  #ch-nav-menu.is-places:not([hidden]) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 35.625rem;
+    max-width: calc(100vw - 4rem);
+  }
+
+  /* Row 1 is the panel's own top row: a way back, and a way to book. Both are
+     stated explicitly because each reached that row only by being the panel's
+     first child, and the groups now follow them. */
+  #ch-nav-menu.is-places:not([hidden]) .ch-nav__home {
+    grid-row: 1;
+    grid-column: 1 / -1;
+    justify-self: start;
+    align-self: center;
+    margin-bottom: .75rem;
+  }
+  #ch-nav-menu.is-places:not([hidden]) .ch-nav__book-cta {
+    grid-row: 1;
+    grid-column: 1 / -1;
+    justify-self: end;
+  }
+}
+
+/* --- Phones -------------------------------------------------------------- */
+
+/* The full-screen overlay stays; only what is inside it changes. It is
+   display:block below 768px on all three stylesheets, which cannot put the two
+   places beside each other, so the overlay becomes a two-column grid as well.
+   align-content keeps the rows at their own heights rather than stretching
+   them down a tall screen. */
+@media screen and (max-width: 767px) {
+  #ch-nav-menu.is-places:not([hidden]) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 1.25rem;
+    row-gap: 1.1rem;
+    align-content: start;
+  }
+
+  #ch-nav-menu.is-places:not([hidden]) .ch-nav__home,
+  #ch-nav-menu.is-places:not([hidden]) .ch-nav__book-cta {
+    grid-column: 1 / -1;
+  }
+
+  /* Home sits outside the groups, so the 44px below does not reach it. It was
+     37px, the last link in the panel still under the minimum. */
+  #ch-nav-menu.is-places:not([hidden]) .ch-nav__home {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    width: fit-content;
+  }
+
+  /* Two columns at 390px leave 157px each, and the longest label, "Cedar
+     Hollow Oxford", is 135px at this size. The links were 36-37px tall, under
+     the 44px a thumb needs; a column this narrow has the room to give them it,
+     so they get it here. A label that does wrap stays centred in its row. */
+  #ch-nav-menu.is-places .ch-navgroup a {
+    display: flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding: .1rem 0;
+    font-size: .9375rem;
+    line-height: 1.3;
+  }
+  #ch-nav-menu.is-places .ch-navgroup--brand a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    font-size: .9375rem;
+  }
+  #ch-nav-menu.is-places .ch-navgroup--brand {
+    margin-top: .25rem;
+    padding-top: .75rem;
+  }
+}
+
+/* A 320px screen leaves 122px a column, which "Cedar Hollow Oxford" overruns
+   at 15px. At 13px it is 125px and the gutters come in to clear it. The
+   breakpoint is 352px rather than 360 so that a 360px Android, the commonest
+   width after 390, keeps the larger type: it has 142px a column there, which
+   the longest label clears. */
+@media screen and (max-width: 22rem) {
+  #ch-nav-menu.is-places:not([hidden]) {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+    column-gap: .9rem;
+  }
+  #ch-nav-menu.is-places .ch-navgroup a,
+  #ch-nav-menu.is-places .ch-navgroup--brand a {
+    font-size: .8125rem;
+  }
+}
