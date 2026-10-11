@@ -9,6 +9,11 @@
  * Donate first; the year's scans month by month; and where else the visits
  * went from the honey page -- pages of the site, and other links off it. Drawn the first time the tab is shown, and again every five
  * minutes while it is in view.
+ *
+ * And honey sold, from MenuLab, by /wdtcf/honey-sales: the last twelve
+ * months month by month and the last seven days day by day, each column
+ * the Honesty Box (table 10, amber) under every other table (blue), with
+ * the total above it and the exact figures in a table beneath.
  */
 (function () {
   "use strict";
@@ -17,6 +22,9 @@
     return document.getElementById(id);
   };
   var number = new Intl.NumberFormat("en-GB");
+  var money = new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" });
+  var pounds = new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP", maximumFractionDigits: 0 });
+  var MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   var MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   var WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   var EVERY = 5 * 60 * 1000;
@@ -92,6 +100,141 @@
       .catch(function (err) {
         $("honey-stats").replaceChildren(el("p", err.message || "The honey figures could not be read.", "note"));
       });
+    loadSales();
+  }
+
+  // ---- honey sold, from MenuLab ------------------------------------------------
+  // Its own request, so the scans still draw if MenuLab cannot be reached.
+  function loadSales() {
+    fetch("/wdtcf/honey-sales", { credentials: "same-origin", cache: "no-store" })
+      .then(function (res) {
+        return res.json().catch(function () { return {}; }).then(function (d) {
+          if (!res.ok || !d.ok) throw new Error(d.error || "The honey sales could not be read (" + res.status + ").");
+          return d;
+        });
+      })
+      .then(drawSales)
+      .catch(function (err) {
+        var msg = err.message || "The honey sales could not be read.";
+        ["honey-sales-months", "honey-sales-days"].forEach(function (id) {
+          $(id).replaceChildren(el("p", msg, "note"));
+        });
+        ["honey-sales-year-sum", "honey-sales-week-sum", "honey-sales-months-table", "honey-sales-days-table", "honey-sales-note"].forEach(function (id) {
+          $(id).replaceChildren();
+        });
+      });
+  }
+
+  function sold(units) {
+    return number.format(units) + " sold";
+  }
+
+  // A row is [key, Honesty Box units, Honesty Box pence, all units, all pence].
+  function total(rows) {
+    return rows.reduce(function (t, r) {
+      return [t[0] + r[1], t[1] + r[2], t[2] + r[3], t[3] + r[4]];
+    }, [0, 0, 0, 0]);
+  }
+
+  function summary(rows, span) {
+    var t = total(rows);
+    return money.format(t[3] / 100) + " of honey (" + sold(t[2]) + ") at all tables " + span + ", " +
+      money.format(t[1] / 100) + " of it (" + sold(t[0]) + ") at the Honesty Box.";
+  }
+
+  // Columns like the scan charts', each a stack: the Honesty Box at the foot
+  // in amber, every other table above it in blue, a 2px gap between, and the
+  // total over the top. A quiet day or month says £0 rather than leaving a gap.
+  function salesChart(rows, short, long, week) {
+    var most = Math.max.apply(null, rows.map(function (r) { return r[4]; }).concat([0])) || 1;
+    var chart = el("div", null, "honey-chart sales-chart" + (week ? " is-week" : ""));
+    chart.setAttribute("role", "img");
+    chart.setAttribute("aria-label", "Honey sales, Honesty Box and all tables: " + rows.map(function (r) {
+      return long(r[0]) + " " + money.format(r[4] / 100) + ", Honesty Box " + money.format(r[2] / 100);
+    }).join("; "));
+    rows.forEach(function (r) {
+      var all = Math.max(0, r[4]);
+      var box = Math.min(all, Math.max(0, r[2]));
+      var col = el("div", null, "honey-col");
+      col.setAttribute("aria-hidden", "true");
+      col.title = long(r[0]) + ": " + money.format(r[4] / 100) + " (" + sold(r[3]) + ") at all tables, " +
+        money.format(r[2] / 100) + " (" + sold(r[1]) + ") at the Honesty Box";
+      col.appendChild(el("span", pounds.format(r[4] / 100), "honey-n"));
+      var stack = el("span", null, "sales-stack");
+      stack.style.height = (all ? Math.max(2, (all / most) * 100) : 0) + "%";
+      if (all - box > 0) {
+        var rest = el("span", null, "sales-seg is-rest");
+        rest.style.flexGrow = String(all - box);
+        stack.appendChild(rest);
+      }
+      if (box > 0) {
+        var hb = el("span", null, "sales-seg is-box");
+        hb.style.flexGrow = String(box);
+        stack.appendChild(hb);
+      }
+      col.appendChild(stack);
+      col.appendChild(el("span", short(r[0]), "honey-m"));
+      chart.appendChild(col);
+    });
+    return chart;
+  }
+
+  function legend() {
+    var key = el("div", null, "sales-legend");
+    key.setAttribute("aria-hidden", "true");
+    [["is-box", "Honesty Box (table 10)"], ["is-rest", "Every other table"]].forEach(function (k) {
+      var item = el("span");
+      item.appendChild(el("i", null, k[0]));
+      item.appendChild(document.createTextNode(k[1]));
+      key.appendChild(item);
+    });
+    return key;
+  }
+
+  function salesTable(rows, head, long) {
+    var table = el("table");
+    table.innerHTML = "<thead><tr><th>" + head + '</th><th class="n">Honesty Box</th><th class="n">All tables</th></tr></thead>';
+    var body = el("tbody");
+    rows.concat([["Total"].concat(total(rows))]).forEach(function (r, i) {
+      var last = i === rows.length;
+      var tr = el("tr", null, last ? "sales-total" : "");
+      tr.appendChild(el("td", last ? "Total" : long(r[0])));
+      [[r[2], r[1]], [r[4], r[3]]].forEach(function (c) {
+        var cell = el("td", money.format(c[0] / 100), "n");
+        cell.appendChild(el("small", sold(c[1])));
+        tr.appendChild(cell);
+      });
+      body.appendChild(tr);
+    });
+    table.appendChild(body);
+    return table;
+  }
+
+  function drawSales(d) {
+    var monthShort = function (k) { return MONTHS[Number(k.slice(5, 7)) - 1]; };
+    var monthLong = function (k) {
+      return MONTH_NAMES[Number(k.slice(5, 7)) - 1] + " " + k.slice(0, 4) + (k === d.today.slice(0, 7) ? " (so far)" : "");
+    };
+    var dayShort = function (k) {
+      var dt = new Date(k + "T00:00:00Z");
+      return WEEKDAYS[dt.getUTCDay()] + " " + dt.getUTCDate();
+    };
+    var dayLong = function (k) {
+      return new Date(k + "T00:00:00Z").toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" }) +
+        (k === d.today ? " (so far)" : "");
+    };
+    $("honey-sales-year-sum").textContent = summary(d.months, "over the last 12 months");
+    $("honey-sales-months").replaceChildren(legend(), salesChart(d.months, monthShort, monthLong, false));
+    $("honey-sales-months").appendChild(el("p", "The last month, " + MONTH_NAMES[Number(d.today.slice(5, 7)) - 1] + ", is the month so far.", "note"));
+    $("honey-sales-months-table").replaceChildren(salesTable(d.months, "Month", monthLong));
+    $("honey-sales-week-sum").textContent = summary(d.days, "in the last 7 days");
+    $("honey-sales-days").replaceChildren(legend(), salesChart(d.days, dayShort, dayLong, true));
+    $("honey-sales-days").appendChild(el("p", "The last day is today so far.", "note"));
+    $("honey-sales-days-table").replaceChildren(salesTable(d.days, "Day", dayLong));
+    $("honey-sales-note").textContent =
+      "From MenuLab: net sales, with refunds taken off and cancelled orders left out, on the venue\u2019s own trading days. " +
+      "Honey is every product with \u201choney\u201d in its name, and Hive Mind Drink" +
+      (d.products && d.products.length ? "; sold in these months: " + d.products.join(", ") + "." : ".");
   }
 
   function draw(d) {
