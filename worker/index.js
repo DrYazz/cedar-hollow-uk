@@ -20,6 +20,8 @@
  * a subdomain Resend verifies on its own.
  */
 
+import { honeySales } from "./honey-sales.js";
+
 const CONTACT_PATH = "/api/contact";
 const RESEND_ENDPOINT = "https://api.resend.com/emails";
 const MAX_BODY_BYTES = 64 * 1024; // parity with the old express.json({ limit: "64kb" })
@@ -289,6 +291,10 @@ const BOOKING_KEY = "booking:1:";
  *
  * Kept in VISITS_DB's honey table as a count per London day, kind and
  * target, and nothing else. GET /wdtcf/honey is what the tab draws.
+ *
+ * GET /wdtcf/honey-sales is the tab's other half: honey sold, from MenuLab's
+ * sales API, over the last twelve months and the last seven days, at the
+ * Honesty Box and at every table together. See worker/honey-sales.js.
  */
 const HONEY_PATH = "/api/honey";
 const HONEY_KINDS = ["scan", "on", "press", "next", "out"];
@@ -835,6 +841,10 @@ async function visitorMap(request, url, env, ctx) {
     res = await mapData(url, env);
   } else if (url.pathname === MAP_PATH + "/honey") {
     res = await honeyData(url, env);
+  } else if (url.pathname === MAP_PATH + "/honey-sales") {
+    const sales = await honeySales(env, isoDate(londonDate(Date.now())));
+    const { status, ...body } = sales;
+    res = json(body, sales.ok ? 200 : status || 502);
   } else if (url.pathname === MAP_PATH + "/report") {
     res = await liveReport(url, env, ctx);
   } else {
