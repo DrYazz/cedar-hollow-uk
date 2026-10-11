@@ -38,12 +38,37 @@
   padding: 3.5rem 0 0;
 }
 
-/* Every section the bar can open onto is cream like the band, and brings its
-   own space above it, except Familiar Faces, which is dark green. With only
-   that one showing, the band needs space of its own underneath, or the
-   pressed button sits right on the edge of the green. */
+/* Familiar Faces on its own. Every other section the bar opens onto is cream
+   like the band, and its heading sits one section's padding below the buttons
+   (5rem; 4rem under 992px; 3rem under 768px). Familiar Faces is dark green, so
+   the band keeps a strip of cream under the buttons, or the pressed button sits
+   on the edge of the green; and the green gives up that same strip above its
+   heading, which so lands where the others' headings do, and below the
+   photographs, so the green is no deeper at the foot than at the head. */
 .ch-press__filters:has([data-filter="faces"][aria-pressed="true"]) {
-  padding-bottom: 3rem;
+  padding-bottom: 1.5rem;
+}
+body:has(.ch-press__filters [data-filter="faces"][aria-pressed="true"]) #familiar-faces > .padding-section-medium {
+  padding-top: 3.5rem;
+  padding-bottom: 3.5rem;
+}
+@media screen and (max-width: 991px) {
+  .ch-press__filters:has([data-filter="faces"][aria-pressed="true"]) {
+    padding-bottom: 1.25rem;
+  }
+  body:has(.ch-press__filters [data-filter="faces"][aria-pressed="true"]) #familiar-faces > .padding-section-medium {
+    padding-top: 2.75rem;
+    padding-bottom: 2.75rem;
+  }
+}
+@media screen and (max-width: 767px) {
+  .ch-press__filters:has([data-filter="faces"][aria-pressed="true"]) {
+    padding-bottom: 1rem;
+  }
+  body:has(.ch-press__filters [data-filter="faces"][aria-pressed="true"]) #familiar-faces > .padding-section-medium {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
 }
 
 .ch-press__filter {
