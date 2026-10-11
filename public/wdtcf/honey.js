@@ -14,7 +14,8 @@
  * months month by month and the last seven days day by day, each column
  * the Honesty Box (table 10, amber) under every other table (blue), with
  * the total above it and the exact figures in a table beneath. The list
- * above them picks the item: all the honey together, or any one item.
+ * above them picks the item: the jars of Summer, Spring and Creamed honey
+ * together, which it opens on; all the honey together; or any one item.
  */
 (function () {
   "use strict";
@@ -29,7 +30,11 @@
   var MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   var WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   var EVERY = 5 * 60 * 1000;
-  var state = { year: null, at: 0, item: "", sales: null };
+  // The list opens on the jars: every item whose name says Summer, Spring or
+  // Creamed honey, under any of the names they have been sold under.
+  var JARS = "jars";
+  var IS_JAR = /\b(summer|spring|creamed) honey\b/i;
+  var state = { year: null, at: 0, item: JARS, sales: null };
 
   // Where a visit went, in words: a link by its host and path, a page by its
   // name where it has an obvious one, else its address.
@@ -136,6 +141,17 @@
   }
 
   // A row is [key, Honesty Box units, Honesty Box pence, all units, all pence].
+  // Several items' months (or days) added together, row by row.
+  function add(items, part) {
+    var out = state.sales[part].map(function (r) { return [r[0], 0, 0, 0, 0]; });
+    items.forEach(function (it) {
+      it[part].forEach(function (r, i) {
+        for (var c = 1; c < 5; c++) out[i][c] += r[c];
+      });
+    });
+    return out;
+  }
+
   function total(rows) {
     return rows.reduce(function (t, r) {
       return [t[0] + r[1], t[1] + r[2], t[2] + r[3], t[3] + r[4]];
@@ -222,9 +238,9 @@
   function pickItem(d) {
     var pick = $("honey-sales-item");
     var names = (d.items || []).map(function (i) { return i.name; });
-    if (state.item && names.indexOf(state.item) < 0) state.item = "";
+    if (state.item && state.item !== JARS && names.indexOf(state.item) < 0) state.item = JARS;
     pick.replaceChildren();
-    [["", "All honey products"]].concat(names.map(function (n) { return [n, n]; })).forEach(function (o) {
+    [[JARS, "Summer, Spring and Creamed honey"], ["", "All honey products"]].concat(names.map(function (n) { return [n, n]; })).forEach(function (o) {
       var opt = el("option", o[1]);
       opt.value = o[0];
       if (o[0] === state.item) opt.selected = true;
@@ -244,8 +260,9 @@
     if (!d) return;
     var item = null;
     (d.items || []).forEach(function (i) { if (i.name === state.item) item = i; });
-    var rows = item || d;
-    var what = item ? item.name : "honey";
+    var jars = (d.items || []).filter(function (i) { return IS_JAR.test(i.name); });
+    var rows = state.item === JARS ? { months: add(jars, "months"), days: add(jars, "days") } : item || d;
+    var what = state.item === JARS ? "Summer, Spring and Creamed honey" : item ? item.name : "honey";
     var monthShort = function (k) { return MONTHS[Number(k.slice(5, 7)) - 1]; };
     var monthLong = function (k) {
       return MONTH_NAMES[Number(k.slice(5, 7)) - 1] + " " + k.slice(0, 4) + (k === d.today.slice(0, 7) ? " (so far)" : "");
@@ -269,7 +286,8 @@
     $("honey-sales-note").textContent =
       "From MenuLab: net sales, with refunds taken off and cancelled orders left out, on the venue\u2019s own trading days. " +
       "Honey is every product with \u201choney\u201d in its name, and Hive Mind Drink" +
-      (d.products && d.products.length ? "; sold in these months: " + d.products.join(", ") + "." : ".");
+      (d.products && d.products.length ? "; sold in these months: " + d.products.join(", ") + "." : ".") +
+      (state.item === JARS ? " Summer, Spring and Creamed honey is " + (jars.length ? jars.map(function (i) { return i.name; }).join(", ") : "none of them, in these months") + "." : "");
   }
 
   function draw(d) {
