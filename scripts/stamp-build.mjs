@@ -22,9 +22,16 @@ function git(args) {
   }
 }
 
-const ci = Boolean(process.env.WORKERS_CI_COMMIT_SHA);
+// A build started by the deploy hook -- site-health's retry after a failed
+// build -- is given the branch name in WORKERS_CI_COMMIT_SHA, not a commit.
+// Stamped as is, build.json said "main" (12 October 2026), which never equals
+// main's commit, so the health check took the site for stale, rebuilt it
+// every run and would have raised an alert. The checkout's own HEAD is the
+// commit such a build is building.
+const ciSha = process.env.WORKERS_CI_COMMIT_SHA || "";
+const ci = Boolean(ciSha);
 const stamp = {
-  commit: process.env.WORKERS_CI_COMMIT_SHA || git("rev-parse HEAD") || "unknown",
+  commit: (/^[0-9a-f]{40}$/i.test(ciSha) ? ciSha : git("rev-parse HEAD")) || ciSha || "unknown",
   branch: process.env.WORKERS_CI_BRANCH || git("rev-parse --abbrev-ref HEAD") || "unknown",
   source: ci ? "workers-builds" : "manual",
   built: new Date().toISOString(),
