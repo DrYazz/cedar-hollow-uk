@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-11",
+  "updated": "2026-10-12",
   "source": "Moved from theoaks.me/help on 11 October 2026. Logins and passwords that page showed are deliberately not carried over: keep those in a password manager, not on a web page.",
   "places": [
     {
@@ -143,9 +143,10 @@
         },
         {
           "id": "design",
-          "title": "Design",
+          "title": "Design and creative",
           "items": [
-            { "role": "Designers", "name": "Monopoly Studios", "links": [{ "label": "Website", "url": "https://www.monopolystudios.co.uk/" }] }
+            { "role": "Designers", "name": "Monopoly Studios", "links": [{ "label": "Website", "url": "https://www.monopolystudios.co.uk/" }] },
+            { "role": "Drone footage", "name": "Jay Roberts", "emails": [{ "address": "jaythomasroberts2020@outlook.com" }] }
           ]
         }
       ]
