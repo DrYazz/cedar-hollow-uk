@@ -21,6 +21,7 @@
  */
 
 import { honeySales } from "./honey-sales.js";
+import { isStaffGuide, staffGuide } from "./staff.js";
 
 const CONTACT_PATH = "/api/contact";
 const RESEND_ENDPOINT = "https://api.resend.com/emails";
@@ -341,6 +342,12 @@ export default {
       return Response.redirect(new URL(alias, url).toString(), 301);
     }
 
+
+    // The staff guide, behind its password: see worker/staff.js. Before the
+    // videos below, so its own video is never served without it.
+    if (isStaffGuide(url.pathname)) {
+      return staffGuide(request, url, env);
+    }
 
     // Sent here first by run_worker_first in wrangler.toml.
     if (url.pathname.endsWith(".mp4")) {
