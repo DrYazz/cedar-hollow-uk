@@ -43,6 +43,12 @@ const OLD_SITE = "https://www.theoaks.uk"; // Wix's canonical host
  * Wix's Vouchers page, never renamed -- goes to the Oxford retreats, since
  * vouchers are due to return as part of booking a stay.
  *
+ * After those, from /home on: older pages that had left Wix's sitemaps by the
+ * move but that the Internet Archive, search engines or press articles still
+ * hold (The Tab links /rentals, for one). Each goes to its nearest page here
+ * rather than the Oxford home page, and being listed puts it in the old-URL
+ * sitemap below, so Google revisits it and sees where it went.
+ *
  * Strict JSON (double quotes, no trailing comma), so the check script can
  * read it straight out of this file.
  */
@@ -77,9 +83,9 @@ const MAP = {
   "/availability": "/oxford-stays.html",
   "/influencers": "/influencers.html",
   "/sustainability": "/sustainability.html#oxford",
-  "/reviews": "/oxford-reviews.html",
+  "/reviews": "/reviews.html",
   "/working": "/careers.html",
-  "/events": "/oxford/celebrations.html",
+  "/events": "/celebrations.html",
   "/terms": "/terms-of-service.html",
   "/privacy": "/privacy-policy.html",
   "/klevio": "/oxford/faq.html",
@@ -89,7 +95,28 @@ const MAP = {
   "/vr2": "/oxford.html",
   "/copy-of-map": "/oxford.html",
   "/product-page/cedar-hollow-honey": "/oxford/honey.html",
-  "/product-page/chocolate-bonbons-4-pieces": "/oxford/chocolate.html"
+  "/product-page/chocolate-bonbons-4-pieces": "/oxford/chocolate.html",
+  "/home": "/oxford.html",
+  "/rentals": "/oxford-stays.html",
+  "/rentals2": "/oxford-stays.html",
+  "/copy-of-rentals": "/oxford-stays.html",
+  "/treehouse": "/oxford-stays.html",
+  "/book": "/oxford-stays.html",
+  "/book-a-room": "/oxford-stays.html",
+  "/booking-engine": "/oxford-stays.html",
+  "/honeybees": "/oxford/bees.html",
+  "/hornets": "/oxford/wasps.html",
+  "/magician": "/oxford/experiences.html",
+  "/instructions": "/oxford/faq.html",
+  "/volunteering": "/careers.html",
+  "/contact-8": "/careers.html",
+  "/copy-of-our-story": "/oxford/schoolgroups.html",
+  "/copy-of-sustainability": "/sustainability.html#oxford",
+  "/copy-of-things-to-do": "/oxford/wellness.html",
+  "/blank-1": "/reviews.html",
+  "/product-page/100-voucher": "/oxford-stays.html",
+  "/product-page/250-voucher": "/oxford-stays.html",
+  "/product-page/500-voucher": "/oxford-stays.html"
 };
 
 // Anything not in the map -- a Wix system page, a mistyped link -- lands on

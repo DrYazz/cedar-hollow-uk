@@ -34,7 +34,9 @@ import urllib.parse
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 WORKER = os.path.join(ROOT, "theoaks-redirect", "index.js")
-LIVE = ["https://www.theoaks.uk", "https://theoaks.uk", "http://www.theoaks.uk", "http://theoaks.uk"]
+# theoaks.co.uk showed the same Wix site and is answered by the same Worker.
+LIVE = ["https://www.theoaks.uk", "https://theoaks.uk", "http://www.theoaks.uk", "http://theoaks.uk",
+        "https://www.theoaks.co.uk", "https://theoaks.co.uk"]
 UA = "Mozilla/5.0 (compatible; Cedar Hollow redirect check)"
 
 
